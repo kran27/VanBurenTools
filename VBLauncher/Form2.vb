@@ -9,6 +9,9 @@
         If line(27) = "enable wireframe = 1" Then
             CheckBox3.CheckState = 1
         End If
+        If line(25) = "enable startup movies = 1" Then
+            CheckBox4.CheckState = 1
+        End If
     End Sub
     Private Sub FemaleFix(sender As Object, e As EventArgs) Handles Button1.Click
         If CheckBox1.Checked = True Then
@@ -30,6 +33,13 @@
             System.IO.File.WriteAllLines(ifdir, line)
         Else
             line(27) = "enable wireframe = 0"
+            System.IO.File.WriteAllLines(ifdir, line)
+        End If
+        If CheckBox4.Checked = True Then
+            line(25) = "enable startup movies = 1"
+            System.IO.File.WriteAllLines(ifdir, line)
+        Else
+            line(25) = "enable startup movies = 0"
             System.IO.File.WriteAllLines(ifdir, line)
         End If
         Hide()

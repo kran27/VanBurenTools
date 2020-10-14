@@ -28,6 +28,7 @@ Partial Class Form2
         Me.Button2 = New System.Windows.Forms.Button()
         Me.CheckBox2 = New System.Windows.Forms.CheckBox()
         Me.CheckBox3 = New System.Windows.Forms.CheckBox()
+        Me.CheckBox4 = New System.Windows.Forms.CheckBox()
         Me.SuspendLayout()
         '
         'Button1
@@ -79,6 +80,16 @@ Partial Class Form2
         Me.CheckBox3.Text = "Wireframe View"
         Me.CheckBox3.UseVisualStyleBackColor = True
         '
+        'CheckBox4
+        '
+        Me.CheckBox4.AutoSize = True
+        Me.CheckBox4.Location = New System.Drawing.Point(12, 82)
+        Me.CheckBox4.Name = "CheckBox4"
+        Me.CheckBox4.Size = New System.Drawing.Size(131, 17)
+        Me.CheckBox4.TabIndex = 5
+        Me.CheckBox4.Text = "Enable Startup Videos"
+        Me.CheckBox4.UseVisualStyleBackColor = True
+        '
         'Form2
         '
         Me.AcceptButton = Me.Button1
@@ -86,6 +97,7 @@ Partial Class Form2
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.CancelButton = Me.Button2
         Me.ClientSize = New System.Drawing.Size(271, 342)
+        Me.Controls.Add(Me.CheckBox4)
         Me.Controls.Add(Me.CheckBox3)
         Me.Controls.Add(Me.CheckBox2)
         Me.Controls.Add(Me.Button2)
@@ -108,4 +120,5 @@ Partial Class Form2
     Friend WithEvents Button2 As Button
     Friend WithEvents CheckBox2 As CheckBox
     Friend WithEvents CheckBox3 As CheckBox
+    Friend WithEvents CheckBox4 As CheckBox
 End Class
