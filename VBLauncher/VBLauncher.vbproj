@@ -132,7 +132,6 @@
     </None>
     <None Include="App.config" />
     <None Include="Resources\PCFemale" />
-    <None Include="Resources\PCFemale.CRT" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\BG.png" />

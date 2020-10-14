@@ -28,14 +28,14 @@ Partial Class Form2
         Me.Button2 = New System.Windows.Forms.Button()
         Me.CheckBox2 = New System.Windows.Forms.CheckBox()
         Me.CheckBox3 = New System.Windows.Forms.CheckBox()
-        Me.CheckBox4 = New System.Windows.Forms.CheckBox()
+        Me.Button3 = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'Button1
         '
-        Me.Button1.Location = New System.Drawing.Point(184, 307)
+        Me.Button1.Location = New System.Drawing.Point(199, 307)
         Me.Button1.Name = "Button1"
-        Me.Button1.Size = New System.Drawing.Size(75, 23)
+        Me.Button1.Size = New System.Drawing.Size(60, 23)
         Me.Button1.TabIndex = 0
         Me.Button1.Text = "Apply"
         Me.Button1.UseVisualStyleBackColor = True
@@ -53,11 +53,11 @@ Partial Class Form2
         'Button2
         '
         Me.Button2.DialogResult = System.Windows.Forms.DialogResult.Cancel
-        Me.Button2.Location = New System.Drawing.Point(103, 307)
+        Me.Button2.Location = New System.Drawing.Point(133, 307)
         Me.Button2.Name = "Button2"
-        Me.Button2.Size = New System.Drawing.Size(75, 23)
+        Me.Button2.Size = New System.Drawing.Size(60, 23)
         Me.Button2.TabIndex = 2
-        Me.Button2.Text = "Cancel"
+        Me.Button2.Text = "Close"
         Me.Button2.UseVisualStyleBackColor = True
         '
         'CheckBox2
@@ -65,9 +65,9 @@ Partial Class Form2
         Me.CheckBox2.AutoSize = True
         Me.CheckBox2.Location = New System.Drawing.Point(12, 35)
         Me.CheckBox2.Name = "CheckBox2"
-        Me.CheckBox2.Size = New System.Drawing.Size(129, 17)
-        Me.CheckBox2.TabIndex = 3
-        Me.CheckBox2.Text = "Set Proper Resolution"
+        Me.CheckBox2.Size = New System.Drawing.Size(100, 17)
+        Me.CheckBox2.TabIndex = 4
+        Me.CheckBox2.Text = "Wireframe View"
         Me.CheckBox2.UseVisualStyleBackColor = True
         '
         'CheckBox3
@@ -75,20 +75,19 @@ Partial Class Form2
         Me.CheckBox3.AutoSize = True
         Me.CheckBox3.Location = New System.Drawing.Point(12, 58)
         Me.CheckBox3.Name = "CheckBox3"
-        Me.CheckBox3.Size = New System.Drawing.Size(100, 17)
-        Me.CheckBox3.TabIndex = 4
-        Me.CheckBox3.Text = "Wireframe View"
+        Me.CheckBox3.Size = New System.Drawing.Size(131, 17)
+        Me.CheckBox3.TabIndex = 5
+        Me.CheckBox3.Text = "Enable Startup Videos"
         Me.CheckBox3.UseVisualStyleBackColor = True
         '
-        'CheckBox4
+        'Button3
         '
-        Me.CheckBox4.AutoSize = True
-        Me.CheckBox4.Location = New System.Drawing.Point(12, 82)
-        Me.CheckBox4.Name = "CheckBox4"
-        Me.CheckBox4.Size = New System.Drawing.Size(131, 17)
-        Me.CheckBox4.TabIndex = 5
-        Me.CheckBox4.Text = "Enable Startup Videos"
-        Me.CheckBox4.UseVisualStyleBackColor = True
+        Me.Button3.Location = New System.Drawing.Point(12, 307)
+        Me.Button3.Name = "Button3"
+        Me.Button3.Size = New System.Drawing.Size(115, 23)
+        Me.Button3.TabIndex = 6
+        Me.Button3.Text = "Auto Resolution"
+        Me.Button3.UseVisualStyleBackColor = True
         '
         'Form2
         '
@@ -97,7 +96,7 @@ Partial Class Form2
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.CancelButton = Me.Button2
         Me.ClientSize = New System.Drawing.Size(271, 342)
-        Me.Controls.Add(Me.CheckBox4)
+        Me.Controls.Add(Me.Button3)
         Me.Controls.Add(Me.CheckBox3)
         Me.Controls.Add(Me.CheckBox2)
         Me.Controls.Add(Me.Button2)
@@ -120,5 +119,5 @@ Partial Class Form2
     Friend WithEvents Button2 As Button
     Friend WithEvents CheckBox2 As CheckBox
     Friend WithEvents CheckBox3 As CheckBox
-    Friend WithEvents CheckBox4 As CheckBox
+    Friend WithEvents Button3 As Button
 End Class
