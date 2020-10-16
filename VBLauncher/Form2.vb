@@ -38,9 +38,9 @@
                 CheckBox10.CheckState = 1
             ElseIf mapline(52) = "Start map = 00_04_Tutorial_Vault.map" Then
                 CheckBox11.CheckState = 1
-            ElseIf mapline(52) = "zz_TestMapsTest_City_Building01.map" Then
+            ElseIf mapline(52) = "Start map = zz_TestMapsTest_City_Building01.map" Then
                 CheckBox12.CheckState = 1
-            ElseIf mapline(52) = "zz_TestMapsTest_City_Building03.map" Then
+            ElseIf mapline(52) = "Start map = zz_TestMapsTest_City_Building03.map" Then
                 CheckBox13.CheckState = 1
             ElseIf mapline(52) = "Start map = 98_Canyon_Random_01.map" Then
                 CheckBox14.CheckState = 1
