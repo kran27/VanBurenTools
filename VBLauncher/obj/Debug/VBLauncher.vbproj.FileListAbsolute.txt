@@ -11,3 +11,16 @@ D:\Repos\VBLauncher\VBLauncher\obj\Debug\VBLauncher.exe
 D:\Repos\VBLauncher\VBLauncher\obj\Debug\VBLauncher.xml
 D:\Repos\VBLauncher\VBLauncher\obj\Debug\VBLauncher.pdb
 D:\Repos\VBLauncher\VBLauncher\obj\Debug\VBLauncher.Form2.resources
+D:\Repos\VanBurenLauncher\VBLauncher\bin\Debug\VBLauncher.exe.config
+D:\Repos\VanBurenLauncher\VBLauncher\bin\Debug\VBLauncher.exe
+D:\Repos\VanBurenLauncher\VBLauncher\bin\Debug\VBLauncher.pdb
+D:\Repos\VanBurenLauncher\VBLauncher\bin\Debug\VBLauncher.xml
+D:\Repos\VanBurenLauncher\VBLauncher\obj\Debug\VBLauncher.vbprojAssemblyReference.cache
+D:\Repos\VanBurenLauncher\VBLauncher\obj\Debug\VBLauncher.Form1.resources
+D:\Repos\VanBurenLauncher\VBLauncher\obj\Debug\VBLauncher.Form2.resources
+D:\Repos\VanBurenLauncher\VBLauncher\obj\Debug\VBLauncher.Resources.resources
+D:\Repos\VanBurenLauncher\VBLauncher\obj\Debug\VBLauncher.vbproj.GenerateResource.cache
+D:\Repos\VanBurenLauncher\VBLauncher\obj\Debug\VBLauncher.vbproj.CoreCompileInputs.cache
+D:\Repos\VanBurenLauncher\VBLauncher\obj\Debug\VBLauncher.exe
+D:\Repos\VanBurenLauncher\VBLauncher\obj\Debug\VBLauncher.xml
+D:\Repos\VanBurenLauncher\VBLauncher\obj\Debug\VBLauncher.pdb

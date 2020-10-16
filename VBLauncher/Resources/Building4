@@ -1,0 +1,63 @@
+[Audio]
+GroupList = FO3.gls
+MusicJumpList = F3.sco
+
+[Camera]
+Azimuth Speed = 360.000000
+Distance Max = 350.000000
+Distance Min = 350.000000
+Distance Speed = 800.000000
+Elevation Max = 89.000000
+Elevation Min = 38.500000
+Elevation Speed = 360.000000
+FOV Speed = 6.50000
+FOV Min = 6.00000
+FOV Max = 15.0000
+Scroll Border = 0.010000
+Scroll Speed = 96.000000
+
+[Mainmenu]
+map name = mainmenu.map
+target x = 0.0
+target y = 5.5
+target z = 0.0
+azimuth = 0.0
+elevation = 0.0
+distance = 0
+fov = 68.0
+znear = 1.0f
+zfar = 10000.0f
+
+[CharGen]
+character x = 259.36
+character y = 0
+character z = 271.19
+character yaw = 130
+familiar x = 261.52
+familiar y = 0
+familiar z = 272.1
+familiar yaw = 130
+animal x = 258
+animal y = 0
+animal z = 269.3
+animal yaw = 130
+target x = 90.92
+target y = 13.56
+target z = 429.31
+azimuth = 313.2
+elevation = -4.5
+distance = 245
+fov = 35
+
+[Server]
+Start map = zz_TestMapsTest_City_Building04.map
+Start map entry point = 0
+
+[World]
+Seconds Per Round = 6
+Year = 2253
+Month = 10
+Day = 18
+Hour = 13
+Minute = 13
+Second = 13

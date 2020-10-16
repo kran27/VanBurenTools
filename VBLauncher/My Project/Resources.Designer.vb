@@ -71,12 +71,92 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property AaronMap2() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("AaronMap2", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
         '''  Looks up a localized resource of type System.Drawing.Bitmap.
         '''</summary>
         Friend ReadOnly Property BG() As System.Drawing.Bitmap
             Get
                 Dim obj As Object = ResourceManager.GetObject("BG", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property Building1() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Building1", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property Building2() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Building2", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property Building3() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Building3", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property Building4() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Building4", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property Canyon() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Canyon", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property Canyon2() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Canyon2", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property Cave() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Cave", resourceCulture)
+                Return CType(obj,Byte())
             End Get
         End Property
         
@@ -91,12 +171,32 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property Fences() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Fences", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
         '''  Looks up a localized resource of type System.Drawing.Bitmap.
         '''</summary>
         Friend ReadOnly Property Launch() As System.Drawing.Bitmap
             Get
                 Dim obj As Object = ResourceManager.GetObject("Launch", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property MainMenu() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("MainMenu", resourceCulture)
+                Return CType(obj,Byte())
             End Get
         End Property
         
@@ -116,6 +216,56 @@ Namespace My.Resources
         Friend ReadOnly Property PCFemale() As Byte()
             Get
                 Dim obj As Object = ResourceManager.GetObject("PCFemale", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property ScottEMap1() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("ScottEMap1", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property ScottEMap2() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("ScottEMap2", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property ScottEMap4() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("ScottEMap4", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property Shacks() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Shacks", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property Vault() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Vault", resourceCulture)
                 Return CType(obj,Byte())
             End Get
         End Property

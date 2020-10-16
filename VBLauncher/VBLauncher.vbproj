@@ -131,7 +131,22 @@
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
     <None Include="App.config" />
+    <None Include="Resources\AaronMap2" />
+    <None Include="Resources\Building1" />
+    <None Include="Resources\Building2" />
+    <None Include="Resources\Building3" />
+    <None Include="Resources\Building4" />
+    <None Include="Resources\Canyon" />
+    <None Include="Resources\Canyon2" />
+    <None Include="Resources\Cave" />
+    <None Include="Resources\Fences" />
+    <None Include="Resources\MainMenu" />
     <None Include="Resources\PCFemale" />
+    <None Include="Resources\ScottEMap1" />
+    <None Include="Resources\ScottEMap2" />
+    <None Include="Resources\ScottEMap4" />
+    <None Include="Resources\Shacks" />
+    <None Include="Resources\Vault" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\BG.png" />

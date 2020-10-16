@@ -20,15 +20,18 @@
     End Sub
 #End Region
     Private Sub PictureBox1_Click(sender As Object, e As EventArgs) Handles PictureBox1.Click
+        MoveForm = False
         Process.Start("F3.exe")
         Application.Exit()
     End Sub
 
     Private Sub PictureBox2_Click(sender As Object, e As EventArgs) Handles PictureBox2.Click
+        MoveForm = False
         Form2.ShowDialog()
     End Sub
 
     Private Sub PictureBox3_Click(sender As Object, e As EventArgs) Handles PictureBox3.Click
+        MoveForm = False
         Application.Exit()
     End Sub
 End Class
