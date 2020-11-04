@@ -61,6 +61,36 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property _8_Ball() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("_8_Ball", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property _8_Ball_I() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("_8_Ball_I", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property _8_Ball_Icon() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("_8_Ball_Icon", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
         '''  Looks up a localized resource of type System.Drawing.Bitmap.
         '''</summary>
         Friend ReadOnly Property _Exit() As System.Drawing.Bitmap
@@ -71,11 +101,65 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  Looks up a localized string similar to [Audio]
+        '''GroupList = FO3.gls
+        '''MusicJumpList = F3.sco
+        '''
+        '''[Camera]
+        '''Azimuth Speed = 360.000000
+        '''Distance Max = 350.000000
+        '''Distance Min = 350.000000
+        '''Distance Speed = 800.000000
+        '''Elevation Max = 89.000000
+        '''Elevation Min = 38.500000
+        '''Elevation Speed = 360.000000
+        '''FOV Speed = 6.50000
+        '''FOV Min = 6.00000
+        '''FOV Max = 15.0000
+        '''Scroll Border = 0.010000
+        '''Scroll Speed = 96.000000
+        '''
+        '''[Mainmenu]
+        '''map name = zz_TestMapsaarontemp2.map
+        '''target x = 0.0
+        '''target y = 5.5
+        '''target z = 0.0
+        '''azimuth = 0.0
+        '''elevation = 0.0
+        '''distance [rest of string was truncated]&quot;;.
+        '''</summary>
+        Friend ReadOnly Property AaronMap2() As String
+            Get
+                Return ResourceManager.GetString("AaronMap2", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
         '''  Looks up a localized resource of type System.Byte[].
         '''</summary>
-        Friend ReadOnly Property AaronMap2() As Byte()
+        Friend ReadOnly Property American() As Byte()
             Get
-                Dim obj As Object = ResourceManager.GetObject("AaronMap2", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("American", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property American_Icon() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("American_Icon", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property AmericanI() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("AmericanI", resourceCulture)
                 Return CType(obj,Byte())
             End Get
         End Property
@@ -93,9 +177,29 @@ Namespace My.Resources
         '''<summary>
         '''  Looks up a localized resource of type System.Byte[].
         '''</summary>
-        Friend ReadOnly Property Building1() As Byte()
+        Friend ReadOnly Property Black() As Byte()
             Get
-                Dim obj As Object = ResourceManager.GetObject("Building1", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Black", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property Black_Icon() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Black_Icon", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property BlackI() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("BlackI", resourceCulture)
                 Return CType(obj,Byte())
             End Get
         End Property
@@ -103,59 +207,303 @@ Namespace My.Resources
         '''<summary>
         '''  Looks up a localized resource of type System.Byte[].
         '''</summary>
-        Friend ReadOnly Property Building2() As Byte()
+        Friend ReadOnly Property Blue() As Byte()
             Get
-                Dim obj As Object = ResourceManager.GetObject("Building2", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Blue", resourceCulture)
                 Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property Blue_Icon() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Blue_Icon", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
         
         '''<summary>
         '''  Looks up a localized resource of type System.Byte[].
         '''</summary>
-        Friend ReadOnly Property Building3() As Byte()
+        Friend ReadOnly Property BlueI() As Byte()
             Get
-                Dim obj As Object = ResourceManager.GetObject("Building3", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("BlueI", resourceCulture)
                 Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized string similar to [Audio]
+        '''GroupList = FO3.gls
+        '''MusicJumpList = F3.sco
+        '''
+        '''[Camera]
+        '''Azimuth Speed = 360.000000
+        '''Distance Max = 350.000000
+        '''Distance Min = 350.000000
+        '''Distance Speed = 800.000000
+        '''Elevation Max = 89.000000
+        '''Elevation Min = 38.500000
+        '''Elevation Speed = 360.000000
+        '''FOV Speed = 6.50000
+        '''FOV Min = 6.00000
+        '''FOV Max = 15.0000
+        '''Scroll Border = 0.010000
+        '''Scroll Speed = 96.000000
+        '''
+        '''[Mainmenu]
+        '''map name = zz_TestMapsTest_City_Building01.map
+        '''target x = 0.0
+        '''target y = 5.5
+        '''target z = 0.0
+        '''azimuth = 0.0
+        '''elevation = 0.0 [rest of string was truncated]&quot;;.
+        '''</summary>
+        Friend ReadOnly Property Building1() As String
+            Get
+                Return ResourceManager.GetString("Building1", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized string similar to [Audio]
+        '''GroupList = FO3.gls
+        '''MusicJumpList = F3.sco
+        '''
+        '''[Camera]
+        '''Azimuth Speed = 360.000000
+        '''Distance Max = 350.000000
+        '''Distance Min = 350.000000
+        '''Distance Speed = 800.000000
+        '''Elevation Max = 89.000000
+        '''Elevation Min = 38.500000
+        '''Elevation Speed = 360.000000
+        '''FOV Speed = 6.50000
+        '''FOV Min = 6.00000
+        '''FOV Max = 15.0000
+        '''Scroll Border = 0.010000
+        '''Scroll Speed = 96.000000
+        '''
+        '''[Mainmenu]
+        '''map name = zz_TestMapsTest_City_Building02.map
+        '''target x = 0.0
+        '''target y = 5.5
+        '''target z = 0.0
+        '''azimuth = 0.0
+        '''elevation = 0.0 [rest of string was truncated]&quot;;.
+        '''</summary>
+        Friend ReadOnly Property Building2() As String
+            Get
+                Return ResourceManager.GetString("Building2", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized string similar to [Audio]
+        '''GroupList = FO3.gls
+        '''MusicJumpList = F3.sco
+        '''
+        '''[Camera]
+        '''Azimuth Speed = 360.000000
+        '''Distance Max = 350.000000
+        '''Distance Min = 350.000000
+        '''Distance Speed = 800.000000
+        '''Elevation Max = 89.000000
+        '''Elevation Min = 38.500000
+        '''Elevation Speed = 360.000000
+        '''FOV Speed = 6.50000
+        '''FOV Min = 6.00000
+        '''FOV Max = 15.0000
+        '''Scroll Border = 0.010000
+        '''Scroll Speed = 96.000000
+        '''
+        '''[Mainmenu]
+        '''map name = zz_TestMapsTest_City_Building03.map
+        '''target x = 0.0
+        '''target y = 5.5
+        '''target z = 0.0
+        '''azimuth = 0.0
+        '''elevation = 0.0 [rest of string was truncated]&quot;;.
+        '''</summary>
+        Friend ReadOnly Property Building3() As String
+            Get
+                Return ResourceManager.GetString("Building3", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized string similar to [Audio]
+        '''GroupList = FO3.gls
+        '''MusicJumpList = F3.sco
+        '''
+        '''[Camera]
+        '''Azimuth Speed = 360.000000
+        '''Distance Max = 350.000000
+        '''Distance Min = 350.000000
+        '''Distance Speed = 800.000000
+        '''Elevation Max = 89.000000
+        '''Elevation Min = 38.500000
+        '''Elevation Speed = 360.000000
+        '''FOV Speed = 6.50000
+        '''FOV Min = 6.00000
+        '''FOV Max = 15.0000
+        '''Scroll Border = 0.010000
+        '''Scroll Speed = 96.000000
+        '''
+        '''[Mainmenu]
+        '''map name = zz_TestMapsTest_City_Building04.map
+        '''target x = 0.0
+        '''target y = 5.5
+        '''target z = 0.0
+        '''azimuth = 0.0
+        '''elevation = 0.0 [rest of string was truncated]&quot;;.
+        '''</summary>
+        Friend ReadOnly Property Building4() As String
+            Get
+                Return ResourceManager.GetString("Building4", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized string similar to [Audio]
+        '''GroupList = FO3.gls
+        '''MusicJumpList = F3.sco
+        '''
+        '''[Camera]
+        '''Azimuth Speed = 360.000000
+        '''Distance Max = 350.000000
+        '''Distance Min = 350.000000
+        '''Distance Speed = 800.000000
+        '''Elevation Max = 89.000000
+        '''Elevation Min = 38.500000
+        '''Elevation Speed = 360.000000
+        '''FOV Speed = 6.50000
+        '''FOV Min = 6.00000
+        '''FOV Max = 15.0000
+        '''Scroll Border = 0.010000
+        '''Scroll Speed = 96.000000
+        '''
+        '''[Mainmenu]
+        '''map name = 98_Canyon_Random_01.map
+        '''target x = 0.0
+        '''target y = 5.5
+        '''target z = 0.0
+        '''azimuth = 0.0
+        '''elevation = 0.0
+        '''distance = [rest of string was truncated]&quot;;.
+        '''</summary>
+        Friend ReadOnly Property Canyon() As String
+            Get
+                Return ResourceManager.GetString("Canyon", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized string similar to [Audio]
+        '''GroupList = FO3.gls
+        '''MusicJumpList = F3.sco
+        '''
+        '''[Camera]
+        '''Azimuth Speed = 360.000000
+        '''Distance Max = 350.000000
+        '''Distance Min = 350.000000
+        '''Distance Speed = 800.000000
+        '''Elevation Max = 89.000000
+        '''Elevation Min = 38.500000
+        '''Elevation Speed = 360.000000
+        '''FOV Speed = 6.50000
+        '''FOV Min = 6.00000
+        '''FOV Max = 15.0000
+        '''Scroll Border = 0.010000
+        '''Scroll Speed = 96.000000
+        '''
+        '''[Mainmenu]
+        '''map name = 98_Canyon_Random_02.map
+        '''target x = 0.0
+        '''target y = 5.5
+        '''target z = 0.0
+        '''azimuth = 0.0
+        '''elevation = 0.0
+        '''distance = [rest of string was truncated]&quot;;.
+        '''</summary>
+        Friend ReadOnly Property Canyon2() As String
+            Get
+                Return ResourceManager.GetString("Canyon2", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized string similar to [Audio]
+        '''GroupList = FO3.gls
+        '''MusicJumpList = F3.sco
+        '''
+        '''[Camera]
+        '''Azimuth Speed = 360.000000
+        '''Distance Max = 350.000000
+        '''Distance Min = 350.000000
+        '''Distance Speed = 800.000000
+        '''Elevation Max = 89.000000
+        '''Elevation Min = 38.500000
+        '''Elevation Speed = 360.000000
+        '''FOV Speed = 6.50000
+        '''FOV Min = 6.00000
+        '''FOV Max = 15.0000
+        '''Scroll Border = 0.010000
+        '''Scroll Speed = 96.000000
+        '''
+        '''[Mainmenu]
+        '''map name = 04_0202_Spelunking.map
+        '''target x = 0.0
+        '''target y = 5.5
+        '''target z = 0.0
+        '''azimuth = 0.0
+        '''elevation = 0.0
+        '''distance =  [rest of string was truncated]&quot;;.
+        '''</summary>
+        Friend ReadOnly Property Cave() As String
+            Get
+                Return ResourceManager.GetString("Cave", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property Default_Icon() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Default_Icon", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
         
         '''<summary>
         '''  Looks up a localized resource of type System.Byte[].
         '''</summary>
-        Friend ReadOnly Property Building4() As Byte()
+        Friend ReadOnly Property Eye() As Byte()
             Get
-                Dim obj As Object = ResourceManager.GetObject("Building4", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Eye", resourceCulture)
                 Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property Eye_Icon() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Eye_Icon", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
         
         '''<summary>
         '''  Looks up a localized resource of type System.Byte[].
         '''</summary>
-        Friend ReadOnly Property Canyon() As Byte()
+        Friend ReadOnly Property EyeI() As Byte()
             Get
-                Dim obj As Object = ResourceManager.GetObject("Canyon", resourceCulture)
-                Return CType(obj,Byte())
-            End Get
-        End Property
-        
-        '''<summary>
-        '''  Looks up a localized resource of type System.Byte[].
-        '''</summary>
-        Friend ReadOnly Property Canyon2() As Byte()
-            Get
-                Dim obj As Object = ResourceManager.GetObject("Canyon2", resourceCulture)
-                Return CType(obj,Byte())
-            End Get
-        End Property
-        
-        '''<summary>
-        '''  Looks up a localized resource of type System.Byte[].
-        '''</summary>
-        Friend ReadOnly Property Cave() As Byte()
-            Get
-                Dim obj As Object = ResourceManager.GetObject("Cave", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("EyeI", resourceCulture)
                 Return CType(obj,Byte())
             End Get
         End Property
@@ -171,11 +519,155 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  Looks up a localized string similar to [Audio]
+        '''GroupList = FO3.gls
+        '''MusicJumpList = F3.sco
+        '''
+        '''[Camera]
+        '''Azimuth Speed = 360.000000
+        '''Distance Max = 350.000000
+        '''Distance Min = 350.000000
+        '''Distance Speed = 800.000000
+        '''Elevation Max = 89.000000
+        '''Elevation Min = 38.500000
+        '''Elevation Speed = 360.000000
+        '''FOV Speed = 6.50000
+        '''FOV Min = 6.00000
+        '''FOV Max = 15.0000
+        '''Scroll Border = 0.010000
+        '''Scroll Speed = 96.000000
+        '''
+        '''[Mainmenu]
+        '''map name = zz_TestMapsTest_City_Fences.map
+        '''target x = 0.0
+        '''target y = 5.5
+        '''target z = 0.0
+        '''azimuth = 0.0
+        '''elevation = 0.0
+        '''di [rest of string was truncated]&quot;;.
+        '''</summary>
+        Friend ReadOnly Property Fences() As String
+            Get
+                Return ResourceManager.GetString("Fences", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
         '''  Looks up a localized resource of type System.Byte[].
         '''</summary>
-        Friend ReadOnly Property Fences() As Byte()
+        Friend ReadOnly Property Flames() As Byte()
             Get
-                Dim obj As Object = ResourceManager.GetObject("Fences", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Flames", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property Flames_Icon() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Flames_Icon", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property FlamesI() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("FlamesI", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property Full_Skull() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Full_Skull", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property Full_Skull_Icon() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Full_Skull_Icon", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property Full_SkullI() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Full_SkullI", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property Green() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Green", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property Green_Icon() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Green_Icon", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property GreenI() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("GreenI", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property Grey() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Grey", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property Grey_Icon() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Grey_Icon", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property GreyI() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("GreyI", resourceCulture)
                 Return CType(obj,Byte())
             End Get
         End Property
@@ -187,16 +679,6 @@ Namespace My.Resources
             Get
                 Dim obj As Object = ResourceManager.GetObject("Launch", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
-            End Get
-        End Property
-        
-        '''<summary>
-        '''  Looks up a localized resource of type System.Byte[].
-        '''</summary>
-        Friend ReadOnly Property MainMenu() As Byte()
-            Get
-                Dim obj As Object = ResourceManager.GetObject("MainMenu", resourceCulture)
-                Return CType(obj,Byte())
             End Get
         End Property
         
@@ -223,9 +705,29 @@ Namespace My.Resources
         '''<summary>
         '''  Looks up a localized resource of type System.Byte[].
         '''</summary>
-        Friend ReadOnly Property ScottEMap1() As Byte()
+        Friend ReadOnly Property Police() As Byte()
             Get
-                Dim obj As Object = ResourceManager.GetObject("ScottEMap1", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Police", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property Police_Icon() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Police_Icon", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property PoliceI() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("PoliceI", resourceCulture)
                 Return CType(obj,Byte())
             End Get
         End Property
@@ -233,9 +735,194 @@ Namespace My.Resources
         '''<summary>
         '''  Looks up a localized resource of type System.Byte[].
         '''</summary>
-        Friend ReadOnly Property ScottEMap2() As Byte()
+        Friend ReadOnly Property Red() As Byte()
             Get
-                Dim obj As Object = ResourceManager.GetObject("ScottEMap2", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Red", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property Red_Icon() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Red_Icon", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property RedI() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("RedI", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized string similar to [Audio]
+        '''GroupList = FO3.gls
+        '''MusicJumpList = F3.sco
+        '''
+        '''[Camera]
+        '''Azimuth Speed = 360.000000
+        '''Distance Max = 350.000000
+        '''Distance Min = 350.000000
+        '''Distance Speed = 800.000000
+        '''Elevation Max = 89.000000
+        '''Elevation Min = 38.500000
+        '''Elevation Speed = 360.000000
+        '''FOV Speed = 6.50000
+        '''FOV Min = 6.00000
+        '''FOV Max = 15.0000
+        '''Scroll Border = 0.010000
+        '''Scroll Speed = 96.000000
+        '''
+        '''[Mainmenu]
+        '''map name = zz_TestMapsScottE_Test1.map
+        '''target x = 0.0
+        '''target y = 5.5
+        '''target z = 0.0
+        '''azimuth = 0.0
+        '''elevation = 0.0
+        '''distan [rest of string was truncated]&quot;;.
+        '''</summary>
+        Friend ReadOnly Property ScottEMap1() As String
+            Get
+                Return ResourceManager.GetString("ScottEMap1", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized string similar to [Audio]
+        '''GroupList = FO3.gls
+        '''MusicJumpList = F3.sco
+        '''
+        '''[Camera]
+        '''Azimuth Speed = 360.000000
+        '''Distance Max = 350.000000
+        '''Distance Min = 350.000000
+        '''Distance Speed = 800.000000
+        '''Elevation Max = 89.000000
+        '''Elevation Min = 38.500000
+        '''Elevation Speed = 360.000000
+        '''FOV Speed = 6.50000
+        '''FOV Min = 6.00000
+        '''FOV Max = 15.0000
+        '''Scroll Border = 0.010000
+        '''Scroll Speed = 96.000000
+        '''
+        '''[Mainmenu]
+        '''map name = zz_TestMapsScottE_Test2.map
+        '''target x = 0.0
+        '''target y = 5.5
+        '''target z = 0.0
+        '''azimuth = 0.0
+        '''elevation = 0.0
+        '''distan [rest of string was truncated]&quot;;.
+        '''</summary>
+        Friend ReadOnly Property ScottEMap2() As String
+            Get
+                Return ResourceManager.GetString("ScottEMap2", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized string similar to [Audio]
+        '''GroupList = FO3.gls
+        '''MusicJumpList = F3.sco
+        '''
+        '''[Camera]
+        '''Azimuth Speed = 360.000000
+        '''Distance Max = 350.000000
+        '''Distance Min = 350.000000
+        '''Distance Speed = 800.000000
+        '''Elevation Max = 89.000000
+        '''Elevation Min = 38.500000
+        '''Elevation Speed = 360.000000
+        '''FOV Speed = 6.50000
+        '''FOV Min = 6.00000
+        '''FOV Max = 15.0000
+        '''Scroll Border = 0.010000
+        '''Scroll Speed = 96.000000
+        '''
+        '''[Mainmenu]
+        '''map name = zz_TestMapsScottE_Test4.map
+        '''target x = 0.0
+        '''target y = 5.5
+        '''target z = 0.0
+        '''azimuth = 0.0
+        '''elevation = 0.0
+        '''distan [rest of string was truncated]&quot;;.
+        '''</summary>
+        Friend ReadOnly Property ScottEMap4() As String
+            Get
+                Return ResourceManager.GetString("ScottEMap4", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized string similar to [Audio]
+        '''GroupList = FO3.gls
+        '''MusicJumpList = F3.sco
+        '''
+        '''[Camera]
+        '''Azimuth Speed = 360.000000
+        '''Distance Max = 350.000000
+        '''Distance Min = 350.000000
+        '''Distance Speed = 800.000000
+        '''Elevation Max = 89.000000
+        '''Elevation Min = 38.500000
+        '''Elevation Speed = 360.000000
+        '''FOV Speed = 6.50000
+        '''FOV Min = 6.00000
+        '''FOV Max = 15.0000
+        '''Scroll Border = 0.010000
+        '''Scroll Speed = 96.000000
+        '''
+        '''[Mainmenu]
+        '''map name = zz_TestMapsTest_Junktown_Shacks.map
+        '''target x = 0.0
+        '''target y = 5.5
+        '''target z = 0.0
+        '''azimuth = 0.0
+        '''elevation = 0.0 [rest of string was truncated]&quot;;.
+        '''</summary>
+        Friend ReadOnly Property Shacks() As String
+            Get
+                Return ResourceManager.GetString("Shacks", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property Shot_Smiley() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Shot_Smiley", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property Shot_Smiley_Icon() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Shot_Smiley_Icon", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property Shot_SmileyI() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Shot_SmileyI", resourceCulture)
                 Return CType(obj,Byte())
             End Get
         End Property
@@ -243,29 +930,127 @@ Namespace My.Resources
         '''<summary>
         '''  Looks up a localized resource of type System.Byte[].
         '''</summary>
-        Friend ReadOnly Property ScottEMap4() As Byte()
+        Friend ReadOnly Property Skull() As Byte()
             Get
-                Dim obj As Object = ResourceManager.GetObject("ScottEMap4", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Skull", resourceCulture)
                 Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property Skull_Icon() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Skull_Icon", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
         
         '''<summary>
         '''  Looks up a localized resource of type System.Byte[].
         '''</summary>
-        Friend ReadOnly Property Shacks() As Byte()
+        Friend ReadOnly Property SkullI() As Byte()
             Get
-                Dim obj As Object = ResourceManager.GetObject("Shacks", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("SkullI", resourceCulture)
                 Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized string similar to [Audio]
+        '''GroupList = FO3.gls
+        '''MusicJumpList = F3.sco
+        '''
+        '''[Camera]
+        '''Azimuth Speed = 360.000000
+        '''Distance Max = 350.000000
+        '''Distance Min = 350.000000
+        '''Distance Speed = 800.000000
+        '''Elevation Max = 89.000000
+        '''Elevation Min = 38.500000
+        '''Elevation Speed = 360.000000
+        '''FOV Speed = 6.50000
+        '''FOV Min = 6.00000
+        '''FOV Max = 15.0000
+        '''Scroll Border = 0.010000
+        '''Scroll Speed = 96.000000
+        '''
+        '''[Mainmenu]
+        '''map name = 00_03_Tutorial_Junktown.map
+        '''target x = 0.0
+        '''target y = 5.5
+        '''target z = 0.0
+        '''azimuth = 0.0
+        '''elevation = 0.0
+        '''distan [rest of string was truncated]&quot;;.
+        '''</summary>
+        Friend ReadOnly Property Tutorial() As String
+            Get
+                Return ResourceManager.GetString("Tutorial", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized string similar to [Audio]
+        '''GroupList = FO3.gls
+        '''MusicJumpList = F3.sco
+        '''
+        '''[Camera]
+        '''Azimuth Speed = 360.000000
+        '''Distance Max = 350.000000
+        '''Distance Min = 350.000000
+        '''Distance Speed = 800.000000
+        '''Elevation Max = 89.000000
+        '''Elevation Min = 38.500000
+        '''Elevation Speed = 360.000000
+        '''FOV Speed = 6.50000
+        '''FOV Min = 6.00000
+        '''FOV Max = 15.0000
+        '''Scroll Border = 0.010000
+        '''Scroll Speed = 96.000000
+        '''
+        '''[Mainmenu]
+        '''map name = 00_04_Tutorial_Vault.map
+        '''target x = 0.0
+        '''target y = 5.5
+        '''target z = 0.0
+        '''azimuth = 0.0
+        '''elevation = 0.0
+        '''distance  [rest of string was truncated]&quot;;.
+        '''</summary>
+        Friend ReadOnly Property Vault() As String
+            Get
+                Return ResourceManager.GetString("Vault", resourceCulture)
             End Get
         End Property
         
         '''<summary>
         '''  Looks up a localized resource of type System.Byte[].
         '''</summary>
-        Friend ReadOnly Property Vault() As Byte()
+        Friend ReadOnly Property Yellow() As Byte()
             Get
-                Dim obj As Object = ResourceManager.GetObject("Vault", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Yellow", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property Yellow_Icon() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Yellow_Icon", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property YellowI() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("YellowI", resourceCulture)
                 Return CType(obj,Byte())
             End Get
         End Property

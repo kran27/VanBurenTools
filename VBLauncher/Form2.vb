@@ -3,330 +3,90 @@
     Public ifdir As String = My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini"
     Public line() As String = IO.File.ReadAllLines(ifdir)
     Public mapline() As String
-#Region "Auto Tick Boxes"
+#Region "Auto Detect Options"
     Private Sub CheckOptions() Handles MyBase.VisibleChanged
         If IO.File.Exists(ovrdir & "\FemaleFix\_CRT\PCFemale.CRT") Then
             CheckBox1.CheckState = 1
         Else
             CheckBox1.CheckState = 0
         End If
-        If line(27) = "enable wireframe = 1" Then
+        If line(25) = "enable startup movies = 1" Then
             CheckBox2.CheckState = 1
         Else
             CheckBox2.CheckState = 0
         End If
-        If line(25) = "enable startup movies = 1" Then
-            CheckBox3.CheckState = 1
-        Else
-            CheckBox3.CheckState = 0
-        End If
-        If IO.File.Exists(ovrdir & "\MapChange\Engine\sys.ini") Then
-            mapline = IO.File.ReadAllLines(ovrdir & "\MapChange\Engine\sys.ini")
-            If mapline(52) = "Start map = zz_TestMapsaarontemp2.map" Then
-                CheckBox4.CheckState = 1
-            ElseIf mapline(52) = "Start map = zz_TestMapsTest_City_Building02.map" Then
-                CheckBox5.CheckState = 1
-            ElseIf mapline(52) = "Start map = zz_TestMapsTest_City_Building04.map" Then
-                CheckBox6.CheckState = 1
-            ElseIf mapline(52) = "Start map = 98_Canyon_Random_02.map" Then
-                CheckBox7.CheckState = 1
-            ElseIf mapline(52) = "Start map = zz_TestMapsTest_City_Fences.map" Then
-                CheckBox8.CheckState = 1
-            ElseIf mapline(52) = "Start map = zz_TestMapsScottE_Test1.map" Then
-                CheckBox9.CheckState = 1
-            ElseIf mapline(52) = "Start map = zz_TestMapsScottE_Test4.map" Then
-                CheckBox10.CheckState = 1
-            ElseIf mapline(52) = "Start map = 00_04_Tutorial_Vault.map" Then
-                CheckBox11.CheckState = 1
-            ElseIf mapline(52) = "Start map = zz_TestMapsTest_City_Building01.map" Then
-                CheckBox12.CheckState = 1
-            ElseIf mapline(52) = "Start map = zz_TestMapsTest_City_Building03.map" Then
-                CheckBox13.CheckState = 1
-            ElseIf mapline(52) = "Start map = 98_Canyon_Random_01.map" Then
-                CheckBox14.CheckState = 1
-            ElseIf mapline(52) = "Start map = 04_0202_Spelunking.map" Then
-                CheckBox15.CheckState = 1
-            ElseIf mapline(52) = "Start map = Mainmenu.map" Then
-                CheckBox16.CheckState = 1
-            ElseIf mapline(52) = "Start map = zz_TestMapsScottE_Test2.map" Then
-                CheckBox17.CheckState = 1
-            ElseIf mapline(52) = "Start map = zz_TestMapsTest_Junktown_Shacks.map" Then
-                CheckBox18.CheckState = 1
+#Region "Maps"
+        If IO.File.Exists(ovrdir & "\MenuMap\Engine\sys.ini") Then
+            mapline = IO.File.ReadAllLines(ovrdir & "\MenuMap\Engine\sys.ini")
+            If mapline(19) = "map name = zz_TestMapsaarontemp2.map" Then
+                ComboBox1.SelectedIndex = 1
+            ElseIf mapline(19) = "map name = zz_TestMapsTest_City_Building01.map" Then
+                ComboBox1.SelectedIndex = 2
+            ElseIf mapline(19) = "map name = zz_TestMapsTest_City_Building02.map" Then
+                ComboBox1.SelectedIndex = 3
+            ElseIf mapline(19) = "map name = zz_TestMapsTest_City_Building03.map" Then
+                ComboBox1.SelectedIndex = 4
+            ElseIf mapline(19) = "map name = zz_TestMapsTest_City_Building04.map" Then
+                ComboBox1.SelectedIndex = 5
+            ElseIf mapline(19) = "map name = 98_Canyon_Random_01.map" Then
+                ComboBox1.SelectedIndex = 6
+            ElseIf mapline(19) = "map name = 98_Canyon_Random_02.map" Then
+                ComboBox1.SelectedIndex = 7
+            ElseIf mapline(19) = "map name = 04_0202_Spelunking.map" Then
+                ComboBox1.SelectedIndex = 8
+            ElseIf mapline(19) = "map name = zz_TestMapsTest_City_Fences.map" Then
+                ComboBox1.SelectedIndex = 9
+            ElseIf mapline(19) = "map name = zz_TestMapsScottE_Test1.map" Then
+                ComboBox1.SelectedIndex = 10
+            ElseIf mapline(19) = "map name = zz_TestMapsScottE_Test2.map" Then
+                ComboBox1.SelectedIndex = 11
+            ElseIf mapline(19) = "map name = zz_TestMapsScottE_Test4.map" Then
+                ComboBox1.SelectedIndex = 12
+            ElseIf mapline(19) = "map name = zz_TestMapsTest_Junktown_Shacks.map" Then
+                ComboBox1.SelectedIndex = 13
+            ElseIf mapline(19) = "map name = 00_03_Tutorial_Junktown.map" Then
+                ComboBox1.SelectedIndex = 14
+            ElseIf mapline(19) = "map name = 00_04_Tutorial_Vault.map" Then
+                ComboBox1.SelectedIndex = 15
             End If
+        Else
+            ComboBox1.SelectedIndex = 0
         End If
-    End Sub
-#Region "Literal Toxic Waste"
-    Private Sub box4() Handles CheckBox4.CheckedChanged
-        If CheckBox4.Checked = True Then
-            CheckBox5.CheckState = 0
-            CheckBox6.CheckState = 0
-            CheckBox7.CheckState = 0
-            CheckBox8.CheckState = 0
-            CheckBox9.CheckState = 0
-            CheckBox10.CheckState = 0
-            CheckBox11.CheckState = 0
-            CheckBox12.CheckState = 0
-            CheckBox13.CheckState = 0
-            CheckBox14.CheckState = 0
-            CheckBox15.CheckState = 0
-            CheckBox16.CheckState = 0
-            CheckBox17.CheckState = 0
-            CheckBox18.CheckState = 0
-        End If
-    End Sub
-    Private Sub box5() Handles CheckBox5.CheckedChanged
-        If CheckBox5.Checked = True Then
-            CheckBox4.CheckState = 0
-            CheckBox6.CheckState = 0
-            CheckBox7.CheckState = 0
-            CheckBox8.CheckState = 0
-            CheckBox9.CheckState = 0
-            CheckBox10.CheckState = 0
-            CheckBox11.CheckState = 0
-            CheckBox12.CheckState = 0
-            CheckBox13.CheckState = 0
-            CheckBox14.CheckState = 0
-            CheckBox15.CheckState = 0
-            CheckBox16.CheckState = 0
-            CheckBox17.CheckState = 0
-            CheckBox18.CheckState = 0
-        End If
-    End Sub
-    Private Sub box6() Handles CheckBox6.CheckedChanged
-        If CheckBox6.Checked = True Then
-            CheckBox4.CheckState = 0
-            CheckBox5.CheckState = 0
-            CheckBox7.CheckState = 0
-            CheckBox8.CheckState = 0
-            CheckBox9.CheckState = 0
-            CheckBox10.CheckState = 0
-            CheckBox11.CheckState = 0
-            CheckBox12.CheckState = 0
-            CheckBox13.CheckState = 0
-            CheckBox14.CheckState = 0
-            CheckBox15.CheckState = 0
-            CheckBox16.CheckState = 0
-            CheckBox17.CheckState = 0
-            CheckBox18.CheckState = 0
-        End If
-    End Sub
-    Private Sub box7() Handles CheckBox7.CheckedChanged
-        If CheckBox7.Checked = True Then
-            CheckBox4.CheckState = 0
-            CheckBox5.CheckState = 0
-            CheckBox6.CheckState = 0
-            CheckBox8.CheckState = 0
-            CheckBox9.CheckState = 0
-            CheckBox10.CheckState = 0
-            CheckBox11.CheckState = 0
-            CheckBox12.CheckState = 0
-            CheckBox13.CheckState = 0
-            CheckBox14.CheckState = 0
-            CheckBox15.CheckState = 0
-            CheckBox16.CheckState = 0
-            CheckBox17.CheckState = 0
-            CheckBox18.CheckState = 0
-        End If
-    End Sub
-    Private Sub box8() Handles CheckBox8.CheckedChanged
-        If CheckBox8.Checked = True Then
-            CheckBox4.CheckState = 0
-            CheckBox5.CheckState = 0
-            CheckBox6.CheckState = 0
-            CheckBox7.CheckState = 0
-            CheckBox9.CheckState = 0
-            CheckBox10.CheckState = 0
-            CheckBox11.CheckState = 0
-            CheckBox12.CheckState = 0
-            CheckBox13.CheckState = 0
-            CheckBox14.CheckState = 0
-            CheckBox15.CheckState = 0
-            CheckBox16.CheckState = 0
-            CheckBox17.CheckState = 0
-            CheckBox18.CheckState = 0
-        End If
-    End Sub
-    Private Sub box9() Handles CheckBox9.CheckedChanged
-        If CheckBox9.Checked = True Then
-            CheckBox4.CheckState = 0
-            CheckBox5.CheckState = 0
-            CheckBox6.CheckState = 0
-            CheckBox7.CheckState = 0
-            CheckBox8.CheckState = 0
-            CheckBox10.CheckState = 0
-            CheckBox11.CheckState = 0
-            CheckBox12.CheckState = 0
-            CheckBox13.CheckState = 0
-            CheckBox14.CheckState = 0
-            CheckBox15.CheckState = 0
-            CheckBox16.CheckState = 0
-            CheckBox17.CheckState = 0
-            CheckBox18.CheckState = 0
-        End If
-    End Sub
-    Private Sub box10() Handles CheckBox10.CheckedChanged
-        If CheckBox10.Checked = True Then
-            CheckBox4.CheckState = 0
-            CheckBox5.CheckState = 0
-            CheckBox6.CheckState = 0
-            CheckBox7.CheckState = 0
-            CheckBox8.CheckState = 0
-            CheckBox9.CheckState = 0
-            CheckBox11.CheckState = 0
-            CheckBox12.CheckState = 0
-            CheckBox13.CheckState = 0
-            CheckBox14.CheckState = 0
-            CheckBox15.CheckState = 0
-            CheckBox16.CheckState = 0
-            CheckBox17.CheckState = 0
-            CheckBox18.CheckState = 0
-        End If
-    End Sub
-    Private Sub box11() Handles CheckBox11.CheckedChanged
-        If CheckBox11.Checked = True Then
-            CheckBox4.CheckState = 0
-            CheckBox5.CheckState = 0
-            CheckBox6.CheckState = 0
-            CheckBox7.CheckState = 0
-            CheckBox8.CheckState = 0
-            CheckBox9.CheckState = 0
-            CheckBox10.CheckState = 0
-            CheckBox12.CheckState = 0
-            CheckBox13.CheckState = 0
-            CheckBox14.CheckState = 0
-            CheckBox15.CheckState = 0
-            CheckBox16.CheckState = 0
-            CheckBox17.CheckState = 0
-            CheckBox18.CheckState = 0
-        End If
-    End Sub
-    Private Sub box12() Handles CheckBox12.CheckedChanged
-        If CheckBox12.Checked = True Then
-            CheckBox4.CheckState = 0
-            CheckBox5.CheckState = 0
-            CheckBox6.CheckState = 0
-            CheckBox7.CheckState = 0
-            CheckBox8.CheckState = 0
-            CheckBox9.CheckState = 0
-            CheckBox10.CheckState = 0
-            CheckBox11.CheckState = 0
-            CheckBox13.CheckState = 0
-            CheckBox14.CheckState = 0
-            CheckBox15.CheckState = 0
-            CheckBox16.CheckState = 0
-            CheckBox17.CheckState = 0
-            CheckBox18.CheckState = 0
-        End If
-    End Sub
-    Private Sub box13() Handles CheckBox13.CheckedChanged
-        If CheckBox13.Checked = True Then
-            CheckBox4.CheckState = 0
-            CheckBox5.CheckState = 0
-            CheckBox6.CheckState = 0
-            CheckBox7.CheckState = 0
-            CheckBox8.CheckState = 0
-            CheckBox9.CheckState = 0
-            CheckBox10.CheckState = 0
-            CheckBox11.CheckState = 0
-            CheckBox12.CheckState = 0
-            CheckBox14.CheckState = 0
-            CheckBox15.CheckState = 0
-            CheckBox16.CheckState = 0
-            CheckBox17.CheckState = 0
-            CheckBox18.CheckState = 0
-        End If
-    End Sub
-    Private Sub box14() Handles CheckBox14.CheckedChanged
-        If CheckBox14.Checked = True Then
-            CheckBox4.CheckState = 0
-            CheckBox5.CheckState = 0
-            CheckBox6.CheckState = 0
-            CheckBox7.CheckState = 0
-            CheckBox8.CheckState = 0
-            CheckBox9.CheckState = 0
-            CheckBox10.CheckState = 0
-            CheckBox11.CheckState = 0
-            CheckBox12.CheckState = 0
-            CheckBox13.CheckState = 0
-            CheckBox15.CheckState = 0
-            CheckBox16.CheckState = 0
-            CheckBox17.CheckState = 0
-            CheckBox18.CheckState = 0
-        End If
-    End Sub
-    Private Sub box15() Handles CheckBox15.CheckedChanged
-        If CheckBox15.Checked = True Then
-            CheckBox4.CheckState = 0
-            CheckBox5.CheckState = 0
-            CheckBox6.CheckState = 0
-            CheckBox7.CheckState = 0
-            CheckBox8.CheckState = 0
-            CheckBox9.CheckState = 0
-            CheckBox10.CheckState = 0
-            CheckBox11.CheckState = 0
-            CheckBox12.CheckState = 0
-            CheckBox13.CheckState = 0
-            CheckBox14.CheckState = 0
-            CheckBox16.CheckState = 0
-            CheckBox17.CheckState = 0
-            CheckBox18.CheckState = 0
-        End If
-    End Sub
-    Private Sub box16() Handles CheckBox16.CheckedChanged
-        If CheckBox16.Checked = True Then
-            CheckBox4.CheckState = 0
-            CheckBox5.CheckState = 0
-            CheckBox6.CheckState = 0
-            CheckBox7.CheckState = 0
-            CheckBox8.CheckState = 0
-            CheckBox9.CheckState = 0
-            CheckBox10.CheckState = 0
-            CheckBox11.CheckState = 0
-            CheckBox12.CheckState = 0
-            CheckBox13.CheckState = 0
-            CheckBox14.CheckState = 0
-            CheckBox15.CheckState = 0
-            CheckBox17.CheckState = 0
-            CheckBox18.CheckState = 0
-        End If
-    End Sub
-    Private Sub box17() Handles CheckBox17.CheckedChanged
-        If CheckBox17.Checked = True Then
-            CheckBox4.CheckState = 0
-            CheckBox5.CheckState = 0
-            CheckBox6.CheckState = 0
-            CheckBox7.CheckState = 0
-            CheckBox8.CheckState = 0
-            CheckBox9.CheckState = 0
-            CheckBox10.CheckState = 0
-            CheckBox11.CheckState = 0
-            CheckBox12.CheckState = 0
-            CheckBox13.CheckState = 0
-            CheckBox14.CheckState = 0
-            CheckBox15.CheckState = 0
-            CheckBox16.CheckState = 0
-            CheckBox18.CheckState = 0
-        End If
-    End Sub
-    Private Sub box18() Handles CheckBox18.CheckedChanged
-        If CheckBox18.Checked = True Then
-            CheckBox4.CheckState = 0
-            CheckBox5.CheckState = 0
-            CheckBox6.CheckState = 0
-            CheckBox7.CheckState = 0
-            CheckBox8.CheckState = 0
-            CheckBox9.CheckState = 0
-            CheckBox10.CheckState = 0
-            CheckBox11.CheckState = 0
-            CheckBox12.CheckState = 0
-            CheckBox13.CheckState = 0
-            CheckBox14.CheckState = 0
-            CheckBox15.CheckState = 0
-            CheckBox16.CheckState = 0
-            CheckBox17.CheckState = 0
-        End If
-    End Sub
 #End Region
+#Region "Helmets"
+        If IO.File.Exists(ovrdir & "\Helmet\8Ball") Then
+            ComboBox2.SelectedIndex = 1
+        ElseIf IO.File.Exists(ovrdir & "\Helmet\American") Then
+            ComboBox2.SelectedIndex = 2
+        ElseIf IO.File.Exists(ovrdir & "\Helmet\Black") Then
+            ComboBox2.SelectedIndex = 3
+        ElseIf IO.File.Exists(ovrdir & "\Helmet\Blue") Then
+            ComboBox2.SelectedIndex = 4
+        ElseIf IO.File.Exists(ovrdir & "\Helmet\Eye") Then
+            ComboBox2.SelectedIndex = 5
+        ElseIf IO.File.Exists(ovrdir & "\Helmet\Flames") Then
+            ComboBox2.SelectedIndex = 6
+        ElseIf IO.File.Exists(ovrdir & "\Helmet\FullSkull") Then
+            ComboBox2.SelectedIndex = 7
+        ElseIf IO.File.Exists(ovrdir & "\Helmet\Green") Then
+            ComboBox2.SelectedIndex = 8
+        ElseIf IO.File.Exists(ovrdir & "\Helmet\Grey") Then
+            ComboBox2.SelectedIndex = 9
+        ElseIf IO.File.Exists(ovrdir & "\Helmet\Police") Then
+            ComboBox2.SelectedIndex = 10
+        ElseIf IO.File.Exists(ovrdir & "\Helmet\Red") Then
+            ComboBox2.SelectedIndex = 11
+        ElseIf IO.File.Exists(ovrdir & "\Helmet\ShotSmiley") Then
+            ComboBox2.SelectedIndex = 12
+        ElseIf IO.File.Exists(ovrdir & "\Helmet\Skull") Then
+            ComboBox2.SelectedIndex = 13
+        ElseIf IO.File.Exists(ovrdir & "\Helmet\Yellow") Then
+            ComboBox2.SelectedIndex = 14
+        Else
+            ComboBox2.SelectedIndex = 0
+        End If
+#End Region
+    End Sub
 #End Region
     Private Sub ApplyChanges(sender As Object, e As EventArgs) Handles Button1.Click
         If CheckBox1.Checked Then
@@ -336,86 +96,168 @@
             IO.File.Delete(ovrdir & "\FemaleFix\_CRT\PCFemale.CRT")
             IO.Directory.Delete(ovrdir & "\FemaleFix\_CRT\")
             IO.Directory.Delete(ovrdir & "\FemaleFix")
+            If CheckBox2.Checked Then
+                line(25) = "enable startup movies = 1"
+                IO.File.WriteAllLines(ifdir, line)
+            Else
+                line(25) = "enable startup movies = 0"
+                IO.File.WriteAllLines(ifdir, line)
+            End If
         End If
-        If CheckBox2.Checked Then
-            line(27) = "enable wireframe = 1"
-            IO.File.WriteAllLines(ifdir, line)
-        Else
-            line(27) = "enable wireframe = 0"
-            IO.File.WriteAllLines(ifdir, line)
+#Region "Load Maps"
+        If ComboBox1.SelectedIndex = 0 Then
+            If IO.File.Exists(ovrdir & "\MenuMap\Engine\sys.ini") Then
+                IO.File.Delete(ovrdir & "\MenuMap\Engine\sys.ini")
+                IO.Directory.Delete(ovrdir & "\MenuMap\Engine")
+                IO.Directory.Delete(ovrdir & "\MenuMap")
+            End If
+        ElseIf ComboBox1.SelectedIndex = 1 Then
+            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
+            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.AaronMap2)
+        ElseIf ComboBox1.SelectedIndex = 2 Then
+            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
+            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Building1)
+        ElseIf ComboBox1.SelectedIndex = 3 Then
+            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
+            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Building2)
+        ElseIf ComboBox1.SelectedIndex = 4 Then
+            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
+            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Building3)
+        ElseIf ComboBox1.SelectedIndex = 5 Then
+            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
+            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Building4)
+        ElseIf ComboBox1.SelectedIndex = 6 Then
+            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
+            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Canyon)
+        ElseIf ComboBox1.SelectedIndex = 7 Then
+            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
+            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Canyon2)
+        ElseIf ComboBox1.SelectedIndex = 8 Then
+            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
+            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Cave)
+        ElseIf ComboBox1.SelectedIndex = 9 Then
+            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
+            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Fences)
+        ElseIf ComboBox1.SelectedIndex = 10 Then
+            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
+            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.ScottEMap1)
+        ElseIf ComboBox1.SelectedIndex = 11 Then
+            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
+            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.ScottEMap2)
+        ElseIf ComboBox1.SelectedIndex = 12 Then
+            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
+            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.ScottEMap4)
+        ElseIf ComboBox1.SelectedIndex = 13 Then
+            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
+            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Shacks)
+        ElseIf ComboBox1.SelectedIndex = 14 Then
+            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
+            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Tutorial)
+        ElseIf ComboBox1.SelectedIndex = 15 Then
+            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
+            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Vault)
         End If
-        If CheckBox3.Checked Then
-            line(25) = "enable startup movies = 1"
-            IO.File.WriteAllLines(ifdir, line)
-        Else
-            line(25) = "enable startup movies = 0"
-            IO.File.WriteAllLines(ifdir, line)
-        End If
-#Region "Maps"
-        If CheckBox4.Checked Then
-            IO.Directory.CreateDirectory(ovrdir & "\MapChange\Engine\")
-            IO.File.WriteAllBytes(ovrdir & "\MapChange\Engine\sys.ini", My.Resources.AaronMap2)
-        End If
-        If CheckBox5.Checked Then
-            IO.Directory.CreateDirectory(ovrdir & "\MapChange\Engine\")
-            IO.File.WriteAllBytes(ovrdir & "\MapChange\Engine\sys.ini", My.Resources.Building2)
-        End If
-        If CheckBox6.Checked Then
-            IO.Directory.CreateDirectory(ovrdir & "\MapChange\Engine\")
-            IO.File.WriteAllBytes(ovrdir & "\MapChange\Engine\sys.ini", My.Resources.Building4)
-        End If
-        If CheckBox7.Checked Then
-            IO.Directory.CreateDirectory(ovrdir & "\MapChange\Engine\")
-            IO.File.WriteAllBytes(ovrdir & "\MapChange\Engine\sys.ini", My.Resources.Canyon2)
-        End If
-        If CheckBox8.Checked Then
-            IO.Directory.CreateDirectory(ovrdir & "\MapChange\Engine\")
-            IO.File.WriteAllBytes(ovrdir & "\MapChange\Engine\sys.ini", My.Resources.Fences)
-        End If
-        If CheckBox9.Checked Then
-            IO.Directory.CreateDirectory(ovrdir & "\MapChange\Engine\")
-            IO.File.WriteAllBytes(ovrdir & "\MapChange\Engine\sys.ini", My.Resources.ScottEMap1)
-        End If
-        If CheckBox10.Checked Then
-            IO.Directory.CreateDirectory(ovrdir & "\MapChange\Engine\")
-            IO.File.WriteAllBytes(ovrdir & "\MapChange\Engine\sys.ini", My.Resources.ScottEMap4)
-        End If
-        If CheckBox11.Checked Then
-            IO.Directory.CreateDirectory(ovrdir & "\MapChange\Engine\")
-            IO.File.WriteAllBytes(ovrdir & "\MapChange\Engine\sys.ini", My.Resources.Vault)
-        End If
-        If CheckBox12.Checked Then
-            IO.Directory.CreateDirectory(ovrdir & "\MapChange\Engine\")
-            IO.File.WriteAllBytes(ovrdir & "\MapChange\Engine\sys.ini", My.Resources.Building1)
-        End If
-        If CheckBox13.Checked Then
-            IO.Directory.CreateDirectory(ovrdir & "\MapChange\Engine\")
-            IO.File.WriteAllBytes(ovrdir & "\MapChange\Engine\sys.ini", My.Resources.Building3)
-        End If
-        If CheckBox14.Checked Then
-            IO.Directory.CreateDirectory(ovrdir & "\MapChange\Engine\")
-            IO.File.WriteAllBytes(ovrdir & "\MapChange\Engine\sys.ini", My.Resources.Canyon)
-        End If
-        If CheckBox15.Checked Then
-            IO.Directory.CreateDirectory(ovrdir & "\MapChange\Engine\")
-            IO.File.WriteAllBytes(ovrdir & "\MapChange\Engine\sys.ini", My.Resources.Cave)
-        End If
-        If CheckBox16.Checked Then
-            IO.Directory.CreateDirectory(ovrdir & "\MapChange\Engine\")
-            IO.File.WriteAllBytes(ovrdir & "\MapChange\Engine\sys.ini", My.Resources.MainMenu)
-        End If
-        If CheckBox17.Checked Then
-            IO.Directory.CreateDirectory(ovrdir & "\MapChange\Engine\")
-            IO.File.WriteAllBytes(ovrdir & "\MapChange\Engine\sys.ini", My.Resources.ScottEMap2)
-        End If
-        If CheckBox18.Checked Then
-            IO.Directory.CreateDirectory(ovrdir & "\MapChange\Engine\")
-            IO.File.WriteAllBytes(ovrdir & "\MapChange\Engine\sys.ini", My.Resources.Shacks)
-        End If
-        If Not CheckBox4.Checked And Not CheckBox5.Checked And Not CheckBox6.Checked And Not CheckBox7.Checked And Not CheckBox8.Checked And Not CheckBox9.Checked And Not CheckBox10.Checked And Not CheckBox11.Checked And Not CheckBox12.Checked And Not CheckBox13.Checked And Not CheckBox14.Checked And Not CheckBox15.Checked And Not CheckBox16.Checked And Not CheckBox17.Checked And Not CheckBox18.Checked And IO.Directory.Exists(ovrdir & "/MapChange") Then
-            IO.File.Delete(ovrdir & "\MapChange\Engine\sys.ini")
-            IO.Directory.Delete(ovrdir & "\MapChange\Engine")
-            IO.Directory.Delete(ovrdir & "\MapChange")
+#End Region
+#Region "Load Helmets"
+        IO.Directory.CreateDirectory(ovrdir & "\Helmet")
+        Dim helmdi As New IO.DirectoryInfo(ovrdir & "\Helmet")
+        Dim helmfi As IO.FileInfo() = helmdi.GetFiles()
+        Dim file As IO.FileInfo
+        For Each file In helmfi
+            IO.File.Delete(file.FullName)
+        Next
+        If ComboBox2.SelectedIndex = 0 Then
+            If IO.Directory.Exists(ovrdir & "\Helmet\Interface") Then
+                IO.File.Delete(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga")
+                IO.File.Delete(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga")
+                IO.Directory.Delete(ovrdir & "\Helmet\Interface")
+                IO.Directory.Delete(ovrdir & "\Helmet\Critters")
+                IO.Directory.Delete(ovrdir & "\Helmet")
+            End If
+        ElseIf ComboBox2.SelectedIndex = 1 Then
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
+            IO.File.Create(ovrdir & "\Helmet\8Ball")
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources._8_Ball_I)
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources._8_Ball)
+        ElseIf ComboBox2.SelectedIndex = 2 Then
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
+            IO.File.Create(ovrdir & "\Helmet\American")
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.AmericanI)
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.American)
+        ElseIf ComboBox2.SelectedIndex = 3 Then
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
+            IO.File.Create(ovrdir & "\Helmet\American")
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.BlackI)
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Black)
+        ElseIf ComboBox2.SelectedIndex = 4 Then
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
+            IO.File.Create(ovrdir & "\Helmet\Blue")
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.BlueI)
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Blue)
+        ElseIf ComboBox2.SelectedIndex = 5 Then
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
+            IO.File.Create(ovrdir & "\Helmet\Eye")
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.EyeI)
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Eye)
+        ElseIf ComboBox2.SelectedIndex = 6 Then
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
+            IO.File.Create(ovrdir & "\Helmet\Flames")
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.FlamesI)
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Flames)
+        ElseIf ComboBox2.SelectedIndex = 7 Then
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
+            IO.File.Create(ovrdir & "\Helmet\FullSkull")
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.Full_SkullI)
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Full_Skull)
+        ElseIf ComboBox2.SelectedIndex = 8 Then
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
+            IO.File.Create(ovrdir & "\Helmet\Green")
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.GreenI)
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Green)
+        ElseIf ComboBox2.SelectedIndex = 9 Then
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
+            IO.File.Create(ovrdir & "\Helmet\Grey")
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.GreyI)
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Grey)
+        ElseIf ComboBox2.SelectedIndex = 10 Then
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
+            IO.File.Create(ovrdir & "\Helmet\Police")
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.PoliceI)
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Police)
+        ElseIf ComboBox2.SelectedIndex = 11 Then
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
+            IO.File.Create(ovrdir & "\Helmet\Red")
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.RedI)
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Red)
+        ElseIf ComboBox2.SelectedIndex = 12 Then
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
+            IO.File.Create(ovrdir & "\Helmet\ShotSmiley")
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.Shot_SmileyI)
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Shot_Smiley)
+        ElseIf ComboBox2.SelectedIndex = 13 Then
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
+            IO.File.Create(ovrdir & "\Helmet\Skull")
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.SkullI)
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Skull)
+        ElseIf ComboBox2.SelectedIndex = 14 Then
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
+            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
+            IO.File.Create(ovrdir & "\Helmet\Yellow")
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.YellowI)
+            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Yellow)
         End If
 #End Region
         Hide()
@@ -426,5 +268,38 @@
         line(35) = "width = " & My.Computer.Screen.Bounds.Width
         IO.File.WriteAllLines(ifdir, line)
         MsgBox("Changed Settings to match your monitor!", MsgBoxStyle.Information Or MsgBoxStyle.OkOnly, "Success!")
+    End Sub
+    Private Sub HelmetPreview() Handles ComboBox2.SelectedIndexChanged
+        If ComboBox2.SelectedIndex = 0 Then
+            PictureBox1.Image = My.Resources.Default_Icon
+        ElseIf ComboBox2.SelectedIndex = 1 Then
+            PictureBox1.Image = My.Resources._8_Ball_Icon
+        ElseIf ComboBox2.SelectedIndex = 2 Then
+            PictureBox1.Image = My.Resources.American_Icon
+        ElseIf ComboBox2.SelectedIndex = 3 Then
+            PictureBox1.Image = My.Resources.Black_Icon
+        ElseIf ComboBox2.SelectedIndex = 4 Then
+            PictureBox1.Image = My.Resources.Blue_Icon
+        ElseIf ComboBox2.SelectedIndex = 5 Then
+            PictureBox1.Image = My.Resources.Eye_Icon
+        ElseIf ComboBox2.SelectedIndex = 6 Then
+            PictureBox1.Image = My.Resources.Flames_Icon
+        ElseIf ComboBox2.SelectedIndex = 7 Then
+            PictureBox1.Image = My.Resources.Full_Skull_Icon
+        ElseIf ComboBox2.SelectedIndex = 8 Then
+            PictureBox1.Image = My.Resources.Green_Icon
+        ElseIf ComboBox2.SelectedIndex = 9 Then
+            PictureBox1.Image = My.Resources.Grey_Icon
+        ElseIf ComboBox2.SelectedIndex = 10 Then
+            PictureBox1.Image = My.Resources.Police_Icon
+        ElseIf ComboBox2.SelectedIndex = 11 Then
+            PictureBox1.Image = My.Resources.Red_Icon
+        ElseIf ComboBox2.SelectedIndex = 12 Then
+            PictureBox1.Image = My.Resources.Shot_Smiley_Icon
+        ElseIf ComboBox2.SelectedIndex = 13 Then
+            PictureBox1.Image = My.Resources.Skull_Icon
+        ElseIf ComboBox2.SelectedIndex = 14 Then
+            PictureBox1.Image = My.Resources.Yellow_Icon
+        End If
     End Sub
 End Class
