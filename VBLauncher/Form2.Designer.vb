@@ -27,32 +27,24 @@ Partial Class Form2
         Me.CheckBox1 = New System.Windows.Forms.CheckBox()
         Me.Button2 = New System.Windows.Forms.Button()
         Me.CheckBox2 = New System.Windows.Forms.CheckBox()
-        Me.CheckBox3 = New System.Windows.Forms.CheckBox()
         Me.Button3 = New System.Windows.Forms.Button()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
-        Me.CheckBox18 = New System.Windows.Forms.CheckBox()
-        Me.CheckBox17 = New System.Windows.Forms.CheckBox()
-        Me.CheckBox16 = New System.Windows.Forms.CheckBox()
-        Me.CheckBox15 = New System.Windows.Forms.CheckBox()
-        Me.CheckBox14 = New System.Windows.Forms.CheckBox()
-        Me.CheckBox13 = New System.Windows.Forms.CheckBox()
-        Me.CheckBox12 = New System.Windows.Forms.CheckBox()
-        Me.CheckBox11 = New System.Windows.Forms.CheckBox()
-        Me.CheckBox10 = New System.Windows.Forms.CheckBox()
-        Me.CheckBox9 = New System.Windows.Forms.CheckBox()
-        Me.CheckBox8 = New System.Windows.Forms.CheckBox()
-        Me.CheckBox7 = New System.Windows.Forms.CheckBox()
-        Me.CheckBox6 = New System.Windows.Forms.CheckBox()
-        Me.CheckBox5 = New System.Windows.Forms.CheckBox()
-        Me.CheckBox4 = New System.Windows.Forms.CheckBox()
+        Me.Label3 = New System.Windows.Forms.Label()
+        Me.ComboBox2 = New System.Windows.Forms.ComboBox()
+        Me.Label2 = New System.Windows.Forms.Label()
+        Me.PictureBox1 = New System.Windows.Forms.PictureBox()
+        Me.ComboBox1 = New System.Windows.Forms.ComboBox()
+        Me.Label1 = New System.Windows.Forms.Label()
+        Me.Button4 = New System.Windows.Forms.Button()
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
+        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'Button1
         '
-        Me.Button1.Location = New System.Drawing.Point(199, 318)
+        Me.Button1.Location = New System.Drawing.Point(199, 209)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(60, 23)
         Me.Button1.TabIndex = 0
@@ -72,7 +64,7 @@ Partial Class Form2
         'Button2
         '
         Me.Button2.DialogResult = System.Windows.Forms.DialogResult.Cancel
-        Me.Button2.Location = New System.Drawing.Point(133, 318)
+        Me.Button2.Location = New System.Drawing.Point(133, 209)
         Me.Button2.Name = "Button2"
         Me.Button2.Size = New System.Drawing.Size(60, 23)
         Me.Button2.TabIndex = 2
@@ -84,215 +76,110 @@ Partial Class Form2
         Me.CheckBox2.AutoSize = True
         Me.CheckBox2.Location = New System.Drawing.Point(6, 42)
         Me.CheckBox2.Name = "CheckBox2"
-        Me.CheckBox2.Size = New System.Drawing.Size(100, 17)
-        Me.CheckBox2.TabIndex = 4
-        Me.CheckBox2.Text = "Wireframe View"
+        Me.CheckBox2.Size = New System.Drawing.Size(131, 17)
+        Me.CheckBox2.TabIndex = 5
+        Me.CheckBox2.Text = "Enable Startup Videos"
         Me.CheckBox2.UseVisualStyleBackColor = True
-        '
-        'CheckBox3
-        '
-        Me.CheckBox3.AutoSize = True
-        Me.CheckBox3.Location = New System.Drawing.Point(6, 65)
-        Me.CheckBox3.Name = "CheckBox3"
-        Me.CheckBox3.Size = New System.Drawing.Size(131, 17)
-        Me.CheckBox3.TabIndex = 5
-        Me.CheckBox3.Text = "Enable Startup Videos"
-        Me.CheckBox3.UseVisualStyleBackColor = True
         '
         'Button3
         '
-        Me.Button3.Location = New System.Drawing.Point(12, 318)
+        Me.Button3.Location = New System.Drawing.Point(12, 209)
         Me.Button3.Name = "Button3"
         Me.Button3.Size = New System.Drawing.Size(115, 23)
         Me.Button3.TabIndex = 6
-        Me.Button3.Text = "Auto Resolution"
+        Me.Button3.Text = "Detect Resolution"
         Me.Button3.UseVisualStyleBackColor = True
         '
         'GroupBox1
         '
+        Me.GroupBox1.Controls.Add(Me.Button4)
         Me.GroupBox1.Controls.Add(Me.CheckBox1)
         Me.GroupBox1.Controls.Add(Me.CheckBox2)
-        Me.GroupBox1.Controls.Add(Me.CheckBox3)
         Me.GroupBox1.Location = New System.Drawing.Point(12, 12)
         Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(247, 86)
+        Me.GroupBox1.Size = New System.Drawing.Size(247, 95)
         Me.GroupBox1.TabIndex = 7
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "General Tweaks"
         '
         'GroupBox2
         '
-        Me.GroupBox2.Controls.Add(Me.CheckBox18)
-        Me.GroupBox2.Controls.Add(Me.CheckBox17)
-        Me.GroupBox2.Controls.Add(Me.CheckBox16)
-        Me.GroupBox2.Controls.Add(Me.CheckBox15)
-        Me.GroupBox2.Controls.Add(Me.CheckBox14)
-        Me.GroupBox2.Controls.Add(Me.CheckBox13)
-        Me.GroupBox2.Controls.Add(Me.CheckBox12)
-        Me.GroupBox2.Controls.Add(Me.CheckBox11)
-        Me.GroupBox2.Controls.Add(Me.CheckBox10)
-        Me.GroupBox2.Controls.Add(Me.CheckBox9)
-        Me.GroupBox2.Controls.Add(Me.CheckBox8)
-        Me.GroupBox2.Controls.Add(Me.CheckBox7)
-        Me.GroupBox2.Controls.Add(Me.CheckBox6)
-        Me.GroupBox2.Controls.Add(Me.CheckBox5)
-        Me.GroupBox2.Controls.Add(Me.CheckBox4)
-        Me.GroupBox2.Location = New System.Drawing.Point(12, 105)
+        Me.GroupBox2.Controls.Add(Me.ComboBox1)
+        Me.GroupBox2.Controls.Add(Me.Label3)
+        Me.GroupBox2.Controls.Add(Me.ComboBox2)
+        Me.GroupBox2.Controls.Add(Me.Label2)
+        Me.GroupBox2.Controls.Add(Me.PictureBox1)
+        Me.GroupBox2.Controls.Add(Me.Label1)
+        Me.GroupBox2.Location = New System.Drawing.Point(12, 112)
         Me.GroupBox2.Name = "GroupBox2"
-        Me.GroupBox2.Size = New System.Drawing.Size(247, 207)
+        Me.GroupBox2.Size = New System.Drawing.Size(247, 91)
         Me.GroupBox2.TabIndex = 8
         Me.GroupBox2.TabStop = False
-        Me.GroupBox2.Text = "Alternate Maps (Uncheck For Default)"
+        Me.GroupBox2.Text = "Fun Tweaks"
         '
-        'CheckBox18
+        'Label3
         '
-        Me.CheckBox18.AutoSize = True
-        Me.CheckBox18.Location = New System.Drawing.Point(121, 162)
-        Me.CheckBox18.Name = "CheckBox18"
-        Me.CheckBox18.Size = New System.Drawing.Size(62, 17)
-        Me.CheckBox18.TabIndex = 14
-        Me.CheckBox18.Text = "Shacks"
-        Me.CheckBox18.UseVisualStyleBackColor = True
+        Me.Label3.AutoSize = True
+        Me.Label3.Location = New System.Drawing.Point(123, 69)
+        Me.Label3.Name = "Label3"
+        Me.Label3.Size = New System.Drawing.Size(48, 13)
+        Me.Label3.TabIndex = 6
+        Me.Label3.Text = "Preview:"
         '
-        'CheckBox17
+        'ComboBox2
         '
-        Me.CheckBox17.AutoSize = True
-        Me.CheckBox17.Location = New System.Drawing.Point(121, 139)
-        Me.CheckBox17.Name = "CheckBox17"
-        Me.CheckBox17.Size = New System.Drawing.Size(94, 17)
-        Me.CheckBox17.TabIndex = 13
-        Me.CheckBox17.Text = "Scott E Map 2"
-        Me.CheckBox17.UseVisualStyleBackColor = True
+        Me.ComboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.ComboBox2.FormattingEnabled = True
+        Me.ComboBox2.Items.AddRange(New Object() {"Default", "8-Ball", "American", "Black", "Blue", "Eye", "Flames", "Full Skull", "Green", "Grey", "Police", "Red", "Shot Smiley", "Skull", "Yellow"})
+        Me.ComboBox2.Location = New System.Drawing.Point(52, 44)
+        Me.ComboBox2.Name = "ComboBox2"
+        Me.ComboBox2.Size = New System.Drawing.Size(119, 21)
+        Me.ComboBox2.TabIndex = 5
         '
-        'CheckBox16
+        'Label2
         '
-        Me.CheckBox16.AutoSize = True
-        Me.CheckBox16.Location = New System.Drawing.Point(121, 115)
-        Me.CheckBox16.Name = "CheckBox16"
-        Me.CheckBox16.Size = New System.Drawing.Size(79, 17)
-        Me.CheckBox16.TabIndex = 12
-        Me.CheckBox16.Text = "Main Menu"
-        Me.CheckBox16.UseVisualStyleBackColor = True
+        Me.Label2.AutoSize = True
+        Me.Label2.Location = New System.Drawing.Point(6, 47)
+        Me.Label2.Name = "Label2"
+        Me.Label2.Size = New System.Drawing.Size(40, 13)
+        Me.Label2.TabIndex = 4
+        Me.Label2.Text = "Helmet"
         '
-        'CheckBox15
+        'PictureBox1
         '
-        Me.CheckBox15.AutoSize = True
-        Me.CheckBox15.Location = New System.Drawing.Point(121, 91)
-        Me.CheckBox15.Name = "CheckBox15"
-        Me.CheckBox15.Size = New System.Drawing.Size(51, 17)
-        Me.CheckBox15.TabIndex = 11
-        Me.CheckBox15.Text = "Cave"
-        Me.CheckBox15.UseVisualStyleBackColor = True
+        Me.PictureBox1.Location = New System.Drawing.Point(177, 36)
+        Me.PictureBox1.Name = "PictureBox1"
+        Me.PictureBox1.Size = New System.Drawing.Size(64, 50)
+        Me.PictureBox1.TabIndex = 3
+        Me.PictureBox1.TabStop = False
         '
-        'CheckBox14
+        'ComboBox1
         '
-        Me.CheckBox14.AutoSize = True
-        Me.CheckBox14.Location = New System.Drawing.Point(121, 67)
-        Me.CheckBox14.Name = "CheckBox14"
-        Me.CheckBox14.Size = New System.Drawing.Size(71, 17)
-        Me.CheckBox14.TabIndex = 10
-        Me.CheckBox14.Text = "Canyon 1"
-        Me.CheckBox14.UseVisualStyleBackColor = True
+        Me.ComboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.ComboBox1.FormattingEnabled = True
+        Me.ComboBox1.Items.AddRange(New Object() {"Default", "Aaron Map 2", "Building 1", "Building 2", "Building 3", "Building 4", "Canyon 1", "Canyon 2", "Cave", "Fences", "Scott E Map 1", "Scott E Map 2", "Scott E Map 4", "Shacks", "Tutorial", "Vault"})
+        Me.ComboBox1.Location = New System.Drawing.Point(96, 17)
+        Me.ComboBox1.Name = "ComboBox1"
+        Me.ComboBox1.Size = New System.Drawing.Size(145, 21)
+        Me.ComboBox1.TabIndex = 1
         '
-        'CheckBox13
+        'Label1
         '
-        Me.CheckBox13.AutoSize = True
-        Me.CheckBox13.Location = New System.Drawing.Point(121, 43)
-        Me.CheckBox13.Name = "CheckBox13"
-        Me.CheckBox13.Size = New System.Drawing.Size(72, 17)
-        Me.CheckBox13.TabIndex = 9
-        Me.CheckBox13.Text = "Building 3"
-        Me.CheckBox13.UseVisualStyleBackColor = True
+        Me.Label1.AutoSize = True
+        Me.Label1.Location = New System.Drawing.Point(6, 20)
+        Me.Label1.Name = "Label1"
+        Me.Label1.Size = New System.Drawing.Size(84, 13)
+        Me.Label1.TabIndex = 0
+        Me.Label1.Text = "Main Menu Map"
         '
-        'CheckBox12
+        'Button4
         '
-        Me.CheckBox12.AutoSize = True
-        Me.CheckBox12.Location = New System.Drawing.Point(121, 19)
-        Me.CheckBox12.Name = "CheckBox12"
-        Me.CheckBox12.Size = New System.Drawing.Size(72, 17)
-        Me.CheckBox12.TabIndex = 8
-        Me.CheckBox12.Text = "Building 1"
-        Me.CheckBox12.UseVisualStyleBackColor = True
-        '
-        'CheckBox11
-        '
-        Me.CheckBox11.AutoSize = True
-        Me.CheckBox11.Location = New System.Drawing.Point(6, 186)
-        Me.CheckBox11.Name = "CheckBox11"
-        Me.CheckBox11.Size = New System.Drawing.Size(50, 17)
-        Me.CheckBox11.TabIndex = 7
-        Me.CheckBox11.Text = "Vault"
-        Me.CheckBox11.UseVisualStyleBackColor = True
-        '
-        'CheckBox10
-        '
-        Me.CheckBox10.AutoSize = True
-        Me.CheckBox10.Location = New System.Drawing.Point(6, 162)
-        Me.CheckBox10.Name = "CheckBox10"
-        Me.CheckBox10.Size = New System.Drawing.Size(94, 17)
-        Me.CheckBox10.TabIndex = 6
-        Me.CheckBox10.Text = "Scott E Map 4"
-        Me.CheckBox10.UseVisualStyleBackColor = True
-        '
-        'CheckBox9
-        '
-        Me.CheckBox9.AutoSize = True
-        Me.CheckBox9.Location = New System.Drawing.Point(6, 138)
-        Me.CheckBox9.Name = "CheckBox9"
-        Me.CheckBox9.Size = New System.Drawing.Size(94, 17)
-        Me.CheckBox9.TabIndex = 5
-        Me.CheckBox9.Text = "Scott E Map 1"
-        Me.CheckBox9.UseVisualStyleBackColor = True
-        '
-        'CheckBox8
-        '
-        Me.CheckBox8.AutoSize = True
-        Me.CheckBox8.Location = New System.Drawing.Point(6, 115)
-        Me.CheckBox8.Name = "CheckBox8"
-        Me.CheckBox8.Size = New System.Drawing.Size(61, 17)
-        Me.CheckBox8.TabIndex = 4
-        Me.CheckBox8.Text = "Fences"
-        Me.CheckBox8.UseVisualStyleBackColor = True
-        '
-        'CheckBox7
-        '
-        Me.CheckBox7.AutoSize = True
-        Me.CheckBox7.Location = New System.Drawing.Point(6, 91)
-        Me.CheckBox7.Name = "CheckBox7"
-        Me.CheckBox7.Size = New System.Drawing.Size(71, 17)
-        Me.CheckBox7.TabIndex = 3
-        Me.CheckBox7.Text = "Canyon 2"
-        Me.CheckBox7.UseVisualStyleBackColor = True
-        '
-        'CheckBox6
-        '
-        Me.CheckBox6.AutoSize = True
-        Me.CheckBox6.Location = New System.Drawing.Point(6, 67)
-        Me.CheckBox6.Name = "CheckBox6"
-        Me.CheckBox6.Size = New System.Drawing.Size(72, 17)
-        Me.CheckBox6.TabIndex = 2
-        Me.CheckBox6.Text = "Building 4"
-        Me.CheckBox6.UseVisualStyleBackColor = True
-        '
-        'CheckBox5
-        '
-        Me.CheckBox5.AutoSize = True
-        Me.CheckBox5.Location = New System.Drawing.Point(6, 43)
-        Me.CheckBox5.Name = "CheckBox5"
-        Me.CheckBox5.Size = New System.Drawing.Size(72, 17)
-        Me.CheckBox5.TabIndex = 1
-        Me.CheckBox5.Text = "Building 2"
-        Me.CheckBox5.UseVisualStyleBackColor = True
-        '
-        'CheckBox4
-        '
-        Me.CheckBox4.AutoSize = True
-        Me.CheckBox4.Location = New System.Drawing.Point(6, 19)
-        Me.CheckBox4.Name = "CheckBox4"
-        Me.CheckBox4.Size = New System.Drawing.Size(87, 17)
-        Me.CheckBox4.TabIndex = 0
-        Me.CheckBox4.Text = "Aaron Map 2"
-        Me.CheckBox4.UseVisualStyleBackColor = True
+        Me.Button4.Location = New System.Drawing.Point(6, 65)
+        Me.Button4.Name = "Button4"
+        Me.Button4.Size = New System.Drawing.Size(125, 23)
+        Me.Button4.TabIndex = 7
+        Me.Button4.Text = "Hotkey Manager"
+        Me.Button4.UseVisualStyleBackColor = True
         '
         'Form2
         '
@@ -300,7 +187,7 @@ Partial Class Form2
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.CancelButton = Me.Button2
-        Me.ClientSize = New System.Drawing.Size(271, 353)
+        Me.ClientSize = New System.Drawing.Size(271, 244)
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.GroupBox1)
         Me.Controls.Add(Me.Button3)
@@ -318,6 +205,7 @@ Partial Class Form2
         Me.GroupBox1.PerformLayout()
         Me.GroupBox2.ResumeLayout(False)
         Me.GroupBox2.PerformLayout()
+        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
 
     End Sub
@@ -326,23 +214,14 @@ Partial Class Form2
     Friend WithEvents CheckBox1 As CheckBox
     Friend WithEvents Button2 As Button
     Friend WithEvents CheckBox2 As CheckBox
-    Friend WithEvents CheckBox3 As CheckBox
     Friend WithEvents Button3 As Button
     Friend WithEvents GroupBox1 As GroupBox
     Friend WithEvents GroupBox2 As GroupBox
-    Friend WithEvents CheckBox18 As CheckBox
-    Friend WithEvents CheckBox17 As CheckBox
-    Friend WithEvents CheckBox16 As CheckBox
-    Friend WithEvents CheckBox15 As CheckBox
-    Friend WithEvents CheckBox14 As CheckBox
-    Friend WithEvents CheckBox13 As CheckBox
-    Friend WithEvents CheckBox12 As CheckBox
-    Friend WithEvents CheckBox11 As CheckBox
-    Friend WithEvents CheckBox10 As CheckBox
-    Friend WithEvents CheckBox9 As CheckBox
-    Friend WithEvents CheckBox8 As CheckBox
-    Friend WithEvents CheckBox7 As CheckBox
-    Friend WithEvents CheckBox6 As CheckBox
-    Friend WithEvents CheckBox5 As CheckBox
-    Friend WithEvents CheckBox4 As CheckBox
+    Friend WithEvents ComboBox1 As ComboBox
+    Friend WithEvents Label1 As Label
+    Friend WithEvents Label3 As Label
+    Friend WithEvents ComboBox2 As ComboBox
+    Friend WithEvents Label2 As Label
+    Friend WithEvents PictureBox1 As PictureBox
+    Friend WithEvents Button4 As Button
 End Class

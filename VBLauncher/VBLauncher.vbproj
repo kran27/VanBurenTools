@@ -89,6 +89,12 @@
     <Compile Include="Form2.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Form3.Designer.vb">
+      <DependentUpon>Form3.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Form3.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -113,11 +119,14 @@
     <EmbeddedResource Include="Form2.resx">
       <DependentUpon>Form2.vb</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Form3.resx">
+      <DependentUpon>Form3.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="My Project\Resources.resx">
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -131,22 +140,70 @@
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
     <None Include="App.config" />
+    <None Include="Resources\8 Ball.tga" />
+    <None Include="Resources\8-Ball I.tga" />
+    <None Include="Resources\8-Ball Icon.tga" />
     <None Include="Resources\AaronMap2" />
+    <None Include="Resources\AaronMap2.ini" />
+    <None Include="Resources\American.tga" />
+    <None Include="Resources\AmericanI.tga" />
+    <None Include="Resources\Black.tga" />
+    <None Include="Resources\BlackI.tga" />
+    <None Include="Resources\Blue.tga" />
+    <None Include="Resources\BlueI.tga" />
     <None Include="Resources\Building1" />
+    <None Include="Resources\Building1.ini" />
     <None Include="Resources\Building2" />
+    <None Include="Resources\Building2.ini" />
     <None Include="Resources\Building3" />
+    <None Include="Resources\Building3.ini" />
     <None Include="Resources\Building4" />
+    <None Include="Resources\Building4.ini" />
     <None Include="Resources\Canyon" />
+    <None Include="Resources\Canyon.ini" />
     <None Include="Resources\Canyon2" />
+    <None Include="Resources\Canyon2.ini" />
     <None Include="Resources\Cave" />
+    <None Include="Resources\Cave.ini" />
+    <None Include="Resources\Default Icon.tga" />
+    <None Include="Resources\Default.ini" />
+    <None Include="Resources\DefaultI.tga" />
+    <None Include="Resources\Eye.tga" />
+    <None Include="Resources\EyeI.tga" />
     <None Include="Resources\Fences" />
+    <None Include="Resources\Fences.ini" />
+    <None Include="Resources\Flames.tga" />
+    <None Include="Resources\FlamesI.tga" />
+    <None Include="Resources\Full Skull.tga" />
+    <None Include="Resources\Full SkullI.tga" />
+    <None Include="Resources\Green.tga" />
+    <None Include="Resources\GreenI.tga" />
+    <None Include="Resources\Grey.tga" />
+    <None Include="Resources\GreyI.tga" />
     <None Include="Resources\MainMenu" />
     <None Include="Resources\PCFemale" />
+    <None Include="Resources\PCFemale.CRT" />
+    <None Include="Resources\Police.tga" />
+    <None Include="Resources\PoliceI.tga" />
+    <None Include="Resources\Red.tga" />
+    <None Include="Resources\RedI.tga" />
     <None Include="Resources\ScottEMap1" />
+    <None Include="Resources\ScottEMap1.ini" />
     <None Include="Resources\ScottEMap2" />
+    <None Include="Resources\ScottEMap2.ini" />
     <None Include="Resources\ScottEMap4" />
+    <None Include="Resources\ScottEMap4.ini" />
     <None Include="Resources\Shacks" />
+    <None Include="Resources\Shacks.ini" />
+    <None Include="Resources\Shot Smiley.tga" />
+    <None Include="Resources\Shot SmileyI.tga" />
+    <None Include="Resources\Skull.tga" />
+    <None Include="Resources\SkullI.tga" />
+    <None Include="Resources\Tutorial.ini" />
     <None Include="Resources\Vault" />
+    <None Include="Resources\Vault.ini" />
+    <None Include="Resources\Yellow.tga" />
+    <None Include="Resources\YellowI.tga" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\BG.png" />
@@ -162,6 +219,51 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\F3.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\8-Ball Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\American Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Black Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Blue Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Default Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Eye Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Flames Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Full Skull Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Green Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Grey Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Police Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Red Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Shot Smiley Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Skull Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Yellow Icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>
