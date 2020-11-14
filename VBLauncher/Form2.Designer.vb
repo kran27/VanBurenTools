@@ -29,14 +29,14 @@ Partial Class Form2
         Me.CheckBox2 = New System.Windows.Forms.CheckBox()
         Me.Button3 = New System.Windows.Forms.Button()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+        Me.Button4 = New System.Windows.Forms.Button()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
+        Me.ComboBox1 = New System.Windows.Forms.ComboBox()
         Me.Label3 = New System.Windows.Forms.Label()
         Me.ComboBox2 = New System.Windows.Forms.ComboBox()
         Me.Label2 = New System.Windows.Forms.Label()
         Me.PictureBox1 = New System.Windows.Forms.PictureBox()
-        Me.ComboBox1 = New System.Windows.Forms.ComboBox()
         Me.Label1 = New System.Windows.Forms.Label()
-        Me.Button4 = New System.Windows.Forms.Button()
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -102,6 +102,15 @@ Partial Class Form2
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "General Tweaks"
         '
+        'Button4
+        '
+        Me.Button4.Location = New System.Drawing.Point(6, 65)
+        Me.Button4.Name = "Button4"
+        Me.Button4.Size = New System.Drawing.Size(125, 23)
+        Me.Button4.TabIndex = 7
+        Me.Button4.Text = "Keybind Editor"
+        Me.Button4.UseVisualStyleBackColor = True
+        '
         'GroupBox2
         '
         Me.GroupBox2.Controls.Add(Me.ComboBox1)
@@ -116,6 +125,16 @@ Partial Class Form2
         Me.GroupBox2.TabIndex = 8
         Me.GroupBox2.TabStop = False
         Me.GroupBox2.Text = "Fun Tweaks"
+        '
+        'ComboBox1
+        '
+        Me.ComboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.ComboBox1.FormattingEnabled = True
+        Me.ComboBox1.Items.AddRange(New Object() {"Default", "Aaron Map 2", "Building 1", "Building 2", "Building 3", "Building 4", "Canyon 1", "Canyon 2", "Cave", "Fences", "Scott E Map 1", "Scott E Map 2", "Scott E Map 4", "Shacks", "Tutorial", "Vault"})
+        Me.ComboBox1.Location = New System.Drawing.Point(96, 17)
+        Me.ComboBox1.Name = "ComboBox1"
+        Me.ComboBox1.Size = New System.Drawing.Size(145, 21)
+        Me.ComboBox1.TabIndex = 1
         '
         'Label3
         '
@@ -153,16 +172,6 @@ Partial Class Form2
         Me.PictureBox1.TabIndex = 3
         Me.PictureBox1.TabStop = False
         '
-        'ComboBox1
-        '
-        Me.ComboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.ComboBox1.FormattingEnabled = True
-        Me.ComboBox1.Items.AddRange(New Object() {"Default", "Aaron Map 2", "Building 1", "Building 2", "Building 3", "Building 4", "Canyon 1", "Canyon 2", "Cave", "Fences", "Scott E Map 1", "Scott E Map 2", "Scott E Map 4", "Shacks", "Tutorial", "Vault"})
-        Me.ComboBox1.Location = New System.Drawing.Point(96, 17)
-        Me.ComboBox1.Name = "ComboBox1"
-        Me.ComboBox1.Size = New System.Drawing.Size(145, 21)
-        Me.ComboBox1.TabIndex = 1
-        '
         'Label1
         '
         Me.Label1.AutoSize = True
@@ -171,15 +180,6 @@ Partial Class Form2
         Me.Label1.Size = New System.Drawing.Size(84, 13)
         Me.Label1.TabIndex = 0
         Me.Label1.Text = "Main Menu Map"
-        '
-        'Button4
-        '
-        Me.Button4.Location = New System.Drawing.Point(6, 65)
-        Me.Button4.Name = "Button4"
-        Me.Button4.Size = New System.Drawing.Size(125, 23)
-        Me.Button4.TabIndex = 7
-        Me.Button4.Text = "Hotkey Manager"
-        Me.Button4.UseVisualStyleBackColor = True
         '
         'Form2
         '

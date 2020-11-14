@@ -21,7 +21,7 @@
 #End Region
     Private Sub Warning() Handles MyBase.VisibleChanged
         If Not IO.File.Exists(Application.StartupPath & "\F3.exe") Then
-            MsgBox("Please put the launcher in the same directory as the game. Some things wont work!", MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly, "Game Executable Not Found!")
+            MsgBox("Please put the launcher in the same directory as the game so you can launch it!", MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly, "Game Executable Not Found!")
         End If
     End Sub
     Private Sub PictureBox1_Click(sender As Object, e As EventArgs) Handles PictureBox1.Click
