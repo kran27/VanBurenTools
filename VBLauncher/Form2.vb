@@ -19,7 +19,9 @@
 #Region "Maps"
         If IO.File.Exists(ovrdir & "\MenuMap\Engine\sys.ini") Then
             mapline = IO.File.ReadAllLines(ovrdir & "\MenuMap\Engine\sys.ini")
-            If mapline(19) = "map name = zz_TestMapsaarontemp2.map" Then
+            If mapline(19) = "map name = Mainmenu.map" Then
+                ComboBox1.SelectedIndex = 0
+            ElseIf mapline(19) = "map name = zz_TestMapsaarontemp2.map" Then
                 ComboBox1.SelectedIndex = 1
             ElseIf mapline(19) = "map name = zz_TestMapsTest_City_Building01.map" Then
                 ComboBox1.SelectedIndex = 2
@@ -97,21 +99,18 @@
             IO.File.Delete(ovrdir & "\FemaleFix\_CRT\PCFemale.CRT")
             IO.Directory.Delete(ovrdir & "\FemaleFix\_CRT\")
             IO.Directory.Delete(ovrdir & "\FemaleFix")
-            If CheckBox2.Checked Then
-                line(25) = "enable startup movies = 1"
-                IO.File.WriteAllLines(ifdir, line)
-            Else
-                line(25) = "enable startup movies = 0"
-                IO.File.WriteAllLines(ifdir, line)
-            End If
+        End If
+        If CheckBox2.Checked Then
+            line(25) = "enable startup movies = 1"
+            IO.File.WriteAllLines(ifdir, line)
+        Else
+            line(25) = "enable startup movies = 0"
+            IO.File.WriteAllLines(ifdir, line)
         End If
 #Region "Load Maps"
         If ComboBox1.SelectedIndex = 0 Then
-            If IO.File.Exists(ovrdir & "\MenuMap\Engine\sys.ini") Then
-                IO.File.Delete(ovrdir & "\MenuMap\Engine\sys.ini")
-                IO.Directory.Delete(ovrdir & "\MenuMap\Engine")
-                IO.Directory.Delete(ovrdir & "\MenuMap")
-            End If
+            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
+            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources._Default)
         ElseIf ComboBox1.SelectedIndex = 1 Then
             IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
             IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.AaronMap2)

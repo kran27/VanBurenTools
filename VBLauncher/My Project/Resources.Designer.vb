@@ -91,6 +91,41 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  Looks up a localized string similar to [Audio]
+        '''GroupList = FO3.gls
+        '''MusicJumpList = F3.sco
+        '''
+        '''[Camera]
+        '''Azimuth Speed = 360.000000
+        '''Distance Max = 350.000000
+        '''Distance Min = 350.000000
+        '''Distance Speed = 800.000000
+        '''Elevation Max = 89.000000
+        '''Elevation Min = 38.500000
+        '''Elevation Speed = 360.000000
+        '''FOV Speed = 6.50000
+        '''FOV Min = 6.00000
+        '''FOV Max = 15.0000
+        '''Scroll Border = 0.010000
+        '''Scroll Speed = 96.000000
+        '''
+        '''[Mainmenu]
+        '''map name = mainmenu.map
+        '''target x = 0.0
+        '''target y = 5.5
+        '''target z = 0.0
+        '''azimuth = 2
+        '''elevation = 0.75
+        '''distance = 0
+        '''fov = 59 [rest of string was truncated]&quot;;.
+        '''</summary>
+        Friend ReadOnly Property _Default() As String
+            Get
+                Return ResourceManager.GetString("_Default", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
         '''  Looks up a localized resource of type System.Drawing.Bitmap.
         '''</summary>
         Friend ReadOnly Property _Exit() As System.Drawing.Bitmap
@@ -126,7 +161,9 @@ Namespace My.Resources
         '''target z = 0.0
         '''azimuth = 0.0
         '''elevation = 0.0
-        '''distance [rest of string was truncated]&quot;;.
+        '''distance = 0
+        '''fov = 68.0
+        '''znear = 1 [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property AaronMap2() As String
             Get
@@ -258,8 +295,8 @@ Namespace My.Resources
         '''target x = 0.0
         '''target y = 5.5
         '''target z = 0.0
-        '''azimuth = 0.0
-        '''elevation = 0.0 [rest of string was truncated]&quot;;.
+        '''azimuth = 45
+        '''elevation = -2.5 [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property Building1() As String
             Get
@@ -291,8 +328,8 @@ Namespace My.Resources
         '''target x = 0.0
         '''target y = 5.5
         '''target z = 0.0
-        '''azimuth = 0.0
-        '''elevation = 0.0 [rest of string was truncated]&quot;;.
+        '''azimuth = 43
+        '''elevation = -2.5 [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property Building2() As String
             Get
@@ -324,8 +361,9 @@ Namespace My.Resources
         '''target x = 0.0
         '''target y = 5.5
         '''target z = 0.0
-        '''azimuth = 0.0
-        '''elevation = 0.0 [rest of string was truncated]&quot;;.
+        '''azimuth = 43
+        '''elevation = -5
+        ''' [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property Building3() As String
             Get
@@ -357,8 +395,8 @@ Namespace My.Resources
         '''target x = 0.0
         '''target y = 5.5
         '''target z = 0.0
-        '''azimuth = 0.0
-        '''elevation = 0.0 [rest of string was truncated]&quot;;.
+        '''azimuth = 43
+        '''elevation = -5.5 [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property Building4() As String
             Get
@@ -380,19 +418,19 @@ Namespace My.Resources
         '''Elevation Min = 38.500000
         '''Elevation Speed = 360.000000
         '''FOV Speed = 6.50000
-        '''FOV Min = 6.00000
+        '''FOV Min = 6.0000
         '''FOV Max = 15.0000
         '''Scroll Border = 0.010000
         '''Scroll Speed = 96.000000
         '''
         '''[Mainmenu]
         '''map name = 98_Canyon_Random_01.map
-        '''target x = 0.0
-        '''target y = 5.5
-        '''target z = 0.0
-        '''azimuth = 0.0
-        '''elevation = 0.0
-        '''distance = [rest of string was truncated]&quot;;.
+        '''target x = 50.0
+        '''target y = 5
+        '''target z = 10.0
+        '''azimuth = 35
+        '''elevation = -2.5
+        '''distance =  [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property Canyon() As String
             Get
@@ -414,19 +452,19 @@ Namespace My.Resources
         '''Elevation Min = 38.500000
         '''Elevation Speed = 360.000000
         '''FOV Speed = 6.50000
-        '''FOV Min = 6.00000
+        '''FOV Min = 6.0000
         '''FOV Max = 15.0000
         '''Scroll Border = 0.010000
         '''Scroll Speed = 96.000000
         '''
         '''[Mainmenu]
         '''map name = 98_Canyon_Random_02.map
-        '''target x = 0.0
-        '''target y = 5.5
-        '''target z = 0.0
-        '''azimuth = 0.0
-        '''elevation = 0.0
-        '''distance = [rest of string was truncated]&quot;;.
+        '''target x = 65.0
+        '''target y = 5
+        '''target z = 10.0
+        '''azimuth = 20
+        '''elevation = -2.5
+        '''distance =  [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property Canyon2() As String
             Get
@@ -448,19 +486,20 @@ Namespace My.Resources
         '''Elevation Min = 38.500000
         '''Elevation Speed = 360.000000
         '''FOV Speed = 6.50000
-        '''FOV Min = 6.00000
+        '''FOV Min = 6.0000
         '''FOV Max = 15.0000
         '''Scroll Border = 0.010000
         '''Scroll Speed = 96.000000
         '''
         '''[Mainmenu]
         '''map name = 04_0202_Spelunking.map
-        '''target x = 0.0
-        '''target y = 5.5
-        '''target z = 0.0
-        '''azimuth = 0.0
-        '''elevation = 0.0
-        '''distance =  [rest of string was truncated]&quot;;.
+        '''target x = 70.0
+        '''target y = 5
+        '''target z = 45.0
+        '''azimuth = 15
+        '''elevation = 5
+        '''distance = 0
+        '''f [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property Cave() As String
             Get
@@ -540,11 +579,11 @@ Namespace My.Resources
         '''[Mainmenu]
         '''map name = zz_TestMapsTest_City_Fences.map
         '''target x = 0.0
-        '''target y = 5.5
+        '''target y = 40
         '''target z = 0.0
-        '''azimuth = 0.0
-        '''elevation = 0.0
-        '''di [rest of string was truncated]&quot;;.
+        '''azimuth = 42
+        '''elevation = 35.0
+        '''dis [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property Fences() As String
             Get
@@ -783,12 +822,12 @@ Namespace My.Resources
         '''
         '''[Mainmenu]
         '''map name = zz_TestMapsScottE_Test1.map
-        '''target x = 0.0
-        '''target y = 5.5
-        '''target z = 0.0
-        '''azimuth = 0.0
-        '''elevation = 0.0
-        '''distan [rest of string was truncated]&quot;;.
+        '''target x = 85.0
+        '''target y = 30.0
+        '''target z = 30.0
+        '''azimuth = 255
+        '''elevation = 39.0
+        '''di [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property ScottEMap1() As String
             Get
@@ -817,12 +856,12 @@ Namespace My.Resources
         '''
         '''[Mainmenu]
         '''map name = zz_TestMapsScottE_Test2.map
-        '''target x = 0.0
-        '''target y = 5.5
-        '''target z = 0.0
-        '''azimuth = 0.0
-        '''elevation = 0.0
-        '''distan [rest of string was truncated]&quot;;.
+        '''target x = 145
+        '''target y = 80.0
+        '''target z = -85.0
+        '''azimuth = 0.5
+        '''elevation = 25.0
+        '''di [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property ScottEMap2() As String
             Get
@@ -851,12 +890,12 @@ Namespace My.Resources
         '''
         '''[Mainmenu]
         '''map name = zz_TestMapsScottE_Test4.map
-        '''target x = 0.0
-        '''target y = 5.5
+        '''target x = 0
+        '''target y = 7.5
         '''target z = 0.0
-        '''azimuth = 0.0
-        '''elevation = 0.0
-        '''distan [rest of string was truncated]&quot;;.
+        '''azimuth = 45
+        '''elevation = 12.5
+        '''distance [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property ScottEMap4() As String
             Get
@@ -886,10 +925,10 @@ Namespace My.Resources
         '''[Mainmenu]
         '''map name = zz_TestMapsTest_Junktown_Shacks.map
         '''target x = 0.0
-        '''target y = 5.5
-        '''target z = 0.0
-        '''azimuth = 0.0
-        '''elevation = 0.0 [rest of string was truncated]&quot;;.
+        '''target y = 50
+        '''target z = -10.0
+        '''azimuth = 42
+        '''elevation = 39. [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property Shacks() As String
             Get
@@ -978,12 +1017,12 @@ Namespace My.Resources
         '''
         '''[Mainmenu]
         '''map name = 00_03_Tutorial_Junktown.map
-        '''target x = 0.0
-        '''target y = 5.5
-        '''target z = 0.0
-        '''azimuth = 0.0
-        '''elevation = 0.0
-        '''distan [rest of string was truncated]&quot;;.
+        '''target x = 80.0
+        '''target y = 7.5
+        '''target z = 50.0
+        '''azimuth = 5
+        '''elevation = 10
+        '''distanc [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property Tutorial() As String
             Get
@@ -1012,12 +1051,12 @@ Namespace My.Resources
         '''
         '''[Mainmenu]
         '''map name = 00_04_Tutorial_Vault.map
-        '''target x = 0.0
-        '''target y = 5.5
+        '''target x = 50.0
+        '''target y = 50.5
         '''target z = 0.0
-        '''azimuth = 0.0
-        '''elevation = 0.0
-        '''distance  [rest of string was truncated]&quot;;.
+        '''azimuth = 36
+        '''elevation = 35.0
+        '''distanc [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property Vault() As String
             Get
