@@ -180,7 +180,51 @@
     <None Include="Resources\GreenI.tga" />
     <None Include="Resources\Grey.tga" />
     <None Include="Resources\GreyI.tga" />
+    <None Include="Resources\Helmets\8 Ball.tga" />
+    <None Include="Resources\Helmets\8-Ball I.tga" />
+    <None Include="Resources\Helmets\American.tga" />
+    <None Include="Resources\Helmets\AmericanI.tga" />
+    <None Include="Resources\Helmets\Black.tga" />
+    <None Include="Resources\Helmets\BlackI.tga" />
+    <None Include="Resources\Helmets\Blue.tga" />
+    <None Include="Resources\Helmets\BlueI.tga" />
+    <None Include="Resources\Helmets\Eye.tga" />
+    <None Include="Resources\Helmets\EyeI.tga" />
+    <None Include="Resources\Helmets\Flames.tga" />
+    <None Include="Resources\Helmets\FlamesI.tga" />
+    <None Include="Resources\Helmets\Full Skull.tga" />
+    <None Include="Resources\Helmets\Full SkullI.tga" />
+    <None Include="Resources\Helmets\Green.tga" />
+    <None Include="Resources\Helmets\GreenI.tga" />
+    <None Include="Resources\Helmets\Grey.tga" />
+    <None Include="Resources\Helmets\GreyI.tga" />
+    <None Include="Resources\Helmets\Police.tga" />
+    <None Include="Resources\Helmets\PoliceI.tga" />
+    <None Include="Resources\Helmets\Red.tga" />
+    <None Include="Resources\Helmets\RedI.tga" />
+    <None Include="Resources\Helmets\Shot Smiley.tga" />
+    <None Include="Resources\Helmets\Shot SmileyI.tga" />
+    <None Include="Resources\Helmets\Skull.tga" />
+    <None Include="Resources\Helmets\SkullI.tga" />
+    <None Include="Resources\Helmets\Yellow.tga" />
+    <None Include="Resources\Helmets\YellowI.tga" />
     <None Include="Resources\MainMenu" />
+    <None Include="Resources\Menu INIs\AaronMap2.ini" />
+    <None Include="Resources\Menu INIs\Building1.ini" />
+    <None Include="Resources\Menu INIs\Building2.ini" />
+    <None Include="Resources\Menu INIs\Building3.ini" />
+    <None Include="Resources\Menu INIs\Building4.ini" />
+    <None Include="Resources\Menu INIs\Canyon.ini" />
+    <None Include="Resources\Menu INIs\Canyon2.ini" />
+    <None Include="Resources\Menu INIs\Cave.ini" />
+    <None Include="Resources\Menu INIs\Default.ini" />
+    <None Include="Resources\Menu INIs\Fences.ini" />
+    <None Include="Resources\Menu INIs\ScottEMap1.ini" />
+    <None Include="Resources\Menu INIs\ScottEMap2.ini" />
+    <None Include="Resources\Menu INIs\ScottEMap4.ini" />
+    <None Include="Resources\Menu INIs\Shacks.ini" />
+    <None Include="Resources\Menu INIs\Tutorial.ini" />
+    <None Include="Resources\Menu INIs\Vault.ini" />
     <None Include="Resources\PCFemale" />
     <None Include="Resources\PCFemale.CRT" />
     <None Include="Resources\Police.tga" />
@@ -200,6 +244,28 @@
     <None Include="Resources\Skull.tga" />
     <None Include="Resources\SkullI.tga" />
     <None Include="Resources\Tutorial.ini" />
+    <None Include="Resources\UnusedThings\CrittersAnt.CRT" />
+    <None Include="Resources\UnusedThings\CrittersAntQ.CRT" />
+    <None Include="Resources\UnusedThings\CrittersBat.CRT" />
+    <None Include="Resources\UnusedThings\CrittersBeetle.CRT" />
+    <None Include="Resources\UnusedThings\CrittersCentipede.CRT" />
+    <None Include="Resources\UnusedThings\CrittersDeathclaw.CRT" />
+    <None Include="Resources\UnusedThings\CrittersDesertStalker.CRT" />
+    <None Include="Resources\UnusedThings\CrittersGila.CRT" />
+    <None Include="Resources\UnusedThings\CrittersManTrap.CRT" />
+    <None Include="Resources\UnusedThings\CrittersRadToad.CRT" />
+    <None Include="Resources\UnusedThings\CrittersRat.CRT" />
+    <None Include="Resources\UnusedThings\CrittersThornSlinger.CRT" />
+    <None Include="Resources\UnusedThings\CrittersTiger.CRT" />
+    <None Include="Resources\UnusedThings\CrittersWaspGiant.CRT" />
+    <None Include="Resources\UnusedThings\CrittersWeedling.CRT" />
+    <None Include="Resources\UnusedThings\CrittersWolf.CRT" />
+    <None Include="Resources\UnusedThings\CR_DesertStalk.g3d" />
+    <None Include="Resources\UnusedThings\Weapons2mmGaussPistol.wea" />
+    <None Include="Resources\UnusedThings\WeaponsLaserSaw.wea" />
+    <None Include="Resources\UnusedThings\WeaponsSawedOffShotgun.wea" />
+    <None Include="Resources\UnusedThings\WP_2mmGaussPistol_ACT.tga" />
+    <None Include="Resources\UnusedThings\WP_2mmGaussPistol_INV.tga" />
     <None Include="Resources\Vault" />
     <None Include="Resources\Vault.ini" />
     <None Include="Resources\Yellow.tga" />
@@ -264,6 +330,51 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Yellow Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Helmets\8-Ball Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Helmets\American Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Helmets\Black Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Helmets\Blue Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Helmets\Default Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Helmets\Eye Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Helmets\Flames Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Helmets\Full Skull Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Helmets\Green Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Helmets\Grey Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Helmets\Police Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Helmets\Red Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Helmets\Shot Smiley Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Helmets\Skull Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Helmets\Yellow Icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

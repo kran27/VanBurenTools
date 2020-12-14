@@ -508,6 +508,176 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property CR_DesertStalk() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CR_DesertStalk", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property CrittersAnt() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CrittersAnt", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property CrittersAntQ() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CrittersAntQ", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property CrittersBat() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CrittersBat", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property CrittersBeetle() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CrittersBeetle", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property CrittersCentipede() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CrittersCentipede", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property CrittersDeathclaw() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CrittersDeathclaw", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property CrittersDesertStalker() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CrittersDesertStalker", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property CrittersGila() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CrittersGila", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property CrittersManTrap() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CrittersManTrap", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property CrittersRadToad() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CrittersRadToad", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property CrittersRat() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CrittersRat", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property CrittersThornSlinger() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CrittersThornSlinger", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property CrittersTiger() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CrittersTiger", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property CrittersWaspGiant() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CrittersWaspGiant", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property CrittersWeedling() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CrittersWeedling", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property CrittersWolf() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("CrittersWolf", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
         '''  Looks up a localized resource of type System.Drawing.Bitmap.
         '''</summary>
         Friend ReadOnly Property Default_Icon() As System.Drawing.Bitmap
@@ -1061,6 +1231,56 @@ Namespace My.Resources
         Friend ReadOnly Property Vault() As String
             Get
                 Return ResourceManager.GetString("Vault", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property Weapons2mmGaussPistol() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Weapons2mmGaussPistol", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property WeaponsLaserSaw() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("WeaponsLaserSaw", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property WeaponsSawedOffShotgun() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("WeaponsSawedOffShotgun", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property WP_2mmGaussPistol_ACT() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("WP_2mmGaussPistol_ACT", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property WP_2mmGaussPistol_INV() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("WP_2mmGaussPistol_INV", resourceCulture)
+                Return CType(obj,Byte())
             End Get
         End Property
         

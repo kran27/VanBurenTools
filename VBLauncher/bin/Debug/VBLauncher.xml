@@ -363,6 +363,91 @@ distance = 0
 f [rest of string was truncated]&quot;;.
 </summary>
 </member>
+<member name="P:VBLauncher.My.Resources.Resources.CR_DesertStalk">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.CrittersAnt">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.CrittersAntQ">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.CrittersBat">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.CrittersBeetle">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.CrittersCentipede">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.CrittersDeathclaw">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.CrittersDesertStalker">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.CrittersGila">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.CrittersManTrap">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.CrittersRadToad">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.CrittersRat">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.CrittersThornSlinger">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.CrittersTiger">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.CrittersWaspGiant">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.CrittersWeedling">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.CrittersWolf">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
 <member name="P:VBLauncher.My.Resources.Resources.Default_Icon">
 <summary>
   Looks up a localized resource of type System.Drawing.Bitmap.
@@ -730,6 +815,31 @@ target z = 0.0
 azimuth = 36
 elevation = 35.0
 distanc [rest of string was truncated]&quot;;.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Weapons2mmGaussPistol">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.WeaponsLaserSaw">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.WeaponsSawedOffShotgun">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.WP_2mmGaussPistol_ACT">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.WP_2mmGaussPistol_INV">
+<summary>
+  Looks up a localized resource of type System.Byte[].
 </summary>
 </member>
 <member name="P:VBLauncher.My.Resources.Resources.Yellow">
