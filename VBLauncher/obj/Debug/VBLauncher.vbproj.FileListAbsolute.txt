@@ -66,3 +66,17 @@ C:\Users\anthr\OneDrive\Documents\GitHub\VanBurenLauncher\VBLauncher\obj\Debug\V
 C:\Users\anthr\OneDrive\Documents\GitHub\VanBurenLauncher\VBLauncher\obj\Debug\VBLauncher.exe
 C:\Users\anthr\OneDrive\Documents\GitHub\VanBurenLauncher\VBLauncher\obj\Debug\VBLauncher.xml
 C:\Users\anthr\OneDrive\Documents\GitHub\VanBurenLauncher\VBLauncher\obj\Debug\VBLauncher.pdb
+C:\Users\anthr\OneDrive\Documents\GitHub\VanUrbrenLauncher\VBLauncher\bin\Debug\VBLauncher.exe.config
+C:\Users\anthr\OneDrive\Documents\GitHub\VanUrbrenLauncher\VBLauncher\bin\Debug\VBLauncher.exe
+C:\Users\anthr\OneDrive\Documents\GitHub\VanUrbrenLauncher\VBLauncher\bin\Debug\VBLauncher.pdb
+C:\Users\anthr\OneDrive\Documents\GitHub\VanUrbrenLauncher\VBLauncher\bin\Debug\VBLauncher.xml
+C:\Users\anthr\OneDrive\Documents\GitHub\VanUrbrenLauncher\VBLauncher\obj\Debug\VBLauncher.vbprojAssemblyReference.cache
+C:\Users\anthr\OneDrive\Documents\GitHub\VanUrbrenLauncher\VBLauncher\obj\Debug\VBLauncher.Form1.resources
+C:\Users\anthr\OneDrive\Documents\GitHub\VanUrbrenLauncher\VBLauncher\obj\Debug\VBLauncher.Form2.resources
+C:\Users\anthr\OneDrive\Documents\GitHub\VanUrbrenLauncher\VBLauncher\obj\Debug\VBLauncher.Form3.resources
+C:\Users\anthr\OneDrive\Documents\GitHub\VanUrbrenLauncher\VBLauncher\obj\Debug\VBLauncher.Resources.resources
+C:\Users\anthr\OneDrive\Documents\GitHub\VanUrbrenLauncher\VBLauncher\obj\Debug\VBLauncher.vbproj.GenerateResource.cache
+C:\Users\anthr\OneDrive\Documents\GitHub\VanUrbrenLauncher\VBLauncher\obj\Debug\VBLauncher.vbproj.CoreCompileInputs.cache
+C:\Users\anthr\OneDrive\Documents\GitHub\VanUrbrenLauncher\VBLauncher\obj\Debug\VBLauncher.exe
+C:\Users\anthr\OneDrive\Documents\GitHub\VanUrbrenLauncher\VBLauncher\obj\Debug\VBLauncher.xml
+C:\Users\anthr\OneDrive\Documents\GitHub\VanUrbrenLauncher\VBLauncher\obj\Debug\VBLauncher.pdb

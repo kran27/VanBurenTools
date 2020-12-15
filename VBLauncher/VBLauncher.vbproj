@@ -203,6 +203,8 @@
     <None Include="Resources\UnusedThings\CrittersWolf.CRT" />
     <None Include="Resources\UnusedThings\CR_DesertStalk.b3d" />
     <None Include="Resources\UnusedThings\CR_DesertStalk.g3d" />
+    <None Include="Resources\UnusedThings\DS_Propsvehiclesdunebuggy.itm" />
+    <None Include="Resources\UnusedThings\DS_Propsvehiclesmotorcycle.itm" />
     <None Include="Resources\UnusedThings\Weapons2mmGaussPistol.wea" />
     <None Include="Resources\UnusedThings\WeaponsLaserSaw.wea" />
     <None Include="Resources\UnusedThings\WeaponsSawedOffShotgun.wea" />
@@ -211,15 +213,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\BG.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Exit.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Launch.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Options.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\F3.ico" />
@@ -268,6 +261,45 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Helmets\Yellow Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Launcher\BG1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Launcher\BG2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Launcher\BG3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Launcher\BG4.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Launcher\BG5.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Launcher\BG6.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Launcher\BG7.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Launcher\BG8.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Launcher\BG9.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Launcher\Exit.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Launcher\Launch.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Launcher\Logo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Launcher\Options.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>
