@@ -1,5 +1,5 @@
 ﻿Public Class Form1
-    Public undir As String = Application.StartupPath & "\Override"
+    Public undir As String = Application.StartupPath & "\Override\UnusedThings"
     Private Sub RandomBackground() Handles MyBase.VisibleChanged
         Dim random As New Random
         Dim rand As String = random.Next(1, 9)
