@@ -182,6 +182,7 @@
     <None Include="Resources\Menu INIs\ScottEMap2.ini" />
     <None Include="Resources\Menu INIs\ScottEMap4.ini" />
     <None Include="Resources\Menu INIs\Shacks.ini" />
+    <None Include="Resources\Menu INIs\StartMap.ini" />
     <None Include="Resources\Menu INIs\Tutorial.ini" />
     <None Include="Resources\Menu INIs\Vault.ini" />
     <None Include="Resources\PCFemale.CRT" />

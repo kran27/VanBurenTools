@@ -47,10 +47,12 @@
                 ComboBox1.SelectedIndex = 12
             ElseIf mapline(19) = "map name = zz_TestMapsTest_Junktown_Shacks.map" Then
                 ComboBox1.SelectedIndex = 13
-            ElseIf mapline(19) = "map name = 00_03_Tutorial_Junktown.map" Then
+            ElseIf mapline(19) = "map name = Default_StartMap.map" Then
                 ComboBox1.SelectedIndex = 14
-            ElseIf mapline(19) = "map name = 00_04_Tutorial_Vault.map" Then
+            ElseIf mapline(19) = "map name = 00_03_Tutorial_Junktown.map" Then
                 ComboBox1.SelectedIndex = 15
+            ElseIf mapline(19) = "map name = 00_04_Tutorial_Vault.map" Then
+                ComboBox1.SelectedIndex = 16
             End If
         Else
             ComboBox1.SelectedIndex = 0
@@ -152,8 +154,11 @@
             IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Shacks)
         ElseIf ComboBox1.SelectedIndex = 14 Then
             IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
-            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Tutorial)
+            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.StartMap)
         ElseIf ComboBox1.SelectedIndex = 15 Then
+            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
+            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Tutorial)
+        ElseIf ComboBox1.SelectedIndex = 16 Then
             IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
             IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Vault)
         End If

@@ -161,9 +161,7 @@ Namespace My.Resources
         '''target z = 0.0
         '''azimuth = 0.0
         '''elevation = 0.0
-        '''distance = 0
-        '''fov = 68.0
-        '''znear = 1 [rest of string was truncated]&quot;;.
+        '''distance [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property AaronMap2() As String
             Get
@@ -1274,6 +1272,40 @@ Namespace My.Resources
             Get
                 Dim obj As Object = ResourceManager.GetObject("SkullI", resourceCulture)
                 Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized string similar to [Audio]
+        '''GroupList = FO3.gls
+        '''MusicJumpList = F3.sco
+        '''
+        '''[Camera]
+        '''Azimuth Speed = 360.000000
+        '''Distance Max = 350.000000
+        '''Distance Min = 350.000000
+        '''Distance Speed = 800.000000
+        '''Elevation Max = 89.000000
+        '''Elevation Min = 38.500000
+        '''Elevation Speed = 360.000000
+        '''FOV Speed = 6.50000
+        '''FOV Min = 6.00000
+        '''FOV Max = 15.0000
+        '''Scroll Border = 0.010000
+        '''Scroll Speed = 96.000000
+        '''
+        '''[Mainmenu]
+        '''map name = 00_04_Tutorial_Vault.map
+        '''target x = 50.0
+        '''target y = 50.5
+        '''target z = 0.0
+        '''azimuth = 36
+        '''elevation = 35.0
+        '''distanc [rest of string was truncated]&quot;;.
+        '''</summary>
+        Friend ReadOnly Property StartMap() As String
+            Get
+                Return ResourceManager.GetString("StartMap", resourceCulture)
             End Get
         End Property
         
