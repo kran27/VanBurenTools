@@ -196,62 +196,8 @@
   <data name="Cave" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Menu INIs\Cave.ini;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
-  <data name="CrittersAnt" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\UnusedThings\CrittersAnt.CRT;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="CrittersAntQ" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\UnusedThings\CrittersAntQ.CRT;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="CrittersBat" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\UnusedThings\CrittersBat.CRT;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="CrittersBeetle" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\UnusedThings\CrittersBeetle.CRT;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="CrittersCentipede" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\UnusedThings\CrittersCentipede.CRT;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="CrittersDeathclaw" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\UnusedThings\CrittersDeathclaw.CRT;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="CrittersDesertStalker" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\UnusedThings\CrittersDesertStalker.CRT;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="CrittersGila" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\UnusedThings\CrittersGila.CRT;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="CrittersManTrap" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\UnusedThings\CrittersManTrap.CRT;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="CrittersRadToad" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\UnusedThings\CrittersRadToad.CRT;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="CrittersRat" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\UnusedThings\CrittersRat.CRT;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="CrittersThornSlinger" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\UnusedThings\CrittersThornSlinger.CRT;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="CrittersTiger" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\UnusedThings\CrittersTiger.CRT;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="CrittersWaspGiant" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\UnusedThings\CrittersWaspGiant.CRT;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="CrittersWeedling" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\UnusedThings\CrittersWeedling.CRT;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="CrittersWolf" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\UnusedThings\CrittersWolf.CRT;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="CR_DesertStalk" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\UnusedThings\CR_DesertStalk.b3d;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="Default_Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Helmets\Default Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="DuneBuggy" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\UnusedThings\DS_Propsvehiclesdunebuggy.itm;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="Eye" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Helmets\Eye.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -309,9 +255,6 @@
   </data>
   <data name="Logo" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Launcher\Logo.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Motorcycle" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\UnusedThings\DS_Propsvehiclesmotorcycle.itm;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="Options" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Launcher\Options.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -373,23 +316,11 @@
   <data name="Tutorial" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Menu INIs\Tutorial.ini;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
+  <data name="UnusedThings" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\UnusedThings.zip;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="Vault" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Menu INIs\Vault.ini;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
-  <data name="Weapons2mmGaussPistol" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\UnusedThings\Weapons2mmGaussPistol.wea;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="WeaponsLaserSaw" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\UnusedThings\WeaponsLaserSaw.wea;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="WeaponsSawedOffShotgun" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\UnusedThings\WeaponsSawedOffShotgun.wea;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="WP_2mmGaussPistol_ACT" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\UnusedThings\WP_2mmGaussPistol_ACT.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="WP_2mmGaussPistol_INV" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\UnusedThings\WP_2mmGaussPistol_INV.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="Yellow" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Helmets\Yellow.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>

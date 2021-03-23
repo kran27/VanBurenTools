@@ -55,6 +55,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
@@ -186,6 +187,7 @@
     <None Include="Resources\Menu INIs\Tutorial.ini" />
     <None Include="Resources\Menu INIs\Vault.ini" />
     <None Include="Resources\PCFemale.CRT" />
+    <None Include="Resources\UnusedThings.zip" />
     <None Include="Resources\UnusedThings\CrittersAnt.CRT" />
     <None Include="Resources\UnusedThings\CrittersAntQ.CRT" />
     <None Include="Resources\UnusedThings\CrittersBat.CRT" />

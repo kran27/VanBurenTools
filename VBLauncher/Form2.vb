@@ -5,7 +5,7 @@
     Public mapline() As String
     Public file As IO.FileInfo
 #Region "Auto Detect Options"
-    Private Sub CheckOptions() Handles MyBase.VisibleChanged
+    Private Sub CheckOptions() Handles MyBase.Load
         If IO.File.Exists(ovrdir & "\FemaleFix\_CRT\PCFemale.CRT") Then
             CheckBox1.CheckState = 1
         Else
@@ -107,6 +107,17 @@
             IO.File.WriteAllLines(ifdir, line)
         Else
             line(25) = "enable startup movies = 0"
+            IO.File.WriteAllLines(ifdir, line)
+        End If
+        If CheckBox3.Checked Then
+            line(28) = "fullscreen = 1"
+            line(29) = "height = " & My.Computer.Screen.Bounds.Height
+            line(35) = "width = " & My.Computer.Screen.Bounds.Width
+            IO.File.WriteAllLines(ifdir, line)
+        Else
+            line(28) = "fullscreen = 0"
+            line(29) = "height = " & 720
+            line(35) = "width = " & 1280
             IO.File.WriteAllLines(ifdir, line)
         End If
 #Region "Load Maps"
@@ -265,13 +276,6 @@
         End If
 #End Region
         Hide()
-    End Sub
-    Private Sub SetResolution(sender As Object, e As EventArgs) Handles Button3.Click
-        line(28) = "fullscreen = 1"
-        line(29) = "height = " & My.Computer.Screen.Bounds.Height
-        line(35) = "width = " & My.Computer.Screen.Bounds.Width
-        IO.File.WriteAllLines(ifdir, line)
-        MsgBox("Changed Settings to match your monitor!", MsgBoxStyle.Information Or MsgBoxStyle.OkOnly, "Success!")
     End Sub
     Private Sub HelmetPreview() Handles ComboBox2.SelectedIndexChanged
         If ComboBox2.SelectedIndex = 0 Then

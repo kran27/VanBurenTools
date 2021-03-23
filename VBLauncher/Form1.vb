@@ -1,6 +1,7 @@
-﻿Public Class Form1
+﻿Imports System.IO.Compression
+Public Class Form1
     Public undir As String = Application.StartupPath & "\Override\UnusedThings"
-    Private Sub RandomBackground() Handles MyBase.VisibleChanged
+    Private Sub RandomBackground() Handles MyBase.Load
         Dim random As New Random
         Dim rand As String = random.Next(1, 9)
         PictureBox4.Parent = PictureBox5
@@ -24,37 +25,12 @@
             PictureBox5.Image = My.Resources.BG9
         End If
     End Sub
-    Private Sub LoadExtras() Handles MyBase.VisibleChanged
+    Private Sub LoadExtras() Handles MyBase.Load
         If Not IO.Directory.Exists(undir) Then
-            IO.Directory.CreateDirectory(undir & "\_CRT")
-            IO.Directory.CreateDirectory(undir & "\_ITM")
-            IO.Directory.CreateDirectory(undir & "\_WEA")
-            IO.Directory.CreateDirectory(undir & "\Critters")
-            IO.Directory.CreateDirectory(undir & "\Interface")
-            IO.File.WriteAllBytes(undir & "\_CRT\CrittersAnt.CRT", My.Resources.CrittersAnt)
-            IO.File.WriteAllBytes(undir & "\_CRT\CrittersAntQ.CRT", My.Resources.CrittersAntQ)
-            IO.File.WriteAllBytes(undir & "\_CRT\CrittersBat.CRT", My.Resources.CrittersBat)
-            IO.File.WriteAllBytes(undir & "\_CRT\CrittersBeetle.CRT", My.Resources.CrittersBeetle)
-            IO.File.WriteAllBytes(undir & "\_CRT\CrittersCentipede.CRT", My.Resources.CrittersCentipede)
-            IO.File.WriteAllBytes(undir & "\_CRT\CrittersDeathclaw.CRT", My.Resources.CrittersDeathclaw)
-            IO.File.WriteAllBytes(undir & "\_CRT\CrittersDesertStalker.CRT", My.Resources.CrittersDesertStalker)
-            IO.File.WriteAllBytes(undir & "\_CRT\CrittersGila.CRT", My.Resources.CrittersGila)
-            IO.File.WriteAllBytes(undir & "\_CRT\CrittersManTrap.CRT", My.Resources.CrittersManTrap)
-            IO.File.WriteAllBytes(undir & "\_CRT\CrittersRadToad.CRT", My.Resources.CrittersRadToad)
-            IO.File.WriteAllBytes(undir & "\_CRT\CrittersRat.CRT", My.Resources.CrittersRat)
-            IO.File.WriteAllBytes(undir & "\_CRT\CrittersThornSlinger.CRT", My.Resources.CrittersThornSlinger)
-            IO.File.WriteAllBytes(undir & "\_CRT\CrittersTiger.CRT", My.Resources.CrittersTiger)
-            IO.File.WriteAllBytes(undir & "\_CRT\CrittersWaspGiant.CRT", My.Resources.CrittersWaspGiant)
-            IO.File.WriteAllBytes(undir & "\_CRT\CrittersWeedling.CRT", My.Resources.CrittersWeedling)
-            IO.File.WriteAllBytes(undir & "\_CRT\CrittersWolf.CRT", My.Resources.CrittersWolf)
-            IO.File.WriteAllBytes(undir & "\_ITM\DS_Propsvehiclesdunebuggy.ITM", My.Resources.DuneBuggy)
-            IO.File.WriteAllBytes(undir & "\_ITM\DS_Propsvehiclesmotorcycle.ITM", My.Resources.Motorcycle)
-            IO.File.WriteAllBytes(undir & "\_WEA\Weapons2mmGaussPistol.WEA", My.Resources.Weapons2mmGaussPistol)
-            IO.File.WriteAllBytes(undir & "\_WEA\WeaponsLaserSaw.WEA", My.Resources.WeaponsLaserSaw)
-            IO.File.WriteAllBytes(undir & "\_WEA\WeaponsSawedOffShotgun.WEA", My.Resources.WeaponsSawedOffShotgun)
-            IO.File.WriteAllBytes(undir & "\Critters\CR_DesertStalk.B3D", My.Resources.CR_DesertStalk)
-            IO.File.WriteAllBytes(undir & "\Interface\WP_2mmGaussPistol_ACT.TGA", My.Resources.WP_2mmGaussPistol_ACT)
-            IO.File.WriteAllBytes(undir & "\Interface\WP_2mmGaussPistol_INV.TGA", My.Resources.WP_2mmGaussPistol_INV)
+            IO.Directory.CreateDirectory(undir)
+            IO.File.WriteAllBytes(undir & "\UnusedThings.zip", My.Resources.UnusedThings)
+            IO.Compression.ZipFile.ExtractToDirectory(undir & "\UnusedThings.zip", undir)
+            IO.File.Delete(undir & "\UnusedThings.zip")
         End If
     End Sub
 #Region " Move Form "
@@ -77,7 +53,7 @@
         End If
     End Sub
 #End Region
-    Private Sub Warning() Handles MyBase.VisibleChanged
+    Private Sub Warning() Handles MyBase.Load
         If Not IO.File.Exists(Application.StartupPath & "\F3.exe") Then
             MsgBox("Please put the launcher in the same directory as the game so you can launch it!", MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly, "Game Executable Not Found!")
         End If

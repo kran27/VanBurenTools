@@ -1,9 +1,9 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class Form2
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
-    <System.Diagnostics.DebuggerNonUserCode()> _
+    <System.Diagnostics.DebuggerNonUserCode()>
     Protected Overrides Sub Dispose(ByVal disposing As Boolean)
         Try
             If disposing AndAlso components IsNot Nothing Then
@@ -20,14 +20,13 @@ Partial Class Form2
     'NOTE: The following procedure is required by the Windows Form Designer
     'It can be modified using the Windows Form Designer.  
     'Do not modify it using the code editor.
-    <System.Diagnostics.DebuggerStepThrough()> _
+    <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form2))
         Me.Button1 = New System.Windows.Forms.Button()
         Me.CheckBox1 = New System.Windows.Forms.CheckBox()
         Me.Button2 = New System.Windows.Forms.Button()
         Me.CheckBox2 = New System.Windows.Forms.CheckBox()
-        Me.Button3 = New System.Windows.Forms.Button()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.Button4 = New System.Windows.Forms.Button()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
@@ -37,6 +36,7 @@ Partial Class Form2
         Me.Label2 = New System.Windows.Forms.Label()
         Me.PictureBox1 = New System.Windows.Forms.PictureBox()
         Me.Label1 = New System.Windows.Forms.Label()
+        Me.CheckBox3 = New System.Windows.Forms.CheckBox()
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -44,7 +44,7 @@ Partial Class Form2
         '
         'Button1
         '
-        Me.Button1.Location = New System.Drawing.Point(199, 209)
+        Me.Button1.Location = New System.Drawing.Point(199, 218)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(60, 23)
         Me.Button1.TabIndex = 0
@@ -64,7 +64,7 @@ Partial Class Form2
         'Button2
         '
         Me.Button2.DialogResult = System.Windows.Forms.DialogResult.Cancel
-        Me.Button2.Location = New System.Drawing.Point(133, 209)
+        Me.Button2.Location = New System.Drawing.Point(133, 218)
         Me.Button2.Name = "Button2"
         Me.Button2.Size = New System.Drawing.Size(60, 23)
         Me.Button2.TabIndex = 2
@@ -81,15 +81,6 @@ Partial Class Form2
         Me.CheckBox2.Text = "Enable Startup Videos"
         Me.CheckBox2.UseVisualStyleBackColor = True
         '
-        'Button3
-        '
-        Me.Button3.Location = New System.Drawing.Point(12, 209)
-        Me.Button3.Name = "Button3"
-        Me.Button3.Size = New System.Drawing.Size(115, 23)
-        Me.Button3.TabIndex = 6
-        Me.Button3.Text = "Detect Resolution"
-        Me.Button3.UseVisualStyleBackColor = True
-        '
         'GroupBox1
         '
         Me.GroupBox1.Controls.Add(Me.Button4)
@@ -97,7 +88,7 @@ Partial Class Form2
         Me.GroupBox1.Controls.Add(Me.CheckBox2)
         Me.GroupBox1.Location = New System.Drawing.Point(12, 12)
         Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(247, 95)
+        Me.GroupBox1.Size = New System.Drawing.Size(247, 94)
         Me.GroupBox1.TabIndex = 7
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "General Tweaks"
@@ -121,7 +112,7 @@ Partial Class Form2
         Me.GroupBox2.Controls.Add(Me.Label1)
         Me.GroupBox2.Location = New System.Drawing.Point(12, 112)
         Me.GroupBox2.Name = "GroupBox2"
-        Me.GroupBox2.Size = New System.Drawing.Size(247, 91)
+        Me.GroupBox2.Size = New System.Drawing.Size(247, 100)
         Me.GroupBox2.TabIndex = 8
         Me.GroupBox2.TabStop = False
         Me.GroupBox2.Text = "Fun Tweaks"
@@ -139,11 +130,11 @@ Partial Class Form2
         'Label3
         '
         Me.Label3.AutoSize = True
-        Me.Label3.Location = New System.Drawing.Point(123, 69)
+        Me.Label3.Location = New System.Drawing.Point(128, 68)
         Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(48, 13)
+        Me.Label3.Size = New System.Drawing.Size(43, 13)
         Me.Label3.TabIndex = 6
-        Me.Label3.Text = "Preview:"
+        Me.Label3.Text = "Helmet:"
         '
         'ComboBox2
         '
@@ -181,16 +172,26 @@ Partial Class Form2
         Me.Label1.TabIndex = 0
         Me.Label1.Text = "Main Menu Map"
         '
+        'CheckBox3
+        '
+        Me.CheckBox3.AutoSize = True
+        Me.CheckBox3.Location = New System.Drawing.Point(18, 222)
+        Me.CheckBox3.Name = "CheckBox3"
+        Me.CheckBox3.Size = New System.Drawing.Size(74, 17)
+        Me.CheckBox3.TabIndex = 7
+        Me.CheckBox3.Text = "Fullscreen"
+        Me.CheckBox3.UseVisualStyleBackColor = True
+        '
         'Form2
         '
         Me.AcceptButton = Me.Button1
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.CancelButton = Me.Button2
-        Me.ClientSize = New System.Drawing.Size(271, 244)
+        Me.ClientSize = New System.Drawing.Size(271, 253)
+        Me.Controls.Add(Me.CheckBox3)
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.GroupBox1)
-        Me.Controls.Add(Me.Button3)
         Me.Controls.Add(Me.Button2)
         Me.Controls.Add(Me.Button1)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
@@ -207,6 +208,7 @@ Partial Class Form2
         Me.GroupBox2.PerformLayout()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
+        Me.PerformLayout()
 
     End Sub
 
@@ -214,7 +216,6 @@ Partial Class Form2
     Friend WithEvents CheckBox1 As CheckBox
     Friend WithEvents Button2 As Button
     Friend WithEvents CheckBox2 As CheckBox
-    Friend WithEvents Button3 As Button
     Friend WithEvents GroupBox1 As GroupBox
     Friend WithEvents GroupBox2 As GroupBox
     Friend WithEvents ComboBox1 As ComboBox
@@ -224,4 +225,5 @@ Partial Class Form2
     Friend WithEvents Label2 As Label
     Friend WithEvents PictureBox1 As PictureBox
     Friend WithEvents Button4 As Button
+    Friend WithEvents CheckBox3 As CheckBox
 End Class
