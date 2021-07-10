@@ -22,6 +22,7 @@ Partial Class Form2
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
+        Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form2))
         Me.Button1 = New System.Windows.Forms.Button()
         Me.CheckBox1 = New System.Windows.Forms.CheckBox()
@@ -37,6 +38,7 @@ Partial Class Form2
         Me.Label1 = New System.Windows.Forms.Label()
         Me.CheckBox3 = New System.Windows.Forms.CheckBox()
         Me.Button2 = New System.Windows.Forms.Button()
+        Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -59,6 +61,7 @@ Partial Class Form2
         Me.CheckBox1.Size = New System.Drawing.Size(125, 17)
         Me.CheckBox1.TabIndex = 1
         Me.CheckBox1.Text = "Fix Female Character"
+        Me.ToolTip1.SetToolTip(Me.CheckBox1, "Mod made by RedneckHax0r")
         Me.CheckBox1.UseVisualStyleBackColor = True
         '
         'CheckBox2
@@ -91,6 +94,7 @@ Partial Class Form2
         Me.CheckBox4.Size = New System.Drawing.Size(175, 17)
         Me.CheckBox4.TabIndex = 8
         Me.CheckBox4.Text = "Remove Useless Menu Options"
+        Me.ToolTip1.SetToolTip(Me.CheckBox4, "Mod made by RedneckHax0r")
         Me.CheckBox4.UseVisualStyleBackColor = True
         '
         'GroupBox2
@@ -227,4 +231,5 @@ Partial Class Form2
     Friend WithEvents CheckBox3 As CheckBox
     Friend WithEvents CheckBox4 As CheckBox
     Friend WithEvents Button2 As Button
+    Friend WithEvents ToolTip1 As ToolTip
 End Class
