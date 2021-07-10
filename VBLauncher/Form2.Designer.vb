@@ -25,10 +25,9 @@ Partial Class Form2
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form2))
         Me.Button1 = New System.Windows.Forms.Button()
         Me.CheckBox1 = New System.Windows.Forms.CheckBox()
-        Me.Button2 = New System.Windows.Forms.Button()
         Me.CheckBox2 = New System.Windows.Forms.CheckBox()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
-        Me.Button4 = New System.Windows.Forms.Button()
+        Me.CheckBox4 = New System.Windows.Forms.CheckBox()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
         Me.ComboBox1 = New System.Windows.Forms.ComboBox()
         Me.Label3 = New System.Windows.Forms.Label()
@@ -37,6 +36,7 @@ Partial Class Form2
         Me.PictureBox1 = New System.Windows.Forms.PictureBox()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.CheckBox3 = New System.Windows.Forms.CheckBox()
+        Me.Button2 = New System.Windows.Forms.Button()
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -44,7 +44,7 @@ Partial Class Form2
         '
         'Button1
         '
-        Me.Button1.Location = New System.Drawing.Point(199, 218)
+        Me.Button1.Location = New System.Drawing.Point(199, 210)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(60, 23)
         Me.Button1.TabIndex = 0
@@ -61,16 +61,6 @@ Partial Class Form2
         Me.CheckBox1.Text = "Fix Female Character"
         Me.CheckBox1.UseVisualStyleBackColor = True
         '
-        'Button2
-        '
-        Me.Button2.DialogResult = System.Windows.Forms.DialogResult.Cancel
-        Me.Button2.Location = New System.Drawing.Point(133, 218)
-        Me.Button2.Name = "Button2"
-        Me.Button2.Size = New System.Drawing.Size(60, 23)
-        Me.Button2.TabIndex = 2
-        Me.Button2.Text = "Close"
-        Me.Button2.UseVisualStyleBackColor = True
-        '
         'CheckBox2
         '
         Me.CheckBox2.AutoSize = True
@@ -83,24 +73,25 @@ Partial Class Form2
         '
         'GroupBox1
         '
-        Me.GroupBox1.Controls.Add(Me.Button4)
+        Me.GroupBox1.Controls.Add(Me.CheckBox4)
         Me.GroupBox1.Controls.Add(Me.CheckBox1)
         Me.GroupBox1.Controls.Add(Me.CheckBox2)
         Me.GroupBox1.Location = New System.Drawing.Point(12, 12)
         Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(247, 94)
+        Me.GroupBox1.Size = New System.Drawing.Size(247, 86)
         Me.GroupBox1.TabIndex = 7
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "General Tweaks"
         '
-        'Button4
+        'CheckBox4
         '
-        Me.Button4.Location = New System.Drawing.Point(6, 65)
-        Me.Button4.Name = "Button4"
-        Me.Button4.Size = New System.Drawing.Size(125, 23)
-        Me.Button4.TabIndex = 7
-        Me.Button4.Text = "Keybind Editor"
-        Me.Button4.UseVisualStyleBackColor = True
+        Me.CheckBox4.AutoSize = True
+        Me.CheckBox4.Location = New System.Drawing.Point(6, 65)
+        Me.CheckBox4.Name = "CheckBox4"
+        Me.CheckBox4.Size = New System.Drawing.Size(175, 17)
+        Me.CheckBox4.TabIndex = 8
+        Me.CheckBox4.Text = "Remove Useless Menu Options"
+        Me.CheckBox4.UseVisualStyleBackColor = True
         '
         'GroupBox2
         '
@@ -110,7 +101,7 @@ Partial Class Form2
         Me.GroupBox2.Controls.Add(Me.Label2)
         Me.GroupBox2.Controls.Add(Me.PictureBox1)
         Me.GroupBox2.Controls.Add(Me.Label1)
-        Me.GroupBox2.Location = New System.Drawing.Point(12, 112)
+        Me.GroupBox2.Location = New System.Drawing.Point(12, 104)
         Me.GroupBox2.Name = "GroupBox2"
         Me.GroupBox2.Size = New System.Drawing.Size(247, 100)
         Me.GroupBox2.TabIndex = 8
@@ -130,11 +121,11 @@ Partial Class Form2
         'Label3
         '
         Me.Label3.AutoSize = True
-        Me.Label3.Location = New System.Drawing.Point(128, 68)
+        Me.Label3.Location = New System.Drawing.Point(127, 70)
         Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(43, 13)
+        Me.Label3.Size = New System.Drawing.Size(48, 13)
         Me.Label3.TabIndex = 6
-        Me.Label3.Text = "Helmet:"
+        Me.Label3.Text = "Preview:"
         '
         'ComboBox2
         '
@@ -175,12 +166,22 @@ Partial Class Form2
         'CheckBox3
         '
         Me.CheckBox3.AutoSize = True
-        Me.CheckBox3.Location = New System.Drawing.Point(18, 222)
+        Me.CheckBox3.Location = New System.Drawing.Point(18, 214)
         Me.CheckBox3.Name = "CheckBox3"
         Me.CheckBox3.Size = New System.Drawing.Size(74, 17)
         Me.CheckBox3.TabIndex = 7
         Me.CheckBox3.Text = "Fullscreen"
         Me.CheckBox3.UseVisualStyleBackColor = True
+        '
+        'Button2
+        '
+        Me.Button2.DialogResult = System.Windows.Forms.DialogResult.Cancel
+        Me.Button2.Location = New System.Drawing.Point(133, 210)
+        Me.Button2.Name = "Button2"
+        Me.Button2.Size = New System.Drawing.Size(60, 23)
+        Me.Button2.TabIndex = 2
+        Me.Button2.Text = "Close"
+        Me.Button2.UseVisualStyleBackColor = True
         '
         'Form2
         '
@@ -188,7 +189,7 @@ Partial Class Form2
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.CancelButton = Me.Button2
-        Me.ClientSize = New System.Drawing.Size(271, 253)
+        Me.ClientSize = New System.Drawing.Size(271, 245)
         Me.Controls.Add(Me.CheckBox3)
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.GroupBox1)
@@ -214,7 +215,6 @@ Partial Class Form2
 
     Friend WithEvents Button1 As Button
     Friend WithEvents CheckBox1 As CheckBox
-    Friend WithEvents Button2 As Button
     Friend WithEvents CheckBox2 As CheckBox
     Friend WithEvents GroupBox1 As GroupBox
     Friend WithEvents GroupBox2 As GroupBox
@@ -224,6 +224,7 @@ Partial Class Form2
     Friend WithEvents ComboBox2 As ComboBox
     Friend WithEvents Label2 As Label
     Friend WithEvents PictureBox1 As PictureBox
-    Friend WithEvents Button4 As Button
     Friend WithEvents CheckBox3 As CheckBox
+    Friend WithEvents CheckBox4 As CheckBox
+    Friend WithEvents Button2 As Button
 End Class

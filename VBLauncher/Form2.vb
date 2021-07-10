@@ -16,10 +16,15 @@
         Else
             CheckBox2.CheckState = 0
         End If
+        If IO.Directory.Exists(ovrdir & "\SUMM") Then
+            CheckBox4.CheckState = 1
+        Else
+            CheckBox4.CheckState = 0
+        End If
 #Region "Maps"
         If IO.File.Exists(ovrdir & "\MenuMap\Engine\sys.ini") Then
             mapline = IO.File.ReadAllLines(ovrdir & "\MenuMap\Engine\sys.ini")
-            If mapline(19) = "map name = Mainmenu.map" Then
+            If mapline(19) = "map name = mainmenu.map" Then
                 ComboBox1.SelectedIndex = 0
             ElseIf mapline(19) = "map name = zz_TestMapsaarontemp2.map" Then
                 ComboBox1.SelectedIndex = 1
@@ -119,6 +124,16 @@
             line(29) = "height = " & 720
             line(35) = "width = " & 1280
             IO.File.WriteAllLines(ifdir, line)
+        End If
+        If CheckBox4.Checked Then
+            IO.Directory.CreateDirectory(ovrdir & "\SUMM\Interface")
+            IO.File.WriteAllBytes(ovrdir & "\SUMM\Interface\Mainmenu.int", My.Resources.Mainmenu)
+            IO.File.WriteAllBytes(ovrdir & "\SUMM\Interface\f3_front_end_buttons.tga", My.Resources.f3_front_end_buttons)
+        ElseIf IO.Directory.Exists(ovrdir & "\SUMM\Interface") Then
+            IO.File.Delete(ovrdir & "\SUMM\Interface\Mainmenu.int")
+            IO.File.Delete(ovrdir & "\SUMM\Interface\f3_front_end_buttons.tga")
+            IO.Directory.Delete(ovrdir & "\SUMM\Interface")
+            IO.Directory.Delete(ovrdir & "\SUMM")
         End If
 #Region "Load Maps"
         If ComboBox1.SelectedIndex = 0 Then
@@ -311,7 +326,7 @@
         End If
     End Sub
 
-    Private Sub Button4_Click(sender As Object, e As EventArgs) Handles Button4.Click
-        Form3.Show()
+    Private Sub Button4_Click(sender As Object, e As EventArgs)
+        Form3.ShowDialog()
     End Sub
 End Class

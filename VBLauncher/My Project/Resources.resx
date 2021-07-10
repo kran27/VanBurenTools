@@ -211,6 +211,9 @@
   <data name="F3" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\F3.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="f3_front_end_buttons" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\f3_front_end_buttons.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="Fences" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Menu INIs\Fences.ini;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
@@ -255,6 +258,9 @@
   </data>
   <data name="Logo" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Launcher\Logo.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Mainmenu" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Mainmenu.int;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="Options" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Launcher\Options.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>

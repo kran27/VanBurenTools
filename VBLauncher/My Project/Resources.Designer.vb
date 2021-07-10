@@ -637,6 +637,16 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property f3_front_end_buttons() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("f3_front_end_buttons", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
         '''  Looks up a localized string similar to [Audio]
         '''GroupList = FO3.gls
         '''MusicJumpList = F3.sco
@@ -807,6 +817,16 @@ Namespace My.Resources
             Get
                 Dim obj As Object = ResourceManager.GetObject("Logo", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property Mainmenu() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Mainmenu", resourceCulture)
+                Return CType(obj,Byte())
             End Get
         End Property
         

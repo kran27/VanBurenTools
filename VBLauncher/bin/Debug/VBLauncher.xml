@@ -427,6 +427,11 @@ f [rest of string was truncated]&quot;;.
   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
 </summary>
 </member>
+<member name="P:VBLauncher.My.Resources.Resources.f3_front_end_buttons">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
 <member name="P:VBLauncher.My.Resources.Resources.Fences">
 <summary>
   Looks up a localized string similar to [Audio]
@@ -525,6 +530,11 @@ dis [rest of string was truncated]&quot;;.
 <member name="P:VBLauncher.My.Resources.Resources.Logo">
 <summary>
   Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Mainmenu">
+<summary>
+  Looks up a localized resource of type System.Byte[].
 </summary>
 </member>
 <member name="P:VBLauncher.My.Resources.Resources.Options">

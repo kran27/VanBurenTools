@@ -141,6 +141,7 @@
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
     <None Include="App.config" />
+    <None Include="Resources\f3_front_end_buttons.tga" />
     <None Include="Resources\Helmets\8 Ball.tga" />
     <None Include="Resources\Helmets\8-Ball I.tga" />
     <None Include="Resources\Helmets\American.tga" />
@@ -169,6 +170,7 @@
     <None Include="Resources\Helmets\SkullI.tga" />
     <None Include="Resources\Helmets\Yellow.tga" />
     <None Include="Resources\Helmets\YellowI.tga" />
+    <None Include="Resources\Mainmenu.int" />
     <None Include="Resources\Menu INIs\AaronMap2.ini" />
     <None Include="Resources\Menu INIs\Building1.ini" />
     <None Include="Resources\Menu INIs\Building2.ini" />
