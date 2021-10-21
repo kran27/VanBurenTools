@@ -1,9 +1,21 @@
-﻿Public Class Form2
+﻿Imports sm = System.Management
+Public Class Form2
     Public ovrdir As String = Application.StartupPath & "\Override"
     Public ifdir As String = My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini"
     Public line() As String = IO.File.ReadAllLines(ifdir)
     Public mapline() As String
+    Public hz As String
     Public file As IO.FileInfo
+    Protected Overrides Sub OnShown(ByVal e As System.EventArgs)
+        MyBase.OnShown(e)
+        Dim query As New sm.SelectQuery("Win32_VideoController")
+        For Each mo As sm.ManagementObject In New sm.ManagementObjectSearcher(query).Get
+            Dim CurrentRefreshRate As Object = mo("CurrentRefreshRate")
+            If CurrentRefreshRate IsNot Nothing Then
+                hz = CurrentRefreshRate.ToString
+            End If
+        Next
+    End Sub
 #Region "Auto Detect Options"
     Private Sub CheckOptions() Handles MyBase.Load
         If IO.File.Exists(ovrdir & "\FemaleFix\_CRT\PCFemale.CRT") Then
@@ -20,6 +32,9 @@
             CheckBox4.CheckState = 1
         Else
             CheckBox4.CheckState = 0
+        End If
+        If line(28) = "fullscreen = 1" Then
+            CheckBox3.CheckState = 1
         End If
 #Region "Maps"
         If IO.File.Exists(ovrdir & "\MenuMap\Engine\sys.ini") Then
@@ -118,6 +133,7 @@
             line(28) = "fullscreen = 1"
             line(29) = "height = " & My.Computer.Screen.Bounds.Height
             line(35) = "width = " & My.Computer.Screen.Bounds.Width
+            line(31) = "refresh = " & hz
             IO.File.WriteAllLines(ifdir, line)
         Else
             line(28) = "fullscreen = 0"
@@ -324,9 +340,5 @@
         ElseIf ComboBox2.SelectedIndex = 14 Then
             PictureBox1.Image = My.Resources.Yellow_Icon
         End If
-    End Sub
-
-    Private Sub Button4_Click(sender As Object, e As EventArgs)
-        Form3.ShowDialog()
     End Sub
 End Class
