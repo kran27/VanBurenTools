@@ -210,7 +210,10 @@ Public Class Form2
         Dim helmdi As New IO.DirectoryInfo(ovrdir & "\Helmet")
         Dim helmfi As IO.FileInfo() = helmdi.GetFiles()
         For Each file In helmfi
-            IO.File.Delete(file.FullName)
+            Try
+                IO.File.Delete(file.FullName)
+            Catch ex As Exception
+            End Try
         Next
         If ComboBox2.SelectedIndex = 0 Then
             If IO.Directory.Exists(ovrdir & "\Helmet\Interface") Then
@@ -220,6 +223,7 @@ Public Class Form2
                 IO.Directory.Delete(ovrdir & "\Helmet\Critters")
                 IO.Directory.Delete(ovrdir & "\Helmet")
             End If
+            IO.File.Create(ovrdir & "\Helmet\8Ball")
         ElseIf ComboBox2.SelectedIndex = 1 Then
             IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
             IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
@@ -235,7 +239,7 @@ Public Class Form2
         ElseIf ComboBox2.SelectedIndex = 3 Then
             IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
             IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
-            IO.File.Create(ovrdir & "\Helmet\American")
+            IO.File.Create(ovrdir & "\Helmet\Black")
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.BlackI)
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Black)
         ElseIf ComboBox2.SelectedIndex = 4 Then
