@@ -25,14 +25,6 @@ Public Class Form1
             PictureBox5.Image = My.Resources.BG9
         End If
     End Sub
-    Private Sub LoadExtras() Handles MyBase.Load
-        If Not IO.Directory.Exists(undir) Then
-            IO.Directory.CreateDirectory(undir)
-            IO.File.WriteAllBytes(undir & "\UnusedThings.zip", My.Resources.UnusedThings)
-            IO.Compression.ZipFile.ExtractToDirectory(undir & "\UnusedThings.zip", undir)
-            IO.File.Delete(undir & "\UnusedThings.zip")
-        End If
-    End Sub
 #Region " Move Form "
     Public MoveForm As Boolean
     Public MoveForm_MousePosition As Point
@@ -56,6 +48,13 @@ Public Class Form1
     Private Sub Warning() Handles MyBase.Load
         If Not IO.File.Exists(Application.StartupPath & "\F3.exe") Then
             MsgBox("Please put the launcher in the same directory as the game so you can launch it!", MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly, "Game Executable Not Found!")
+        Else
+            If Not IO.Directory.Exists(undir) Then
+                IO.Directory.CreateDirectory(undir)
+                IO.File.WriteAllBytes(undir & "\UnusedThings.zip", My.Resources.UnusedThings)
+                IO.Compression.ZipFile.ExtractToDirectory(undir & "\UnusedThings.zip", undir)
+                IO.File.Delete(undir & "\UnusedThings.zip")
+            End If
         End If
     End Sub
     Private Sub PictureBox1_Click(sender As Object, e As EventArgs) Handles PictureBox1.Click
