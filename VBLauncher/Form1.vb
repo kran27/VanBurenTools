@@ -24,6 +24,7 @@ Public Class Form1
         ElseIf rand = "9" Then
             PictureBox5.Image = My.Resources.BG9
         End If
+        PictureBox5.SizeMode = PictureBoxSizeMode.StretchImage
     End Sub
 #Region " Move Form "
     Public MoveForm As Boolean
