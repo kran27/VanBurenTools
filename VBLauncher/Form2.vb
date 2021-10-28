@@ -223,7 +223,6 @@ Public Class Form2
                 IO.Directory.Delete(ovrdir & "\Helmet\Critters")
                 IO.Directory.Delete(ovrdir & "\Helmet")
             End If
-            IO.File.Create(ovrdir & "\Helmet\8Ball")
         ElseIf ComboBox2.SelectedIndex = 1 Then
             IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
             IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
