@@ -5,19 +5,15 @@ Public Class Form2
     Public line() As String = IO.File.ReadAllLines(ifdir)
     Public mapline() As String
     Public hz As String
-    Public width As String
-    Public height As String
     Public file As IO.FileInfo
     Protected Overrides Sub OnShown(ByVal e As System.EventArgs)
         MyBase.OnShown(e)
         Dim query As New sm.SelectQuery("Win32_VideoController")
         For Each mo As sm.ManagementObject In New sm.ManagementObjectSearcher(query).Get
             Dim CurrentRefreshRate As Object = mo("CurrentRefreshRate")
-            Dim ScreenWidth As Object = mo("CurrentHorizontalResolution")
-            Dim ScreenHeight As Object = mo("CurrentVerticalResolution")
-            hz = CurrentRefreshRate.ToString
-            width = ScreenWidth.ToString
-            height = ScreenHeight.ToString
+            If CurrentRefreshRate IsNot Nothing Then
+                hz = CurrentRefreshRate.ToString
+            End If
         Next
     End Sub
 #Region "Auto Detect Options"
@@ -71,7 +67,7 @@ Public Class Form2
                 ComboBox1.SelectedIndex = 12
             ElseIf mapline(19) = "map name = zz_TestMapsTest_Junktown_Shacks.map" Then
                 ComboBox1.SelectedIndex = 13
-            ElseIf mapline(19) = "map name = default_startmap.map" Then
+            ElseIf mapline(19) = "map name = Default_StartMap.map" Then
                 ComboBox1.SelectedIndex = 14
             ElseIf mapline(19) = "map name = 00_03_Tutorial_Junktown.map" Then
                 ComboBox1.SelectedIndex = 15
@@ -135,8 +131,8 @@ Public Class Form2
         End If
         If CheckBox3.Checked Then
             line(28) = "fullscreen = 1"
-            line(29) = "height = " & height
-            line(35) = "width = " & width
+            line(29) = "height = " & My.Computer.Screen.Bounds.Height
+            line(35) = "width = " & My.Computer.Screen.Bounds.Width
             line(31) = "refresh = " & hz
             IO.File.WriteAllLines(ifdir, line)
         Else
