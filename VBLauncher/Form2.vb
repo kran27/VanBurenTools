@@ -5,14 +5,19 @@ Public Class Form2
     Public line() As String = IO.File.ReadAllLines(ifdir)
     Public mapline() As String
     Public hz As String
+    Public bpp As String
     Public file As IO.FileInfo
     Protected Overrides Sub OnShown(ByVal e As System.EventArgs)
         MyBase.OnShown(e)
         Dim query As New sm.SelectQuery("Win32_VideoController")
         For Each mo As sm.ManagementObject In New sm.ManagementObjectSearcher(query).Get
             Dim CurrentRefreshRate As Object = mo("CurrentRefreshRate")
+            Dim Currentbpp As Object = mo("CurrentBitsPerPixel")
             If CurrentRefreshRate IsNot Nothing Then
                 hz = CurrentRefreshRate.ToString
+            End If
+            If Currentbpp IsNot Nothing Then
+                bpp = Currentbpp.ToString
             End If
         Next
     End Sub
@@ -139,6 +144,10 @@ Public Class Form2
             line(28) = "fullscreen = 0"
             line(29) = "height = " & 720
             line(35) = "width = " & 1280
+            IO.File.WriteAllLines(ifdir, line)
+        End If
+        If bpp >= 32 Then
+            line(30) = "mode32bpp = 1"
             IO.File.WriteAllLines(ifdir, line)
         End If
         If CheckBox4.Checked Then
