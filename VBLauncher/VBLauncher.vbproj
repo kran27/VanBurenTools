@@ -137,6 +137,7 @@
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
     <None Include="App.config" />
+    <None Include="Resources\Default_F3.ini" />
     <None Include="Resources\f3_front_end_buttons.tga" />
     <None Include="Resources\Helmets\8 Ball.tga" />
     <None Include="Resources\Helmets\8-Ball I.tga" />
@@ -211,9 +212,6 @@
     <None Include="Resources\UnusedThings\WeaponsSawedOffShotgun.wea" />
     <None Include="Resources\UnusedThings\WP_2mmGaussPistol_ACT.tga" />
     <None Include="Resources\UnusedThings\WP_2mmGaussPistol_INV.tga" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\BG.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\F3.ico" />

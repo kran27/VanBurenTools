@@ -196,6 +196,9 @@
   <data name="Cave" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Menu INIs\Cave.ini;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
+  <data name="Default_F3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Default_F3.ini;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
   <data name="Default_Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Helmets\Default Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>

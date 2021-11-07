@@ -587,6 +587,50 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  Looks up a localized string similar to [Audio]
+        '''CDAudio = 0
+        '''DirectMusic = 0
+        '''DirectShow = 0
+        '''Music = 1
+        '''MusicVolume = 100
+        '''
+        '''[Client]
+        '''debug = 17416248
+        '''port = 22501
+        '''rate = 0
+        '''timeout = 600000
+        '''
+        '''[Combat]
+        '''mode = 0
+        '''
+        '''[Graphics]
+        '''adapter = 0
+        '''clear blue = 0
+        '''clear green = 0
+        '''clear red = 0
+        '''device = 0
+        '''displaymode = 12
+        '''enable bilinear filtering = 1
+        '''enable lighting = 1
+        '''enable startup movies = 1
+        '''enable transparency = 1
+        '''enable wireframe = 0
+        '''fullscreen = 1
+        '''height = 600
+        '''mode32bpp = 0
+        '''refresh = 0
+        '''shadow type = 0
+        '''stats = 0
+        '''vsync = 1
+        '''width [rest of string was truncated]&quot;;.
+        '''</summary>
+        Friend ReadOnly Property Default_F3() As String
+            Get
+                Return ResourceManager.GetString("Default_F3", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
         '''  Looks up a localized resource of type System.Drawing.Bitmap.
         '''</summary>
         Friend ReadOnly Property Default_Icon() As System.Drawing.Bitmap
@@ -1125,7 +1169,7 @@ Namespace My.Resources
         '''Scroll Speed = 96.000000
         '''
         '''[Mainmenu]
-        '''map name = default_startmap.map
+        '''map name = Default_StartMap.map
         '''target x = 60
         '''target y = 7.5
         '''target z = 25

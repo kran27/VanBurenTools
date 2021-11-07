@@ -78,6 +78,8 @@ Public Class Form2
                 ComboBox1.SelectedIndex = 15
             ElseIf mapline(19) = "map name = 00_04_Tutorial_Vault.map" Then
                 ComboBox1.SelectedIndex = 16
+            Else
+                ComboBox1.SelectedIndex = 0
             End If
         Else
             ComboBox1.SelectedIndex = 0
