@@ -39,6 +39,7 @@ Partial Class Form2
         Me.CheckBox3 = New System.Windows.Forms.CheckBox()
         Me.Button2 = New System.Windows.Forms.Button()
         Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
+        Me.CheckBox5 = New System.Windows.Forms.CheckBox()
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -46,7 +47,7 @@ Partial Class Form2
         '
         'Button1
         '
-        Me.Button1.Location = New System.Drawing.Point(199, 210)
+        Me.Button1.Location = New System.Drawing.Point(199, 233)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(60, 23)
         Me.Button1.TabIndex = 0
@@ -76,12 +77,13 @@ Partial Class Form2
         '
         'GroupBox1
         '
+        Me.GroupBox1.Controls.Add(Me.CheckBox5)
         Me.GroupBox1.Controls.Add(Me.CheckBox4)
         Me.GroupBox1.Controls.Add(Me.CheckBox1)
         Me.GroupBox1.Controls.Add(Me.CheckBox2)
         Me.GroupBox1.Location = New System.Drawing.Point(12, 12)
         Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(247, 86)
+        Me.GroupBox1.Size = New System.Drawing.Size(247, 109)
         Me.GroupBox1.TabIndex = 7
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "General Tweaks"
@@ -105,7 +107,7 @@ Partial Class Form2
         Me.GroupBox2.Controls.Add(Me.Label2)
         Me.GroupBox2.Controls.Add(Me.PictureBox1)
         Me.GroupBox2.Controls.Add(Me.Label1)
-        Me.GroupBox2.Location = New System.Drawing.Point(12, 104)
+        Me.GroupBox2.Location = New System.Drawing.Point(12, 127)
         Me.GroupBox2.Name = "GroupBox2"
         Me.GroupBox2.Size = New System.Drawing.Size(247, 100)
         Me.GroupBox2.TabIndex = 8
@@ -170,7 +172,7 @@ Partial Class Form2
         'CheckBox3
         '
         Me.CheckBox3.AutoSize = True
-        Me.CheckBox3.Location = New System.Drawing.Point(18, 214)
+        Me.CheckBox3.Location = New System.Drawing.Point(18, 237)
         Me.CheckBox3.Name = "CheckBox3"
         Me.CheckBox3.Size = New System.Drawing.Size(74, 17)
         Me.CheckBox3.TabIndex = 7
@@ -180,12 +182,23 @@ Partial Class Form2
         'Button2
         '
         Me.Button2.DialogResult = System.Windows.Forms.DialogResult.Cancel
-        Me.Button2.Location = New System.Drawing.Point(133, 210)
+        Me.Button2.Location = New System.Drawing.Point(133, 233)
         Me.Button2.Name = "Button2"
         Me.Button2.Size = New System.Drawing.Size(60, 23)
         Me.Button2.TabIndex = 2
         Me.Button2.Text = "Close"
         Me.Button2.UseVisualStyleBackColor = True
+        '
+        'CheckBox5
+        '
+        Me.CheckBox5.AutoSize = True
+        Me.CheckBox5.Location = New System.Drawing.Point(6, 86)
+        Me.CheckBox5.Name = "CheckBox5"
+        Me.CheckBox5.Size = New System.Drawing.Size(129, 17)
+        Me.CheckBox5.TabIndex = 9
+        Me.CheckBox5.Text = "Unlock Camera Zoom"
+        Me.ToolTip1.SetToolTip(Me.CheckBox5, "Mod made by RedneckHax0r")
+        Me.CheckBox5.UseVisualStyleBackColor = True
         '
         'Form2
         '
@@ -193,7 +206,7 @@ Partial Class Form2
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.CancelButton = Me.Button2
-        Me.ClientSize = New System.Drawing.Size(271, 245)
+        Me.ClientSize = New System.Drawing.Size(271, 268)
         Me.Controls.Add(Me.CheckBox3)
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.GroupBox1)
@@ -232,4 +245,5 @@ Partial Class Form2
     Friend WithEvents CheckBox4 As CheckBox
     Friend WithEvents Button2 As Button
     Friend WithEvents ToolTip1 As ToolTip
+    Friend WithEvents CheckBox5 As CheckBox
 End Class

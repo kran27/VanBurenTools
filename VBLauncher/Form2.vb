@@ -46,6 +46,9 @@ Public Class Form2
             mapline = IO.File.ReadAllLines(ovrdir & "\MenuMap\Engine\sys.ini")
             If mapline(19) = "map name = mainmenu.map" Then
                 ComboBox1.SelectedIndex = 0
+                If mapline(13) = "FOV Min = 0.0000" Then
+                    CheckBox5.Checked = True
+                End If
             ElseIf mapline(19) = "map name = zz_TestMapsaarontemp2.map" Then
                 ComboBox1.SelectedIndex = 1
             ElseIf mapline(19) = "map name = zz_TestMapsTest_City_Building01.map" Then
@@ -164,8 +167,13 @@ Public Class Form2
         End If
 #Region "Load Maps"
         If ComboBox1.SelectedIndex = 0 Then
-            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
-            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources._Default)
+            If Not CheckBox5.Checked Then
+                IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
+                IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources._Default)
+            Else
+                IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
+                IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.UncappedZoom)
+            End If
         ElseIf ComboBox1.SelectedIndex = 1 Then
             IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
             IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.AaronMap2)
@@ -353,6 +361,19 @@ Public Class Form2
             PictureBox1.Image = My.Resources.Skull_Icon
         ElseIf ComboBox2.SelectedIndex = 14 Then
             PictureBox1.Image = My.Resources.Yellow_Icon
+        End If
+    End Sub
+
+    Private Sub CheckOptions(sender As Object, e As EventArgs) Handles MyBase.Load
+
+    End Sub
+
+    Private Sub CheckBox5_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox5.CheckedChanged
+        If CheckBox5.Checked Then
+            ComboBox1.SelectedIndex = 0
+            ComboBox1.Enabled = False
+        Else
+            ComboBox1.Enabled = True
         End If
     End Sub
 End Class

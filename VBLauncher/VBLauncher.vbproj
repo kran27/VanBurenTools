@@ -184,6 +184,7 @@
     <None Include="Resources\Menu INIs\Shacks.ini" />
     <None Include="Resources\Menu INIs\StartMap.ini" />
     <None Include="Resources\Menu INIs\Tutorial.ini" />
+    <None Include="Resources\Menu INIs\UncappedZoom.ini" />
     <None Include="Resources\Menu INIs\Vault.ini" />
     <None Include="Resources\PCFemale.CRT" />
     <None Include="Resources\UnusedThings.zip" />

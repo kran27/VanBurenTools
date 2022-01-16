@@ -1219,6 +1219,41 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  Looks up a localized string similar to [Audio]
+        '''GroupList = FO3.gls
+        '''MusicJumpList = F3.sco
+        '''
+        '''[Camera]
+        '''Azimuth Speed = 360.000000
+        '''Distance Max = 500.000000
+        '''Distance Min = 0.000000
+        '''Distance Speed = 800.000000
+        '''Elevation Max = 89.000000
+        '''Elevation Min = 38.500000
+        '''Elevation Speed = 360.000000
+        '''FOV Speed = 6.50000
+        '''FOV Min = 0.0000
+        '''FOV Max = 360.0000
+        '''Scroll Border = 0.010000
+        '''Scroll Speed = 96.000000
+        '''
+        '''[Mainmenu]
+        '''map name = mainmenu.map
+        '''target x = 0.0
+        '''target y = 5.5
+        '''target z = 0.0
+        '''azimuth = 2
+        '''elevation = 0.75
+        '''distance = 0
+        '''fov = 59.2 [rest of string was truncated]&quot;;.
+        '''</summary>
+        Friend ReadOnly Property UncappedZoom() As String
+            Get
+                Return ResourceManager.GetString("UncappedZoom", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
         '''  Looks up a localized resource of type System.Byte[].
         '''</summary>
         Friend ReadOnly Property UnusedThings() As Byte()
