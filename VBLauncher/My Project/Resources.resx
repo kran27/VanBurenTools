@@ -202,6 +202,9 @@
   <data name="Default_Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Helmets\Default Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="Default_sys" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Default_sys;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="Eye" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Helmets\Eye.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
@@ -324,9 +327,6 @@
   </data>
   <data name="Tutorial" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Menu INIs\Tutorial.ini;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
-  <data name="UncappedZoom" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Menu INIs\UncappedZoom.ini;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
   <data name="UnusedThings" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\UnusedThings.zip;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>

@@ -138,6 +138,8 @@
     </None>
     <None Include="App.config" />
     <None Include="Resources\Default_F3.ini" />
+    <None Include="Resources\Default_sys" />
+    <None Include="Resources\Default_sys.ini" />
     <None Include="Resources\f3_front_end_buttons.tga" />
     <None Include="Resources\Helmets\8 Ball.tga" />
     <None Include="Resources\Helmets\8-Ball I.tga" />

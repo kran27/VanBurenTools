@@ -42,8 +42,12 @@ Public Class Form2
             CheckBox3.CheckState = 1
         End If
 #Region "Maps"
+        If Not IO.File.Exists(ovrdir & "\MenuMap\Engine\sys.ini") Then
+            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
+            IO.File.WriteAllBytes(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Default_sys)
+        End If
+        mapline = IO.File.ReadAllLines(ovrdir & "\MenuMap\Engine\sys.ini")
         If IO.File.Exists(ovrdir & "\MenuMap\Engine\sys.ini") Then
-            mapline = IO.File.ReadAllLines(ovrdir & "\MenuMap\Engine\sys.ini")
             If mapline(19) = "map name = mainmenu.map" Then
                 ComboBox1.SelectedIndex = 0
             ElseIf mapline(19) = "map name = zz_TestMapsaarontemp2.map" Then
@@ -167,55 +171,38 @@ Public Class Form2
         End If
 #Region "Load Maps"
         If ComboBox1.SelectedIndex = 0 Then
-            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
             IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources._Default)
         ElseIf ComboBox1.SelectedIndex = 1 Then
-            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
             IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.AaronMap2)
         ElseIf ComboBox1.SelectedIndex = 2 Then
-            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
             IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Building1)
         ElseIf ComboBox1.SelectedIndex = 3 Then
-            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
             IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Building2)
         ElseIf ComboBox1.SelectedIndex = 4 Then
-            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
             IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Building3)
         ElseIf ComboBox1.SelectedIndex = 5 Then
-            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
             IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Building4)
         ElseIf ComboBox1.SelectedIndex = 6 Then
-            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
             IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Canyon)
         ElseIf ComboBox1.SelectedIndex = 7 Then
-            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
             IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Canyon2)
         ElseIf ComboBox1.SelectedIndex = 8 Then
-            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
             IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Cave)
         ElseIf ComboBox1.SelectedIndex = 9 Then
-            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
             IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Fences)
         ElseIf ComboBox1.SelectedIndex = 10 Then
-            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
             IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.ScottEMap1)
         ElseIf ComboBox1.SelectedIndex = 11 Then
-            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
             IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.ScottEMap2)
         ElseIf ComboBox1.SelectedIndex = 12 Then
-            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
             IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.ScottEMap4)
         ElseIf ComboBox1.SelectedIndex = 13 Then
-            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
             IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Shacks)
         ElseIf ComboBox1.SelectedIndex = 14 Then
-            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
             IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.StartMap)
         ElseIf ComboBox1.SelectedIndex = 15 Then
-            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
             IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Tutorial)
         ElseIf ComboBox1.SelectedIndex = 16 Then
-            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
             IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Vault)
         End If
         mapline = IO.File.ReadAllLines(ovrdir & "\MenuMap\Engine\sys.ini")
