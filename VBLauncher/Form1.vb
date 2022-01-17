@@ -46,16 +46,18 @@ Public Class Form1
         End If
     End Sub
 #End Region
-    Private Sub Warning() Handles MyBase.Load
+    Private Sub Warning() Handles MyBase.VisibleChanged
         If Not IO.File.Exists(Application.StartupPath & "\F3.exe") Then
             MsgBox("Please put the launcher in the same directory as the game so you can launch it!", MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly, "Game Executable Not Found!")
+        ElseIf IO.Directory.Exists(undir) Then
+            System.IO.Directory.Delete(undir, True)
+            GoTo ExtractZip
         Else
-            If Not IO.Directory.Exists(undir) Then
-                IO.Directory.CreateDirectory(undir)
-                IO.File.WriteAllBytes(undir & "\UnusedThings.zip", My.Resources.UnusedThings)
-                IO.Compression.ZipFile.ExtractToDirectory(undir & "\UnusedThings.zip", undir)
-                IO.File.Delete(undir & "\UnusedThings.zip")
-            End If
+ExtractZip:
+            IO.Directory.CreateDirectory(undir)
+            IO.File.WriteAllBytes(undir & "\UnusedThings.zip", My.Resources.UnusedThings)
+            IO.Compression.ZipFile.ExtractToDirectory(undir & "\UnusedThings.zip", undir)
+            IO.File.Delete(undir & "\UnusedThings.zip")
         End If
     End Sub
     Private Sub PictureBox1_Click(sender As Object, e As EventArgs) Handles PictureBox1.Click
