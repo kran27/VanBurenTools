@@ -368,7 +368,7 @@ Public Class Form2
 
     End Sub
 
-    Private Sub CheckBox5_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox5.CheckedChanged
+    Private Sub CheckBox5_CheckedChanged(sender As Object, e As EventArgs)
         If CheckBox5.Checked Then
             ComboBox1.SelectedIndex = 0
             ComboBox1.Enabled = False
