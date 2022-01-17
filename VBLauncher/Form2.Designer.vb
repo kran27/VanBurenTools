@@ -22,12 +22,12 @@ Partial Class Form2
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
-        Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form2))
         Me.Button1 = New System.Windows.Forms.Button()
         Me.CheckBox1 = New System.Windows.Forms.CheckBox()
         Me.CheckBox2 = New System.Windows.Forms.CheckBox()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+        Me.CheckBox5 = New System.Windows.Forms.CheckBox()
         Me.CheckBox4 = New System.Windows.Forms.CheckBox()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
         Me.ComboBox1 = New System.Windows.Forms.ComboBox()
@@ -38,8 +38,6 @@ Partial Class Form2
         Me.Label1 = New System.Windows.Forms.Label()
         Me.CheckBox3 = New System.Windows.Forms.CheckBox()
         Me.Button2 = New System.Windows.Forms.Button()
-        Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
-        Me.CheckBox5 = New System.Windows.Forms.CheckBox()
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -62,7 +60,6 @@ Partial Class Form2
         Me.CheckBox1.Size = New System.Drawing.Size(125, 17)
         Me.CheckBox1.TabIndex = 1
         Me.CheckBox1.Text = "Fix Female Character"
-        Me.ToolTip1.SetToolTip(Me.CheckBox1, "Mod made by RedneckHax0r")
         Me.CheckBox1.UseVisualStyleBackColor = True
         '
         'CheckBox2
@@ -88,6 +85,16 @@ Partial Class Form2
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "General Tweaks"
         '
+        'CheckBox5
+        '
+        Me.CheckBox5.AutoSize = True
+        Me.CheckBox5.Location = New System.Drawing.Point(6, 86)
+        Me.CheckBox5.Name = "CheckBox5"
+        Me.CheckBox5.Size = New System.Drawing.Size(129, 17)
+        Me.CheckBox5.TabIndex = 9
+        Me.CheckBox5.Text = "Unlock Camera Zoom"
+        Me.CheckBox5.UseVisualStyleBackColor = True
+        '
         'CheckBox4
         '
         Me.CheckBox4.AutoSize = True
@@ -96,7 +103,6 @@ Partial Class Form2
         Me.CheckBox4.Size = New System.Drawing.Size(175, 17)
         Me.CheckBox4.TabIndex = 8
         Me.CheckBox4.Text = "Remove Useless Menu Options"
-        Me.ToolTip1.SetToolTip(Me.CheckBox4, "Mod made by RedneckHax0r")
         Me.CheckBox4.UseVisualStyleBackColor = True
         '
         'GroupBox2
@@ -189,17 +195,6 @@ Partial Class Form2
         Me.Button2.Text = "Close"
         Me.Button2.UseVisualStyleBackColor = True
         '
-        'CheckBox5
-        '
-        Me.CheckBox5.AutoSize = True
-        Me.CheckBox5.Location = New System.Drawing.Point(6, 86)
-        Me.CheckBox5.Name = "CheckBox5"
-        Me.CheckBox5.Size = New System.Drawing.Size(129, 17)
-        Me.CheckBox5.TabIndex = 9
-        Me.CheckBox5.Text = "Unlock Camera Zoom"
-        Me.ToolTip1.SetToolTip(Me.CheckBox5, "Mod made by RedneckHax0r")
-        Me.CheckBox5.UseVisualStyleBackColor = True
-        '
         'Form2
         '
         Me.AcceptButton = Me.Button1
@@ -244,6 +239,5 @@ Partial Class Form2
     Friend WithEvents CheckBox3 As CheckBox
     Friend WithEvents CheckBox4 As CheckBox
     Friend WithEvents Button2 As Button
-    Friend WithEvents ToolTip1 As ToolTip
     Friend WithEvents CheckBox5 As CheckBox
 End Class
