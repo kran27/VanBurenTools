@@ -737,6 +737,16 @@ Namespace My.Resources
         '''<summary>
         '''  Looks up a localized resource of type System.Byte[].
         '''</summary>
+        Friend ReadOnly Property Fixes() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Fixes", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
         Friend ReadOnly Property Flames() As Byte()
             Get
                 Dim obj As Object = ResourceManager.GetObject("Flames", resourceCulture)
@@ -891,16 +901,6 @@ Namespace My.Resources
             Get
                 Dim obj As Object = ResourceManager.GetObject("Options", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
-            End Get
-        End Property
-        
-        '''<summary>
-        '''  Looks up a localized resource of type System.Byte[].
-        '''</summary>
-        Friend ReadOnly Property PCFemale() As Byte()
-            Get
-                Dim obj As Object = ResourceManager.GetObject("PCFemale", resourceCulture)
-                Return CType(obj,Byte())
             End Get
         End Property
         
@@ -1225,16 +1225,6 @@ Namespace My.Resources
         Friend ReadOnly Property Tutorial() As String
             Get
                 Return ResourceManager.GetString("Tutorial", resourceCulture)
-            End Get
-        End Property
-        
-        '''<summary>
-        '''  Looks up a localized resource of type System.Byte[].
-        '''</summary>
-        Friend ReadOnly Property UnusedThings() As Byte()
-            Get
-                Dim obj As Object = ResourceManager.GetObject("UnusedThings", resourceCulture)
-                Return CType(obj,Byte())
             End Get
         End Property
         

@@ -1,6 +1,6 @@
 ﻿Imports System.IO.Compression
 Public Class Form1
-    Public undir As String = Application.StartupPath & "\Override\UnusedThings"
+    Public fixdir As String = Application.StartupPath & "\Override\Fixes"
 #Region " Move Form "
     Public MoveForm As Boolean
     Public MoveForm_MousePosition As Point
@@ -47,18 +47,21 @@ Public Class Form1
         PictureBox5.SizeMode = PictureBoxSizeMode.StretchImage
         If Not IO.File.Exists(Application.StartupPath & "\F3.exe") Then
             MsgBox("Please put the launcher in the same directory as the game so you can launch it!", MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly, "Game Executable Not Found!")
-        ElseIf IO.Directory.Exists(undir) Then
-            System.IO.Directory.Delete(undir, True)
+        ElseIf IO.Directory.Exists(fixdir) Then
+            System.IO.Directory.Delete(fixdir, True)
             GoTo ExtractZip
         Else
 ExtractZip:
-            IO.Directory.CreateDirectory(undir)
-            IO.File.WriteAllBytes(undir & "\UnusedThings.zip", My.Resources.UnusedThings)
-            IO.Compression.ZipFile.ExtractToDirectory(undir & "\UnusedThings.zip", undir)
-            IO.File.Delete(undir & "\UnusedThings.zip")
+            IO.Directory.CreateDirectory(fixdir)
+            IO.File.WriteAllBytes(fixdir & "\Fixes.zip", My.Resources.Fixes)
+            IO.Compression.ZipFile.ExtractToDirectory(fixdir & "\Fixes.zip", fixdir)
+            IO.File.Delete(fixdir & "\Fixes.zip")
         End If
         If IO.File.Exists(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT") Then
             IO.File.Delete(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT")
+        End If
+        If IO.Directory.Exists(Application.StartupPath & "\Override\FemaleFix") Then
+            IO.Directory.Delete(Application.StartupPath & "\Override\FemaleFix", True)
         End If
     End Sub
     Private Sub PictureBox1_Click(sender As Object, e As EventArgs) Handles PictureBox1.Click

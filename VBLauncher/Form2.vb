@@ -25,9 +25,6 @@ Public Class Form2
     End Function
 #Region "Auto Detect Options"
     Private Sub CheckOptions() Handles MyBase.Load
-        If IO.File.Exists(ovrdir & "\FemaleFix\_CRT\PCFemale.CRT") Then
-            CheckBox1.CheckState = 1
-        End If
         If line(25) = "enable startup movies = 1" Then
             CheckBox2.CheckState = 1
         End If
@@ -132,14 +129,6 @@ Public Class Form2
 #End Region
     Private Sub ApplyChanges(sender As Object, e As EventArgs) Handles Button1.Click
         line = IO.File.ReadAllLines(ifdir)
-        If CheckBox1.Checked Then
-            IO.Directory.CreateDirectory(ovrdir & "\FemaleFix\_CRT")
-            IO.File.WriteAllBytes(ovrdir & "\FemaleFix\_CRT\PCFemale.CRT", My.Resources.PCFemale)
-        ElseIf IO.File.Exists(ovrdir & "\FemaleFix\_CRT\PCFemale.CRT") Then
-            IO.File.Delete(ovrdir & "\FemaleFix\_CRT\PCFemale.CRT")
-            IO.Directory.Delete(ovrdir & "\FemaleFix\_CRT")
-            IO.Directory.Delete(ovrdir & "\FemaleFix")
-        End If
         If CheckBox2.Checked Then
             line(25) = "enable startup movies = 1"
             IO.File.WriteAllLines(ifdir, line)
@@ -213,21 +202,9 @@ Public Class Form2
 #End Region
 #Region "Load Helmets"
         IO.Directory.CreateDirectory(ovrdir & "\Helmet")
-        Dim helmdi As New IO.DirectoryInfo(ovrdir & "\Helmet")
-        Dim helmfi As IO.FileInfo() = helmdi.GetFiles()
-        For Each file In helmfi
-            Try
-                IO.File.Delete(file.FullName)
-            Catch ex As Exception
-            End Try
-        Next
         If ComboBox2.SelectedIndex = 0 Then
-            If IO.Directory.Exists(ovrdir & "\Helmet\Interface") Then
-                IO.File.Delete(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga")
-                IO.File.Delete(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga")
-                IO.Directory.Delete(ovrdir & "\Helmet\Interface")
-                IO.Directory.Delete(ovrdir & "\Helmet\Critters")
-                IO.Directory.Delete(ovrdir & "\Helmet")
+            If IO.Directory.Exists(ovrdir & "\Helmet") Then
+                IO.Directory.Delete(ovrdir & "\Helmet", True)
             End If
         ElseIf ComboBox2.SelectedIndex = 1 Then
             IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
@@ -354,4 +331,5 @@ Public Class Form2
         Form3.Location = Location
         Form3.ShowDialog()
     End Sub
+
 End Class

@@ -271,9 +271,6 @@
   <data name="Options" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Launcher\Options.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="PCFemale" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\PCFemale.CRT;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="Police" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Helmets\Police.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
@@ -328,8 +325,8 @@
   <data name="Tutorial" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Menu INIs\Tutorial.ini;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
-  <data name="UnusedThings" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\UnusedThings.zip;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="Fixes" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Fixes.zip;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="Vault" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Menu INIs\Vault.ini;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>

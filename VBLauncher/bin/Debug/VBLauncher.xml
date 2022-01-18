@@ -507,6 +507,11 @@ elevation = 35.0
 dis [rest of string was truncated]&quot;;.
 </summary>
 </member>
+<member name="P:VBLauncher.My.Resources.Resources.Fixes">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
 <member name="P:VBLauncher.My.Resources.Resources.Flames">
 <summary>
   Looks up a localized resource of type System.Byte[].
@@ -585,11 +590,6 @@ dis [rest of string was truncated]&quot;;.
 <member name="P:VBLauncher.My.Resources.Resources.Options">
 <summary>
   Looks up a localized resource of type System.Drawing.Bitmap.
-</summary>
-</member>
-<member name="P:VBLauncher.My.Resources.Resources.PCFemale">
-<summary>
-  Looks up a localized resource of type System.Byte[].
 </summary>
 </member>
 <member name="P:VBLauncher.My.Resources.Resources.Police">
@@ -830,11 +830,6 @@ target z = 50.0
 azimuth = 5
 elevation = 10
 distanc [rest of string was truncated]&quot;;.
-</summary>
-</member>
-<member name="P:VBLauncher.My.Resources.Resources.UnusedThings">
-<summary>
-  Looks up a localized resource of type System.Byte[].
 </summary>
 </member>
 <member name="P:VBLauncher.My.Resources.Resources.Vault">
