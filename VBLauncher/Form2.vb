@@ -203,87 +203,63 @@ Public Class Form2
 #Region "Load Helmets"
         IO.Directory.CreateDirectory(ovrdir & "\Helmet")
         IO.Directory.Delete(ovrdir & "\Helmet", True)
-        If ComboBox2.SelectedIndex = 1 Then
+        If Not ComboBox2.SelectedIndex = 0 Then
             IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
             IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
+        End If
+        If ComboBox2.SelectedIndex = 1 Then
             IO.File.Create(ovrdir & "\Helmet\8Ball")
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources._8_Ball_I)
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources._8_Ball)
         ElseIf ComboBox2.SelectedIndex = 2 Then
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
             IO.File.Create(ovrdir & "\Helmet\American")
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.AmericanI)
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.American)
         ElseIf ComboBox2.SelectedIndex = 3 Then
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
             IO.File.Create(ovrdir & "\Helmet\Black")
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.BlackI)
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Black)
         ElseIf ComboBox2.SelectedIndex = 4 Then
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
             IO.File.Create(ovrdir & "\Helmet\Blue")
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.BlueI)
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Blue)
         ElseIf ComboBox2.SelectedIndex = 5 Then
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
             IO.File.Create(ovrdir & "\Helmet\Eye")
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.EyeI)
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Eye)
         ElseIf ComboBox2.SelectedIndex = 6 Then
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
             IO.File.Create(ovrdir & "\Helmet\Flames")
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.FlamesI)
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Flames)
         ElseIf ComboBox2.SelectedIndex = 7 Then
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
             IO.File.Create(ovrdir & "\Helmet\FullSkull")
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.Full_SkullI)
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Full_Skull)
         ElseIf ComboBox2.SelectedIndex = 8 Then
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
             IO.File.Create(ovrdir & "\Helmet\Green")
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.GreenI)
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Green)
         ElseIf ComboBox2.SelectedIndex = 9 Then
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
             IO.File.Create(ovrdir & "\Helmet\Grey")
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.GreyI)
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Grey)
         ElseIf ComboBox2.SelectedIndex = 10 Then
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
             IO.File.Create(ovrdir & "\Helmet\Police")
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.PoliceI)
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Police)
         ElseIf ComboBox2.SelectedIndex = 11 Then
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
             IO.File.Create(ovrdir & "\Helmet\Red")
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.RedI)
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Red)
         ElseIf ComboBox2.SelectedIndex = 12 Then
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
             IO.File.Create(ovrdir & "\Helmet\ShotSmiley")
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.Shot_SmileyI)
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Shot_Smiley)
         ElseIf ComboBox2.SelectedIndex = 13 Then
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
             IO.File.Create(ovrdir & "\Helmet\Skull")
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.SkullI)
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Skull)
         ElseIf ComboBox2.SelectedIndex = 14 Then
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
             IO.File.Create(ovrdir & "\Helmet\Yellow")
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.YellowI)
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Yellow)
