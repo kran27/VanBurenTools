@@ -40,8 +40,6 @@ Public Class Form2
             IO.File.WriteAllBytes(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Default_sys)
         End If
         mapline = IO.File.ReadAllLines(ovrdir & "\MenuMap\Engine\sys.ini")
-        Dim newgamemap As String = mapline(52)
-        ComboBox3.Text = newgamemap.Remove(0, 12)
         If IO.File.Exists(ovrdir & "\MenuMap\Engine\sys.ini") Then
             If mapline(19) = "map name = mainmenu.map" Then
                 ComboBox1.SelectedIndex = 0
@@ -91,6 +89,9 @@ Public Class Form2
             Dim fi As New IO.FileInfo(file)
             ComboBox3.Items.Add(fi.Name)
         Next
+        mapline = IO.File.ReadAllLines(ovrdir & "\MenuMap\Engine\sys.ini")
+        Dim newgamemap As String = mapline(52)
+        ComboBox3.Text = newgamemap.Remove(0, 12)
 #End Region
 #Region "Helmets"
         If IO.File.Exists(ovrdir & "\Helmet\8Ball") Then
