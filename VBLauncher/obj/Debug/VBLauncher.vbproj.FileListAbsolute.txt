@@ -81,3 +81,5 @@ D:\Repos\VanBurenLauncher\VBLauncher\obj\Debug\VBLauncher.vbproj.AssemblyReferen
 C:\Users\Kieran\Documents\GitHub\VanBurenLauncher\VBLauncher\obj\Debug\VBLauncher.vbproj.AssemblyReference.cache
 D:\Repos\VanBurenLauncher\VBLauncher\obj\Debug\VBLauncher.vbproj.SuggestedBindingRedirects.cache
 D:\Repos\VanBurenLauncher\VBLauncher\obj\Debug\VBLauncher.Form3.resources
+C:\Users\Kieran\Documents\GitHub\VanBurenLauncher\VBLauncher\obj\Debug\VBLauncher.vbproj.SuggestedBindingRedirects.cache
+C:\Users\Kieran\Documents\GitHub\VanBurenLauncher\VBLauncher\obj\Debug\VBLauncher.Form3.resources
