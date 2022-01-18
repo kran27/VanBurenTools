@@ -44,19 +44,21 @@ Public Class Form1
         ElseIf rand = "9" Then
             PictureBox5.Image = My.Resources.BG9
         End If
-        PictureBox5.SizeMode = PictureBoxSizeMode.StretchImage
+        If IO.Directory.Exists(fixdir) Then
+            System.IO.Directory.Delete(fixdir, True)
+        End If
         If Not IO.File.Exists(Application.StartupPath & "\F3.exe") Then
             MsgBox("Please put the launcher in the same directory as the game so you can launch it!", MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly, "Game Executable Not Found!")
-        ElseIf IO.Directory.Exists(fixdir) Then
-            System.IO.Directory.Delete(fixdir, True)
+        Else
+            IO.Directory.CreateDirectory(fixdir)
+            IO.File.WriteAllBytes(fixdir & "\Fixes.zip", My.Resources.Fixes)
+            IO.Compression.ZipFile.ExtractToDirectory(fixdir & "\Fixes.zip", fixdir)
         End If
         If IO.Directory.Exists(Application.StartupPath & "\Override\UnusedThings") Then
             IO.Directory.Delete(Application.StartupPath & "\Override\UnusedThings", True)
         End If
-        IO.Directory.CreateDirectory(fixdir)
-            IO.File.WriteAllBytes(fixdir & "\Fixes.zip", My.Resources.Fixes)
-            IO.Compression.ZipFile.ExtractToDirectory(fixdir & "\Fixes.zip", fixdir)
-            If IO.File.Exists(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT") Then
+
+        If IO.File.Exists(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT") Then
             IO.File.Delete(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT")
         End If
         If IO.Directory.Exists(Application.StartupPath & "\Override\FemaleFix") Then

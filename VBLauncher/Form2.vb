@@ -305,4 +305,7 @@ Public Class Form2
         Form3.ShowDialog()
     End Sub
 
+    Private Sub CheckOptions(sender As Object, e As EventArgs) Handles MyBase.Load
+
+    End Sub
 End Class
