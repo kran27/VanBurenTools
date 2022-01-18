@@ -76,7 +76,6 @@ ExtractZip:
         Form2.ShowDialog()
     End Sub
     Private Sub PictureBox3_Click(sender As Object, e As EventArgs) Handles PictureBox3.Click
-        MoveForm = False
         Application.Exit()
     End Sub
 End Class

@@ -129,11 +129,11 @@ Public Class Form2
 #End Region
     Private Sub ApplyChanges(sender As Object, e As EventArgs) Handles Button1.Click
         If CheckBox1.Checked Then
-            IO.Directory.CreateDirectory(ovrdir & "\FemaleFix\_CRT\")
+            IO.Directory.CreateDirectory(ovrdir & "\FemaleFix\_CRT")
             IO.File.WriteAllBytes(ovrdir & "\FemaleFix\_CRT\PCFemale.CRT", My.Resources.PCFemale)
         ElseIf IO.File.Exists(ovrdir & "\FemaleFix\_CRT\PCFemale.CRT") Then
             IO.File.Delete(ovrdir & "\FemaleFix\_CRT\PCFemale.CRT")
-            IO.Directory.Delete(ovrdir & "\FemaleFix\_CRT\")
+            IO.Directory.Delete(ovrdir & "\FemaleFix\_CRT")
             IO.Directory.Delete(ovrdir & "\FemaleFix")
         End If
         If CheckBox2.Checked Then
