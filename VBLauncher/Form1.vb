@@ -49,15 +49,14 @@ Public Class Form1
             MsgBox("Please put the launcher in the same directory as the game so you can launch it!", MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly, "Game Executable Not Found!")
         ElseIf IO.Directory.Exists(fixdir) Then
             System.IO.Directory.Delete(fixdir, True)
-            GoTo ExtractZip
-        Else
-ExtractZip:
-            IO.Directory.CreateDirectory(fixdir)
+        End If
+        If IO.Directory.Exists(Application.StartupPath & "\Override\UnusedThings") Then
+            IO.Directory.Delete(Application.StartupPath & "\Override\UnusedThings", True)
+        End If
+        IO.Directory.CreateDirectory(fixdir)
             IO.File.WriteAllBytes(fixdir & "\Fixes.zip", My.Resources.Fixes)
             IO.Compression.ZipFile.ExtractToDirectory(fixdir & "\Fixes.zip", fixdir)
-            IO.File.Delete(fixdir & "\Fixes.zip")
-        End If
-        If IO.File.Exists(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT") Then
+            If IO.File.Exists(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT") Then
             IO.File.Delete(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT")
         End If
         If IO.Directory.Exists(Application.StartupPath & "\Override\FemaleFix") Then
