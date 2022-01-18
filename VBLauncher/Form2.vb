@@ -1,10 +1,28 @@
-﻿
+﻿Imports System.IO.Directory
 Public Class Form2
     Public ovrdir As String = Application.StartupPath & "\Override"
     Public ifdir As String = My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini"
     Public line() As String = IO.File.ReadAllLines(ifdir)
     Public mapline() As String
     Public file As IO.FileInfo
+    Function SearchForFiles(ByVal RootFolder As String, ByVal FileFilter() As String) As List(Of String)
+        Dim ReturnedData As New List(Of String)
+        Dim FolderStack As New Stack(Of String)
+        FolderStack.Push(RootFolder)
+        Do While FolderStack.Count > 0
+            Dim ThisFolder As String = FolderStack.Pop
+            Try
+                For Each SubFolder In GetDirectories(ThisFolder)
+                    FolderStack.Push(SubFolder)
+                Next
+                For Each FileExt In FileFilter
+                    ReturnedData.AddRange(GetFiles(ThisFolder, FileExt))
+                Next
+            Catch ex As Exception
+            End Try
+        Loop
+        Return ReturnedData
+    End Function
 #Region "Auto Detect Options"
     Private Sub CheckOptions() Handles MyBase.Load
         If IO.File.Exists(ovrdir & "\FemaleFix\_CRT\PCFemale.CRT") Then
@@ -22,8 +40,6 @@ Public Class Form2
             IO.File.WriteAllBytes(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Default_sys)
         End If
         mapline = IO.File.ReadAllLines(ovrdir & "\MenuMap\Engine\sys.ini")
-        Dim newgamemap As String = mapline(52)
-        ComboBox3.Text = newgamemap.Remove(0, 12)
         If IO.File.Exists(ovrdir & "\MenuMap\Engine\sys.ini") Then
             If mapline(19) = "map name = mainmenu.map" Then
                 ComboBox1.SelectedIndex = 0
@@ -68,6 +84,16 @@ Public Class Form2
         If mapline(13) = "FOV Min = 0.5" Then
             CheckBox5.Checked = True
         End If
+        Dim Files = SearchForFiles(ovrdir, {"*.map"})
+        For Each file As Object In Files
+            Dim fi As New IO.FileInfo(file)
+            If Not ComboBox3.Items.Contains(fi.Name) Then
+                ComboBox3.Items.Add(fi.Name)
+            End If
+        Next
+        mapline = IO.File.ReadAllLines(ovrdir & "\MenuMap\Engine\sys.ini")
+        Dim newgamemap As String = mapline(52)
+        ComboBox3.Text = newgamemap.Remove(0, 12)
 #End Region
 #Region "Helmets"
         If IO.File.Exists(ovrdir & "\Helmet\8Ball") Then
@@ -132,7 +158,9 @@ Public Class Form2
             IO.Directory.Delete(ovrdir & "\SUMM")
         End If
 #Region "Load Maps"
-        If ComboBox1.SelectedIndex = 0 Then
+        If ComboBox1.SelectedIndex = 0 And line(29) = "height = " & 872 Then
+            IO.File.WriteAllBytes(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Default_sys)
+        ElseIf ComboBox1.SelectedIndex = 0 And Not line(29) = "height = " & 872 Then
             IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources._Default)
         ElseIf ComboBox1.SelectedIndex = 1 Then
             IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.AaronMap2)
