@@ -1,10 +1,28 @@
-﻿
+﻿Imports System.IO.Directory
 Public Class Form2
     Public ovrdir As String = Application.StartupPath & "\Override"
     Public ifdir As String = My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini"
     Public line() As String = IO.File.ReadAllLines(ifdir)
     Public mapline() As String
     Public file As IO.FileInfo
+    Function SearchForFiles(ByVal RootFolder As String, ByVal FileFilter() As String) As List(Of String)
+        Dim ReturnedData As New List(Of String)
+        Dim FolderStack As New Stack(Of String)
+        FolderStack.Push(RootFolder)
+        Do While FolderStack.Count > 0
+            Dim ThisFolder As String = FolderStack.Pop
+            Try
+                For Each SubFolder In GetDirectories(ThisFolder)
+                    FolderStack.Push(SubFolder)
+                Next
+                For Each FileExt In FileFilter
+                    ReturnedData.AddRange(GetFiles(ThisFolder, FileExt))
+                Next
+            Catch ex As Exception
+            End Try
+        Loop
+        Return ReturnedData
+    End Function
 #Region "Auto Detect Options"
     Private Sub CheckOptions() Handles MyBase.Load
         If IO.File.Exists(ovrdir & "\FemaleFix\_CRT\PCFemale.CRT") Then
@@ -68,6 +86,11 @@ Public Class Form2
         If mapline(13) = "FOV Min = 0.5" Then
             CheckBox5.Checked = True
         End If
+        Dim Files = SearchForFiles(ovrdir, {"*.map"})
+        For Each file As Object In Files
+            Dim fi As New IO.FileInfo(file)
+            ComboBox3.Items.Add(fi.Name)
+        Next
 #End Region
 #Region "Helmets"
         If IO.File.Exists(ovrdir & "\Helmet\8Ball") Then

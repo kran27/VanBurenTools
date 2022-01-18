@@ -11,9 +11,8 @@ Public Class Form3
             Dim CurrentRefreshRate As Object = mo("CurrentRefreshRate")
             Dim Currentbpp As Object = mo("CurrentBitsPerPixel")
             Dim VCName As Object = mo("Name")
-            Dim VCIndex As Integer
-            ComboBox1.Items.Add(VCIndex & " - " & VCName)
-            VCIndex += 1
+            Dim VCID As Object = mo("DeviceID")
+            ComboBox1.Items.Add(VCID.ToString.Remove(0, 15) - 1 & " - " & VCName)
             If CurrentRefreshRate IsNot Nothing Then
                 hz = CurrentRefreshRate.ToString
             End If
@@ -24,13 +23,10 @@ Public Class Form3
         ComboBox1.SelectedIndex = line(17).ToString.Remove(0, 10)
     End Sub
     Private Sub DetectOptions() Handles MyBase.VisibleChanged
-
         If line(28) = "fullscreen = 1" Then
             CheckBox1.Checked = True
-        Else
-            If line(29) = "height = " & 872 Then
-                CheckBox2.Checked = True
-            End If
+        ElseIf line(29) = "height = " & 872 Then
+            CheckBox2.Checked = True
         End If
     End Sub
     Private Sub CheckBox1_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox1.CheckedChanged
