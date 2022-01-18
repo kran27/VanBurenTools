@@ -69,9 +69,6 @@ Public Class Form3
         line = IO.File.ReadAllLines(ifdir)
         line(17) = "adapter = " & ComboBox1.SelectedIndex
         IO.File.WriteAllLines(ifdir, line)
-    End Sub
-
-    Private Sub Form3_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-
+        Hide()
     End Sub
 End Class

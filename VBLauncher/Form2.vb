@@ -105,6 +105,7 @@ Public Class Form2
     End Sub
 #End Region
     Private Sub ApplyChanges(sender As Object, e As EventArgs) Handles Button1.Click
+        line = IO.File.ReadAllLines(ifdir)
         If CheckBox1.Checked Then
             IO.Directory.CreateDirectory(ovrdir & "\FemaleFix\_CRT")
             IO.File.WriteAllBytes(ovrdir & "\FemaleFix\_CRT\PCFemale.CRT", My.Resources.PCFemale)
