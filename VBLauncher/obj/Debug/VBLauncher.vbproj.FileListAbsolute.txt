@@ -79,3 +79,4 @@ C:\Users\anthr\OneDrive\Documents\GitHub\VanUrbrenLauncher\VBLauncher\obj\Debug\
 C:\Users\anthr\OneDrive\Documents\GitHub\VanUrbrenLauncher\VBLauncher\obj\Debug\VBLauncher.pdb
 D:\Repos\VanBurenLauncher\VBLauncher\obj\Debug\VBLauncher.vbproj.AssemblyReference.cache
 C:\Users\Kieran\Documents\GitHub\VanBurenLauncher\VBLauncher\obj\Debug\VBLauncher.vbproj.AssemblyReference.cache
+D:\Repos\VanBurenLauncher\VBLauncher\obj\Debug\VBLauncher.vbproj.SuggestedBindingRedirects.cache

@@ -47,6 +47,8 @@ Public Class Form2
             IO.File.WriteAllBytes(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Default_sys)
         End If
         mapline = IO.File.ReadAllLines(ovrdir & "\MenuMap\Engine\sys.ini")
+        Dim newgamemap As String = mapline(52)
+        ComboBox3.Text = newgamemap.Remove(0, 12)
         If IO.File.Exists(ovrdir & "\MenuMap\Engine\sys.ini") Then
             If mapline(19) = "map name = mainmenu.map" Then
                 ComboBox1.SelectedIndex = 0
@@ -211,11 +213,13 @@ Public Class Form2
             mapline(13) = "FOV Min = 0.5"
             mapline(14) = "FOV Max = 100"
             mapline(16) = "Scroll Speed = 125"
+            mapline(52) = "Start map = " & ComboBox3.Text
         Else
             mapline(12) = "FOV Speed = 6.5"
             mapline(13) = "FOV Min = 6"
             mapline(14) = "FOV Max = 15"
             mapline(16) = "Scroll Speed = 96"
+            mapline(52) = "Start map = " & ComboBox3.Text
         End If
         IO.File.WriteAllLines(ovrdir & "\MenuMap\Engine\sys.ini", mapline)
 #End Region
@@ -359,4 +363,11 @@ Public Class Form2
         End If
     End Sub
 
+    Private Sub GroupBox2_Enter(sender As Object, e As EventArgs) Handles GroupBox2.Enter
+
+    End Sub
+
+    Private Sub Label4_Click(sender As Object, e As EventArgs) Handles Label4.Click
+
+    End Sub
 End Class
