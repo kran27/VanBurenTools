@@ -12,7 +12,9 @@ Public Class Form3
             Dim Currentbpp As Object = mo("CurrentBitsPerPixel")
             Dim VCName As Object = mo("Name")
             Dim VCID As Object = mo("DeviceID")
-            ComboBox1.Items.Add(VCID.ToString.Remove(0, 15) - 1 & " - " & VCName)
+            If Not ComboBox1.Items.Contains(VCID.ToString.Remove(0, 15) - 1 & " - " & VCName) Then
+                ComboBox1.Items.Add(VCID.ToString.Remove(0, 15) - 1 & " - " & VCName)
+            End If
             If CurrentRefreshRate IsNot Nothing Then
                 hz = CurrentRefreshRate.ToString
             End If

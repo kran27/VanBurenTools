@@ -87,9 +87,9 @@ Partial Class Form2
         Me.CheckBox5.Location = New System.Drawing.Point(8, 79)
         Me.CheckBox5.Margin = New System.Windows.Forms.Padding(4)
         Me.CheckBox5.Name = "CheckBox5"
-        Me.CheckBox5.Size = New System.Drawing.Size(160, 20)
+        Me.CheckBox5.Size = New System.Drawing.Size(158, 20)
         Me.CheckBox5.TabIndex = 9
-        Me.CheckBox5.Text = "Unlock Camera Zoom"
+        Me.CheckBox5.Text = "Uncap Camera Zoom"
         Me.CheckBox5.UseVisualStyleBackColor = True
         '
         'CheckBox4
