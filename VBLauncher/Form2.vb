@@ -202,11 +202,8 @@ Public Class Form2
 #End Region
 #Region "Load Helmets"
         IO.Directory.CreateDirectory(ovrdir & "\Helmet")
-        If ComboBox2.SelectedIndex = 0 Then
-            If IO.Directory.Exists(ovrdir & "\Helmet") Then
-                IO.Directory.Delete(ovrdir & "\Helmet", True)
-            End If
-        ElseIf ComboBox2.SelectedIndex = 1 Then
+        IO.Directory.Delete(ovrdir & "\Helmet", True)
+        If ComboBox2.SelectedIndex = 1 Then
             IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
             IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
             IO.File.Create(ovrdir & "\Helmet\8Ball")
