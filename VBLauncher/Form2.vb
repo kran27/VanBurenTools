@@ -1,45 +1,20 @@
-﻿Imports sm = System.Management
+﻿
 Public Class Form2
     Public ovrdir As String = Application.StartupPath & "\Override"
     Public ifdir As String = My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini"
     Public line() As String = IO.File.ReadAllLines(ifdir)
     Public mapline() As String
-    Public hz As String
-    Public bpp As String
     Public file As IO.FileInfo
-    Protected Overrides Sub OnShown(ByVal e As System.EventArgs)
-        MyBase.OnShown(e)
-        Dim query As New sm.SelectQuery("Win32_VideoController")
-        For Each mo As sm.ManagementObject In New sm.ManagementObjectSearcher(query).Get
-            Dim CurrentRefreshRate As Object = mo("CurrentRefreshRate")
-            Dim Currentbpp As Object = mo("CurrentBitsPerPixel")
-            If CurrentRefreshRate IsNot Nothing Then
-                hz = CurrentRefreshRate.ToString
-            End If
-            If Currentbpp IsNot Nothing Then
-                bpp = Currentbpp.ToString
-            End If
-        Next
-    End Sub
 #Region "Auto Detect Options"
     Private Sub CheckOptions() Handles MyBase.Load
         If IO.File.Exists(ovrdir & "\FemaleFix\_CRT\PCFemale.CRT") Then
             CheckBox1.CheckState = 1
-        Else
-            CheckBox1.CheckState = 0
         End If
         If line(25) = "enable startup movies = 1" Then
             CheckBox2.CheckState = 1
-        Else
-            CheckBox2.CheckState = 0
         End If
         If IO.Directory.Exists(ovrdir & "\SUMM") Then
             CheckBox4.CheckState = 1
-        Else
-            CheckBox4.CheckState = 0
-        End If
-        If line(28) = "fullscreen = 1" Then
-            CheckBox3.CheckState = 1
         End If
 #Region "Maps"
         If Not IO.File.Exists(ovrdir & "\MenuMap\Engine\sys.ini") Then
@@ -143,22 +118,6 @@ Public Class Form2
             IO.File.WriteAllLines(ifdir, line)
         Else
             line(25) = "enable startup movies = 0"
-            IO.File.WriteAllLines(ifdir, line)
-        End If
-        If CheckBox3.Checked Then
-            line(28) = "fullscreen = 1"
-            line(29) = "height = " & My.Computer.Screen.Bounds.Height
-            line(35) = "width = " & My.Computer.Screen.Bounds.Width
-            line(31) = "refresh = " & hz
-            IO.File.WriteAllLines(ifdir, line)
-        Else
-            line(28) = "fullscreen = 0"
-            line(29) = "height = " & 720
-            line(35) = "width = " & 1280
-            IO.File.WriteAllLines(ifdir, line)
-        End If
-        If bpp >= 32 Then
-            line(30) = "mode32bpp = 1"
             IO.File.WriteAllLines(ifdir, line)
         End If
         If CheckBox4.Checked Then
@@ -362,12 +321,8 @@ Public Class Form2
             PictureBox1.Image = My.Resources.Yellow_Icon
         End If
     End Sub
-
-    Private Sub GroupBox2_Enter(sender As Object, e As EventArgs) Handles GroupBox2.Enter
-
-    End Sub
-
-    Private Sub Label4_Click(sender As Object, e As EventArgs) Handles Label4.Click
-
+    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
+        Form3.Location = Location
+        Form3.ShowDialog()
     End Sub
 End Class

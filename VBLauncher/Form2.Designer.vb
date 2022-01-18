@@ -31,17 +31,17 @@ Partial Class Form2
         Me.CheckBox5 = New System.Windows.Forms.CheckBox()
         Me.CheckBox4 = New System.Windows.Forms.CheckBox()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
+        Me.ComboBox3 = New System.Windows.Forms.ComboBox()
+        Me.Label4 = New System.Windows.Forms.Label()
         Me.ComboBox1 = New System.Windows.Forms.ComboBox()
         Me.Label3 = New System.Windows.Forms.Label()
         Me.ComboBox2 = New System.Windows.Forms.ComboBox()
         Me.Label2 = New System.Windows.Forms.Label()
         Me.PictureBox1 = New System.Windows.Forms.PictureBox()
         Me.Label1 = New System.Windows.Forms.Label()
-        Me.CheckBox3 = New System.Windows.Forms.CheckBox()
         Me.Button2 = New System.Windows.Forms.Button()
         Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
-        Me.Label4 = New System.Windows.Forms.Label()
-        Me.ComboBox3 = New System.Windows.Forms.ComboBox()
+        Me.Button3 = New System.Windows.Forms.Button()
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -126,6 +126,24 @@ Partial Class Form2
         Me.GroupBox2.TabStop = False
         Me.GroupBox2.Text = "Fun Tweaks"
         '
+        'ComboBox3
+        '
+        Me.ComboBox3.FormattingEnabled = True
+        Me.ComboBox3.Items.AddRange(New Object() {"00_03_Tutorial_Junktown.map", "00_04_Tutorial_Vault.map", "04_0202_Spelunking.map", "98_Canyon_Random_01.map", "98_Canyon_Random_02.map", "Default_StartMap.map", "Mainmenu.map", "zz_TestMapsScottE_Test1.map", "zz_TestMapsScottE_Test2.map", "zz_TestMapsScottE_Test4.map", "zz_TestMapsTest_City_Building01.map", "zz_TestMapsTest_City_Building02.map", "zz_TestMapsTest_City_Building03.map", "zz_TestMapsTest_City_Building04.map", "zz_TestMapsTest_City_Fences.map", "zz_TestMapsTest_Junktown_Shacks.map", "zz_TestMapsaarontemp2.map"})
+        Me.ComboBox3.Location = New System.Drawing.Point(93, 19)
+        Me.ComboBox3.Name = "ComboBox3"
+        Me.ComboBox3.Size = New System.Drawing.Size(148, 21)
+        Me.ComboBox3.TabIndex = 8
+        '
+        'Label4
+        '
+        Me.Label4.AutoSize = True
+        Me.Label4.Location = New System.Drawing.Point(6, 22)
+        Me.Label4.Name = "Label4"
+        Me.Label4.Size = New System.Drawing.Size(81, 13)
+        Me.Label4.TabIndex = 7
+        Me.Label4.Text = "NewGame Map"
+        '
         'ComboBox1
         '
         Me.ComboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
@@ -181,16 +199,6 @@ Partial Class Form2
         Me.Label1.TabIndex = 0
         Me.Label1.Text = "Main Menu Map"
         '
-        'CheckBox3
-        '
-        Me.CheckBox3.AutoSize = True
-        Me.CheckBox3.Location = New System.Drawing.Point(18, 266)
-        Me.CheckBox3.Name = "CheckBox3"
-        Me.CheckBox3.Size = New System.Drawing.Size(74, 17)
-        Me.CheckBox3.TabIndex = 7
-        Me.CheckBox3.Text = "Fullscreen"
-        Me.CheckBox3.UseVisualStyleBackColor = True
-        '
         'Button2
         '
         Me.Button2.DialogResult = System.Windows.Forms.DialogResult.Cancel
@@ -201,23 +209,14 @@ Partial Class Form2
         Me.Button2.Text = "Close"
         Me.Button2.UseVisualStyleBackColor = True
         '
-        'Label4
+        'Button3
         '
-        Me.Label4.AutoSize = True
-        Me.Label4.Location = New System.Drawing.Point(6, 22)
-        Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(81, 13)
-        Me.Label4.TabIndex = 7
-        Me.Label4.Text = "NewGame Map"
-        '
-        'ComboBox3
-        '
-        Me.ComboBox3.FormattingEnabled = True
-        Me.ComboBox3.Items.AddRange(New Object() {"00_03_Tutorial_Junktown.map", "00_04_Tutorial_Vault.map", "04_0202_Spelunking.map", "98_Canyon_Random_01.map", "98_Canyon_Random_02.map", "Default_StartMap.map", "Mainmenu.map", "zz_TestMapsScottE_Test1.map", "zz_TestMapsScottE_Test2.map", "zz_TestMapsScottE_Test4.map", "zz_TestMapsTest_City_Building01.map", "zz_TestMapsTest_City_Building02.map", "zz_TestMapsTest_City_Building03.map", "zz_TestMapsTest_City_Building04.map", "zz_TestMapsTest_City_Fences.map", "zz_TestMapsTest_Junktown_Shacks.map", "zz_TestMapsaarontemp2.map"})
-        Me.ComboBox3.Location = New System.Drawing.Point(93, 19)
-        Me.ComboBox3.Name = "ComboBox3"
-        Me.ComboBox3.Size = New System.Drawing.Size(148, 21)
-        Me.ComboBox3.TabIndex = 8
+        Me.Button3.Location = New System.Drawing.Point(12, 262)
+        Me.Button3.Name = "Button3"
+        Me.Button3.Size = New System.Drawing.Size(99, 23)
+        Me.Button3.TabIndex = 9
+        Me.Button3.Text = "Video Options"
+        Me.Button3.UseVisualStyleBackColor = True
         '
         'Form2
         '
@@ -226,7 +225,7 @@ Partial Class Form2
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.CancelButton = Me.Button2
         Me.ClientSize = New System.Drawing.Size(271, 297)
-        Me.Controls.Add(Me.CheckBox3)
+        Me.Controls.Add(Me.Button3)
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.GroupBox1)
         Me.Controls.Add(Me.Button2)
@@ -245,7 +244,6 @@ Partial Class Form2
         Me.GroupBox2.PerformLayout()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
-        Me.PerformLayout()
 
     End Sub
 
@@ -260,11 +258,11 @@ Partial Class Form2
     Friend WithEvents ComboBox2 As ComboBox
     Friend WithEvents Label2 As Label
     Friend WithEvents PictureBox1 As PictureBox
-    Friend WithEvents CheckBox3 As CheckBox
     Friend WithEvents CheckBox4 As CheckBox
     Friend WithEvents Button2 As Button
     Friend WithEvents CheckBox5 As CheckBox
     Friend WithEvents ToolTip1 As ToolTip
     Friend WithEvents ComboBox3 As ComboBox
     Friend WithEvents Label4 As Label
+    Friend WithEvents Button3 As Button
 End Class
