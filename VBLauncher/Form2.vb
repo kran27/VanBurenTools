@@ -87,7 +87,9 @@ Public Class Form2
         Dim Files = SearchForFiles(ovrdir, {"*.map"})
         For Each file As Object In Files
             Dim fi As New IO.FileInfo(file)
-            ComboBox3.Items.Add(fi.Name)
+            If Not ComboBox3.Items.Contains(fi.Name) Then
+                ComboBox3.Items.Add(fi.Name)
+            End If
         Next
         mapline = IO.File.ReadAllLines(ovrdir & "\MenuMap\Engine\sys.ini")
         Dim newgamemap As String = mapline(52)
