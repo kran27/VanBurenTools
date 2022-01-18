@@ -25,7 +25,7 @@ Public Class Form3
     Private Sub DetectOptions() Handles MyBase.VisibleChanged
         If line(28) = "fullscreen = 1" Then
             CheckBox1.Checked = True
-        ElseIf line(29) = "height = " & 872 Then
+        ElseIf line(29) = "height = " & 768 Then
             CheckBox2.Checked = True
         End If
     End Sub
@@ -52,8 +52,8 @@ Public Class Form3
         Else
             If CheckBox2.Checked Then
                 line(28) = "fullscreen = 0"
-                line(29) = "height = " & 872
-                line(35) = "width = " & 1152
+                line(29) = "height = " & 768
+                line(35) = "width = " & 1024
                 IO.File.WriteAllLines(ifdir, line)
             Else
                 line(28) = "fullscreen = 0"

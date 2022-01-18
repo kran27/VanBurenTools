@@ -147,9 +147,9 @@ Public Class Form2
             IO.Directory.Delete(ovrdir & "\SUMM")
         End If
 #Region "Load Maps"
-        If ComboBox1.SelectedIndex = 0 And line(29) = "height = " & 872 Then
+        If ComboBox1.SelectedIndex = 0 And line(29) = "height = " & 768 Then
             IO.File.WriteAllBytes(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Default_sys)
-        ElseIf ComboBox1.SelectedIndex = 0 And Not line(29) = "height = " & 872 Then
+        ElseIf ComboBox1.SelectedIndex = 0 And Not line(29) = "height = " & 768 Then
             IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources._Default)
         ElseIf ComboBox1.SelectedIndex = 1 Then
             IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.AaronMap2)
