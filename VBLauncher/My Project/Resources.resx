@@ -361,4 +361,10 @@
   <data name="GLwined3d" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Wrappers\WineD3D\GLwined3d.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="dgV2conf" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Wrappers\dgVoodoo2\dgVoodoo.conf;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="DXD3D8" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Wrappers\dgVoodoo2\DXD3D8.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>

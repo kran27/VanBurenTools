@@ -653,6 +653,26 @@ Namespace My.Resources
         '''<summary>
         '''  Looks up a localized resource of type System.Byte[].
         '''</summary>
+        Friend ReadOnly Property dgV2conf() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("dgV2conf", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property DXD3D8() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("DXD3D8", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
         Friend ReadOnly Property Eye() As Byte()
             Get
                 Dim obj As Object = ResourceManager.GetObject("Eye", resourceCulture)

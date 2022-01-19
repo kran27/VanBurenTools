@@ -44,6 +44,9 @@ Public Class Form1
         ElseIf rand = "9" Then
             PictureBox5.Image = My.Resources.BG9
         End If
+        If Not IO.File.Exists(Application.StartupPath & "\dgVoodoo.conf") Then
+            IO.File.WriteAllBytes(Application.StartupPath & "\dgVoodoo.conf", My.Resources.dgV2conf)
+        End If
         If IO.Directory.Exists(fixdir) Then
             System.IO.Directory.Delete(fixdir, True)
         End If

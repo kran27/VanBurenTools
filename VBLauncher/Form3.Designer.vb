@@ -1,9 +1,9 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class Form3
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
-    <System.Diagnostics.DebuggerNonUserCode()> _
+    <System.Diagnostics.DebuggerNonUserCode()>
     Protected Overrides Sub Dispose(ByVal disposing As Boolean)
         Try
             If disposing AndAlso components IsNot Nothing Then
@@ -20,11 +20,16 @@ Partial Class Form3
     'NOTE: The following procedure is required by the Windows Form Designer
     'It can be modified using the Windows Form Designer.  
     'Do not modify it using the code editor.
-    <System.Diagnostics.DebuggerStepThrough()> _
+    <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form3))
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
+        Me.CheckBox3 = New System.Windows.Forms.CheckBox()
+        Me.Label3 = New System.Windows.Forms.Label()
+        Me.ComboBox3 = New System.Windows.Forms.ComboBox()
+        Me.Label2 = New System.Windows.Forms.Label()
+        Me.ComboBox2 = New System.Windows.Forms.ComboBox()
         Me.ComboBox1 = New System.Windows.Forms.ComboBox()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.CheckBox1 = New System.Windows.Forms.CheckBox()
@@ -37,36 +42,90 @@ Partial Class Form3
         '
         'GroupBox1
         '
+        Me.GroupBox1.Controls.Add(Me.CheckBox3)
+        Me.GroupBox1.Controls.Add(Me.Label3)
+        Me.GroupBox1.Controls.Add(Me.ComboBox3)
+        Me.GroupBox1.Controls.Add(Me.Label2)
+        Me.GroupBox1.Controls.Add(Me.ComboBox2)
         Me.GroupBox1.Controls.Add(Me.ComboBox1)
         Me.GroupBox1.Controls.Add(Me.Label1)
         Me.GroupBox1.Controls.Add(Me.CheckBox1)
         Me.GroupBox1.Controls.Add(Me.CheckBox2)
         Me.GroupBox1.Location = New System.Drawing.Point(16, 15)
-        Me.GroupBox1.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.GroupBox1.Margin = New System.Windows.Forms.Padding(4)
         Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Padding = New System.Windows.Forms.Padding(4, 4, 4, 4)
-        Me.GroupBox1.Size = New System.Drawing.Size(329, 85)
+        Me.GroupBox1.Padding = New System.Windows.Forms.Padding(4)
+        Me.GroupBox1.Size = New System.Drawing.Size(329, 169)
         Me.GroupBox1.TabIndex = 0
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "Options"
+        '
+        'CheckBox3
+        '
+        Me.CheckBox3.AutoSize = True
+        Me.CheckBox3.Location = New System.Drawing.Point(8, 114)
+        Me.CheckBox3.Name = "CheckBox3"
+        Me.CheckBox3.Size = New System.Drawing.Size(167, 20)
+        Me.CheckBox3.TabIndex = 20
+        Me.CheckBox3.Text = "Enable Phong Shading"
+        Me.ToolTip1.SetToolTip(Me.CheckBox3, "A different shading method," & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "very slightly darkens shadows in some places.")
+        Me.CheckBox3.UseVisualStyleBackColor = True
+        '
+        'Label3
+        '
+        Me.Label3.AutoSize = True
+        Me.Label3.Location = New System.Drawing.Point(8, 87)
+        Me.Label3.Name = "Label3"
+        Me.Label3.Size = New System.Drawing.Size(102, 16)
+        Me.Label3.TabIndex = 19
+        Me.Label3.Text = "Texture Filtering"
+        '
+        'ComboBox3
+        '
+        Me.ComboBox3.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.ComboBox3.FormattingEnabled = True
+        Me.ComboBox3.Items.AddRange(New Object() {"Default (Bilinear)", "Point Sampled", "Linear Mip", "Anisotropic 2x", "Anisotropic 4x", "Anisotropic 8x", "Anisotropic 16x"})
+        Me.ComboBox3.Location = New System.Drawing.Point(118, 84)
+        Me.ComboBox3.Name = "ComboBox3"
+        Me.ComboBox3.Size = New System.Drawing.Size(204, 24)
+        Me.ComboBox3.TabIndex = 18
+        '
+        'Label2
+        '
+        Me.Label2.AutoSize = True
+        Me.Label2.Location = New System.Drawing.Point(7, 57)
+        Me.Label2.Name = "Label2"
+        Me.Label2.Size = New System.Drawing.Size(80, 16)
+        Me.Label2.TabIndex = 17
+        Me.Label2.Text = "Anti Aliasing"
+        '
+        'ComboBox2
+        '
+        Me.ComboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.ComboBox2.FormattingEnabled = True
+        Me.ComboBox2.Items.AddRange(New Object() {"Off", "2x MSAA", "4x MSAA", "8x MSAA"})
+        Me.ComboBox2.Location = New System.Drawing.Point(93, 54)
+        Me.ComboBox2.Name = "ComboBox2"
+        Me.ComboBox2.Size = New System.Drawing.Size(229, 24)
+        Me.ComboBox2.TabIndex = 16
         '
         'ComboBox1
         '
         Me.ComboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.ComboBox1.FormattingEnabled = True
-        Me.ComboBox1.Items.AddRange(New Object() {"DirectX 8 (Default)", "OpenGL"})
-        Me.ComboBox1.Location = New System.Drawing.Point(115, 23)
-        Me.ComboBox1.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.ComboBox1.Items.AddRange(New Object() {"DirectX 8 (Default)", "DirectX 10", "DirectX 11", "DirectX 12", "OpenGL"})
+        Me.ComboBox1.Location = New System.Drawing.Point(108, 23)
+        Me.ComboBox1.Margin = New System.Windows.Forms.Padding(4)
         Me.ComboBox1.Name = "ComboBox1"
-        Me.ComboBox1.Size = New System.Drawing.Size(205, 24)
+        Me.ComboBox1.Size = New System.Drawing.Size(214, 24)
         Me.ComboBox1.TabIndex = 15
-        Me.ToolTip1.SetToolTip(Me.ComboBox1, "This might not actually work, because of how Van Buren works," & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "but the code to sw" &
-        "itch adapters does work correctly.")
+        Me.ToolTip1.SetToolTip(Me.ComboBox1, "DirectX 11 Recommended!" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "DirectX 10-12 via dgVoodoo2 by Dege" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "dege.fw.hu" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "OpenGL " &
+        "via WineD3D for Windows" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "fdossena.com")
         '
         'Label1
         '
         Me.Label1.AutoSize = True
-        Me.Label1.Location = New System.Drawing.Point(5, 27)
+        Me.Label1.Location = New System.Drawing.Point(6, 26)
         Me.Label1.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(94, 16)
@@ -76,8 +135,8 @@ Partial Class Form3
         'CheckBox1
         '
         Me.CheckBox1.AutoSize = True
-        Me.CheckBox1.Location = New System.Drawing.Point(8, 57)
-        Me.CheckBox1.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.CheckBox1.Location = New System.Drawing.Point(8, 141)
+        Me.CheckBox1.Margin = New System.Windows.Forms.Padding(4)
         Me.CheckBox1.Name = "CheckBox1"
         Me.CheckBox1.Size = New System.Drawing.Size(91, 20)
         Me.CheckBox1.TabIndex = 10
@@ -87,8 +146,8 @@ Partial Class Form3
         'CheckBox2
         '
         Me.CheckBox2.AutoSize = True
-        Me.CheckBox2.Location = New System.Drawing.Point(115, 57)
-        Me.CheckBox2.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.CheckBox2.Location = New System.Drawing.Point(114, 141)
+        Me.CheckBox2.Margin = New System.Windows.Forms.Padding(4)
         Me.CheckBox2.Name = "CheckBox2"
         Me.CheckBox2.Size = New System.Drawing.Size(46, 20)
         Me.CheckBox2.TabIndex = 11
@@ -98,8 +157,8 @@ Partial Class Form3
         'Button2
         '
         Me.Button2.DialogResult = System.Windows.Forms.DialogResult.Cancel
-        Me.Button2.Location = New System.Drawing.Point(177, 107)
-        Me.Button2.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.Button2.Location = New System.Drawing.Point(180, 192)
+        Me.Button2.Margin = New System.Windows.Forms.Padding(4)
         Me.Button2.Name = "Button2"
         Me.Button2.Size = New System.Drawing.Size(80, 28)
         Me.Button2.TabIndex = 4
@@ -108,8 +167,8 @@ Partial Class Form3
         '
         'Button1
         '
-        Me.Button1.Location = New System.Drawing.Point(265, 107)
-        Me.Button1.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.Button1.Location = New System.Drawing.Point(268, 192)
+        Me.Button1.Margin = New System.Windows.Forms.Padding(4)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(80, 28)
         Me.Button1.TabIndex = 3
@@ -120,12 +179,12 @@ Partial Class Form3
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(361, 150)
+        Me.ClientSize = New System.Drawing.Size(361, 233)
         Me.Controls.Add(Me.Button2)
         Me.Controls.Add(Me.Button1)
         Me.Controls.Add(Me.GroupBox1)
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
-        Me.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.Margin = New System.Windows.Forms.Padding(4)
         Me.MaximizeBox = False
         Me.MinimizeBox = False
         Me.Name = "Form3"
@@ -142,7 +201,12 @@ Partial Class Form3
     Friend WithEvents Button1 As Button
     Friend WithEvents CheckBox1 As CheckBox
     Friend WithEvents CheckBox2 As CheckBox
-    Friend WithEvents ToolTip1 As ToolTip
     Friend WithEvents ComboBox1 As ComboBox
     Friend WithEvents Label1 As Label
+    Friend WithEvents Label2 As Label
+    Friend WithEvents ComboBox2 As ComboBox
+    Friend WithEvents Label3 As Label
+    Friend WithEvents ComboBox3 As ComboBox
+    Friend WithEvents CheckBox3 As CheckBox
+    Friend WithEvents ToolTip1 As ToolTip
 End Class

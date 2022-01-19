@@ -1,6 +1,6 @@
-
 .vs/VBLauncher/v16/.suo
 VBLauncher/bin/Debug/Override
 VBLauncher/bin/Debug/wined3d.dll
-VBLauncher/bin/Debug/libwine.dll
 VBLauncher/bin/Debug/d3d8.dll
+VBLauncher/bin/Debug/dgVoodoo.conf
+.vs/VBLauncher/v17/.suo

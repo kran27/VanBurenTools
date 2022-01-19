@@ -1,0 +1,15 @@
+C:\Users\Kieran\Documents\GitHub\VanBurenLauncher\VBLauncher\bin\Release\VBLauncher.exe.config
+C:\Users\Kieran\Documents\GitHub\VanBurenLauncher\VBLauncher\bin\Release\VBLauncher.exe
+C:\Users\Kieran\Documents\GitHub\VanBurenLauncher\VBLauncher\bin\Release\VBLauncher.pdb
+C:\Users\Kieran\Documents\GitHub\VanBurenLauncher\VBLauncher\bin\Release\VBLauncher.xml
+C:\Users\Kieran\Documents\GitHub\VanBurenLauncher\VBLauncher\obj\Release\VBLauncher.vbproj.AssemblyReference.cache
+C:\Users\Kieran\Documents\GitHub\VanBurenLauncher\VBLauncher\obj\Release\VBLauncher.vbproj.SuggestedBindingRedirects.cache
+C:\Users\Kieran\Documents\GitHub\VanBurenLauncher\VBLauncher\obj\Release\VBLauncher.Form1.resources
+C:\Users\Kieran\Documents\GitHub\VanBurenLauncher\VBLauncher\obj\Release\VBLauncher.Form2.resources
+C:\Users\Kieran\Documents\GitHub\VanBurenLauncher\VBLauncher\obj\Release\VBLauncher.Form3.resources
+C:\Users\Kieran\Documents\GitHub\VanBurenLauncher\VBLauncher\obj\Release\VBLauncher.Resources.resources
+C:\Users\Kieran\Documents\GitHub\VanBurenLauncher\VBLauncher\obj\Release\VBLauncher.vbproj.GenerateResource.cache
+C:\Users\Kieran\Documents\GitHub\VanBurenLauncher\VBLauncher\obj\Release\VBLauncher.vbproj.CoreCompileInputs.cache
+C:\Users\Kieran\Documents\GitHub\VanBurenLauncher\VBLauncher\obj\Release\VBLauncher.exe
+C:\Users\Kieran\Documents\GitHub\VanBurenLauncher\VBLauncher\obj\Release\VBLauncher.xml
+C:\Users\Kieran\Documents\GitHub\VanBurenLauncher\VBLauncher\obj\Release\VBLauncher.pdb

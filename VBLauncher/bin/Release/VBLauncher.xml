@@ -1,0 +1,901 @@
+﻿<?xml version="1.0"?>
+<doc>
+<assembly>
+<name>
+VBLauncher
+</name>
+</assembly>
+<members>
+<member name="T:VBLauncher.My.Resources.Resources">
+<summary>
+  A strongly-typed resource class, for looking up localized strings, etc.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.ResourceManager">
+<summary>
+  Returns the cached ResourceManager instance used by this class.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Culture">
+<summary>
+  Overrides the current thread's CurrentUICulture property for all
+  resource lookups using this strongly typed resource class.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources._8_Ball">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources._8_Ball_I">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources._8_Ball_Icon">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources._Default">
+<summary>
+  Looks up a localized string similar to [Audio]
+GroupList = FO3.gls
+MusicJumpList = F3.sco
+
+[Camera]
+Azimuth Speed = 360.000000
+Distance Max = 350.000000
+Distance Min = 350.000000
+Distance Speed = 800.000000
+Elevation Max = 89.000000
+Elevation Min = 38.500000
+Elevation Speed = 360.000000
+FOV Speed = 6.50000
+FOV Min = 6.00000
+FOV Max = 15.0000
+Scroll Border = 0.010000
+Scroll Speed = 96.000000
+
+[Mainmenu]
+map name = mainmenu.map
+target x = 0.0
+target y = 5.5
+target z = 0.0
+azimuth = 2
+elevation = 0.75
+distance = 0
+fov = 59 [rest of string was truncated]&quot;;.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources._Exit">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.AaronMap2">
+<summary>
+  Looks up a localized string similar to [Audio]
+GroupList = FO3.gls
+MusicJumpList = F3.sco
+
+[Camera]
+Azimuth Speed = 360.000000
+Distance Max = 350.000000
+Distance Min = 350.000000
+Distance Speed = 800.000000
+Elevation Max = 89.000000
+Elevation Min = 38.500000
+Elevation Speed = 360.000000
+FOV Speed = 6.50000
+FOV Min = 6.00000
+FOV Max = 15.0000
+Scroll Border = 0.010000
+Scroll Speed = 96.000000
+
+[Mainmenu]
+map name = zz_TestMapsaarontemp2.map
+target x = 0.0
+target y = 5.5
+target z = 0.0
+azimuth = 0.0
+elevation = 0.0
+distance [rest of string was truncated]&quot;;.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.American">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.American_Icon">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.AmericanI">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.BG1">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.BG2">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.BG3">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.BG4">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.BG5">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.BG6">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.BG7">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.BG8">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.BG9">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Black">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Black_Icon">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.BlackI">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Blue">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Blue_Icon">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.BlueI">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Building1">
+<summary>
+  Looks up a localized string similar to [Audio]
+GroupList = FO3.gls
+MusicJumpList = F3.sco
+
+[Camera]
+Azimuth Speed = 360.000000
+Distance Max = 350.000000
+Distance Min = 350.000000
+Distance Speed = 800.000000
+Elevation Max = 89.000000
+Elevation Min = 38.500000
+Elevation Speed = 360.000000
+FOV Speed = 6.50000
+FOV Min = 6.00000
+FOV Max = 15.0000
+Scroll Border = 0.010000
+Scroll Speed = 96.000000
+
+[Mainmenu]
+map name = zz_TestMapsTest_City_Building01.map
+target x = 0.0
+target y = 5.5
+target z = 0.0
+azimuth = 45
+elevation = -2.5 [rest of string was truncated]&quot;;.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Building2">
+<summary>
+  Looks up a localized string similar to [Audio]
+GroupList = FO3.gls
+MusicJumpList = F3.sco
+
+[Camera]
+Azimuth Speed = 360.000000
+Distance Max = 350.000000
+Distance Min = 350.000000
+Distance Speed = 800.000000
+Elevation Max = 89.000000
+Elevation Min = 38.500000
+Elevation Speed = 360.000000
+FOV Speed = 6.50000
+FOV Min = 6.00000
+FOV Max = 15.0000
+Scroll Border = 0.010000
+Scroll Speed = 96.000000
+
+[Mainmenu]
+map name = zz_TestMapsTest_City_Building02.map
+target x = 0.0
+target y = 5.5
+target z = 0.0
+azimuth = 43
+elevation = -2.5 [rest of string was truncated]&quot;;.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Building3">
+<summary>
+  Looks up a localized string similar to [Audio]
+GroupList = FO3.gls
+MusicJumpList = F3.sco
+
+[Camera]
+Azimuth Speed = 360.000000
+Distance Max = 350.000000
+Distance Min = 350.000000
+Distance Speed = 800.000000
+Elevation Max = 89.000000
+Elevation Min = 38.500000
+Elevation Speed = 360.000000
+FOV Speed = 6.50000
+FOV Min = 6.00000
+FOV Max = 15.0000
+Scroll Border = 0.010000
+Scroll Speed = 96.000000
+
+[Mainmenu]
+map name = zz_TestMapsTest_City_Building03.map
+target x = 0.0
+target y = 5.5
+target z = 0.0
+azimuth = 43
+elevation = -5
+ [rest of string was truncated]&quot;;.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Building4">
+<summary>
+  Looks up a localized string similar to [Audio]
+GroupList = FO3.gls
+MusicJumpList = F3.sco
+
+[Camera]
+Azimuth Speed = 360.000000
+Distance Max = 350.000000
+Distance Min = 350.000000
+Distance Speed = 800.000000
+Elevation Max = 89.000000
+Elevation Min = 38.500000
+Elevation Speed = 360.000000
+FOV Speed = 6.50000
+FOV Min = 6.00000
+FOV Max = 15.0000
+Scroll Border = 0.010000
+Scroll Speed = 96.000000
+
+[Mainmenu]
+map name = zz_TestMapsTest_City_Building04.map
+target x = 0.0
+target y = 5.5
+target z = 0.0
+azimuth = 43
+elevation = -5.5 [rest of string was truncated]&quot;;.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Canyon">
+<summary>
+  Looks up a localized string similar to [Audio]
+GroupList = FO3.gls
+MusicJumpList = F3.sco
+
+[Camera]
+Azimuth Speed = 360.000000
+Distance Max = 350.000000
+Distance Min = 350.000000
+Distance Speed = 800.000000
+Elevation Max = 89.000000
+Elevation Min = 38.500000
+Elevation Speed = 360.000000
+FOV Speed = 6.50000
+FOV Min = 6.0000
+FOV Max = 15.0000
+Scroll Border = 0.010000
+Scroll Speed = 96.000000
+
+[Mainmenu]
+map name = 98_Canyon_Random_01.map
+target x = 50.0
+target y = 5
+target z = 10.0
+azimuth = 61
+elevation = 0
+distance = 0
+ [rest of string was truncated]&quot;;.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Canyon2">
+<summary>
+  Looks up a localized string similar to [Audio]
+GroupList = FO3.gls
+MusicJumpList = F3.sco
+
+[Camera]
+Azimuth Speed = 360.000000
+Distance Max = 350.000000
+Distance Min = 350.000000
+Distance Speed = 800.000000
+Elevation Max = 89.000000
+Elevation Min = 38.500000
+Elevation Speed = 360.000000
+FOV Speed = 6.50000
+FOV Min = 6.0000
+FOV Max = 15.0000
+Scroll Border = 0.010000
+Scroll Speed = 96.000000
+
+[Mainmenu]
+map name = 98_Canyon_Random_02.map
+target x = 55.0
+target y = 5
+target z = 10.0
+azimuth = 36
+elevation = -2.5
+distance =  [rest of string was truncated]&quot;;.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Cave">
+<summary>
+  Looks up a localized string similar to [Audio]
+GroupList = FO3.gls
+MusicJumpList = F3.sco
+
+[Camera]
+Azimuth Speed = 360.000000
+Distance Max = 350.000000
+Distance Min = 350.000000
+Distance Speed = 800.000000
+Elevation Max = 89.000000
+Elevation Min = 38.500000
+Elevation Speed = 360.000000
+FOV Speed = 6.50000
+FOV Min = 6.0000
+FOV Max = 15.0000
+Scroll Border = 0.010000
+Scroll Speed = 96.000000
+
+[Mainmenu]
+map name = 04_0202_Spelunking.map
+target x = 70.0
+target y = 5
+target z = 45.0
+azimuth = 15
+elevation = 5
+distance = 0
+f [rest of string was truncated]&quot;;.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Default_F3">
+<summary>
+  Looks up a localized string similar to [Audio]
+CDAudio = 0
+DirectMusic = 0
+DirectShow = 0
+Music = 1
+MusicVolume = 100
+
+[Client]
+debug = 17416248
+port = 22501
+rate = 0
+timeout = 600000
+
+[Combat]
+mode = 0
+
+[Graphics]
+adapter = 0
+clear blue = 0
+clear green = 0
+clear red = 0
+device = 0
+displaymode = 12
+enable bilinear filtering = 1
+enable lighting = 1
+enable startup movies = 1
+enable transparency = 1
+enable wireframe = 0
+fullscreen = 1
+height = 600
+mode32bpp = 0
+refresh = 0
+shadow type = 0
+stats = 0
+vsync = 1
+width [rest of string was truncated]&quot;;.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Default_Icon">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Default_sys">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.dgV2conf">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.DXD3D8">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Eye">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Eye_Icon">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.EyeI">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.F3">
+<summary>
+  Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.f3_front_end_buttons">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Fences">
+<summary>
+  Looks up a localized string similar to [Audio]
+GroupList = FO3.gls
+MusicJumpList = F3.sco
+
+[Camera]
+Azimuth Speed = 360.000000
+Distance Max = 350.000000
+Distance Min = 350.000000
+Distance Speed = 800.000000
+Elevation Max = 89.000000
+Elevation Min = 38.500000
+Elevation Speed = 360.000000
+FOV Speed = 6.50000
+FOV Min = 6.00000
+FOV Max = 15.0000
+Scroll Border = 0.010000
+Scroll Speed = 96.000000
+
+[Mainmenu]
+map name = zz_TestMapsTest_City_Fences.map
+target x = 0.0
+target y = 40
+target z = 0.0
+azimuth = 42
+elevation = 35.0
+dis [rest of string was truncated]&quot;;.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Fixes">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Flames">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Flames_Icon">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.FlamesI">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Full_Skull">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Full_Skull_Icon">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Full_SkullI">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.GLd3d8">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.GLwined3d">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Green">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Green_Icon">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.GreenI">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Grey">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Grey_Icon">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.GreyI">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Launch">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Logo">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Mainmenu">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Options">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Police">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Police_Icon">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.PoliceI">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Red">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Red_Icon">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.RedI">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.ScottEMap1">
+<summary>
+  Looks up a localized string similar to [Audio]
+GroupList = FO3.gls
+MusicJumpList = F3.sco
+
+[Camera]
+Azimuth Speed = 360.000000
+Distance Max = 350.000000
+Distance Min = 350.000000
+Distance Speed = 800.000000
+Elevation Max = 89.000000
+Elevation Min = 38.500000
+Elevation Speed = 360.000000
+FOV Speed = 6.50000
+FOV Min = 6.00000
+FOV Max = 15.0000
+Scroll Border = 0.010000
+Scroll Speed = 96.000000
+
+[Mainmenu]
+map name = zz_TestMapsScottE_Test1.map
+target x = 85.0
+target y = 30.0
+target z = 30.0
+azimuth = 255
+elevation = 39.0
+di [rest of string was truncated]&quot;;.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.ScottEMap2">
+<summary>
+  Looks up a localized string similar to [Audio]
+GroupList = FO3.gls
+MusicJumpList = F3.sco
+
+[Camera]
+Azimuth Speed = 360.000000
+Distance Max = 350.000000
+Distance Min = 350.000000
+Distance Speed = 800.000000
+Elevation Max = 89.000000
+Elevation Min = 38.500000
+Elevation Speed = 360.000000
+FOV Speed = 6.50000
+FOV Min = 6.00000
+FOV Max = 15.0000
+Scroll Border = 0.010000
+Scroll Speed = 96.000000
+
+[Mainmenu]
+map name = zz_TestMapsScottE_Test2.map
+target x = 145
+target y = 80.0
+target z = -85.0
+azimuth = 0.5
+elevation = 25.0
+di [rest of string was truncated]&quot;;.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.ScottEMap4">
+<summary>
+  Looks up a localized string similar to [Audio]
+GroupList = FO3.gls
+MusicJumpList = F3.sco
+
+[Camera]
+Azimuth Speed = 360.000000
+Distance Max = 350.000000
+Distance Min = 350.000000
+Distance Speed = 800.000000
+Elevation Max = 89.000000
+Elevation Min = 38.500000
+Elevation Speed = 360.000000
+FOV Speed = 6.50000
+FOV Min = 6.00000
+FOV Max = 15.0000
+Scroll Border = 0.010000
+Scroll Speed = 96.000000
+
+[Mainmenu]
+map name = zz_TestMapsScottE_Test4.map
+target x = 0
+target y = 7.5
+target z = 0.0
+azimuth = 45
+elevation = 12.5
+distance [rest of string was truncated]&quot;;.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Shacks">
+<summary>
+  Looks up a localized string similar to [Audio]
+GroupList = FO3.gls
+MusicJumpList = F3.sco
+
+[Camera]
+Azimuth Speed = 360.000000
+Distance Max = 350.000000
+Distance Min = 350.000000
+Distance Speed = 800.000000
+Elevation Max = 89.000000
+Elevation Min = 38.500000
+Elevation Speed = 360.000000
+FOV Speed = 6.50000
+FOV Min = 6.00000
+FOV Max = 15.0000
+Scroll Border = 0.010000
+Scroll Speed = 96.000000
+
+[Mainmenu]
+map name = zz_TestMapsTest_Junktown_Shacks.map
+target x = 0.0
+target y = 50
+target z = -10.0
+azimuth = 42
+elevation = 39. [rest of string was truncated]&quot;;.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Shot_Smiley">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Shot_Smiley_Icon">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Shot_SmileyI">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Skull">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Skull_Icon">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.SkullI">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.StartMap">
+<summary>
+  Looks up a localized string similar to [Audio]
+GroupList = FO3.gls
+MusicJumpList = F3.sco
+
+[Camera]
+Azimuth Speed = 360.000000
+Distance Max = 350.000000
+Distance Min = 350.000000
+Distance Speed = 800.000000
+Elevation Max = 89.000000
+Elevation Min = 38.500000
+Elevation Speed = 360.000000
+FOV Speed = 6.50000
+FOV Min = 6.00000
+FOV Max = 15.0000
+Scroll Border = 0.010000
+Scroll Speed = 96.000000
+
+[Mainmenu]
+map name = Default_StartMap.map
+target x = 60
+target y = 7.5
+target z = 25
+azimuth = 270.0
+elevation = 8
+distance = 0
+f [rest of string was truncated]&quot;;.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Tutorial">
+<summary>
+  Looks up a localized string similar to [Audio]
+GroupList = FO3.gls
+MusicJumpList = F3.sco
+
+[Camera]
+Azimuth Speed = 360.000000
+Distance Max = 350.000000
+Distance Min = 350.000000
+Distance Speed = 800.000000
+Elevation Max = 89.000000
+Elevation Min = 38.500000
+Elevation Speed = 360.000000
+FOV Speed = 6.50000
+FOV Min = 6.00000
+FOV Max = 15.0000
+Scroll Border = 0.010000
+Scroll Speed = 96.000000
+
+[Mainmenu]
+map name = 00_03_Tutorial_Junktown.map
+target x = 80.0
+target y = 7.5
+target z = 50.0
+azimuth = 5
+elevation = 10
+distanc [rest of string was truncated]&quot;;.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Vault">
+<summary>
+  Looks up a localized string similar to [Audio]
+GroupList = FO3.gls
+MusicJumpList = F3.sco
+
+[Camera]
+Azimuth Speed = 360.000000
+Distance Max = 350.000000
+Distance Min = 350.000000
+Distance Speed = 800.000000
+Elevation Max = 89.000000
+Elevation Min = 38.500000
+Elevation Speed = 360.000000
+FOV Speed = 6.50000
+FOV Min = 6.00000
+FOV Max = 15.0000
+Scroll Border = 0.010000
+Scroll Speed = 96.000000
+
+[Mainmenu]
+map name = 00_04_Tutorial_Vault.map
+target x = 50.0
+target y = 50.5
+target z = 0.0
+azimuth = 36
+elevation = 35.0
+distanc [rest of string was truncated]&quot;;.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Yellow">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.Yellow_Icon">
+<summary>
+  Looks up a localized resource of type System.Drawing.Bitmap.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.YellowI">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+</members>
+</doc>
