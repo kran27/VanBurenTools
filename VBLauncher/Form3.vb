@@ -65,6 +65,11 @@ Public Class Form3
         ElseIf dgV2line(3) = "OutputAPI = d3d12_fl12_0" Then
             ComboBox1.SelectedIndex = 3
         End If
+        If dgV2line(45) = "PhongShadingWhenPossible = true" Then
+            CheckBox3.Checked = True
+        Else
+            checkbox3.Checked = False
+        End If
         vram /= 1048576
         If vram > 4096 Then
             vram = 4096
@@ -160,6 +165,13 @@ Public Class Form3
             IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
         ElseIf ComboBox3.SelectedIndex = 6 Then
             dgV2line(37) = "Filtering = 16"
+            IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
+        End If
+        If CheckBox3.Checked Then
+            dgV2line(45) = "PhongShadingWhenPossible = true"
+            IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
+        Else
+            dgV2line(45) = "PhongShadingWhenPossible = false"
             IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
         End If
         Hide()
