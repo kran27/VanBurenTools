@@ -5,8 +5,7 @@ Public Class Form3
     Public hz As String
     Public bpp As String
     Public allcards As String = ""
-    Protected Overrides Sub OnShown(ByVal e As System.EventArgs)
-        MyBase.OnShown(e)
+    Private Sub DetectOptions() Handles MyBase.Shown
         Dim query As New sm.SelectQuery("Win32_VideoController")
         For Each mo As sm.ManagementObject In New sm.ManagementObjectSearcher(query).Get
             Dim CurrentRefreshRate As Object = mo("CurrentRefreshRate")
@@ -22,16 +21,17 @@ Public Class Form3
                 bpp = Currentbpp.ToString
             End If
         Next
-    End Sub
-    Private Sub DetectOptions() Handles MyBase.VisibleChanged
         If line(28) = "fullscreen = 1" Then
             CheckBox1.Checked = True
         ElseIf line(29) = "height = " & 768 Then
             CheckBox2.Checked = True
         End If
-        If Not allcards.Contains("NVIDIA") Or Not allcards.Contains("Intel") Then
+        If allcards.Contains("NVIDIA") Or allcards.Contains("Intel") Then
             If Not ComboBox1.Items.Contains("DirectX 8 (Default)") Then
                 ComboBox1.Items.Add("DirectX 8 (Default)")
+            End If
+            If Not ComboBox1.Items.Contains("OpenGL") Then
+                ComboBox1.Items.Add("OpenGL")
             End If
             If Not ComboBox1.Items.Contains("Vulkan") Then
                 ComboBox1.Items.Add("Vulkan")
@@ -39,9 +39,6 @@ Public Class Form3
         Else
             If Not ComboBox1.Items.Contains("DirectX 8 (Default)") Then
                 ComboBox1.Items.Add("DirectX 8 (Default)")
-            End If
-            If Not ComboBox1.Items.Contains("OpenGL") Then
-                ComboBox1.Items.Add("OpenGL")
             End If
             If Not ComboBox1.Items.Contains("Vulkan") Then
                 ComboBox1.Items.Add("Vulkan")
