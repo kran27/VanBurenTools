@@ -41,9 +41,11 @@ Partial Class Form3
         Me.GroupBox1.Controls.Add(Me.Label1)
         Me.GroupBox1.Controls.Add(Me.CheckBox1)
         Me.GroupBox1.Controls.Add(Me.CheckBox2)
-        Me.GroupBox1.Location = New System.Drawing.Point(12, 12)
+        Me.GroupBox1.Location = New System.Drawing.Point(16, 15)
+        Me.GroupBox1.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(247, 69)
+        Me.GroupBox1.Padding = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.GroupBox1.Size = New System.Drawing.Size(329, 85)
         Me.GroupBox1.TabIndex = 0
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "Options"
@@ -52,9 +54,11 @@ Partial Class Form3
         '
         Me.ComboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.ComboBox1.FormattingEnabled = True
-        Me.ComboBox1.Location = New System.Drawing.Point(86, 19)
+        Me.ComboBox1.Items.AddRange(New Object() {"DirectX 8 (Default)", "OpenGL"})
+        Me.ComboBox1.Location = New System.Drawing.Point(115, 23)
+        Me.ComboBox1.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.ComboBox1.Name = "ComboBox1"
-        Me.ComboBox1.Size = New System.Drawing.Size(155, 21)
+        Me.ComboBox1.Size = New System.Drawing.Size(205, 24)
         Me.ComboBox1.TabIndex = 15
         Me.ToolTip1.SetToolTip(Me.ComboBox1, "This might not actually work, because of how Van Buren works," & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "but the code to sw" &
         "itch adapters does work correctly.")
@@ -62,18 +66,20 @@ Partial Class Form3
         'Label1
         '
         Me.Label1.AutoSize = True
-        Me.Label1.Location = New System.Drawing.Point(4, 22)
+        Me.Label1.Location = New System.Drawing.Point(5, 27)
+        Me.Label1.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(76, 13)
+        Me.Label1.Size = New System.Drawing.Size(94, 16)
         Me.Label1.TabIndex = 14
         Me.Label1.Text = "Rendering API"
         '
         'CheckBox1
         '
         Me.CheckBox1.AutoSize = True
-        Me.CheckBox1.Location = New System.Drawing.Point(6, 46)
+        Me.CheckBox1.Location = New System.Drawing.Point(8, 57)
+        Me.CheckBox1.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.CheckBox1.Name = "CheckBox1"
-        Me.CheckBox1.Size = New System.Drawing.Size(74, 17)
+        Me.CheckBox1.Size = New System.Drawing.Size(91, 20)
         Me.CheckBox1.TabIndex = 10
         Me.CheckBox1.Text = "Fullscreen"
         Me.CheckBox1.UseVisualStyleBackColor = True
@@ -81,9 +87,10 @@ Partial Class Form3
         'CheckBox2
         '
         Me.CheckBox2.AutoSize = True
-        Me.CheckBox2.Location = New System.Drawing.Point(86, 46)
+        Me.CheckBox2.Location = New System.Drawing.Point(115, 57)
+        Me.CheckBox2.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.CheckBox2.Name = "CheckBox2"
-        Me.CheckBox2.Size = New System.Drawing.Size(41, 17)
+        Me.CheckBox2.Size = New System.Drawing.Size(46, 20)
         Me.CheckBox2.TabIndex = 11
         Me.CheckBox2.Text = "4:3"
         Me.CheckBox2.UseVisualStyleBackColor = True
@@ -91,31 +98,34 @@ Partial Class Form3
         'Button2
         '
         Me.Button2.DialogResult = System.Windows.Forms.DialogResult.Cancel
-        Me.Button2.Location = New System.Drawing.Point(133, 87)
+        Me.Button2.Location = New System.Drawing.Point(177, 107)
+        Me.Button2.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.Button2.Name = "Button2"
-        Me.Button2.Size = New System.Drawing.Size(60, 23)
+        Me.Button2.Size = New System.Drawing.Size(80, 28)
         Me.Button2.TabIndex = 4
         Me.Button2.Text = "Close"
         Me.Button2.UseVisualStyleBackColor = True
         '
         'Button1
         '
-        Me.Button1.Location = New System.Drawing.Point(199, 87)
+        Me.Button1.Location = New System.Drawing.Point(265, 107)
+        Me.Button1.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.Button1.Name = "Button1"
-        Me.Button1.Size = New System.Drawing.Size(60, 23)
+        Me.Button1.Size = New System.Drawing.Size(80, 28)
         Me.Button1.TabIndex = 3
         Me.Button1.Text = "Apply"
         Me.Button1.UseVisualStyleBackColor = True
         '
         'Form3
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(8.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(271, 122)
+        Me.ClientSize = New System.Drawing.Size(361, 150)
         Me.Controls.Add(Me.Button2)
         Me.Controls.Add(Me.Button1)
         Me.Controls.Add(Me.GroupBox1)
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
+        Me.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
         Me.MaximizeBox = False
         Me.MinimizeBox = False
         Me.Name = "Form3"

@@ -4,16 +4,11 @@ Public Class Form3
     Public line() As String = IO.File.ReadAllLines(ifdir)
     Public hz As String
     Public bpp As String
-    Public allcards As String = ""
     Private Sub DetectOptions() Handles MyBase.Shown
         Dim query As New sm.SelectQuery("Win32_VideoController")
         For Each mo As sm.ManagementObject In New sm.ManagementObjectSearcher(query).Get
             Dim CurrentRefreshRate As Object = mo("CurrentRefreshRate")
             Dim Currentbpp As Object = mo("CurrentBitsPerPixel")
-            Dim VCName As Object = mo("Name")
-            If Not allcards.Contains(VCName) Then
-                allcards = allcards & VCName
-            End If
             If CurrentRefreshRate IsNot Nothing Then
                 hz = CurrentRefreshRate.ToString
             End If
@@ -26,32 +21,12 @@ Public Class Form3
         ElseIf line(29) = "height = " & 768 Then
             CheckBox2.Checked = True
         End If
-        If allcards.Contains("NVIDIA") Or allcards.Contains("Intel") Then
-            If Not ComboBox1.Items.Contains("DirectX 8 (Default)") Then
-                ComboBox1.Items.Add("DirectX 8 (Default)")
-            End If
-            If Not ComboBox1.Items.Contains("OpenGL") Then
-                ComboBox1.Items.Add("OpenGL")
-            End If
-            If Not ComboBox1.Items.Contains("Vulkan") Then
-                ComboBox1.Items.Add("Vulkan")
-            End If
-        Else
-            If Not ComboBox1.Items.Contains("DirectX 8 (Default)") Then
-                ComboBox1.Items.Add("DirectX 8 (Default)")
-            End If
-            If Not ComboBox1.Items.Contains("Vulkan") Then
-                ComboBox1.Items.Add("Vulkan")
-            End If
-        End If
         If Not IO.File.Exists(Application.StartupPath & "\d3d8.dll") Then
-            ComboBox1.SelectedItem = "DirectX 8 (Default)"
-        ElseIf IO.File.Exists(Application.StartupPath & "\libwine.dll") Then
-            ComboBox1.SelectedItem = "OpenGL"
+            ComboBox1.SelectedIndex = 0
         ElseIf IO.File.Exists(Application.StartupPath & "\wined3d.dll") Then
-            ComboBox1.SelectedItem = "Vulkan"
+            ComboBox1.SelectedIndex = 1
         Else
-            ComboBox1.SelectedItem = "DirectX 8 (Default)"
+            ComboBox1.SelectedIndex = 0
         End If
     End Sub
     Private Sub CheckBox1_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox1.CheckedChanged
@@ -89,18 +64,10 @@ Public Class Form3
         End If
         If ComboBox1.SelectedIndex = 0 Then
             IO.File.Delete(Application.StartupPath & "\d3d8.dll")
-            IO.File.Delete(Application.StartupPath & "\libwine.dll")
             IO.File.Delete(Application.StartupPath & "\wined3d.dll")
-        ElseIf ComboBox1.SelectedItem = "OpenGL" Then
+        ElseIf ComboBox1.SelectedIndex = 1 Then
             IO.File.WriteAllBytes(Application.StartupPath & "\d3d8.dll", My.Resources.GLd3d8)
-            IO.File.WriteAllBytes(Application.StartupPath & "\libwine.dll", My.Resources.GLlibwine)
             IO.File.WriteAllBytes(Application.StartupPath & "\wined3d.dll", My.Resources.GLwined3d)
-        ElseIf ComboBox1.SelectedItem = "Vulkan" Then
-            IO.File.WriteAllBytes(Application.StartupPath & "\d3d8.dll", My.Resources.VKd3d8)
-            IO.File.WriteAllBytes(Application.StartupPath & "\wined3d.dll", My.Resources.VKwined3d)
-            If IO.File.Exists(Application.StartupPath & "\libwine.dll") Then
-                IO.File.Delete(Application.StartupPath & "\libwine.dll")
-            End If
         End If
         Hide()
     End Sub
