@@ -32,22 +32,18 @@ Partial Class Form3
         Me.Button2 = New System.Windows.Forms.Button()
         Me.Button1 = New System.Windows.Forms.Button()
         Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
-        Me.ComboBox2 = New System.Windows.Forms.ComboBox()
-        Me.Label2 = New System.Windows.Forms.Label()
         Me.GroupBox1.SuspendLayout()
         Me.SuspendLayout()
         '
         'GroupBox1
         '
-        Me.GroupBox1.Controls.Add(Me.ComboBox2)
-        Me.GroupBox1.Controls.Add(Me.Label2)
         Me.GroupBox1.Controls.Add(Me.ComboBox1)
         Me.GroupBox1.Controls.Add(Me.Label1)
         Me.GroupBox1.Controls.Add(Me.CheckBox1)
         Me.GroupBox1.Controls.Add(Me.CheckBox2)
         Me.GroupBox1.Location = New System.Drawing.Point(12, 12)
         Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(247, 96)
+        Me.GroupBox1.Size = New System.Drawing.Size(247, 69)
         Me.GroupBox1.TabIndex = 0
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "Options"
@@ -59,23 +55,23 @@ Partial Class Form3
         Me.ComboBox1.Location = New System.Drawing.Point(86, 19)
         Me.ComboBox1.Name = "ComboBox1"
         Me.ComboBox1.Size = New System.Drawing.Size(155, 21)
-        Me.ComboBox1.TabIndex = 13
+        Me.ComboBox1.TabIndex = 15
         Me.ToolTip1.SetToolTip(Me.ComboBox1, "This might not actually work, because of how Van Buren works," & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "but the code to sw" &
         "itch adapters does work correctly.")
         '
         'Label1
         '
         Me.Label1.AutoSize = True
-        Me.Label1.Location = New System.Drawing.Point(6, 22)
+        Me.Label1.Location = New System.Drawing.Point(4, 22)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(74, 13)
-        Me.Label1.TabIndex = 12
-        Me.Label1.Text = "Video Adapter"
+        Me.Label1.Size = New System.Drawing.Size(76, 13)
+        Me.Label1.TabIndex = 14
+        Me.Label1.Text = "Rendering API"
         '
         'CheckBox1
         '
         Me.CheckBox1.AutoSize = True
-        Me.CheckBox1.Location = New System.Drawing.Point(6, 73)
+        Me.CheckBox1.Location = New System.Drawing.Point(6, 46)
         Me.CheckBox1.Name = "CheckBox1"
         Me.CheckBox1.Size = New System.Drawing.Size(74, 17)
         Me.CheckBox1.TabIndex = 10
@@ -85,7 +81,7 @@ Partial Class Form3
         'CheckBox2
         '
         Me.CheckBox2.AutoSize = True
-        Me.CheckBox2.Location = New System.Drawing.Point(86, 73)
+        Me.CheckBox2.Location = New System.Drawing.Point(86, 46)
         Me.CheckBox2.Name = "CheckBox2"
         Me.CheckBox2.Size = New System.Drawing.Size(41, 17)
         Me.CheckBox2.TabIndex = 11
@@ -95,7 +91,7 @@ Partial Class Form3
         'Button2
         '
         Me.Button2.DialogResult = System.Windows.Forms.DialogResult.Cancel
-        Me.Button2.Location = New System.Drawing.Point(133, 114)
+        Me.Button2.Location = New System.Drawing.Point(133, 87)
         Me.Button2.Name = "Button2"
         Me.Button2.Size = New System.Drawing.Size(60, 23)
         Me.Button2.TabIndex = 4
@@ -104,39 +100,18 @@ Partial Class Form3
         '
         'Button1
         '
-        Me.Button1.Location = New System.Drawing.Point(199, 114)
+        Me.Button1.Location = New System.Drawing.Point(199, 87)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(60, 23)
         Me.Button1.TabIndex = 3
         Me.Button1.Text = "Apply"
         Me.Button1.UseVisualStyleBackColor = True
         '
-        'ComboBox2
-        '
-        Me.ComboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.ComboBox2.FormattingEnabled = True
-        Me.ComboBox2.Items.AddRange(New Object() {"DirectX 8 (Default)", "OpenGL", "Vulkan"})
-        Me.ComboBox2.Location = New System.Drawing.Point(86, 46)
-        Me.ComboBox2.Name = "ComboBox2"
-        Me.ComboBox2.Size = New System.Drawing.Size(155, 21)
-        Me.ComboBox2.TabIndex = 15
-        Me.ToolTip1.SetToolTip(Me.ComboBox2, "This might not actually work, because of how Van Buren works," & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "but the code to sw" &
-        "itch adapters does work correctly.")
-        '
-        'Label2
-        '
-        Me.Label2.AutoSize = True
-        Me.Label2.Location = New System.Drawing.Point(4, 49)
-        Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(76, 13)
-        Me.Label2.TabIndex = 14
-        Me.Label2.Text = "Rendering API"
-        '
         'Form3
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(271, 149)
+        Me.ClientSize = New System.Drawing.Size(271, 122)
         Me.Controls.Add(Me.Button2)
         Me.Controls.Add(Me.Button1)
         Me.Controls.Add(Me.GroupBox1)
@@ -155,11 +130,9 @@ Partial Class Form3
     Friend WithEvents GroupBox1 As GroupBox
     Friend WithEvents Button2 As Button
     Friend WithEvents Button1 As Button
-    Friend WithEvents ComboBox1 As ComboBox
-    Friend WithEvents Label1 As Label
     Friend WithEvents CheckBox1 As CheckBox
     Friend WithEvents CheckBox2 As CheckBox
     Friend WithEvents ToolTip1 As ToolTip
-    Friend WithEvents ComboBox2 As ComboBox
-    Friend WithEvents Label2 As Label
+    Friend WithEvents ComboBox1 As ComboBox
+    Friend WithEvents Label1 As Label
 End Class
