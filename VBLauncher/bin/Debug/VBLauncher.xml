@@ -542,6 +542,21 @@ dis [rest of string was truncated]&quot;;.
   Looks up a localized resource of type System.Byte[].
 </summary>
 </member>
+<member name="P:VBLauncher.My.Resources.Resources.GLd3d8">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.GLlibwine">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.GLwined3d">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
 <member name="P:VBLauncher.My.Resources.Resources.Green">
 <summary>
   Looks up a localized resource of type System.Byte[].
@@ -860,6 +875,16 @@ target z = 0.0
 azimuth = 36
 elevation = 35.0
 distanc [rest of string was truncated]&quot;;.
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.VKd3d8">
+<summary>
+  Looks up a localized resource of type System.Byte[].
+</summary>
+</member>
+<member name="P:VBLauncher.My.Resources.Resources.VKwined3d">
+<summary>
+  Looks up a localized resource of type System.Byte[].
 </summary>
 </member>
 <member name="P:VBLauncher.My.Resources.Resources.Yellow">

@@ -355,4 +355,19 @@
   <data name="_Exit" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Launcher\Exit.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="GLd3d8" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Wrappers\WineD3D OpenGL\GLd3d8.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="GLlibwine" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Wrappers\WineD3D OpenGL\GLlibwine.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="GLwined3d" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Wrappers\WineD3D OpenGL\GLwined3d.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="VKd3d8" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Wrappers\WineD3D Vulkan\VKd3d8.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="VKwined3d" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Wrappers\WineD3D Vulkan\VKwined3d.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>

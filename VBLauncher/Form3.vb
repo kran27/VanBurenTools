@@ -30,6 +30,15 @@ Public Class Form3
         ElseIf line(29) = "height = " & 768 Then
             CheckBox2.Checked = True
         End If
+        If Not IO.File.Exists(Application.StartupPath & "\d3d8.dll") Then
+            ComboBox2.SelectedIndex = 0
+        ElseIf IO.File.Exists(Application.StartupPath & "\libwine.dll") Then
+            ComboBox2.SelectedIndex = 1
+        ElseIf IO.File.Exists(Application.StartupPath & "\wined3d.dll") Then
+            ComboBox2.SelectedIndex = 2
+        Else
+            ComboBox2.SelectedIndex = 0
+        End If
     End Sub
     Private Sub CheckBox1_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox1.CheckedChanged
         If CheckBox1.Checked Then
@@ -67,6 +76,26 @@ Public Class Form3
         line = IO.File.ReadAllLines(ifdir)
         line(17) = "adapter = " & ComboBox1.SelectedIndex
         IO.File.WriteAllLines(ifdir, line)
-        Hide()
+        If ComboBox2.SelectedIndex = 0 Then
+            If IO.File.Exists(Application.StartupPath & "\libwine.dll") Then
+                IO.File.Delete(Application.StartupPath & "\d3d8.dll")
+                IO.File.Delete(Application.StartupPath & "\libwine.dll")
+                IO.File.Delete(Application.StartupPath & "\wined3d.dll")
+            ElseIf IO.File.Exists(Application.StartupPath & "\wined3d.dll") Then
+                IO.File.Delete(Application.StartupPath & "\d3d8.dll")
+                IO.File.Delete(Application.StartupPath & "\wined3d.dll")
+            End If
+        ElseIf ComboBox2.SelectedIndex = 1 Then
+            IO.File.WriteAllBytes(Application.StartupPath & "\d3d8.dll", My.Resources.GLd3d8)
+            IO.File.WriteAllBytes(Application.StartupPath & "\libwine.dll", My.Resources.GLlibwine)
+            IO.File.WriteAllBytes(Application.StartupPath & "\wined3d.dll", My.Resources.GLwined3d)
+        ElseIf ComboBox2.SelectedIndex = 2 Then
+            IO.File.WriteAllBytes(Application.StartupPath & "\d3d8.dll", My.Resources.VKd3d8)
+            IO.File.WriteAllBytes(Application.StartupPath & "\wined3d.dll", My.Resources.VKwined3d)
+            If IO.File.Exists(Application.StartupPath & "\libwine.dll") Then
+                IO.File.Delete(Application.StartupPath & "\libwine.dll")
+            End If
+        End If
+            Hide()
     End Sub
 End Class
