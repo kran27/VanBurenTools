@@ -31,8 +31,12 @@ Public Class Form3
             ComboBox1.SelectedIndex = 0
         ElseIf IO.File.Exists(Application.StartupPath & "\wined3d.dll") Then
             ComboBox1.SelectedIndex = 4
-        Else
-            ComboBox1.SelectedIndex = 0
+        ElseIf dgV2line(3) = "OutputAPI = d3d11_fl10_1" Then
+            ComboBox1.SelectedIndex = 1
+        ElseIf dgV2line(3) = "OutputAPI = d3d11_fl11_0" Then
+            ComboBox1.SelectedIndex = 2
+        ElseIf dgV2line(3) = "OutputAPI = d3d12_fl12_0" Then
+            ComboBox1.SelectedIndex = 3
         End If
         If dgV2line(41) = "Antialiasing = off" Then
             ComboBox2.SelectedIndex = 0
@@ -58,17 +62,15 @@ Public Class Form3
         ElseIf dgV2line(37) = "Filtering = 16" Then
             ComboBox3.SelectedIndex = 6
         End If
-        If dgV2line(3) = "OutputAPI = d3d11_fl10_1" Then
-            ComboBox1.SelectedIndex = 1
-        ElseIf dgV2line(3) = "OutputAPI = d3d12_fl11_0" Then
-            ComboBox1.SelectedIndex = 2
-        ElseIf dgV2line(3) = "OutputAPI = d3d12_fl12_0" Then
-            ComboBox1.SelectedIndex = 3
-        End If
-        If dgV2line(45) = "PhongShadingWhenPossible = true" Then
+        If dgV2line(39) = "DisableMipmapping = false" Then
             CheckBox3.Checked = True
         Else
-            checkbox3.Checked = False
+            CheckBox3.Checked = False
+        End If
+        If dgV2line(45) = "PhongShadingWhenPossible = true" Then
+            CheckBox4.Checked = True
+        Else
+            CheckBox4.Checked = False
         End If
         vram /= 1048576
         If vram > 4096 Then
@@ -122,7 +124,7 @@ Public Class Form3
                 dgV2line(3) = "OutputAPI = d3d11_fl10_1"
                 IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
             ElseIf ComboBox1.SelectedIndex = 2 Then
-                dgV2line(3) = "OutputAPI = d3d12_fl11_0"
+                dgV2line(3) = "OutputAPI = d3d11_fl11_0"
                 IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
             Else
                 dgV2line(3) = "OutputAPI = d3d12_fl12_0"
@@ -168,6 +170,13 @@ Public Class Form3
             IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
         End If
         If CheckBox3.Checked Then
+            dgV2line(39) = "DisableMipmapping = false"
+            IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
+        Else
+            dgV2line(39) = "DisableMipmapping = true"
+            IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
+        End If
+        If CheckBox4.Checked Then
             dgV2line(45) = "PhongShadingWhenPossible = true"
             IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
         Else
@@ -184,15 +193,17 @@ Public Class Form3
             ComboBox2.Enabled = True
             ComboBox3.Enabled = True
             CheckBox3.Enabled = True
+            CheckBox4.Enabled = True
         Else
             Label2.Enabled = False
             Label3.Enabled = False
             ComboBox2.Enabled = False
             ComboBox3.Enabled = False
             CheckBox3.Enabled = False
+            CheckBox4.Enabled = False
         End If
         If ComboBox1.SelectedIndex = 1 Then
-            CheckBox3.Enabled = False
+            CheckBox4.Enabled = False
         End If
     End Sub
 End Class
