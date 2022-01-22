@@ -1,4 +1,5 @@
 ﻿Imports sm = System.Management
+
 Public Class Form3
     Public ifdir As String = My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini"
     Public line() As String = IO.File.ReadAllLines(ifdir)
@@ -6,6 +7,13 @@ Public Class Form3
     Public hz As Double
     Public bpp As String
     Public vram As String
+
+    Function WriteTodgV2(ByVal LineNum As Integer, ByVal TextValue As String)
+        dgV2line = IO.File.ReadAllLines(Application.StartupPath & "\dgVoodoo.conf")
+        dgV2line(LineNum) = TextValue
+        IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
+    End Function
+
     Private Sub DetectOptions() Handles MyBase.Shown
         Dim query As New sm.SelectQuery("Win32_VideoController")
         For Each mo As sm.ManagementObject In New sm.ManagementObjectSearcher(query).Get
@@ -76,11 +84,10 @@ Public Class Form3
         If vram > 4096 Then
             vram = 4096
         End If
-        dgV2line(36) = "VRAM = " & vram
-        dgV2line(29) = "FPSLimit = " & Math.Floor(hz)
-        IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
-        dgV2line = IO.File.ReadAllLines(Application.StartupPath & "\dgVoodoo.conf")
+        WriteTodgV2(36, "VRAM = " & vram)
+        WriteTodgV2(29, "FPSLimit = " & Math.Floor(hz))
     End Sub
+
     Private Sub CheckBox1_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox1.CheckedChanged
         If CheckBox1.Checked Then
             CheckBox2.Checked = False
@@ -121,67 +128,49 @@ Public Class Form3
             IO.File.Delete(Application.StartupPath & "\wined3d.dll")
             IO.File.WriteAllBytes(Application.StartupPath & "\d3d8.dll", My.Resources.DXD3D8)
             If ComboBox1.SelectedIndex = 1 Then
-                dgV2line(3) = "OutputAPI = d3d11_fl10_1"
-                IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
+                WriteTodgV2(3, "OutputAPI = d3d11_fl10_1")
             ElseIf ComboBox1.SelectedIndex = 2 Then
-                dgV2line(3) = "OutputAPI = d3d11_fl11_0"
-                IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
+                WriteTodgV2(3, "OutputAPI = d3d11_fl11_0")
             Else
-                dgV2line(3) = "OutputAPI = d3d12_fl12_0"
-                IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
+                WriteTodgV2(3, "OutputAPI = d3d12_fl12_0")
             End If
         ElseIf ComboBox1.SelectedIndex = 4 Then
             IO.File.WriteAllBytes(Application.StartupPath & "\d3d8.dll", My.Resources.GLd3d8)
             IO.File.WriteAllBytes(Application.StartupPath & "\wined3d.dll", My.Resources.GLwined3d)
         End If
         If ComboBox2.SelectedIndex = 0 Then
-            dgV2line(41) = "Antialiasing = off"
-            IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
+            WriteTodgV2(41, "Antialiasing = off")
         ElseIf ComboBox2.SelectedIndex = 1 Then
-            dgV2line(41) = "Antialiasing = 2x"
-            IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
+            WriteTodgV2(41, "Antialiasing = 2x")
         ElseIf ComboBox2.SelectedIndex = 2 Then
-            dgV2line(41) = "Antialiasing = 4x"
-            IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
+            WriteTodgV2(41, "Antialiasing = 4x")
         ElseIf ComboBox2.SelectedIndex = 3 Then
-            dgV2line(41) = "Antialiasing = 8x"
-            IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
+            WriteTodgV2(41, "Antialiasing = 8x")
         End If
         If ComboBox3.SelectedIndex = 0 Then
-            dgV2line(37) = "Filtering = appdriven"
-            IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
+            WriteTodgV2(37, "Filtering = appdriven")
         ElseIf ComboBox3.SelectedIndex = 1 Then
-            dgV2line(37) = "Filtering = pointsampled"
-            IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
+            WriteTodgV2(37, "Filtering = pointsampled")
         ElseIf ComboBox3.SelectedIndex = 2 Then
-            dgV2line(37) = "Filtering = linearmip"
-            IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
+            WriteTodgV2(37, "Filtering = linearmip")
         ElseIf ComboBox3.SelectedIndex = 3 Then
-            dgV2line(37) = "Filtering = 2"
-            IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
+            WriteTodgV2(37, "Filtering = 2")
         ElseIf ComboBox3.SelectedIndex = 4 Then
-            dgV2line(37) = "Filtering = 4"
-            IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
+            WriteTodgV2(37, "Filtering = 4")
         ElseIf ComboBox3.SelectedIndex = 5 Then
-            dgV2line(37) = "Filtering = 8"
-            IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
+            WriteTodgV2(37, "Filtering = 8")
         ElseIf ComboBox3.SelectedIndex = 6 Then
-            dgV2line(37) = "Filtering = 16"
-            IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
+            WriteTodgV2(37, "Filtering = 16")
         End If
         If CheckBox3.Checked Then
-            dgV2line(39) = "DisableMipmapping = false"
-            IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
+            WriteTodgV2(39, "DisableMipmapping = false")
         Else
-            dgV2line(39) = "DisableMipmapping = true"
-            IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
+            WriteTodgV2(39, "DisableMipmapping = true")
         End If
         If CheckBox4.Checked Then
-            dgV2line(45) = "PhongShadingWhenPossible = true"
-            IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
+            WriteTodgV2(45, "PhongShadingWhenPossible = true")
         Else
-            dgV2line(45) = "PhongShadingWhenPossible = false"
-            IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
+            WriteTodgV2(45, "PhongShadingWhenPossible = false")
         End If
         Hide()
     End Sub
@@ -206,4 +195,5 @@ Public Class Form3
             CheckBox4.Enabled = False
         End If
     End Sub
+
 End Class

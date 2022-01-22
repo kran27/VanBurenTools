@@ -146,7 +146,7 @@ Partial Class Form2
         'Label3
         '
         Me.Label3.AutoSize = True
-        Me.Label3.Location = New System.Drawing.Point(123, 100)
+        Me.Label3.Location = New System.Drawing.Point(127, 100)
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(48, 13)
         Me.Label3.TabIndex = 6
@@ -159,7 +159,7 @@ Partial Class Form2
         Me.ComboBox2.Items.AddRange(New Object() {"Default", "8-Ball", "American", "Black", "Blue", "Eye", "Flames", "Full Skull", "Green", "Grey", "Police", "Red", "Shot Smiley", "Skull", "Yellow"})
         Me.ComboBox2.Location = New System.Drawing.Point(52, 76)
         Me.ComboBox2.Name = "ComboBox2"
-        Me.ComboBox2.Size = New System.Drawing.Size(119, 21)
+        Me.ComboBox2.Size = New System.Drawing.Size(123, 21)
         Me.ComboBox2.TabIndex = 5
         '
         'Label2
@@ -173,7 +173,7 @@ Partial Class Form2
         '
         'PictureBox1
         '
-        Me.PictureBox1.Location = New System.Drawing.Point(177, 68)
+        Me.PictureBox1.Location = New System.Drawing.Point(181, 71)
         Me.PictureBox1.Name = "PictureBox1"
         Me.PictureBox1.Size = New System.Drawing.Size(64, 50)
         Me.PictureBox1.TabIndex = 3

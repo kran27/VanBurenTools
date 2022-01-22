@@ -1,10 +1,12 @@
 ﻿Imports System.IO.Directory
+
 Public Class Form2
     Public ovrdir As String = Application.StartupPath & "\Override"
     Public ifdir As String = My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini"
     Public line() As String = IO.File.ReadAllLines(ifdir)
-    Public mapline() As String
+    Public sysline() As String = IO.File.ReadAllLines(ovrdir & "\MenuMap\Engine\sys.ini")
     Public file As IO.FileInfo
+
     Function SearchForFiles(ByVal RootFolder As String, ByVal FileFilter() As String) As List(Of String)
         Dim ReturnedData As New List(Of String)
         Dim FolderStack As New Stack(Of String)
@@ -23,7 +25,15 @@ Public Class Form2
         Loop
         Return ReturnedData
     End Function
+
+    Function WriteToF3Ini(ByVal LineNum As Integer, ByVal TextValue As String)
+        line = IO.File.ReadAllLines(ifdir)
+        line(LineNum) = TextValue
+        IO.File.WriteAllLines(ifdir, line)
+    End Function
+
 #Region "Auto Detect Options"
+
     Private Sub CheckOptions() Handles MyBase.Load
         If line(25) = "enable startup movies = 1" Then
             CheckBox2.CheckState = 1
@@ -31,54 +41,50 @@ Public Class Form2
         If IO.Directory.Exists(ovrdir & "\SUMM") Then
             CheckBox4.CheckState = 1
         End If
+
 #Region "Maps"
+
         If Not IO.File.Exists(ovrdir & "\MenuMap\Engine\sys.ini") Then
             IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
             IO.File.WriteAllBytes(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Default_sys)
         End If
-        mapline = IO.File.ReadAllLines(ovrdir & "\MenuMap\Engine\sys.ini")
-        If IO.File.Exists(ovrdir & "\MenuMap\Engine\sys.ini") Then
-            If mapline(19) = "map name = mainmenu.map" Then
-                ComboBox1.SelectedIndex = 0
-            ElseIf mapline(19) = "map name = zz_TestMapsaarontemp2.map" Then
-                ComboBox1.SelectedIndex = 1
-            ElseIf mapline(19) = "map name = zz_TestMapsTest_City_Building01.map" Then
-                ComboBox1.SelectedIndex = 2
-            ElseIf mapline(19) = "map name = zz_TestMapsTest_City_Building02.map" Then
-                ComboBox1.SelectedIndex = 3
-            ElseIf mapline(19) = "map name = zz_TestMapsTest_City_Building03.map" Then
-                ComboBox1.SelectedIndex = 4
-            ElseIf mapline(19) = "map name = zz_TestMapsTest_City_Building04.map" Then
-                ComboBox1.SelectedIndex = 5
-            ElseIf mapline(19) = "map name = 98_Canyon_Random_01.map" Then
-                ComboBox1.SelectedIndex = 6
-            ElseIf mapline(19) = "map name = 98_Canyon_Random_02.map" Then
-                ComboBox1.SelectedIndex = 7
-            ElseIf mapline(19) = "map name = 04_0202_Spelunking.map" Then
-                ComboBox1.SelectedIndex = 8
-            ElseIf mapline(19) = "map name = zz_TestMapsTest_City_Fences.map" Then
-                ComboBox1.SelectedIndex = 9
-            ElseIf mapline(19) = "map name = zz_TestMapsScottE_Test1.map" Then
-                ComboBox1.SelectedIndex = 10
-            ElseIf mapline(19) = "map name = zz_TestMapsScottE_Test2.map" Then
-                ComboBox1.SelectedIndex = 11
-            ElseIf mapline(19) = "map name = zz_TestMapsScottE_Test4.map" Then
-                ComboBox1.SelectedIndex = 12
-            ElseIf mapline(19) = "map name = zz_TestMapsTest_Junktown_Shacks.map" Then
-                ComboBox1.SelectedIndex = 13
-            ElseIf mapline(19) = "map name = Default_StartMap.map" Then
-                ComboBox1.SelectedIndex = 14
-            ElseIf mapline(19) = "map name = 00_03_Tutorial_Junktown.map" Then
-                ComboBox1.SelectedIndex = 15
-            ElseIf mapline(19) = "map name = 00_04_Tutorial_Vault.map" Then
-                ComboBox1.SelectedIndex = 16
-            Else
-                ComboBox1.SelectedIndex = 0
-            End If
-        Else
+        sysline = IO.File.ReadAllLines(ovrdir & "\MenuMap\Engine\sys.ini")
+        If sysline(19) = "map name = mainmenu.map" Then
             ComboBox1.SelectedIndex = 0
+        ElseIf sysline(19) = "map name = zz_TestMapsaarontemp2.map" Then
+            ComboBox1.SelectedIndex = 1
+        ElseIf sysline(19) = "map name = zz_TestMapsTest_City_Building01.map" Then
+            ComboBox1.SelectedIndex = 2
+        ElseIf sysline(19) = "map name = zz_TestMapsTest_City_Building02.map" Then
+            ComboBox1.SelectedIndex = 3
+        ElseIf sysline(19) = "map name = zz_TestMapsTest_City_Building03.map" Then
+            ComboBox1.SelectedIndex = 4
+        ElseIf sysline(19) = "map name = zz_TestMapsTest_City_Building04.map" Then
+            ComboBox1.SelectedIndex = 5
+        ElseIf sysline(19) = "map name = 98_Canyon_Random_01.map" Then
+            ComboBox1.SelectedIndex = 6
+        ElseIf sysline(19) = "map name = 98_Canyon_Random_02.map" Then
+            ComboBox1.SelectedIndex = 7
+        ElseIf sysline(19) = "map name = 04_0202_Spelunking.map" Then
+            ComboBox1.SelectedIndex = 8
+        ElseIf sysline(19) = "map name = zz_TestMapsTest_City_Fences.map" Then
+            ComboBox1.SelectedIndex = 9
+        ElseIf sysline(19) = "map name = zz_TestMapsScottE_Test1.map" Then
+            ComboBox1.SelectedIndex = 10
+        ElseIf sysline(19) = "map name = zz_TestMapsScottE_Test2.map" Then
+            ComboBox1.SelectedIndex = 11
+        ElseIf sysline(19) = "map name = zz_TestMapsScottE_Test4.map" Then
+            ComboBox1.SelectedIndex = 12
+        ElseIf sysline(19) = "map name = zz_TestMapsTest_Junktown_Shacks.map" Then
+            ComboBox1.SelectedIndex = 13
+        ElseIf sysline(19) = "map name = Default_StartMap.map" Then
+            ComboBox1.SelectedIndex = 14
+        ElseIf sysline(19) = "map name = 00_03_Tutorial_Junktown.map" Then
+            ComboBox1.SelectedIndex = 15
+        ElseIf sysline(19) = "map name = 00_04_Tutorial_Vault.map" Then
+            ComboBox1.SelectedIndex = 16
         End If
-        If mapline(13) = "FOV Min = 0.5" Then
+        If sysline(13) = "FOV Min = 0.5" Then
             CheckBox5.Checked = True
         End If
         Dim Files = SearchForFiles(ovrdir, {"*.map"})
@@ -88,11 +94,14 @@ Public Class Form2
                 ComboBox3.Items.Add(fi.Name)
             End If
         Next
-        mapline = IO.File.ReadAllLines(ovrdir & "\MenuMap\Engine\sys.ini")
-        Dim newgamemap As String = mapline(52)
-        ComboBox3.Text = newgamemap.Remove(0, 12)
+        sysline = IO.File.ReadAllLines(ovrdir & "\MenuMap\Engine\sys.ini")
+        Dim newgamemap As String = sysline(52).Remove(0, 12)
+        ComboBox3.Text = newgamemap
+
 #End Region
+
 #Region "Helmets"
+
         If IO.File.Exists(ovrdir & "\Helmet\8Ball") Then
             ComboBox2.SelectedIndex = 1
         ElseIf IO.File.Exists(ovrdir & "\Helmet\American") Then
@@ -124,29 +133,29 @@ Public Class Form2
         Else
             ComboBox2.SelectedIndex = 0
         End If
+
 #End Region
+
     End Sub
+
 #End Region
+
     Private Sub ApplyChanges(sender As Object, e As EventArgs) Handles Button1.Click
-        line = IO.File.ReadAllLines(ifdir)
         If CheckBox2.Checked Then
-            line(25) = "enable startup movies = 1"
-            IO.File.WriteAllLines(ifdir, line)
+            WriteToF3Ini(25, "enable startup movies = 1")
         Else
-            line(25) = "enable startup movies = 0"
-            IO.File.WriteAllLines(ifdir, line)
+            WriteToF3Ini(25, "enable startup movies = 0")
         End If
         If CheckBox4.Checked Then
             IO.Directory.CreateDirectory(ovrdir & "\SUMM\Interface")
             IO.File.WriteAllBytes(ovrdir & "\SUMM\Interface\Mainmenu.int", My.Resources.Mainmenu)
             IO.File.WriteAllBytes(ovrdir & "\SUMM\Interface\f3_front_end_buttons.tga", My.Resources.f3_front_end_buttons)
-        ElseIf IO.Directory.Exists(ovrdir & "\SUMM\Interface") Then
-            IO.File.Delete(ovrdir & "\SUMM\Interface\Mainmenu.int")
-            IO.File.Delete(ovrdir & "\SUMM\Interface\f3_front_end_buttons.tga")
-            IO.Directory.Delete(ovrdir & "\SUMM\Interface")
-            IO.Directory.Delete(ovrdir & "\SUMM")
+        ElseIf IO.Directory.Exists(ovrdir & "\SUMM") Then
+            IO.Directory.Delete(ovrdir & "\SUMM", True)
         End If
+
 #Region "Load Maps"
+
         If ComboBox1.SelectedIndex = 0 And line(29) = "height = " & 768 Then
             IO.File.WriteAllBytes(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Default_sys)
         ElseIf ComboBox1.SelectedIndex = 0 And Not line(29) = "height = " & 768 Then
@@ -184,23 +193,25 @@ Public Class Form2
         ElseIf ComboBox1.SelectedIndex = 16 Then
             IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Vault)
         End If
-        mapline = IO.File.ReadAllLines(ovrdir & "\MenuMap\Engine\sys.ini")
+        sysline = IO.File.ReadAllLines(ovrdir & "\MenuMap\Engine\sys.ini")
         If CheckBox5.Checked Then
-            mapline(12) = "FOV Speed = 10"
-            mapline(13) = "FOV Min = 0.5"
-            mapline(14) = "FOV Max = 100"
-            mapline(16) = "Scroll Speed = 125"
-            mapline(52) = "Start map = " & ComboBox3.Text
+            sysline(12) = "FOV Speed = 10"
+            sysline(13) = "FOV Min = 0.5"
+            sysline(14) = "FOV Max = 100"
+            sysline(16) = "Scroll Speed = 125"
         Else
-            mapline(12) = "FOV Speed = 6.5"
-            mapline(13) = "FOV Min = 6"
-            mapline(14) = "FOV Max = 15"
-            mapline(16) = "Scroll Speed = 96"
-            mapline(52) = "Start map = " & ComboBox3.Text
+            sysline(12) = "FOV Speed = 6.5"
+            sysline(13) = "FOV Min = 6"
+            sysline(14) = "FOV Max = 15"
+            sysline(16) = "Scroll Speed = 96"
         End If
-        IO.File.WriteAllLines(ovrdir & "\MenuMap\Engine\sys.ini", mapline)
+        sysline(52) = "Start map = " & ComboBox3.Text
+        IO.File.WriteAllLines(ovrdir & "\MenuMap\Engine\sys.ini", sysline)
+
 #End Region
+
 #Region "Load Helmets"
+
         IO.Directory.CreateDirectory(ovrdir & "\Helmet")
         IO.Directory.Delete(ovrdir & "\Helmet", True)
         If Not ComboBox2.SelectedIndex = 0 Then
@@ -264,9 +275,12 @@ Public Class Form2
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.YellowI)
             IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Yellow)
         End If
+
 #End Region
+
         Hide()
     End Sub
+
     Private Sub HelmetPreview() Handles ComboBox2.SelectedIndexChanged
         If ComboBox2.SelectedIndex = 0 Then
             PictureBox1.Image = My.Resources.Default_Icon
@@ -300,8 +314,9 @@ Public Class Form2
             PictureBox1.Image = My.Resources.Yellow_Icon
         End If
     End Sub
+
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
-        Form3.Location = Location
         Form3.ShowDialog()
     End Sub
+
 End Class
