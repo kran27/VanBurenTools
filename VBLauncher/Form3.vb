@@ -1,4 +1,5 @@
-﻿Imports sm = System.Management
+﻿Imports System.Runtime.InteropServices
+Imports sm = System.Management
 
 Public Class Form3
     Public ifdir As String = My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini"
@@ -7,8 +8,10 @@ Public Class Form3
     Public hz As Double
     Public bpp As String
     Public vram As String
+    Public SelH As String
+    Public SelW As String
 
-    Public Sub WriteTodgV2(ByVal LineNum As Integer, ByVal TextValue As String)
+    Public Sub WriteTodgV2(LineNum As Integer, TextValue As String)
         dgV2line = IO.File.ReadAllLines(Application.StartupPath & "\dgVoodoo.conf")
         dgV2line(LineNum) = TextValue
         IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
@@ -23,10 +26,10 @@ Public Class Form3
             If CurrentRefreshRate IsNot Nothing Then hz = CurrentRefreshRate.ToString
             If Currentbpp IsNot Nothing Then bpp = Currentbpp.ToString
             If oVRAM IsNot Nothing And oVRAM > vram Then vram = oVRAM
-
         Next
-        If line(28) = "fullscreen = 1" Then : CheckBox1.Checked = True
-        ElseIf line(29) = "height = " & 768 Then : CheckBox2.Checked = True : End If
+        ComboBox4.Items.AddRange(SupportedScreenSizes.GetSizesAsStrings)
+        ComboBox4.SelectedItem = line(35).Remove(0, 8) & "x" & line(29).Remove(0, 9)
+        If line(28) = "fullscreen = 1" Then CheckBox1.Checked = True Else CheckBox1.Checked = False
         If Not IO.File.Exists(Application.StartupPath & "\d3d8.dll") Then : ComboBox1.SelectedIndex = 0
         ElseIf IO.File.Exists(Application.StartupPath & "\wined3d.dll") Then : ComboBox1.SelectedIndex = 4
         ElseIf dgV2line(3) = "OutputAPI = d3d11_fl10_1" Then : ComboBox1.SelectedIndex = 1
@@ -55,29 +58,26 @@ Public Class Form3
         WriteTodgV2(29, "FPSLimit = " & Math.Floor(hz))
     End Sub
 
-    Private Sub CheckBox1_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox1.CheckedChanged
-        If CheckBox1.Checked Then CheckBox2.Checked = False : CheckBox2.Enabled = 0 Else CheckBox2.Enabled = 1
-    End Sub
-
     Private Sub ApplyChanges(sender As Object, e As EventArgs) Handles Button1.Click
+        Dim iteration As Integer = 0
+        For Each s As Size In SupportedScreenSizes.GetSizes()
+            If iteration = ComboBox4.SelectedIndex Then
+                SelW = s.Width.ToString()
+                SelH = s.Height.ToString()
+            End If
+            iteration += 1
+        Next
         If bpp >= 32 Then line(30) = "mode32bpp = 1" : IO.File.WriteAllLines(ifdir, line)
         If CheckBox1.Checked Then
             line(28) = "fullscreen = 1"
-            line(29) = "height = " & My.Computer.Screen.Bounds.Height
-            line(35) = "width = " & My.Computer.Screen.Bounds.Width
             line(31) = "refresh = " & hz
-            IO.File.WriteAllLines(ifdir, line)
-        ElseIf CheckBox2.Checked Then
-            line(28) = "fullscreen = 0"
-            line(29) = "height = " & 768
-            line(35) = "width = " & 1024
             IO.File.WriteAllLines(ifdir, line)
         Else
             line(28) = "fullscreen = 0"
-            line(29) = "height = " & 900
-            line(35) = "width = " & 1600
             IO.File.WriteAllLines(ifdir, line)
         End If
+        line(29) = "height = " & SelH : line(35) = "width = " & SelW
+        IO.File.WriteAllLines(ifdir, line)
         Select Case ComboBox1.SelectedIndex
             Case 0
                 IO.File.Delete(Application.StartupPath & "\d3d8.dll")
@@ -136,5 +136,105 @@ Public Class Form3
         End If
         If ComboBox1.SelectedIndex = 1 Then CheckBox4.Enabled = 0
     End Sub
+
+End Class
+
+Public Class SupportedScreenSizes
+    Private Const DM_PELSWIDTH As Integer = &H80000
+    Private Const DM_PELSHEIGHT As Integer = &H100000
+
+    <StructLayout(LayoutKind.Sequential, CharSet:=CharSet.Unicode)>
+    Private Structure DEVMODEW
+        <MarshalAs(UnmanagedType.ByValTStr, SizeConst:=32)> Public dmDeviceName As String
+        Public dmSpecVersion As UShort
+        Public dmDriverVersion As UShort
+        Public dmSize As UShort
+        Public dmDriverExtra As UShort
+        Public dmFields As UInteger
+        Public Union1 As Anonymous_7a7460d9_d99f_4e9a_9ebb_cdd10c08463d
+        Public dmColor As Short
+        Public dmDuplex As Short
+        Public dmYResolution As Short
+        Public dmTTOption As Short
+        Public dmCollate As Short
+        <MarshalAs(UnmanagedType.ByValTStr, SizeConst:=32)> Public dmFormName As String
+        Public dmLogPixels As UShort 'The number of pixels per logical inch. Printer drivers do not use this member.
+        Public dmBitsPerPel As UInteger 'Specifies the color resolution, in bits per pixel, of the display device.
+        Public dmPelsWidth As UInteger 'Specifies the width, in pixels, of the visible device surface.
+        Public dmPelsHeight As UInteger 'Specifies the height, in pixels, of the visible device surface.
+        Public Union2 As Anonymous_084dbe97_5806_4c28_a299_ed6037f61d90
+        Public dmDisplayFrequency As UInteger 'Specifies the frequency, in hertz (cycles per second), of the display device in a particular mode.
+        Public dmICMMethod As UInteger
+        Public dmICMIntent As UInteger
+        Public dmMediaType As UInteger
+        Public dmDitherType As UInteger
+        Public dmReserved1 As UInteger
+        Public dmReserved2 As UInteger
+        Public dmPanningWidth As UInteger
+        Public dmPanningHeight As UInteger
+    End Structure
+
+    <StructLayout(LayoutKind.Explicit)>
+    Private Structure Anonymous_7a7460d9_d99f_4e9a_9ebb_cdd10c08463d
+        <FieldOffset(0)> Public Struct1 As Anonymous_865d3c92_fe8c_4ee6_9601_a9eb2536957e
+        <FieldOffset(0)> Public Struct2 As Anonymous_1b5f787e_41ca_472c_8595_3484490ffe0c
+    End Structure
+
+    <StructLayout(LayoutKind.Explicit)>
+    Private Structure Anonymous_084dbe97_5806_4c28_a299_ed6037f61d90
+        <FieldOffset(0)> Public dmDisplayFlags As UInteger
+        <FieldOffset(0)> Public dmNup As UInteger
+    End Structure
+
+    <StructLayout(LayoutKind.Sequential)>
+    Private Structure Anonymous_865d3c92_fe8c_4ee6_9601_a9eb2536957e
+        Public dmOrientation As Short
+        Public dmPaperSize As Short
+        Public dmPaperLength As Short
+        Public dmPaperWidth As Short
+        Public dmScale As Short
+        Public dmCopies As Short
+        Public dmDefaultSource As Short
+        Public dmPrintQuality As Short
+    End Structure
+
+    <StructLayout(LayoutKind.Sequential)>
+    Private Structure Anonymous_1b5f787e_41ca_472c_8595_3484490ffe0c
+        Public dmPosition As POINTL
+        Public dmDisplayOrientation As UInteger
+        Public dmDisplayFixedOutput As UInteger
+    End Structure
+
+    <StructLayout(LayoutKind.Sequential)>
+    Private Structure POINTL
+        Public x As Integer
+        Public y As Integer
+    End Structure
+
+    <DllImport("user32.dll", EntryPoint:="EnumDisplaySettingsExW")>
+    Private Shared Function EnumDisplaySettingsExW(<MarshalAs(UnmanagedType.LPWStr)> lpszDeviceName As String, iModeNum As Integer, ByRef lpDevMode As DEVMODEW, dwFlags As UInteger) As <MarshalAs(UnmanagedType.Bool)> Boolean
+    End Function
+
+    Public Shared Function GetSizesAsStrings() As String()
+        Dim sizelist As New List(Of String)
+        For Each s As Size In GetSizes()
+            sizelist.Add(s.Width.ToString & "x" & s.Height.ToString)
+        Next
+        Return sizelist.ToArray
+    End Function
+
+    Public Shared Function GetSizes() As Size()
+        Dim sizelist As New List(Of Size)
+        Dim indx As Integer = 0
+        Dim dm As New DEVMODEW
+        dm.dmFields = DM_PELSWIDTH Or DM_PELSHEIGHT
+        dm.dmSize = CUShort(Marshal.SizeOf(GetType(DEVMODEW)))
+        While EnumDisplaySettingsExW(Screen.PrimaryScreen.DeviceName, indx, dm, 0)
+            Dim sz As New Size(CInt(dm.dmPelsWidth), CInt(dm.dmPelsHeight))
+            If Not sizelist.Contains(sz) Then sizelist.Add(sz)
+            indx += 1
+        End While
+        Return sizelist.ToArray
+    End Function
 
 End Class

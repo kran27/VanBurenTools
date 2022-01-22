@@ -140,12 +140,11 @@ Public Class Form2
         End If
         sysline(52) = "Start map = " & ComboBox3.Text
         IO.File.WriteAllLines(ovrdir & "\MenuMap\Engine\sys.ini", sysline)
+        If Exists(ovrdir & "\MapLightFix") Then Delete(ovrdir & "\MapLightFix", True)
         If CheckBox4.Checked = True Then
             IO.File.WriteAllBytes(ovrdir & "\MapLightFix.zip", My.Resources.MapLightFix)
             IO.Compression.ZipFile.ExtractToDirectory(ovrdir & "\MapLightFix.zip", ovrdir & "\MapLightFix")
             IO.File.Delete(ovrdir & "\MapLightFix.zip")
-        ElseIf Exists(ovrdir & "\MapLightFix") Then
-            Delete(ovrdir & "\MapLightFix", True)
         End If
 
         If Exists(ovrdir & "\Helmet") Then Delete(ovrdir & "\Helmet", 1)
