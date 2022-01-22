@@ -4,7 +4,7 @@ Public Class Form2
     Public ovrdir As String = Application.StartupPath & "\Override"
     Public ifdir As String = My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini"
     Public line() As String = IO.File.ReadAllLines(ifdir)
-    Public sysline() As String = IO.File.ReadAllLines(ovrdir & "\MenuMap\Engine\sys.ini")
+    Public sysline() As String
     Public file As IO.FileInfo
 
     Function SearchForFiles(ByVal RootFolder As String, ByVal FileFilter() As String) As List(Of String)
