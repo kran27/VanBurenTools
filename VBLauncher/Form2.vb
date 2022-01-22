@@ -113,6 +113,7 @@ Public Class Form2
 #End Region
 
 #Region "Helmets"
+
         If IO.File.Exists(ovrdir & "\Helmet\Helmet.type") Then
             Select Case IO.File.ReadAllText(ovrdir & "\Helmet\Helmet.type")
                 Case "8Ball"
@@ -147,6 +148,7 @@ Public Class Form2
         Else
             ComboBox2.SelectedIndex = 0
         End If
+
 #End Region
 
     End Sub
