@@ -20,57 +20,32 @@ Public Class Form3
             Dim CurrentRefreshRate As Object = mo("CurrentRefreshRate")
             Dim Currentbpp As Object = mo("CurrentBitsPerPixel")
             Dim oVRAM As Object = mo("AdapterRAM")
-            If CurrentRefreshRate IsNot Nothing Then
-                hz = CurrentRefreshRate.ToString
-            End If
-            If Currentbpp IsNot Nothing Then
-                bpp = Currentbpp.ToString
-            End If
-            If oVRAM IsNot Nothing And oVRAM > vram Then
-                vram = oVRAM
-            End If
+            If CurrentRefreshRate IsNot Nothing Then hz = CurrentRefreshRate.ToString
+            If Currentbpp IsNot Nothing Then bpp = Currentbpp.ToString
+            If oVRAM IsNot Nothing And oVRAM > vram Then vram = oVRAM
+
         Next
-        If line(28) = "fullscreen = 1" Then
-            CheckBox1.Checked = True
-        ElseIf line(29) = "height = " & 768 Then
-            CheckBox2.Checked = True
-        End If
-        If Not IO.File.Exists(Application.StartupPath & "\d3d8.dll") Then
-            ComboBox1.SelectedIndex = 0
-        ElseIf IO.File.Exists(Application.StartupPath & "\wined3d.dll") Then
-            ComboBox1.SelectedIndex = 4
-        ElseIf dgV2line(3) = "OutputAPI = d3d11_fl10_1" Then
-            ComboBox1.SelectedIndex = 1
-        ElseIf dgV2line(3) = "OutputAPI = d3d11_fl11_0" Then
-            ComboBox1.SelectedIndex = 2
-        ElseIf dgV2line(3) = "OutputAPI = d3d12_fl12_0" Then
-            ComboBox1.SelectedIndex = 3
-        End If
+        If line(28) = "fullscreen = 1" Then : CheckBox1.Checked = True
+        ElseIf line(29) = "height = " & 768 Then : CheckBox2.Checked = True : End If
+        If Not IO.File.Exists(Application.StartupPath & "\d3d8.dll") Then : ComboBox1.SelectedIndex = 0
+        ElseIf IO.File.Exists(Application.StartupPath & "\wined3d.dll") Then : ComboBox1.SelectedIndex = 4
+        ElseIf dgV2line(3) = "OutputAPI = d3d11_fl10_1" Then : ComboBox1.SelectedIndex = 1
+        ElseIf dgV2line(3) = "OutputAPI = d3d11_fl11_0" Then : ComboBox1.SelectedIndex = 2
+        ElseIf dgV2line(3) = "OutputAPI = d3d12_fl12_0" Then : ComboBox1.SelectedIndex = 3 : End If
         Select Case dgV2line(41)
-            Case "Antialiasing = off"
-                ComboBox2.SelectedIndex = 0
-            Case "Antialiasing = 2x"
-                ComboBox2.SelectedIndex = 1
-            Case "Antialiasing = 4x"
-                ComboBox2.SelectedIndex = 2
-            Case "Antialiasing = 8x"
-                ComboBox2.SelectedIndex = 3
+            Case "Antialiasing = off" : ComboBox2.SelectedIndex = 0
+            Case "Antialiasing = 2x" : ComboBox2.SelectedIndex = 1
+            Case "Antialiasing = 4x" : ComboBox2.SelectedIndex = 2
+            Case "Antialiasing = 8x" : ComboBox2.SelectedIndex = 3
         End Select
         Select Case dgV2line(37)
-            Case "Filtering = appdriven"
-                ComboBox3.SelectedIndex = 0
-            Case "Filtering = pointsampled"
-                ComboBox3.SelectedIndex = 1
-            Case "Filtering = linearmip"
-                ComboBox3.SelectedIndex = 2
-            Case "Filtering = 2"
-                ComboBox3.SelectedIndex = 3
-            Case "Filtering = 4"
-                ComboBox3.SelectedIndex = 4
-            Case "Filtering = 8"
-                ComboBox3.SelectedIndex = 5
-            Case "Filtering = 16"
-                ComboBox3.SelectedIndex = 6
+            Case "Filtering = appdriven" : ComboBox3.SelectedIndex = 0
+            Case "Filtering = pointsampled" : ComboBox3.SelectedIndex = 1
+            Case "Filtering = linearmip" : ComboBox3.SelectedIndex = 2
+            Case "Filtering = 2" : ComboBox3.SelectedIndex = 3
+            Case "Filtering = 4" : ComboBox3.SelectedIndex = 4
+            Case "Filtering = 8" : ComboBox3.SelectedIndex = 5
+            Case "Filtering = 16" : ComboBox3.SelectedIndex = 6
         End Select
         If dgV2line(39) = "DisableMipmapping = 0" Then CheckBox3.Checked = True Else CheckBox3.Checked = False
         If dgV2line(45) = "PhongShadingWhenPossible = 1" Then CheckBox4.Checked = True Else CheckBox4.Checked = False
@@ -81,12 +56,7 @@ Public Class Form3
     End Sub
 
     Private Sub CheckBox1_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox1.CheckedChanged
-        If CheckBox1.Checked Then
-            CheckBox2.Checked = False
-            CheckBox2.Enabled = 0
-        Else
-            CheckBox2.Enabled = 1
-        End If
+        If CheckBox1.Checked Then CheckBox2.Checked = False : CheckBox2.Enabled = 0 Else CheckBox2.Enabled = 1
     End Sub
 
     Private Sub ApplyChanges(sender As Object, e As EventArgs) Handles Button1.Click
@@ -129,30 +99,19 @@ Public Class Form3
                 IO.File.WriteAllBytes(Application.StartupPath & "\wined3d.dll", My.Resources.GLwined3d)
         End Select
         Select Case ComboBox2.SelectedIndex
-            Case 0
-                WriteTodgV2(41, "Antialiasing = off")
-            Case 1
-                WriteTodgV2(41, "Antialiasing = 2x")
-            Case 2
-                WriteTodgV2(41, "Antialiasing = 4x")
-            Case 3
-                WriteTodgV2(41, "Antialiasing = 8x")
+            Case 0 : WriteTodgV2(41, "Antialiasing = off")
+            Case 1 : WriteTodgV2(41, "Antialiasing = 2x")
+            Case 2 : WriteTodgV2(41, "Antialiasing = 4x")
+            Case 3 : WriteTodgV2(41, "Antialiasing = 8x")
         End Select
         Select Case ComboBox3.SelectedIndex
-            Case 0
-                WriteTodgV2(37, "Filtering = appdriven")
-            Case 1
-                WriteTodgV2(37, "Filtering = pointsampled")
-            Case 2
-                WriteTodgV2(37, "Filtering = linearmip")
-            Case 3
-                WriteTodgV2(37, "Filtering = 2")
-            Case 4
-                WriteTodgV2(37, "Filtering = 4")
-            Case 5
-                WriteTodgV2(37, "Filtering = 8")
-            Case 6
-                WriteTodgV2(37, "Filtering = 16")
+            Case 0 : WriteTodgV2(37, "Filtering = appdriven")
+            Case 1 : WriteTodgV2(37, "Filtering = pointsampled")
+            Case 2 : WriteTodgV2(37, "Filtering = linearmip")
+            Case 3 : WriteTodgV2(37, "Filtering = 2")
+            Case 4 : WriteTodgV2(37, "Filtering = 4")
+            Case 5 : WriteTodgV2(37, "Filtering = 8")
+            Case 6 : WriteTodgV2(37, "Filtering = 16")
         End Select
         If CheckBox3.Checked Then WriteTodgV2(39, "DisableMipmapping = 0") Else WriteTodgV2(39, "DisableMipmapping = 1")
         If CheckBox4.Checked Then WriteTodgV2(45, "PhongShadingWhenPossible = 1") Else WriteTodgV2(45, "PhongShadingWhenPossible = 0")
