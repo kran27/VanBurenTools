@@ -25,10 +25,10 @@ Partial Class Form2
         Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form2))
         Me.Button1 = New System.Windows.Forms.Button()
-        Me.CheckBox2 = New System.Windows.Forms.CheckBox()
+        Me.CheckBox1 = New System.Windows.Forms.CheckBox()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
-        Me.CheckBox5 = New System.Windows.Forms.CheckBox()
-        Me.CheckBox4 = New System.Windows.Forms.CheckBox()
+        Me.CheckBox3 = New System.Windows.Forms.CheckBox()
+        Me.CheckBox2 = New System.Windows.Forms.CheckBox()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
         Me.ComboBox3 = New System.Windows.Forms.ComboBox()
         Me.Label4 = New System.Windows.Forms.Label()
@@ -41,6 +41,7 @@ Partial Class Form2
         Me.Button2 = New System.Windows.Forms.Button()
         Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
         Me.Button3 = New System.Windows.Forms.Button()
+        Me.CheckBox4 = New System.Windows.Forms.CheckBox()
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -48,54 +49,55 @@ Partial Class Form2
         '
         'Button1
         '
-        Me.Button1.Location = New System.Drawing.Point(199, 239)
+        Me.Button1.Location = New System.Drawing.Point(199, 261)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(60, 23)
         Me.Button1.TabIndex = 0
         Me.Button1.Text = "Apply"
         Me.Button1.UseVisualStyleBackColor = True
         '
-        'CheckBox2
+        'CheckBox1
         '
-        Me.CheckBox2.AutoSize = True
-        Me.CheckBox2.Location = New System.Drawing.Point(6, 18)
-        Me.CheckBox2.Name = "CheckBox2"
-        Me.CheckBox2.Size = New System.Drawing.Size(131, 17)
-        Me.CheckBox2.TabIndex = 5
-        Me.CheckBox2.Text = "Enable Startup Videos"
-        Me.CheckBox2.UseVisualStyleBackColor = True
+        Me.CheckBox1.AutoSize = True
+        Me.CheckBox1.Location = New System.Drawing.Point(6, 18)
+        Me.CheckBox1.Name = "CheckBox1"
+        Me.CheckBox1.Size = New System.Drawing.Size(131, 17)
+        Me.CheckBox1.TabIndex = 5
+        Me.CheckBox1.Text = "Enable Startup Videos"
+        Me.CheckBox1.UseVisualStyleBackColor = True
         '
         'GroupBox1
         '
-        Me.GroupBox1.Controls.Add(Me.CheckBox5)
         Me.GroupBox1.Controls.Add(Me.CheckBox4)
+        Me.GroupBox1.Controls.Add(Me.CheckBox3)
         Me.GroupBox1.Controls.Add(Me.CheckBox2)
+        Me.GroupBox1.Controls.Add(Me.CheckBox1)
         Me.GroupBox1.Location = New System.Drawing.Point(10, 12)
         Me.GroupBox1.Name = "GroupBox1"
-        Me.GroupBox1.Size = New System.Drawing.Size(251, 88)
+        Me.GroupBox1.Size = New System.Drawing.Size(251, 110)
         Me.GroupBox1.TabIndex = 7
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "General Tweaks"
         '
-        'CheckBox5
+        'CheckBox3
         '
-        Me.CheckBox5.AutoSize = True
-        Me.CheckBox5.Location = New System.Drawing.Point(6, 64)
-        Me.CheckBox5.Name = "CheckBox5"
-        Me.CheckBox5.Size = New System.Drawing.Size(127, 17)
-        Me.CheckBox5.TabIndex = 9
-        Me.CheckBox5.Text = "Uncap Camera Zoom"
-        Me.CheckBox5.UseVisualStyleBackColor = True
+        Me.CheckBox3.AutoSize = True
+        Me.CheckBox3.Location = New System.Drawing.Point(6, 64)
+        Me.CheckBox3.Name = "CheckBox3"
+        Me.CheckBox3.Size = New System.Drawing.Size(127, 17)
+        Me.CheckBox3.TabIndex = 9
+        Me.CheckBox3.Text = "Uncap Camera Zoom"
+        Me.CheckBox3.UseVisualStyleBackColor = True
         '
-        'CheckBox4
+        'CheckBox2
         '
-        Me.CheckBox4.AutoSize = True
-        Me.CheckBox4.Location = New System.Drawing.Point(6, 41)
-        Me.CheckBox4.Name = "CheckBox4"
-        Me.CheckBox4.Size = New System.Drawing.Size(175, 17)
-        Me.CheckBox4.TabIndex = 8
-        Me.CheckBox4.Text = "Remove Useless Menu Options"
-        Me.CheckBox4.UseVisualStyleBackColor = True
+        Me.CheckBox2.AutoSize = True
+        Me.CheckBox2.Location = New System.Drawing.Point(6, 41)
+        Me.CheckBox2.Name = "CheckBox2"
+        Me.CheckBox2.Size = New System.Drawing.Size(175, 17)
+        Me.CheckBox2.TabIndex = 8
+        Me.CheckBox2.Text = "Remove Useless Menu Options"
+        Me.CheckBox2.UseVisualStyleBackColor = True
         '
         'GroupBox2
         '
@@ -107,7 +109,7 @@ Partial Class Form2
         Me.GroupBox2.Controls.Add(Me.Label2)
         Me.GroupBox2.Controls.Add(Me.PictureBox1)
         Me.GroupBox2.Controls.Add(Me.Label1)
-        Me.GroupBox2.Location = New System.Drawing.Point(10, 106)
+        Me.GroupBox2.Location = New System.Drawing.Point(10, 128)
         Me.GroupBox2.Name = "GroupBox2"
         Me.GroupBox2.Size = New System.Drawing.Size(251, 127)
         Me.GroupBox2.TabIndex = 8
@@ -191,7 +193,7 @@ Partial Class Form2
         'Button2
         '
         Me.Button2.DialogResult = System.Windows.Forms.DialogResult.Cancel
-        Me.Button2.Location = New System.Drawing.Point(133, 239)
+        Me.Button2.Location = New System.Drawing.Point(133, 261)
         Me.Button2.Name = "Button2"
         Me.Button2.Size = New System.Drawing.Size(60, 23)
         Me.Button2.TabIndex = 2
@@ -200,12 +202,22 @@ Partial Class Form2
         '
         'Button3
         '
-        Me.Button3.Location = New System.Drawing.Point(12, 239)
+        Me.Button3.Location = New System.Drawing.Point(12, 261)
         Me.Button3.Name = "Button3"
         Me.Button3.Size = New System.Drawing.Size(99, 23)
         Me.Button3.TabIndex = 9
         Me.Button3.Text = "Video Options"
         Me.Button3.UseVisualStyleBackColor = True
+        '
+        'CheckBox4
+        '
+        Me.CheckBox4.AutoSize = True
+        Me.CheckBox4.Location = New System.Drawing.Point(6, 87)
+        Me.CheckBox4.Name = "CheckBox4"
+        Me.CheckBox4.Size = New System.Drawing.Size(103, 17)
+        Me.CheckBox4.TabIndex = 10
+        Me.CheckBox4.Text = "Fix Map Lighting"
+        Me.CheckBox4.UseVisualStyleBackColor = True
         '
         'Form2
         '
@@ -213,7 +225,7 @@ Partial Class Form2
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.CancelButton = Me.Button2
-        Me.ClientSize = New System.Drawing.Size(271, 274)
+        Me.ClientSize = New System.Drawing.Size(271, 296)
         Me.Controls.Add(Me.Button3)
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.GroupBox1)
@@ -237,7 +249,7 @@ Partial Class Form2
     End Sub
 
     Friend WithEvents Button1 As Button
-    Friend WithEvents CheckBox2 As CheckBox
+    Friend WithEvents CheckBox1 As CheckBox
     Friend WithEvents GroupBox1 As GroupBox
     Friend WithEvents GroupBox2 As GroupBox
     Friend WithEvents ComboBox1 As ComboBox
@@ -246,11 +258,12 @@ Partial Class Form2
     Friend WithEvents ComboBox2 As ComboBox
     Friend WithEvents Label2 As Label
     Friend WithEvents PictureBox1 As PictureBox
-    Friend WithEvents CheckBox4 As CheckBox
+    Friend WithEvents CheckBox2 As CheckBox
     Friend WithEvents Button2 As Button
-    Friend WithEvents CheckBox5 As CheckBox
+    Friend WithEvents CheckBox3 As CheckBox
     Friend WithEvents ToolTip1 As ToolTip
     Friend WithEvents ComboBox3 As ComboBox
     Friend WithEvents Label4 As Label
     Friend WithEvents Button3 As Button
+    Friend WithEvents CheckBox4 As CheckBox
 End Class

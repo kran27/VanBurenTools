@@ -72,20 +72,10 @@ Public Class Form3
             Case "Filtering = 16"
                 ComboBox3.SelectedIndex = 6
         End Select
-        If dgV2line(39) = "DisableMipmapping = false" Then
-            CheckBox3.Checked = True
-        Else
-            CheckBox3.Checked = False
-        End If
-        If dgV2line(45) = "PhongShadingWhenPossible = true" Then
-            CheckBox4.Checked = True
-        Else
-            CheckBox4.Checked = False
-        End If
+        If dgV2line(39) = "DisableMipmapping = 0" Then CheckBox3.Checked = True Else CheckBox3.Checked = False
+        If dgV2line(45) = "PhongShadingWhenPossible = 1" Then CheckBox4.Checked = True Else CheckBox4.Checked = False
         vram /= 1048576
-        If vram > 4096 Then
-            vram = 4096
-        End If
+        If vram > 4096 Then vram = 4096
         WriteTodgV2(36, "VRAM = " & vram)
         WriteTodgV2(29, "FPSLimit = " & Math.Floor(hz))
     End Sub
@@ -93,17 +83,14 @@ Public Class Form3
     Private Sub CheckBox1_CheckedChanged(sender As Object, e As EventArgs) Handles CheckBox1.CheckedChanged
         If CheckBox1.Checked Then
             CheckBox2.Checked = False
-            CheckBox2.Enabled = False
+            CheckBox2.Enabled = 0
         Else
-            CheckBox2.Enabled = True
+            CheckBox2.Enabled = 1
         End If
     End Sub
 
     Private Sub ApplyChanges(sender As Object, e As EventArgs) Handles Button1.Click
-        If bpp >= 32 Then
-            line(30) = "mode32bpp = 1"
-            IO.File.WriteAllLines(ifdir, line)
-        End If
+        If bpp >= 32 Then line(30) = "mode32bpp = 1" : IO.File.WriteAllLines(ifdir, line)
         If CheckBox1.Checked Then
             line(28) = "fullscreen = 1"
             line(29) = "height = " & My.Computer.Screen.Bounds.Height
@@ -167,38 +154,28 @@ Public Class Form3
             Case 6
                 WriteTodgV2(37, "Filtering = 16")
         End Select
-        If CheckBox3.Checked Then
-            WriteTodgV2(39, "DisableMipmapping = false")
-        Else
-            WriteTodgV2(39, "DisableMipmapping = true")
-        End If
-        If CheckBox4.Checked Then
-            WriteTodgV2(45, "PhongShadingWhenPossible = true")
-        Else
-            WriteTodgV2(45, "PhongShadingWhenPossible = false")
-        End If
+        If CheckBox3.Checked Then WriteTodgV2(39, "DisableMipmapping = 0") Else WriteTodgV2(39, "DisableMipmapping = 1")
+        If CheckBox4.Checked Then WriteTodgV2(45, "PhongShadingWhenPossible = 1") Else WriteTodgV2(45, "PhongShadingWhenPossible = 0")
         Hide()
     End Sub
 
     Private Sub ComboBox1_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ComboBox1.SelectedIndexChanged
         If ComboBox1.SelectedIndex = 1 Or ComboBox1.SelectedIndex = 2 Or ComboBox1.SelectedIndex = 3 Then
-            Label2.Enabled = True
-            Label3.Enabled = True
-            ComboBox2.Enabled = True
-            ComboBox3.Enabled = True
-            CheckBox3.Enabled = True
-            CheckBox4.Enabled = True
+            Label2.Enabled = 1
+            Label3.Enabled = 1
+            ComboBox2.Enabled = 1
+            ComboBox3.Enabled = 1
+            CheckBox3.Enabled = 1
+            CheckBox4.Enabled = 1
         Else
-            Label2.Enabled = False
-            Label3.Enabled = False
-            ComboBox2.Enabled = False
-            ComboBox3.Enabled = False
-            CheckBox3.Enabled = False
-            CheckBox4.Enabled = False
+            Label2.Enabled = 0
+            Label3.Enabled = 0
+            ComboBox2.Enabled = 0
+            ComboBox3.Enabled = 0
+            CheckBox3.Enabled = 0
+            CheckBox4.Enabled = 0
         End If
-        If ComboBox1.SelectedIndex = 1 Then
-            CheckBox4.Enabled = False
-        End If
+        If ComboBox1.SelectedIndex = 1 Then CheckBox4.Enabled = 0
     End Sub
 
 End Class

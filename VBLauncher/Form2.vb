@@ -43,22 +43,12 @@ Public Class Form2
         IO.File.WriteAllLines(ovrdir & "\MenuMap\Engine\sys.ini", sysline)
     End Sub
 
-#Region "Auto Detect Options"
-
     Private Sub CheckOptions() Handles MyBase.Load
-        If line(25) = "enable startup movies = 1" Then
-            CheckBox2.CheckState = 1
-        End If
-        If IO.Directory.Exists(ovrdir & "\SUMM") Then
-            CheckBox4.CheckState = 1
-        End If
+        If line(25) = "enable startup movies = 1" Then CheckBox1.Checked = True Else CheckBox1.Checked = False
+        If Exists(ovrdir & "\SUMM") Then CheckBox2.Checked = True Else CheckBox2.Checked = False
+        If Exists(ovrdir & "\MapLightFix") Then CheckBox4.Checked = True Else CheckBox4.Checked = False
 
-#Region "Maps"
-
-        If Not IO.File.Exists(ovrdir & "\MenuMap\Engine\sys.ini") Then
-            IO.Directory.CreateDirectory(ovrdir & "\MenuMap\Engine")
-            IO.File.WriteAllBytes(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Default_sys)
-        End If
+        If Not IO.File.Exists(ovrdir & "\MenuMap\Engine\sys.ini") Then CreateDirectory(ovrdir & "\MenuMap\Engine") : IO.File.WriteAllBytes(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Default_sys)
         sysline = IO.File.ReadAllLines(ovrdir & "\MenuMap\Engine\sys.ini")
         Select Case sysline(19)
             Case "map name = mainmenu.map"
@@ -96,9 +86,7 @@ Public Class Form2
             Case "map name = 00_04_Tutorial_Vault.map"
                 ComboBox1.SelectedIndex = 16
         End Select
-        If sysline(13) = "FOV Min = 0.5" Then
-            CheckBox5.Checked = True
-        End If
+        If sysline(13) = "FOV Min = 0.5" Then CheckBox3.Checked = True
         Dim Files = SearchForFiles(ovrdir, {"*.map"})
         For Each file As Object In Files
             Dim fi As New IO.FileInfo(file)
@@ -109,10 +97,6 @@ Public Class Form2
         sysline = IO.File.ReadAllLines(ovrdir & "\MenuMap\Engine\sys.ini")
         Dim newgamemap As String = sysline(52).Remove(0, 12)
         ComboBox3.Text = newgamemap
-
-#End Region
-
-#Region "Helmets"
 
         If IO.File.Exists(ovrdir & "\Helmet\Helmet.type") Then
             Select Case IO.File.ReadAllText(ovrdir & "\Helmet\Helmet.type")
@@ -149,35 +133,21 @@ Public Class Form2
             ComboBox2.SelectedIndex = 0
         End If
 
-#End Region
-
     End Sub
 
-#End Region
-
     Private Sub ApplyChanges(sender As Object, e As EventArgs) Handles Button1.Click
+        If CheckBox1.Checked Then WriteToF3Ini(25, "enable startup movies = 1") Else WriteToF3Ini(25, "enable startup movies = 0")
         If CheckBox2.Checked Then
-            WriteToF3Ini(25, "enable startup movies = 1")
-        Else
-            WriteToF3Ini(25, "enable startup movies = 0")
-        End If
-        If CheckBox4.Checked Then
-            IO.Directory.CreateDirectory(ovrdir & "\SUMM\Interface")
+            CreateDirectory(ovrdir & "\SUMM\Interface")
             IO.File.WriteAllBytes(ovrdir & "\SUMM\Interface\Mainmenu.int", My.Resources.Mainmenu)
             IO.File.WriteAllBytes(ovrdir & "\SUMM\Interface\f3_front_end_buttons.tga", My.Resources.f3_front_end_buttons)
-        ElseIf IO.Directory.Exists(ovrdir & "\SUMM") Then
-            IO.Directory.Delete(ovrdir & "\SUMM", True)
+        ElseIf Exists(ovrdir & "\SUMM") Then
+            Delete(ovrdir & "\SUMM", 1)
         End If
-
-#Region "Load Maps"
 
         Select Case ComboBox1.SelectedIndex
             Case 0
-                If line(29) = "height = 768" Then
-                    WriteMainMenu("mainmenu.map", 0, 5.5, 0, 0, 0, 68)
-                Else
-                    WriteMainMenu("mainmenu.map", 0, 5.5, 0, 2, 0.75, 59.2)
-                End If
+                If line(29) = "height = 768" Then WriteMainMenu("mainmenu.map", 0, 5.5, 0, 0, 0, 68) Else WriteMainMenu("mainmenu.map", 0, 5.5, 0, 2, 0.75, 59.2)
             Case 1
                 WriteMainMenu("zz_TestMapsaarontemp2.map", 0, 0, 0, 0, 0, 0)
             Case 2
@@ -212,92 +182,55 @@ Public Class Form2
                 WriteMainMenu("00_04_Tutorial_Vault.map", 50, 50.5, 0, 36, 25, 68)
         End Select
         sysline = IO.File.ReadAllLines(ovrdir & "\MenuMap\Engine\sys.ini")
-        If CheckBox5.Checked Then
-            sysline(12) = "FOV Speed = 10"
-            sysline(13) = "FOV Min = 0.5"
-            sysline(14) = "FOV Max = 100"
-            sysline(16) = "Scroll Speed = 125"
+        If CheckBox3.Checked Then
+            sysline(12) = "FOV Speed = 10" : sysline(16) = "Scroll Speed = 125"
+            sysline(13) = "FOV Min = 0.5" : sysline(14) = "FOV Max = 100"
         Else
-            sysline(12) = "FOV Speed = 6.5"
-            sysline(13) = "FOV Min = 6"
-            sysline(14) = "FOV Max = 15"
-            sysline(16) = "Scroll Speed = 96"
+            sysline(12) = "FOV Speed = 6.5" : sysline(16) = "Scroll Speed = 96"
+            sysline(13) = "FOV Min = 6" : sysline(14) = "FOV Max = 15"
         End If
         sysline(52) = "Start map = " & ComboBox3.Text
         IO.File.WriteAllLines(ovrdir & "\MenuMap\Engine\sys.ini", sysline)
-
-#End Region
-
-#Region "Load Helmets"
-
-        If IO.Directory.Exists(ovrdir & "\Helmet") Then
-            IO.Directory.Delete(ovrdir & "\Helmet", True)
+        If CheckBox4.Checked = True Then
+            IO.File.WriteAllBytes(ovrdir & "\MapLightFix.zip", My.Resources.MapLightFix)
+            IO.Compression.ZipFile.ExtractToDirectory(ovrdir & "\MapLightFix.zip", ovrdir & "\MapLightFix")
+            IO.File.Delete(ovrdir & "\MapLightFix.zip")
+        ElseIf Exists(ovrdir & "\MapLightFix") Then
+            Delete(ovrdir & "\MapLightFix", True)
         End If
-        If Not ComboBox2.SelectedIndex = 0 Then
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
-            IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
-        End If
+
+        If Exists(ovrdir & "\Helmet") Then Delete(ovrdir & "\Helmet", 1)
+        If Not ComboBox2.SelectedIndex = 0 Then CreateDirectory(ovrdir & "\Helmet\Critters") : CreateDirectory(ovrdir & "\Helmet\Interface")
         Select Case ComboBox2.SelectedIndex
             Case 1
-                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "8Ball")
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources._8_Ball_I)
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources._8_Ball)
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "8Ball") : IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources._8_Ball_I) : IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources._8_Ball)
             Case 2
-                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "American")
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.AmericanI)
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.American)
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "American") : IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.AmericanI) : IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.American)
             Case 3
-                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Black")
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.BlackI)
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Black)
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Black") : IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.BlackI) : IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Black)
             Case 4
-                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Blue")
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.BlueI)
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Blue)
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Blue") : IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.BlueI) : IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Blue)
             Case 5
-                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Eye")
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.EyeI)
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Eye)
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Eye") : IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.EyeI) : IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Eye)
             Case 6
-                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Flames")
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.FlamesI)
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Flames)
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Flames") : IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.FlamesI) : IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Flames)
             Case 7
-                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "FullSkull")
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.Full_SkullI)
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Full_Skull)
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "FullSkull") : IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.Full_SkullI) : IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Full_Skull)
             Case 8
-                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Green")
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.GreenI)
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Green)
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Green") : IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.GreenI) : IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Green)
             Case 9
-                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Grey")
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.GreyI)
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Grey)
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Grey") : IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.GreyI) : IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Grey)
             Case 10
-                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Police")
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.PoliceI)
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Police)
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Police") : IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.PoliceI) : IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Police)
             Case 11
-                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Red")
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.RedI)
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Red)
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Red") : IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.RedI) : IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Red)
             Case 12
-                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "ShotSmiley")
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.Shot_SmileyI)
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Shot_Smiley)
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "ShotSmiley") : IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.Shot_SmileyI) : IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Shot_Smiley)
             Case 13
-                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Skull")
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.SkullI)
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Skull)
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Skull") : IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.SkullI) : IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Skull)
             Case 14
-                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Yellow")
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.YellowI)
-                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Yellow)
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Yellow") : IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.YellowI) : IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Yellow)
         End Select
-
-#End Region
-
         Hide()
     End Sub
 
@@ -338,6 +271,10 @@ Public Class Form2
 
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
         Form3.ShowDialog()
+    End Sub
+
+    Private Sub ComboBox3_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ComboBox3.SelectedIndexChanged
+        ToolTip1.SetToolTip(ComboBox3, ComboBox3.Text)
     End Sub
 
 End Class
