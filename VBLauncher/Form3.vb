@@ -46,30 +46,32 @@ Public Class Form3
         ElseIf dgV2line(3) = "OutputAPI = d3d12_fl12_0" Then
             ComboBox1.SelectedIndex = 3
         End If
-        If dgV2line(41) = "Antialiasing = off" Then
-            ComboBox2.SelectedIndex = 0
-        ElseIf dgV2line(41) = "Antialiasing = 2x" Then
-            ComboBox2.SelectedIndex = 1
-        ElseIf dgV2line(41) = "Antialiasing = 4x" Then
-            ComboBox2.SelectedIndex = 2
-        ElseIf dgV2line(41) = "Antialiasing = 8x" Then
-            ComboBox2.SelectedIndex = 3
-        End If
-        If dgV2line(37) = "Filtering = appdriven" Then
-            ComboBox3.SelectedIndex = 0
-        ElseIf dgV2line(37) = "Filtering = pointsampled" Then
-            ComboBox3.SelectedIndex = 1
-        ElseIf dgV2line(37) = "Filtering = linearmip" Then
-            ComboBox3.SelectedIndex = 2
-        ElseIf dgV2line(37) = "Filtering = 2" Then
-            ComboBox3.SelectedIndex = 3
-        ElseIf dgV2line(37) = "Filtering = 4" Then
-            ComboBox3.SelectedIndex = 4
-        ElseIf dgV2line(37) = "Filtering = 8" Then
-            ComboBox3.SelectedIndex = 5
-        ElseIf dgV2line(37) = "Filtering = 16" Then
-            ComboBox3.SelectedIndex = 6
-        End If
+        Select Case dgV2line(41)
+            Case "Antialiasing = off"
+                ComboBox2.SelectedIndex = 0
+            Case "Antialiasing = 2x"
+                ComboBox2.SelectedIndex = 1
+            Case "Antialiasing = 4x"
+                ComboBox2.SelectedIndex = 2
+            Case "Antialiasing = 8x"
+                ComboBox2.SelectedIndex = 3
+        End Select
+        Select Case dgV2line(37)
+            Case "Filtering = appdriven"
+                ComboBox3.SelectedIndex = 0
+            Case "Filtering = pointsampled"
+                ComboBox3.SelectedIndex = 1
+            Case "Filtering = linearmip"
+                ComboBox3.SelectedIndex = 2
+            Case "Filtering = 2"
+                ComboBox3.SelectedIndex = 3
+            Case "Filtering = 4"
+                ComboBox3.SelectedIndex = 4
+            Case "Filtering = 8"
+                ComboBox3.SelectedIndex = 5
+            Case "Filtering = 16"
+                ComboBox3.SelectedIndex = 6
+        End Select
         If dgV2line(39) = "DisableMipmapping = false" Then
             CheckBox3.Checked = True
         Else
@@ -108,60 +110,63 @@ Public Class Form3
             line(35) = "width = " & My.Computer.Screen.Bounds.Width
             line(31) = "refresh = " & hz
             IO.File.WriteAllLines(ifdir, line)
+        ElseIf CheckBox2.Checked Then
+            line(28) = "fullscreen = 0"
+            line(29) = "height = " & 768
+            line(35) = "width = " & 1024
+            IO.File.WriteAllLines(ifdir, line)
         Else
-            If CheckBox2.Checked Then
-                line(28) = "fullscreen = 0"
-                line(29) = "height = " & 768
-                line(35) = "width = " & 1024
-                IO.File.WriteAllLines(ifdir, line)
-            Else
-                line(28) = "fullscreen = 0"
-                line(29) = "height = " & 900
-                line(35) = "width = " & 1600
-                IO.File.WriteAllLines(ifdir, line)
-            End If
+            line(28) = "fullscreen = 0"
+            line(29) = "height = " & 900
+            line(35) = "width = " & 1600
+            IO.File.WriteAllLines(ifdir, line)
         End If
-        If ComboBox1.SelectedIndex = 0 Then
-            IO.File.Delete(Application.StartupPath & "\d3d8.dll")
-            IO.File.Delete(Application.StartupPath & "\wined3d.dll")
-        ElseIf ComboBox1.SelectedIndex = 1 Or ComboBox1.SelectedIndex = 2 Or ComboBox1.SelectedIndex = 3 Then
-            IO.File.Delete(Application.StartupPath & "\wined3d.dll")
-            IO.File.WriteAllBytes(Application.StartupPath & "\d3d8.dll", My.Resources.DXD3D8)
-            If ComboBox1.SelectedIndex = 1 Then
+        Select Case ComboBox1.SelectedIndex
+            Case 0
+                IO.File.Delete(Application.StartupPath & "\d3d8.dll")
+                IO.File.Delete(Application.StartupPath & "\wined3d.dll")
+            Case 1
+                IO.File.Delete(Application.StartupPath & "\wined3d.dll")
+                IO.File.WriteAllBytes(Application.StartupPath & "\d3d8.dll", My.Resources.DXD3D8)
                 WriteTodgV2(3, "OutputAPI = d3d11_fl10_1")
-            ElseIf ComboBox1.SelectedIndex = 2 Then
+            Case 2
+                IO.File.Delete(Application.StartupPath & "\wined3d.dll")
+                IO.File.WriteAllBytes(Application.StartupPath & "\d3d8.dll", My.Resources.DXD3D8)
                 WriteTodgV2(3, "OutputAPI = d3d11_fl11_0")
-            Else
+            Case 3
+                IO.File.Delete(Application.StartupPath & "\wined3d.dll")
+                IO.File.WriteAllBytes(Application.StartupPath & "\d3d8.dll", My.Resources.DXD3D8)
                 WriteTodgV2(3, "OutputAPI = d3d12_fl12_0")
-            End If
-        ElseIf ComboBox1.SelectedIndex = 4 Then
-            IO.File.WriteAllBytes(Application.StartupPath & "\d3d8.dll", My.Resources.GLd3d8)
-            IO.File.WriteAllBytes(Application.StartupPath & "\wined3d.dll", My.Resources.GLwined3d)
-        End If
-        If ComboBox2.SelectedIndex = 0 Then
-            WriteTodgV2(41, "Antialiasing = off")
-        ElseIf ComboBox2.SelectedIndex = 1 Then
-            WriteTodgV2(41, "Antialiasing = 2x")
-        ElseIf ComboBox2.SelectedIndex = 2 Then
-            WriteTodgV2(41, "Antialiasing = 4x")
-        ElseIf ComboBox2.SelectedIndex = 3 Then
-            WriteTodgV2(41, "Antialiasing = 8x")
-        End If
-        If ComboBox3.SelectedIndex = 0 Then
-            WriteTodgV2(37, "Filtering = appdriven")
-        ElseIf ComboBox3.SelectedIndex = 1 Then
-            WriteTodgV2(37, "Filtering = pointsampled")
-        ElseIf ComboBox3.SelectedIndex = 2 Then
-            WriteTodgV2(37, "Filtering = linearmip")
-        ElseIf ComboBox3.SelectedIndex = 3 Then
-            WriteTodgV2(37, "Filtering = 2")
-        ElseIf ComboBox3.SelectedIndex = 4 Then
-            WriteTodgV2(37, "Filtering = 4")
-        ElseIf ComboBox3.SelectedIndex = 5 Then
-            WriteTodgV2(37, "Filtering = 8")
-        ElseIf ComboBox3.SelectedIndex = 6 Then
-            WriteTodgV2(37, "Filtering = 16")
-        End If
+            Case 4
+                IO.File.WriteAllBytes(Application.StartupPath & "\d3d8.dll", My.Resources.GLd3d8)
+                IO.File.WriteAllBytes(Application.StartupPath & "\wined3d.dll", My.Resources.GLwined3d)
+        End Select
+        Select Case ComboBox2.SelectedIndex
+            Case 0
+                WriteTodgV2(41, "Antialiasing = off")
+            Case 1
+                WriteTodgV2(41, "Antialiasing = 2x")
+            Case 2
+                WriteTodgV2(41, "Antialiasing = 4x")
+            Case 3
+                WriteTodgV2(41, "Antialiasing = 8x")
+        End Select
+        Select Case ComboBox3.SelectedIndex
+            Case 0
+                WriteTodgV2(37, "Filtering = appdriven")
+            Case 1
+                WriteTodgV2(37, "Filtering = pointsampled")
+            Case 2
+                WriteTodgV2(37, "Filtering = linearmip")
+            Case 3
+                WriteTodgV2(37, "Filtering = 2")
+            Case 4
+                WriteTodgV2(37, "Filtering = 4")
+            Case 5
+                WriteTodgV2(37, "Filtering = 8")
+            Case 6
+                WriteTodgV2(37, "Filtering = 16")
+        End Select
         If CheckBox3.Checked Then
             WriteTodgV2(39, "DisableMipmapping = false")
         Else

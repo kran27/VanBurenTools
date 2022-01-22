@@ -31,25 +31,26 @@
         Dim random As New Random
         Dim rand As String = random.Next(1, 9)
         PictureBox4.Parent = PictureBox5
-        If rand = "1" Then
-            PictureBox5.Image = My.Resources.BG1
-        ElseIf rand = "2" Then
-            PictureBox5.Image = My.Resources.BG2
-        ElseIf rand = "3" Then
-            PictureBox5.Image = My.Resources.BG3
-        ElseIf rand = "4" Then
-            PictureBox5.Image = My.Resources.BG4
-        ElseIf rand = "5" Then
-            PictureBox5.Image = My.Resources.BG5
-        ElseIf rand = "6" Then
-            PictureBox5.Image = My.Resources.BG6
-        ElseIf rand = "7" Then
-            PictureBox5.Image = My.Resources.BG7
-        ElseIf rand = "8" Then
-            PictureBox5.Image = My.Resources.BG8
-        ElseIf rand = "9" Then
-            PictureBox5.Image = My.Resources.BG9
-        End If
+        Select Case rand
+            Case 1
+                PictureBox5.Image = My.Resources.BG1
+            Case 2
+                PictureBox5.Image = My.Resources.BG2
+            Case 3
+                PictureBox5.Image = My.Resources.BG3
+            Case 4
+                PictureBox5.Image = My.Resources.BG4
+            Case 5
+                PictureBox5.Image = My.Resources.BG5
+            Case 6
+                PictureBox5.Image = My.Resources.BG6
+            Case 7
+                PictureBox5.Image = My.Resources.BG7
+            Case 8
+                PictureBox5.Image = My.Resources.BG8
+            Case 9
+                PictureBox5.Image = My.Resources.BG9
+        End Select
         If Not IO.File.Exists(Application.StartupPath & "\dgVoodoo.conf") Then
             IO.File.WriteAllBytes(Application.StartupPath & "\dgVoodoo.conf", My.Resources.dgV2conf)
         End If

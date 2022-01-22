@@ -60,41 +60,42 @@ Public Class Form2
             IO.File.WriteAllBytes(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Default_sys)
         End If
         sysline = IO.File.ReadAllLines(ovrdir & "\MenuMap\Engine\sys.ini")
-        If sysline(19) = "map name = mainmenu.map" Then
-            ComboBox1.SelectedIndex = 0
-        ElseIf sysline(19) = "map name = zz_TestMapsaarontemp2.map" Then
-            ComboBox1.SelectedIndex = 1
-        ElseIf sysline(19) = "map name = zz_TestMapsTest_City_Building01.map" Then
-            ComboBox1.SelectedIndex = 2
-        ElseIf sysline(19) = "map name = zz_TestMapsTest_City_Building02.map" Then
-            ComboBox1.SelectedIndex = 3
-        ElseIf sysline(19) = "map name = zz_TestMapsTest_City_Building03.map" Then
-            ComboBox1.SelectedIndex = 4
-        ElseIf sysline(19) = "map name = zz_TestMapsTest_City_Building04.map" Then
-            ComboBox1.SelectedIndex = 5
-        ElseIf sysline(19) = "map name = 98_Canyon_Random_01.map" Then
-            ComboBox1.SelectedIndex = 6
-        ElseIf sysline(19) = "map name = 98_Canyon_Random_02.map" Then
-            ComboBox1.SelectedIndex = 7
-        ElseIf sysline(19) = "map name = 04_0202_Spelunking.map" Then
-            ComboBox1.SelectedIndex = 8
-        ElseIf sysline(19) = "map name = zz_TestMapsTest_City_Fences.map" Then
-            ComboBox1.SelectedIndex = 9
-        ElseIf sysline(19) = "map name = zz_TestMapsScottE_Test1.map" Then
-            ComboBox1.SelectedIndex = 10
-        ElseIf sysline(19) = "map name = zz_TestMapsScottE_Test2.map" Then
-            ComboBox1.SelectedIndex = 11
-        ElseIf sysline(19) = "map name = zz_TestMapsScottE_Test4.map" Then
-            ComboBox1.SelectedIndex = 12
-        ElseIf sysline(19) = "map name = zz_TestMapsTest_Junktown_Shacks.map" Then
-            ComboBox1.SelectedIndex = 13
-        ElseIf sysline(19) = "map name = Default_StartMap.map" Then
-            ComboBox1.SelectedIndex = 14
-        ElseIf sysline(19) = "map name = 00_03_Tutorial_Junktown.map" Then
-            ComboBox1.SelectedIndex = 15
-        ElseIf sysline(19) = "map name = 00_04_Tutorial_Vault.map" Then
-            ComboBox1.SelectedIndex = 16
-        End If
+        Select Case sysline(19)
+            Case "map name = mainmenu.map"
+                ComboBox1.SelectedIndex = 0
+            Case "map name = zz_TestMapsaarontemp2.map"
+                ComboBox1.SelectedIndex = 1
+            Case "map name = zz_TestMapsTest_City_Building01.map"
+                ComboBox1.SelectedIndex = 2
+            Case "map name = zz_TestMapsTest_City_Building02.map"
+                ComboBox1.SelectedIndex = 3
+            Case "map name = zz_TestMapsTest_City_Building03.map"
+                ComboBox1.SelectedIndex = 4
+            Case "map name = zz_TestMapsTest_City_Building04.map"
+                ComboBox1.SelectedIndex = 5
+            Case "map name = 98_Canyon_Random_01.map"
+                ComboBox1.SelectedIndex = 6
+            Case "map name = 98_Canyon_Random_02.map"
+                ComboBox1.SelectedIndex = 7
+            Case "map name = 04_0202_Spelunking.map"
+                ComboBox1.SelectedIndex = 8
+            Case "map name = zz_TestMapsTest_City_Fences.map"
+                ComboBox1.SelectedIndex = 9
+            Case "map name = zz_TestMapsScottE_Test1.map"
+                ComboBox1.SelectedIndex = 10
+            Case "map name = zz_TestMapsScottE_Test2.map"
+                ComboBox1.SelectedIndex = 11
+            Case "map name = zz_TestMapsScottE_Test4.map"
+                ComboBox1.SelectedIndex = 12
+            Case "map name = zz_TestMapsTest_Junktown_Shacks.map"
+                ComboBox1.SelectedIndex = 13
+            Case "map name = Default_StartMap.map"
+                ComboBox1.SelectedIndex = 14
+            Case "map name = 00_03_Tutorial_Junktown.map"
+                ComboBox1.SelectedIndex = 15
+            Case "map name = 00_04_Tutorial_Vault.map"
+                ComboBox1.SelectedIndex = 16
+        End Select
         If sysline(13) = "FOV Min = 0.5" Then
             CheckBox5.Checked = True
         End If
@@ -112,39 +113,40 @@ Public Class Form2
 #End Region
 
 #Region "Helmets"
-
-        If IO.File.Exists(ovrdir & "\Helmet\8Ball") Then
-            ComboBox2.SelectedIndex = 1
-        ElseIf IO.File.Exists(ovrdir & "\Helmet\American") Then
-            ComboBox2.SelectedIndex = 2
-        ElseIf IO.File.Exists(ovrdir & "\Helmet\Black") Then
-            ComboBox2.SelectedIndex = 3
-        ElseIf IO.File.Exists(ovrdir & "\Helmet\Blue") Then
-            ComboBox2.SelectedIndex = 4
-        ElseIf IO.File.Exists(ovrdir & "\Helmet\Eye") Then
-            ComboBox2.SelectedIndex = 5
-        ElseIf IO.File.Exists(ovrdir & "\Helmet\Flames") Then
-            ComboBox2.SelectedIndex = 6
-        ElseIf IO.File.Exists(ovrdir & "\Helmet\FullSkull") Then
-            ComboBox2.SelectedIndex = 7
-        ElseIf IO.File.Exists(ovrdir & "\Helmet\Green") Then
-            ComboBox2.SelectedIndex = 8
-        ElseIf IO.File.Exists(ovrdir & "\Helmet\Grey") Then
-            ComboBox2.SelectedIndex = 9
-        ElseIf IO.File.Exists(ovrdir & "\Helmet\Police") Then
-            ComboBox2.SelectedIndex = 10
-        ElseIf IO.File.Exists(ovrdir & "\Helmet\Red") Then
-            ComboBox2.SelectedIndex = 11
-        ElseIf IO.File.Exists(ovrdir & "\Helmet\ShotSmiley") Then
-            ComboBox2.SelectedIndex = 12
-        ElseIf IO.File.Exists(ovrdir & "\Helmet\Skull") Then
-            ComboBox2.SelectedIndex = 13
-        ElseIf IO.File.Exists(ovrdir & "\Helmet\Yellow") Then
-            ComboBox2.SelectedIndex = 14
+        If IO.File.Exists(ovrdir & "\Helmet\Helmet.type") Then
+            Select Case IO.File.ReadAllText(ovrdir & "\Helmet\Helmet.type")
+                Case "8Ball"
+                    ComboBox2.SelectedIndex = 1
+                Case "American"
+                    ComboBox2.SelectedIndex = 2
+                Case "Black"
+                    ComboBox2.SelectedIndex = 3
+                Case "Blue"
+                    ComboBox2.SelectedIndex = 4
+                Case "Eye"
+                    ComboBox2.SelectedIndex = 5
+                Case "Flames"
+                    ComboBox2.SelectedIndex = 6
+                Case "FullSkull"
+                    ComboBox2.SelectedIndex = 7
+                Case "Green"
+                    ComboBox2.SelectedIndex = 8
+                Case "Grey"
+                    ComboBox2.SelectedIndex = 9
+                Case "Police"
+                    ComboBox2.SelectedIndex = 10
+                Case "Red"
+                    ComboBox2.SelectedIndex = 11
+                Case "ShotSmiley"
+                    ComboBox2.SelectedIndex = 12
+                Case "Skull"
+                    ComboBox2.SelectedIndex = 13
+                Case "Yellow"
+                    ComboBox2.SelectedIndex = 14
+            End Select
         Else
             ComboBox2.SelectedIndex = 0
         End If
-
 #End Region
 
     End Sub
@@ -226,69 +228,71 @@ Public Class Form2
 
 #Region "Load Helmets"
 
-        IO.Directory.CreateDirectory(ovrdir & "\Helmet")
-        IO.Directory.Delete(ovrdir & "\Helmet", True)
+        If IO.Directory.Exists(ovrdir & "\Helmet") Then
+            IO.Directory.Delete(ovrdir & "\Helmet", True)
+        End If
         If Not ComboBox2.SelectedIndex = 0 Then
             IO.Directory.CreateDirectory(ovrdir & "\Helmet\Critters")
             IO.Directory.CreateDirectory(ovrdir & "\Helmet\Interface")
         End If
-        If ComboBox2.SelectedIndex = 1 Then
-            IO.File.Create(ovrdir & "\Helmet\8Ball")
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources._8_Ball_I)
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources._8_Ball)
-        ElseIf ComboBox2.SelectedIndex = 2 Then
-            IO.File.Create(ovrdir & "\Helmet\American")
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.AmericanI)
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.American)
-        ElseIf ComboBox2.SelectedIndex = 3 Then
-            IO.File.Create(ovrdir & "\Helmet\Black")
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.BlackI)
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Black)
-        ElseIf ComboBox2.SelectedIndex = 4 Then
-            IO.File.Create(ovrdir & "\Helmet\Blue")
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.BlueI)
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Blue)
-        ElseIf ComboBox2.SelectedIndex = 5 Then
-            IO.File.Create(ovrdir & "\Helmet\Eye")
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.EyeI)
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Eye)
-        ElseIf ComboBox2.SelectedIndex = 6 Then
-            IO.File.Create(ovrdir & "\Helmet\Flames")
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.FlamesI)
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Flames)
-        ElseIf ComboBox2.SelectedIndex = 7 Then
-            IO.File.Create(ovrdir & "\Helmet\FullSkull")
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.Full_SkullI)
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Full_Skull)
-        ElseIf ComboBox2.SelectedIndex = 8 Then
-            IO.File.Create(ovrdir & "\Helmet\Green")
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.GreenI)
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Green)
-        ElseIf ComboBox2.SelectedIndex = 9 Then
-            IO.File.Create(ovrdir & "\Helmet\Grey")
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.GreyI)
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Grey)
-        ElseIf ComboBox2.SelectedIndex = 10 Then
-            IO.File.Create(ovrdir & "\Helmet\Police")
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.PoliceI)
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Police)
-        ElseIf ComboBox2.SelectedIndex = 11 Then
-            IO.File.Create(ovrdir & "\Helmet\Red")
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.RedI)
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Red)
-        ElseIf ComboBox2.SelectedIndex = 12 Then
-            IO.File.Create(ovrdir & "\Helmet\ShotSmiley")
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.Shot_SmileyI)
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Shot_Smiley)
-        ElseIf ComboBox2.SelectedIndex = 13 Then
-            IO.File.Create(ovrdir & "\Helmet\Skull")
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.SkullI)
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Skull)
-        ElseIf ComboBox2.SelectedIndex = 14 Then
-            IO.File.Create(ovrdir & "\Helmet\Yellow")
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.YellowI)
-            IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Yellow)
-        End If
+        Select Case ComboBox2.SelectedIndex
+            Case 1
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "8Ball")
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources._8_Ball_I)
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources._8_Ball)
+            Case 2
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "American")
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.AmericanI)
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.American)
+            Case 3
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Black")
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.BlackI)
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Black)
+            Case 4
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Blue")
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.BlueI)
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Blue)
+            Case 5
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Eye")
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.EyeI)
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Eye)
+            Case 6
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Flames")
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.FlamesI)
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Flames)
+            Case 7
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "FullSkull")
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.Full_SkullI)
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Full_Skull)
+            Case 8
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Green")
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.GreenI)
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Green)
+            Case 9
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Grey")
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.GreyI)
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Grey)
+            Case 10
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Police")
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.PoliceI)
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Police)
+            Case 11
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Red")
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.RedI)
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Red)
+            Case 12
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "ShotSmiley")
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.Shot_SmileyI)
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Shot_Smiley)
+            Case 13
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Skull")
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.SkullI)
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Skull)
+            Case 14
+                IO.File.WriteAllText(ovrdir & "\Helmet\Helmet.type", "Yellow")
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga", My.Resources.YellowI)
+                IO.File.WriteAllBytes(ovrdir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga", My.Resources.Yellow)
+        End Select
 
 #End Region
 
@@ -296,37 +300,38 @@ Public Class Form2
     End Sub
 
     Private Sub HelmetPreview() Handles ComboBox2.SelectedIndexChanged
-        If ComboBox2.SelectedIndex = 0 Then
-            PictureBox1.Image = My.Resources.Default_Icon
-        ElseIf ComboBox2.SelectedIndex = 1 Then
-            PictureBox1.Image = My.Resources._8_Ball_Icon
-        ElseIf ComboBox2.SelectedIndex = 2 Then
-            PictureBox1.Image = My.Resources.American_Icon
-        ElseIf ComboBox2.SelectedIndex = 3 Then
-            PictureBox1.Image = My.Resources.Black_Icon
-        ElseIf ComboBox2.SelectedIndex = 4 Then
-            PictureBox1.Image = My.Resources.Blue_Icon
-        ElseIf ComboBox2.SelectedIndex = 5 Then
-            PictureBox1.Image = My.Resources.Eye_Icon
-        ElseIf ComboBox2.SelectedIndex = 6 Then
-            PictureBox1.Image = My.Resources.Flames_Icon
-        ElseIf ComboBox2.SelectedIndex = 7 Then
-            PictureBox1.Image = My.Resources.Full_Skull_Icon
-        ElseIf ComboBox2.SelectedIndex = 8 Then
-            PictureBox1.Image = My.Resources.Green_Icon
-        ElseIf ComboBox2.SelectedIndex = 9 Then
-            PictureBox1.Image = My.Resources.Grey_Icon
-        ElseIf ComboBox2.SelectedIndex = 10 Then
-            PictureBox1.Image = My.Resources.Police_Icon
-        ElseIf ComboBox2.SelectedIndex = 11 Then
-            PictureBox1.Image = My.Resources.Red_Icon
-        ElseIf ComboBox2.SelectedIndex = 12 Then
-            PictureBox1.Image = My.Resources.Shot_Smiley_Icon
-        ElseIf ComboBox2.SelectedIndex = 13 Then
-            PictureBox1.Image = My.Resources.Skull_Icon
-        ElseIf ComboBox2.SelectedIndex = 14 Then
-            PictureBox1.Image = My.Resources.Yellow_Icon
-        End If
+        Select Case ComboBox2.SelectedIndex
+            Case 0
+                PictureBox1.Image = My.Resources.Default_Icon
+            Case 1
+                PictureBox1.Image = My.Resources._8_Ball_Icon
+            Case 2
+                PictureBox1.Image = My.Resources.American_Icon
+            Case 3
+                PictureBox1.Image = My.Resources.Black_Icon
+            Case 4
+                PictureBox1.Image = My.Resources.Blue_Icon
+            Case 5
+                PictureBox1.Image = My.Resources.Eye_Icon
+            Case 6
+                PictureBox1.Image = My.Resources.Flames_Icon
+            Case 7
+                PictureBox1.Image = My.Resources.Full_Skull_Icon
+            Case 8
+                PictureBox1.Image = My.Resources.Green_Icon
+            Case 9
+                PictureBox1.Image = My.Resources.Grey_Icon
+            Case 10
+                PictureBox1.Image = My.Resources.Police_Icon
+            Case 11
+                PictureBox1.Image = My.Resources.Red_Icon
+            Case 12
+                PictureBox1.Image = My.Resources.Shot_Smiley_Icon
+            Case 13
+                PictureBox1.Image = My.Resources.Skull_Icon
+            Case 14
+                PictureBox1.Image = My.Resources.Yellow_Icon
+        End Select
     End Sub
 
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
