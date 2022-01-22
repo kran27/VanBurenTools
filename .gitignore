@@ -1,7 +1,8 @@
 .vs/VBLauncher/v16/.suo
 .vs/VBLauncher/v17/.suo
-VBLauncher/bin/Debug
-VBLauncher/bin/Release/Override
+VBLauncher/bin/Debug/
+VBLauncher/obj/
+VBLauncher/bin/Release/Override/
 VBLauncher/bin/Release/d3d8.dll
 VBLauncher/bin/Release/dgVoodoo.conf
 VBLauncher/bin/Release/wined3d.dll
