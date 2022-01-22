@@ -66,7 +66,9 @@
         If IO.Directory.Exists(Application.StartupPath & "\Override\UnusedThings") Then
             IO.Directory.Delete(Application.StartupPath & "\Override\UnusedThings", True)
         End If
-        IO.File.Delete(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT")
+        If IO.File.Exists(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT") Then
+            IO.File.Delete(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT")
+        End If
         If IO.Directory.Exists(Application.StartupPath & "\Override\FemaleFix") Then
             IO.Directory.Delete(Application.StartupPath & "\Override\FemaleFix", True)
         End If
