@@ -26,11 +26,22 @@ Public Class Form2
         Return ReturnedData
     End Function
 
-    Function WriteToF3Ini(ByVal LineNum As Integer, ByVal TextValue As String)
+    Public Sub WriteToF3Ini(ByVal LineNum As Integer, ByVal TextValue As String)
         line = IO.File.ReadAllLines(ifdir)
         line(LineNum) = TextValue
         IO.File.WriteAllLines(ifdir, line)
-    End Function
+    End Sub
+
+    Public Sub WriteMainMenu(ByVal MapName As String, ByVal targetX As String, ByVal targetY As String, ByVal targetZ As String, ByVal Azimuth As String, ByVal Elevation As String, ByVal FOV As String)
+        sysline(19) = "map name = " & MapName
+        sysline(20) = "target x = " & targetX
+        sysline(21) = "target y = " & targetY
+        sysline(22) = "target z = " & targetZ
+        sysline(23) = "azimuth = " & Azimuth
+        sysline(24) = "elevation = " & Elevation
+        sysline(26) = "fov = " & FOV
+        IO.File.WriteAllLines(ovrdir & "\MenuMap\Engine\sys.ini", sysline)
+    End Sub
 
 #Region "Auto Detect Options"
 
@@ -156,43 +167,46 @@ Public Class Form2
 
 #Region "Load Maps"
 
-        If ComboBox1.SelectedIndex = 0 And line(29) = "height = " & 768 Then
-            IO.File.WriteAllBytes(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Default_sys)
-        ElseIf ComboBox1.SelectedIndex = 0 And Not line(29) = "height = " & 768 Then
-            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources._Default)
-        ElseIf ComboBox1.SelectedIndex = 1 Then
-            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.AaronMap2)
-        ElseIf ComboBox1.SelectedIndex = 2 Then
-            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Building1)
-        ElseIf ComboBox1.SelectedIndex = 3 Then
-            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Building2)
-        ElseIf ComboBox1.SelectedIndex = 4 Then
-            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Building3)
-        ElseIf ComboBox1.SelectedIndex = 5 Then
-            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Building4)
-        ElseIf ComboBox1.SelectedIndex = 6 Then
-            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Canyon)
-        ElseIf ComboBox1.SelectedIndex = 7 Then
-            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Canyon2)
-        ElseIf ComboBox1.SelectedIndex = 8 Then
-            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Cave)
-        ElseIf ComboBox1.SelectedIndex = 9 Then
-            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Fences)
-        ElseIf ComboBox1.SelectedIndex = 10 Then
-            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.ScottEMap1)
-        ElseIf ComboBox1.SelectedIndex = 11 Then
-            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.ScottEMap2)
-        ElseIf ComboBox1.SelectedIndex = 12 Then
-            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.ScottEMap4)
-        ElseIf ComboBox1.SelectedIndex = 13 Then
-            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Shacks)
-        ElseIf ComboBox1.SelectedIndex = 14 Then
-            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.StartMap)
-        ElseIf ComboBox1.SelectedIndex = 15 Then
-            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Tutorial)
-        ElseIf ComboBox1.SelectedIndex = 16 Then
-            IO.File.WriteAllText(ovrdir & "\MenuMap\Engine\sys.ini", My.Resources.Vault)
-        End If
+        Select Case ComboBox1.SelectedIndex
+            Case 0
+                If line(29) = "height = 768" Then
+                    WriteMainMenu("mainmenu.map", 0, 5.5, 0, 0, 0, 68)
+                Else
+                    WriteMainMenu("mainmenu.map", 0, 5.5, 0, 2, 0.75, 59.2)
+                End If
+            Case 1
+                WriteMainMenu("zz_TestMapsaarontemp2.map", 0, 0, 0, 0, 0, 0)
+            Case 2
+                WriteMainMenu("zz_TestMapsTest_City_Building01.map", 0, 5.5, 0, 45, -2.5, 57)
+            Case 3
+                WriteMainMenu("zz_TestMapsTest_City_Building02.map", 0, 5.5, 0, 43, -2.5, 57)
+            Case 4
+                WriteMainMenu("zz_TestMapsTest_City_Building03.map", 0, 5.5, 0, 43, -5, 57)
+            Case 5
+                WriteMainMenu("zz_TestMapsTest_City_Building04.map", 0, 5.5, 0, 43, -5.5, 57)
+            Case 6
+                WriteMainMenu("98_Canyon_Random_01.map", 50, 5, 10, 61, 0, 45)
+            Case 7
+                WriteMainMenu("98_Canyon_Random_02.map", 55, 5, 10, 36, -2.5, 50)
+            Case 8
+                WriteMainMenu("04_0202_Spelunking.map", 70, 5, 45, 15, 5, 50)
+            Case 9
+                WriteMainMenu("zz_TestMapsTest_City_Fences.map", 0, 40, 0, 42, 35, 50)
+            Case 10
+                WriteMainMenu("zz_TestMapsScottE_Test1.map", 85, 30, 30, 255, 39, 60)
+            Case 11
+                WriteMainMenu("zz_TestMapsScottE_Test2.map", 145, 80, -85, 0.5, 25, 75)
+            Case 12
+                WriteMainMenu("zz_TestMapsScottE_Test4.map", 0, 7.5, 0, 45, 12.5, 50)
+            Case 13
+                WriteMainMenu("zz_TestMapsTest_Junktown_Shacks.map", 0, 50, -10, 42, 39, 50)
+            Case 14
+                WriteMainMenu("Default_StartMap.map", 60, 7.5, 25, 270, 8, 27)
+            Case 15
+                WriteMainMenu("00_03_Tutorial_Junktown.map", 80, 7.5, 50, 5, 10, 68)
+            Case 16
+                WriteMainMenu("00_04_Tutorial_Vault.map", 50, 50.5, 0, 36, 25, 68)
+        End Select
         sysline = IO.File.ReadAllLines(ovrdir & "\MenuMap\Engine\sys.ini")
         If CheckBox5.Checked Then
             sysline(12) = "FOV Speed = 10"

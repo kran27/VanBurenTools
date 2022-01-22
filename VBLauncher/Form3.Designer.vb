@@ -74,7 +74,7 @@ Partial Class Form3
         '
         Me.CheckBox4.AutoSize = True
         Me.CheckBox4.Location = New System.Drawing.Point(6, 116)
-        Me.CheckBox4.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.CheckBox4.Margin = New System.Windows.Forms.Padding(2)
         Me.CheckBox4.Name = "CheckBox4"
         Me.CheckBox4.Size = New System.Drawing.Size(135, 17)
         Me.CheckBox4.TabIndex = 20
@@ -98,7 +98,7 @@ Partial Class Form3
         Me.ComboBox3.FormattingEnabled = True
         Me.ComboBox3.Items.AddRange(New Object() {"Default (Bilinear)", "Point Sampled", "Linear Mip", "Anisotropic 2x", "Anisotropic 4x", "Anisotropic 8x", "Anisotropic 16x"})
         Me.ComboBox3.Location = New System.Drawing.Point(92, 68)
-        Me.ComboBox3.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.ComboBox3.Margin = New System.Windows.Forms.Padding(2)
         Me.ComboBox3.Name = "ComboBox3"
         Me.ComboBox3.Size = New System.Drawing.Size(149, 21)
         Me.ComboBox3.TabIndex = 18
@@ -119,7 +119,7 @@ Partial Class Form3
         Me.ComboBox2.FormattingEnabled = True
         Me.ComboBox2.Items.AddRange(New Object() {"Off", "2x MSAA", "4x MSAA", "8x MSAA"})
         Me.ComboBox2.Location = New System.Drawing.Point(73, 43)
-        Me.ComboBox2.Margin = New System.Windows.Forms.Padding(2, 2, 2, 2)
+        Me.ComboBox2.Margin = New System.Windows.Forms.Padding(2)
         Me.ComboBox2.Name = "ComboBox2"
         Me.ComboBox2.Size = New System.Drawing.Size(168, 21)
         Me.ComboBox2.TabIndex = 16

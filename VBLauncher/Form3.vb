@@ -8,11 +8,11 @@ Public Class Form3
     Public bpp As String
     Public vram As String
 
-    Function WriteTodgV2(ByVal LineNum As Integer, ByVal TextValue As String)
+    Public Sub WriteTodgV2(ByVal LineNum As Integer, ByVal TextValue As String)
         dgV2line = IO.File.ReadAllLines(Application.StartupPath & "\dgVoodoo.conf")
         dgV2line(LineNum) = TextValue
         IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
-    End Function
+    End Sub
 
     Private Sub DetectOptions() Handles MyBase.Shown
         Dim query As New sm.SelectQuery("Win32_VideoController")
