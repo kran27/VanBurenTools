@@ -2,82 +2,82 @@
 Imports sm = System.Management
 
 Public Class Form3
-    Public ifdir As String = My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini"
-    Public line() As String = IO.File.ReadAllLines(ifdir)
-    Public dgV2line() As String = IO.File.ReadAllLines(Application.StartupPath & "\dgVoodoo.conf")
-    Public hz As Double
+    Public IFDir As String = My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini"
+    Public Line() As String = IO.File.ReadAllLines(IFDir)
+    Public dgV2Line() As String = IO.File.ReadAllLines(Application.StartupPath & "\dgVoodoo.conf")
+    Public Hz As Double
     Public bpp As String
-    Public vram As String
+    Public VRAM As String
     Public SelH As String
     Public SelW As String
 
     Public Sub WriteTodgV2(LineNum As Integer, TextValue As String)
-        dgV2line = IO.File.ReadAllLines(Application.StartupPath & "\dgVoodoo.conf")
-        dgV2line(LineNum) = TextValue
-        IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2line)
+        dgV2Line = IO.File.ReadAllLines(Application.StartupPath & "\dgVoodoo.conf")
+        dgV2Line(LineNum) = TextValue
+        IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2Line)
     End Sub
 
     Private Sub DetectOptions() Handles MyBase.Shown
-        Dim query As New sm.SelectQuery("Win32_VideoController")
-        For Each mo As sm.ManagementObject In New sm.ManagementObjectSearcher(query).Get
-            Dim CurrentRefreshRate As Object = mo("CurrentRefreshRate")
-            Dim Currentbpp As Object = mo("CurrentBitsPerPixel")
-            Dim oVRAM As Object = mo("AdapterRAM")
-            If CurrentRefreshRate IsNot Nothing Then hz = CurrentRefreshRate.ToString
+        Dim Query As New sm.SelectQuery("Win32_VideoController")
+        For Each Mo As sm.ManagementObject In New sm.ManagementObjectSearcher(Query).Get
+            Dim CurrentRefreshRate As Object = Mo("CurrentRefreshRate")
+            Dim Currentbpp As Object = Mo("CurrentBitsPerPixel")
+            Dim OVRAM As Object = Mo("AdapterRAM")
+            If CurrentRefreshRate IsNot Nothing Then Hz = CurrentRefreshRate.ToString
             If Currentbpp IsNot Nothing Then bpp = Currentbpp.ToString
-            If oVRAM IsNot Nothing And oVRAM > vram Then vram = oVRAM
+            If OVRAM IsNot Nothing And OVRAM > VRAM Then VRAM = OVRAM
         Next
         ComboBox4.Items.AddRange(SupportedScreenSizes.GetSizesAsStrings)
-        ComboBox4.SelectedItem = line(35).Remove(0, 8) & "x" & line(29).Remove(0, 9)
-        If line(28) = "fullscreen = 1" Then CheckBox1.Checked = True Else CheckBox1.Checked = False
+        ComboBox4.SelectedItem = Line(35).Remove(0, 8) & "x" & Line(29).Remove(0, 9)
+        If Line(28) = "fullscreen = 1" Then CheckBox1.Checked = True Else CheckBox1.Checked = False
         If Not IO.File.Exists(Application.StartupPath & "\d3d8.dll") Then : ComboBox1.SelectedIndex = 0
         ElseIf IO.File.Exists(Application.StartupPath & "\wined3d.dll") Then : ComboBox1.SelectedIndex = 4
-        ElseIf dgV2line(3) = "OutputAPI = d3d11_fl10_1" Then : ComboBox1.SelectedIndex = 1
-        ElseIf dgV2line(3) = "OutputAPI = d3d11_fl11_0" Then : ComboBox1.SelectedIndex = 2
-        ElseIf dgV2line(3) = "OutputAPI = d3d12_fl12_0" Then : ComboBox1.SelectedIndex = 3 : End If
-        Select Case dgV2line(41)
+        ElseIf dgV2Line(3) = "OutputAPI = d3d11_fl10_1" Then : ComboBox1.SelectedIndex = 1
+        ElseIf dgV2Line(3) = "OutputAPI = d3d11_fl11_0" Then : ComboBox1.SelectedIndex = 2
+        ElseIf dgV2Line(3) = "OutputAPI = d3d12_fl12_0" Then : ComboBox1.SelectedIndex = 3 : End If
+        Select Case dgV2Line(41)
             Case "Antialiasing = off" : ComboBox2.SelectedIndex = 0
             Case "Antialiasing = 2x" : ComboBox2.SelectedIndex = 1
             Case "Antialiasing = 4x" : ComboBox2.SelectedIndex = 2
             Case "Antialiasing = 8x" : ComboBox2.SelectedIndex = 3
         End Select
-        Select Case dgV2line(37)
+        Select Case dgV2Line(37)
             Case "Filtering = appdriven" : ComboBox3.SelectedIndex = 0
             Case "Filtering = pointsampled" : ComboBox3.SelectedIndex = 1
-            Case "Filtering = linearmip" : ComboBox3.SelectedIndex = 2
+            Case "Filtering = Linearmip" : ComboBox3.SelectedIndex = 2
             Case "Filtering = 2" : ComboBox3.SelectedIndex = 3
             Case "Filtering = 4" : ComboBox3.SelectedIndex = 4
             Case "Filtering = 8" : ComboBox3.SelectedIndex = 5
             Case "Filtering = 16" : ComboBox3.SelectedIndex = 6
         End Select
-        If dgV2line(39) = "DisableMipmapping = 0" Then CheckBox3.Checked = True Else CheckBox3.Checked = False
-        If dgV2line(45) = "PhongShadingWhenPossible = 1" Then CheckBox4.Checked = True Else CheckBox4.Checked = False
-        vram /= 1048576
-        If vram > 4096 Then vram = 4096
-        WriteTodgV2(36, "VRAM = " & vram)
+        If dgV2Line(39) = "DisableMipmapping = 0" Then CheckBox3.Checked = True Else CheckBox3.Checked = False
+        If dgV2Line(45) = "PhongShadingWhenPossible = 1" Then CheckBox4.Checked = True Else CheckBox4.Checked = False
+        VRAM /= 1048576
+        If VRAM > 4096 Then VRAM = 4096
+        WriteTodgV2(36, "VRAM = " & VRAM)
         WriteTodgV2(29, "FPSLimit = " & Math.Floor(hz))
     End Sub
 
-    Private Sub ApplyChanges(sender As Object, e As EventArgs) Handles Button1.Click
-        Dim iteration As Integer = 0
-        For Each s As Size In SupportedScreenSizes.GetSizes()
-            If iteration = ComboBox4.SelectedIndex Then
-                SelW = s.Width.ToString()
-                SelH = s.Height.ToString()
+    Private Sub ApplyChanges() Handles Button1.Click
+        Dim Iteration As Integer = 0
+        For Each S As Size In SupportedScreenSizes.GetSizes()
+            If Iteration = ComboBox4.SelectedIndex Then
+                SelW = S.Width.ToString()
+                SelH = S.Height.ToString()
             End If
-            iteration += 1
+            Iteration += 1
         Next
-        If bpp >= 32 Then line(30) = "mode32bpp = 1" : IO.File.WriteAllLines(ifdir, line)
+        If bpp >= 32 Then Line(30) = "mode32bpp = 1" : IO.File.WriteAllLines(IFDir, Line)
         If CheckBox1.Checked Then
-            line(28) = "fullscreen = 1"
-            line(31) = "refresh = " & hz
-            IO.File.WriteAllLines(ifdir, line)
+            Line(28) = "fullscreen = 1"
+            Line(31) = "refresh = " & Hz
+            IO.File.WriteAllLines(IFDir, Line)
         Else
-            line(28) = "fullscreen = 0"
-            IO.File.WriteAllLines(ifdir, line)
+            Line(28) = "fullscreen = 0"
+            IO.File.WriteAllLines(IFDir, Line)
         End If
-        line(29) = "height = " & SelH : line(35) = "width = " & SelW
-        IO.File.WriteAllLines(ifdir, line)
+        Line(29) = "height = " & SelH : Line(35) = "width = " & SelW
+        IO.File.WriteAllLines(IFDir, Line)
         Select Case ComboBox1.SelectedIndex
             Case 0
                 IO.File.Delete(Application.StartupPath & "\d3d8.dll")
@@ -107,7 +107,7 @@ Public Class Form3
         Select Case ComboBox3.SelectedIndex
             Case 0 : WriteTodgV2(37, "Filtering = appdriven")
             Case 1 : WriteTodgV2(37, "Filtering = pointsampled")
-            Case 2 : WriteTodgV2(37, "Filtering = linearmip")
+            Case 2 : WriteTodgV2(37, "Filtering = Linearmip")
             Case 3 : WriteTodgV2(37, "Filtering = 2")
             Case 4 : WriteTodgV2(37, "Filtering = 4")
             Case 5 : WriteTodgV2(37, "Filtering = 8")
@@ -118,30 +118,25 @@ Public Class Form3
         Hide()
     End Sub
 
-    Private Sub ComboBox1_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ComboBox1.SelectedIndexChanged
-        If ComboBox1.SelectedIndex = 1 Or ComboBox1.SelectedIndex = 2 Or ComboBox1.SelectedIndex = 3 Then
-            Label2.Enabled = 1
-            Label3.Enabled = 1
-            ComboBox2.Enabled = 1
-            ComboBox3.Enabled = 1
-            CheckBox3.Enabled = 1
-            CheckBox4.Enabled = 1
-        Else
-            Label2.Enabled = 0
-            Label3.Enabled = 0
-            ComboBox2.Enabled = 0
-            ComboBox3.Enabled = 0
-            CheckBox3.Enabled = 0
-            CheckBox4.Enabled = 0
-        End If
+    Private Sub ComboBox1_SelectedIndexChanged() Handles ComboBox1.SelectedIndexChanged
+        Select Case ComboBox1.SelectedIndex
+            Case 1, 2, 3
+                Label2.Enabled = 1 : Label3.Enabled = 1
+                ComboBox2.Enabled = 1 : ComboBox3.Enabled = 1
+                CheckBox3.Enabled = 1 : CheckBox4.Enabled = 1
+            Case Else
+                Label2.Enabled = 0 : Label3.Enabled = 0
+                ComboBox2.Enabled = 0 : ComboBox3.Enabled = 0
+                CheckBox3.Enabled = 0 : CheckBox4.Enabled = 0
+        End Select
         If ComboBox1.SelectedIndex = 1 Then CheckBox4.Enabled = 0
     End Sub
 
 End Class
 
 Public Class SupportedScreenSizes
-    Private Const DM_PELSWIDTH As Integer = &H80000
-    Private Const DM_PELSHEIGHT As Integer = &H100000
+    Private Const DMPelswidth As Integer = &H80000
+    Private Const DMPelsheight As Integer = &H100000
 
     <StructLayout(LayoutKind.Sequential, CharSet:=CharSet.Unicode)>
     Private Structure DEVMODEW
@@ -158,12 +153,12 @@ Public Class SupportedScreenSizes
         Public dmTTOption As Short
         Public dmCollate As Short
         <MarshalAs(UnmanagedType.ByValTStr, SizeConst:=32)> Public dmFormName As String
-        Public dmLogPixels As UShort 'The number of pixels per logical inch. Printer drivers do not use this member.
-        Public dmBitsPerPel As UInteger 'Specifies the color resolution, in bits per pixel, of the display device.
-        Public dmPelsWidth As UInteger 'Specifies the width, in pixels, of the visible device surface.
-        Public dmPelsHeight As UInteger 'Specifies the height, in pixels, of the visible device surface.
+        Public dmLogPixels As UShort
+        Public dmBitsPerPel As UInteger
+        Public dmPelsWidth As UInteger
+        Public dmPelsHeight As UInteger
         Public Union2 As Anonymous_084dbe97_5806_4c28_a299_ed6037f61d90
-        Public dmDisplayFrequency As UInteger 'Specifies the frequency, in hertz (cycles per second), of the display device in a particular mode.
+        Public dmDisplayFrequency As UInteger
         Public dmICMMethod As UInteger
         Public dmICMIntent As UInteger
         Public dmMediaType As UInteger
@@ -200,13 +195,13 @@ Public Class SupportedScreenSizes
 
     <StructLayout(LayoutKind.Sequential)>
     Private Structure Anonymous_1b5f787e_41ca_472c_8595_3484490ffe0c
-        Public dmPosition As POINTL
+        Public dmPosition As PointL
         Public dmDisplayOrientation As UInteger
         Public dmDisplayFixedOutput As UInteger
     End Structure
 
     <StructLayout(LayoutKind.Sequential)>
-    Private Structure POINTL
+    Private Structure PointL
         Public x As Integer
         Public y As Integer
     End Structure
@@ -216,25 +211,22 @@ Public Class SupportedScreenSizes
     End Function
 
     Public Shared Function GetSizesAsStrings() As String()
-        Dim sizelist As New List(Of String)
-        For Each s As Size In GetSizes()
-            sizelist.Add(s.Width.ToString & "x" & s.Height.ToString)
-        Next
-        Return sizelist.ToArray
+        Dim SizeList As List(Of String) = (From S In GetSizes() Select S.Width.ToString & "x" & S.Height.ToString).ToList()
+        Return SizeList.ToArray
     End Function
 
     Public Shared Function GetSizes() As Size()
-        Dim sizelist As New List(Of Size)
-        Dim indx As Integer = 0
-        Dim dm As New DEVMODEW
-        dm.dmFields = DM_PELSWIDTH Or DM_PELSHEIGHT
-        dm.dmSize = CUShort(Marshal.SizeOf(GetType(DEVMODEW)))
-        While EnumDisplaySettingsExW(Screen.PrimaryScreen.DeviceName, indx, dm, 0)
-            Dim sz As New Size(CInt(dm.dmPelsWidth), CInt(dm.dmPelsHeight))
-            If Not sizelist.Contains(sz) Then sizelist.Add(sz)
-            indx += 1
+        Dim SizeList As New List(Of Size)
+        Dim Index As Integer = 0
+        Dim DM As New DEVMODEW
+        DM.dmFields = DMPelswidth Or DMPelsheight
+        DM.dmSize = CUShort(Marshal.SizeOf(GetType(DEVMODEW)))
+        While EnumDisplaySettingsExW(Screen.PrimaryScreen.DeviceName, Index, DM, 0)
+            Dim Size As New Size(CInt(DM.dmPelsWidth), CInt(DM.dmPelsHeight))
+            If Not SizeList.Contains(Size) Then SizeList.Add(Size)
+            Index += 1
         End While
-        Return sizelist.ToArray
+        Return SizeList.ToArray
     End Function
 
 End Class
