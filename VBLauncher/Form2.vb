@@ -4,12 +4,11 @@ Imports System.IO.Compression
 Public Class Form2
     Public OvrDir As String = Application.StartupPath & "\Override"
     Public IFDir As String = My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini"
-    Public Line() As String = IO.File.ReadAllLines(IFDir)
+    Public Line() As String = File.ReadAllLines(IFDir)
     Public SysLine() As String
     Public HelmType As String = OvrDir & "\Helmet\Helmet.type"
     Public HelmInv As String = OvrDir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga"
     Public HelmTex As String = OvrDir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga"
-    Public File As FileInfo
 
     Function SearchForFiles(RootFolder As String, FileFilter() As String) As List(Of String)
         Dim ReturnedData As New List(Of String)
@@ -24,16 +23,16 @@ Public Class Form2
                 For Each FileExt In FileFilter
                     ReturnedData.AddRange(Directory.GetFiles(ThisFolder, FileExt))
                 Next
-            Catch ex As Exception
+            Catch Ex As Exception
             End Try
         Loop
         Return ReturnedData
     End Function
 
     Public Sub WriteToF3Ini(LineNum As Integer, TextValue As String)
-        Line = IO.File.ReadAllLines(IFDir)
+        Line = File.ReadAllLines(IFDir)
         Line(LineNum) = TextValue
-        IO.File.WriteAllLines(IFDir, Line)
+        File.WriteAllLines(IFDir, Line)
     End Sub
 
     Public Sub WriteMainMenu(MapName As String, TargetX As String, TargetY As String, TargetZ As String,
@@ -45,7 +44,7 @@ Public Class Form2
         SysLine(23) = "azimuth = " & Azimuth
         SysLine(24) = "elevation = " & Elevation
         SysLine(26) = "fov = " & FOV
-        IO.File.WriteAllLines(OvrDir & "\MenuMap\Engine\sys.ini", SysLine)
+        File.WriteAllLines(OvrDir & "\MenuMap\Engine\sys.ini", SysLine)
     End Sub
 
     Private Sub CheckOptions() Handles MyBase.Load
@@ -53,9 +52,9 @@ Public Class Form2
         If Directory.Exists(OvrDir & "\SUMM") Then CheckBox2.Checked = True Else CheckBox2.Checked = False
         If Directory.Exists(OvrDir & "\MapLightFix") Then CheckBox4.Checked = True Else CheckBox4.Checked = False
 
-        If Not IO.File.Exists(OvrDir & "\MenuMap\Engine\sys.ini") Then Directory.CreateDirectory(OvrDir & "\MenuMap\Engine") : _
-            IO.File.WriteAllBytes(OvrDir & "\MenuMap\Engine\sys.ini", My.Resources.Default_sys)
-        SysLine = IO.File.ReadAllLines(OvrDir & "\MenuMap\Engine\sys.ini")
+        If Not File.Exists(OvrDir & "\MenuMap\Engine\sys.ini") Then Directory.CreateDirectory(OvrDir & "\MenuMap\Engine") : _
+            File.WriteAllBytes(OvrDir & "\MenuMap\Engine\sys.ini", My.Resources.Default_sys)
+        SysLine = File.ReadAllLines(OvrDir & "\MenuMap\Engine\sys.ini")
         Select Case SysLine(19)
             Case "map name = mainmenu.map" : ComboBox1.SelectedIndex = 0
             Case "map name = zz_TestMapsaarontemp2.map" : ComboBox1.SelectedIndex = 1
@@ -83,10 +82,10 @@ Public Class Form2
                 ComboBox3.Items.Add(FI.Name)
             End If
         Next
-        SysLine = IO.File.ReadAllLines(OvrDir & "\MenuMap\Engine\sys.ini")
+        SysLine = File.ReadAllLines(OvrDir & "\MenuMap\Engine\sys.ini")
         ComboBox3.Text = SysLine(52).Remove(0, 12)
-        If IO.File.Exists(HelmType) Then
-            Select Case IO.File.ReadAllText(HelmType)
+        If File.Exists(HelmType) Then
+            Select Case File.ReadAllText(HelmType)
                 Case "8Ball" : ComboBox2.SelectedIndex = 1
                 Case "American" : ComboBox2.SelectedIndex = 2
                 Case "Black" : ComboBox2.SelectedIndex = 3
@@ -112,8 +111,8 @@ Public Class Form2
             WriteToF3Ini(25, "enable startup movies = 0")
         If CheckBox2.Checked Then
             Directory.CreateDirectory(OvrDir & "\SUMM\Interface")
-            IO.File.WriteAllBytes(OvrDir & "\SUMM\Interface\Mainmenu.int", My.Resources.Mainmenu)
-            IO.File.WriteAllBytes(OvrDir & "\SUMM\Interface\f3_front_end_buttons.tga", My.Resources.f3_front_end_buttons)
+            File.WriteAllBytes(OvrDir & "\SUMM\Interface\Mainmenu.int", My.Resources.Mainmenu)
+            File.WriteAllBytes(OvrDir & "\SUMM\Interface\f3_front_end_buttons.tga", My.Resources.f3_front_end_buttons)
         ElseIf Directory.Exists(OvrDir & "\SUMM") Then
             Directory.Delete(OvrDir & "\SUMM", 1)
         End If
@@ -139,7 +138,7 @@ Public Class Form2
             Case 15 : WriteMainMenu("00_03_Tutorial_Junktown.map", 80, 7.5, 50, 5, 10, 68)
             Case 16 : WriteMainMenu("00_04_Tutorial_Vault.map", 50, 50.5, 0, 36, 25, 68)
         End Select
-        SysLine = IO.File.ReadAllLines(OvrDir & "\MenuMap\Engine\sys.ini")
+        SysLine = File.ReadAllLines(OvrDir & "\MenuMap\Engine\sys.ini")
         If CheckBox3.Checked Then
             SysLine(12) = "FOV Speed = 10"
             SysLine(16) = "Scroll Speed = 125"
@@ -152,12 +151,12 @@ Public Class Form2
             SysLine(14) = "FOV Max = 15"
         End If
         SysLine(52) = "Start map = " & ComboBox3.Text
-        IO.File.WriteAllLines(OvrDir & "\MenuMap\Engine\sys.ini", SysLine)
+        File.WriteAllLines(OvrDir & "\MenuMap\Engine\sys.ini", SysLine)
         If Directory.Exists(OvrDir & "\MapLightFix") Then Directory.Delete(OvrDir & "\MapLightFix", True)
         If CheckBox4.Checked = True Then
-            IO.File.WriteAllBytes(OvrDir & "\MapLightFix.zip", My.Resources.MapLightFix)
+            File.WriteAllBytes(OvrDir & "\MapLightFix.zip", My.Resources.MapLightFix)
             ZipFile.ExtractToDirectory(OvrDir & "\MapLightFix.zip", OvrDir & "\MapLightFix")
-            IO.File.Delete(OvrDir & "\MapLightFix.zip")
+            File.Delete(OvrDir & "\MapLightFix.zip")
         End If
 
         If Directory.Exists(OvrDir & "\Helmet") Then Directory.Delete(OvrDir & "\Helmet", 1)
@@ -165,48 +164,48 @@ Public Class Form2
             Directory.CreateDirectory(OvrDir & "\Helmet\Critters") : _
                 Directory.CreateDirectory(OvrDir & "\Helmet\Interface")
         Select Case ComboBox2.SelectedIndex
-            Case 1 : IO.File.WriteAllText(HelmType, "8Ball")
-                IO.File.WriteAllBytes(HelmInv, My.Resources._8_Ball_I)
-                IO.File.WriteAllBytes(HelmTex, My.Resources._8_Ball)
-            Case 2 : IO.File.WriteAllText(HelmType, "American")
-                IO.File.WriteAllBytes(HelmInv, My.Resources.AmericanI)
-                IO.File.WriteAllBytes(HelmTex, My.Resources.American)
-            Case 3 : IO.File.WriteAllText(HelmType, "Black")
-                IO.File.WriteAllBytes(HelmInv, My.Resources.BlackI)
-                IO.File.WriteAllBytes(HelmTex, My.Resources.Black)
-            Case 4 : IO.File.WriteAllText(HelmType, "Blue")
-                IO.File.WriteAllBytes(HelmInv, My.Resources.BlueI)
-                IO.File.WriteAllBytes(HelmTex, My.Resources.Blue)
-            Case 5 : IO.File.WriteAllText(HelmType, "Eye")
-                IO.File.WriteAllBytes(HelmInv, My.Resources.EyeI)
-                IO.File.WriteAllBytes(HelmTex, My.Resources.Eye)
-            Case 6 : IO.File.WriteAllText(HelmType, "Flames")
-                IO.File.WriteAllBytes(HelmInv, My.Resources.FlamesI)
-                IO.File.WriteAllBytes(HelmTex, My.Resources.Flames)
-            Case 7 : IO.File.WriteAllText(HelmType, "FullSkull")
-                IO.File.WriteAllBytes(HelmInv, My.Resources.Full_SkullI)
-                IO.File.WriteAllBytes(HelmTex, My.Resources.Full_Skull)
-            Case 8 : IO.File.WriteAllText(HelmType, "Green")
-                IO.File.WriteAllBytes(HelmInv, My.Resources.GreenI)
-                IO.File.WriteAllBytes(HelmTex, My.Resources.Green)
-            Case 9 : IO.File.WriteAllText(HelmType, "Grey")
-                IO.File.WriteAllBytes(HelmInv, My.Resources.GreyI)
-                IO.File.WriteAllBytes(HelmTex, My.Resources.Grey)
-            Case 10 : IO.File.WriteAllText(HelmType, "Police")
-                IO.File.WriteAllBytes(HelmInv, My.Resources.PoliceI)
-                IO.File.WriteAllBytes(HelmTex, My.Resources.Police)
-            Case 11 : IO.File.WriteAllText(HelmType, "Red")
-                IO.File.WriteAllBytes(HelmInv, My.Resources.RedI)
-                IO.File.WriteAllBytes(HelmTex, My.Resources.Red)
-            Case 12 : IO.File.WriteAllText(HelmType, "ShotSmiley")
-                IO.File.WriteAllBytes(HelmInv, My.Resources.Shot_SmileyI)
-                IO.File.WriteAllBytes(HelmTex, My.Resources.Shot_Smiley)
-            Case 13 : IO.File.WriteAllText(HelmType, "Skull")
-                IO.File.WriteAllBytes(HelmInv, My.Resources.SkullI)
-                IO.File.WriteAllBytes(HelmTex, My.Resources.Skull)
-            Case 14 : IO.File.WriteAllText(HelmType, "Yellow")
-                IO.File.WriteAllBytes(HelmInv, My.Resources.YellowI)
-                IO.File.WriteAllBytes(HelmTex, My.Resources.Yellow)
+            Case 1 : File.WriteAllText(HelmType, "8Ball")
+                File.WriteAllBytes(HelmInv, My.Resources._8_Ball_I)
+                File.WriteAllBytes(HelmTex, My.Resources._8_Ball)
+            Case 2 : File.WriteAllText(HelmType, "American")
+                File.WriteAllBytes(HelmInv, My.Resources.AmericanI)
+                File.WriteAllBytes(HelmTex, My.Resources.American)
+            Case 3 : File.WriteAllText(HelmType, "Black")
+                File.WriteAllBytes(HelmInv, My.Resources.BlackI)
+                File.WriteAllBytes(HelmTex, My.Resources.Black)
+            Case 4 : File.WriteAllText(HelmType, "Blue")
+                File.WriteAllBytes(HelmInv, My.Resources.BlueI)
+                File.WriteAllBytes(HelmTex, My.Resources.Blue)
+            Case 5 : File.WriteAllText(HelmType, "Eye")
+                File.WriteAllBytes(HelmInv, My.Resources.EyeI)
+                File.WriteAllBytes(HelmTex, My.Resources.Eye)
+            Case 6 : File.WriteAllText(HelmType, "Flames")
+                File.WriteAllBytes(HelmInv, My.Resources.FlamesI)
+                File.WriteAllBytes(HelmTex, My.Resources.Flames)
+            Case 7 : File.WriteAllText(HelmType, "FullSkull")
+                File.WriteAllBytes(HelmInv, My.Resources.Full_SkullI)
+                File.WriteAllBytes(HelmTex, My.Resources.Full_Skull)
+            Case 8 : File.WriteAllText(HelmType, "Green")
+                File.WriteAllBytes(HelmInv, My.Resources.GreenI)
+                File.WriteAllBytes(HelmTex, My.Resources.Green)
+            Case 9 : File.WriteAllText(HelmType, "Grey")
+                File.WriteAllBytes(HelmInv, My.Resources.GreyI)
+                File.WriteAllBytes(HelmTex, My.Resources.Grey)
+            Case 10 : File.WriteAllText(HelmType, "Police")
+                File.WriteAllBytes(HelmInv, My.Resources.PoliceI)
+                File.WriteAllBytes(HelmTex, My.Resources.Police)
+            Case 11 : File.WriteAllText(HelmType, "Red")
+                File.WriteAllBytes(HelmInv, My.Resources.RedI)
+                File.WriteAllBytes(HelmTex, My.Resources.Red)
+            Case 12 : File.WriteAllText(HelmType, "ShotSmiley")
+                File.WriteAllBytes(HelmInv, My.Resources.Shot_SmileyI)
+                File.WriteAllBytes(HelmTex, My.Resources.Shot_Smiley)
+            Case 13 : File.WriteAllText(HelmType, "Skull")
+                File.WriteAllBytes(HelmInv, My.Resources.SkullI)
+                File.WriteAllBytes(HelmTex, My.Resources.Skull)
+            Case 14 : File.WriteAllText(HelmType, "Yellow")
+                File.WriteAllBytes(HelmInv, My.Resources.YellowI)
+                File.WriteAllBytes(HelmTex, My.Resources.Yellow)
         End Select
         Hide()
     End Sub
@@ -238,4 +237,5 @@ Public Class Form2
     Private Sub ComboBox3_SelectedIndexChanged() Handles ComboBox3.SelectedIndexChanged
         ToolTip1.SetToolTip(ComboBox3, ComboBox3.Text)
     End Sub
+
 End Class

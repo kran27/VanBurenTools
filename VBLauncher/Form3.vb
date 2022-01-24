@@ -55,7 +55,7 @@ Public Class Form3
         VRAM /= 1048576
         If VRAM > 4096 Then VRAM = 4096
         WriteTodgV2(36, "VRAM = " & VRAM)
-        WriteTodgV2(29, "FPSLimit = " & Math.Floor(hz))
+        WriteTodgV2(29, "FPSLimit = " & Math.Floor(Hz))
     End Sub
 
     Private Sub ApplyChanges() Handles Button1.Click
@@ -84,15 +84,15 @@ Public Class Form3
                 IO.File.Delete(Application.StartupPath & "\wined3d.dll")
             Case 1
                 IO.File.Delete(Application.StartupPath & "\wined3d.dll")
-                IO.File.WriteAllBytes(Application.StartupPath & "\d3d8.dll", My.Resources.DXD3D8)
+                IO.File.WriteAllBytes(Application.StartupPath & "\d3d8.dll", My.Resources.DXd3d8)
                 WriteTodgV2(3, "OutputAPI = d3d11_fl10_1")
             Case 2
                 IO.File.Delete(Application.StartupPath & "\wined3d.dll")
-                IO.File.WriteAllBytes(Application.StartupPath & "\d3d8.dll", My.Resources.DXD3D8)
+                IO.File.WriteAllBytes(Application.StartupPath & "\d3d8.dll", My.Resources.DXd3d8)
                 WriteTodgV2(3, "OutputAPI = d3d11_fl11_0")
             Case 3
                 IO.File.Delete(Application.StartupPath & "\wined3d.dll")
-                IO.File.WriteAllBytes(Application.StartupPath & "\d3d8.dll", My.Resources.DXD3D8)
+                IO.File.WriteAllBytes(Application.StartupPath & "\d3d8.dll", My.Resources.DXd3d8)
                 WriteTodgV2(3, "OutputAPI = d3d12_fl12_0")
             Case 4
                 IO.File.WriteAllBytes(Application.StartupPath & "\d3d8.dll", My.Resources.GLd3d8)
@@ -139,75 +139,75 @@ Public Class SupportedScreenSizes
     Private Const DMPelsheight As Integer = &H100000
 
     <StructLayout(LayoutKind.Sequential, CharSet:=CharSet.Unicode)>
-    Private Structure DEVMODEW
-        <MarshalAs(UnmanagedType.ByValTStr, SizeConst:=32)> Public dmDeviceName As String
-        Public dmSpecVersion As UShort
-        Public dmDriverVersion As UShort
+    Private Structure DevModeW
+        <MarshalAs(UnmanagedType.ByValTStr, SizeConst:=32)> Private ReadOnly dmDeviceName As String
+        Private ReadOnly dmSpecVersion As UShort
+        Private ReadOnly dmDriverVersion As UShort
         Public dmSize As UShort
-        Public dmDriverExtra As UShort
+        Private ReadOnly dmDriverExtra As UShort
         Public dmFields As UInteger
-        Public Union1 As Anonymous_7a7460d9_d99f_4e9a_9ebb_cdd10c08463d
-        Public dmColor As Short
-        Public dmDuplex As Short
-        Public dmYResolution As Short
-        Public dmTTOption As Short
-        Public dmCollate As Short
-        <MarshalAs(UnmanagedType.ByValTStr, SizeConst:=32)> Public dmFormName As String
-        Public dmLogPixels As UShort
-        Public dmBitsPerPel As UInteger
-        Public dmPelsWidth As UInteger
-        Public dmPelsHeight As UInteger
-        Public Union2 As Anonymous_084dbe97_5806_4c28_a299_ed6037f61d90
-        Public dmDisplayFrequency As UInteger
-        Public dmICMMethod As UInteger
-        Public dmICMIntent As UInteger
-        Public dmMediaType As UInteger
-        Public dmDitherType As UInteger
-        Public dmReserved1 As UInteger
-        Public dmReserved2 As UInteger
-        Public dmPanningWidth As UInteger
-        Public dmPanningHeight As UInteger
+        Private ReadOnly Union1 As S1S2
+        Private ReadOnly dmColor As Short
+        Private ReadOnly dmDuplex As Short
+        Private ReadOnly dmYResolution As Short
+        Private ReadOnly dmTTOption As Short
+        Private ReadOnly dmCollate As Short
+        <MarshalAs(UnmanagedType.ByValTStr, SizeConst:=32)> Private ReadOnly dmFormName As String
+        Private ReadOnly dmLogPixels As UShort
+        Private ReadOnly dmBitsPerPel As UInteger
+        Public ReadOnly dmPelsWidth As UInteger
+        Public ReadOnly dmPelsHeight As UInteger
+        Private ReadOnly Union2 As DFN
+        Private ReadOnly dmDisplayFrequency As UInteger
+        Private ReadOnly dmICMMethod As UInteger
+        Private ReadOnly dmICMIntent As UInteger
+        Private ReadOnly dmMediaType As UInteger
+        Private ReadOnly dmDitherType As UInteger
+        Private ReadOnly dmReserved1 As UInteger
+        Private ReadOnly dmReserved2 As UInteger
+        Private ReadOnly dmPanningWidth As UInteger
+        Private ReadOnly dmPanningHeight As UInteger
     End Structure
 
     <StructLayout(LayoutKind.Explicit)>
-    Private Structure Anonymous_7a7460d9_d99f_4e9a_9ebb_cdd10c08463d
-        <FieldOffset(0)> Public Struct1 As Anonymous_865d3c92_fe8c_4ee6_9601_a9eb2536957e
-        <FieldOffset(0)> Public Struct2 As Anonymous_1b5f787e_41ca_472c_8595_3484490ffe0c
+    Private Structure S1S2
+        <FieldOffset(0)> Private ReadOnly Struct1 As OPSPLWSCDSPQ
+        <FieldOffset(0)> Private ReadOnly Struct2 As PDODFO
     End Structure
 
     <StructLayout(LayoutKind.Explicit)>
-    Private Structure Anonymous_084dbe97_5806_4c28_a299_ed6037f61d90
-        <FieldOffset(0)> Public dmDisplayFlags As UInteger
-        <FieldOffset(0)> Public dmNup As UInteger
+    Private Structure DFN
+        <FieldOffset(0)> Private ReadOnly dmDisplayFlags As UInteger
+        <FieldOffset(0)> Private ReadOnly dmNup As UInteger
     End Structure
 
     <StructLayout(LayoutKind.Sequential)>
-    Private Structure Anonymous_865d3c92_fe8c_4ee6_9601_a9eb2536957e
-        Public dmOrientation As Short
-        Public dmPaperSize As Short
-        Public dmPaperLength As Short
-        Public dmPaperWidth As Short
-        Public dmScale As Short
-        Public dmCopies As Short
-        Public dmDefaultSource As Short
-        Public dmPrintQuality As Short
+    Private Structure OPSPLWSCDSPQ
+        Private ReadOnly dmOrientation As Short
+        Private ReadOnly dmPaperSize As Short
+        Private ReadOnly dmPaperLength As Short
+        Private ReadOnly dmPaperWidth As Short
+        Private ReadOnly dmScale As Short
+        Private ReadOnly dmCopies As Short
+        Private ReadOnly dmDefaultSource As Short
+        Private ReadOnly dmPrintQuality As Short
     End Structure
 
     <StructLayout(LayoutKind.Sequential)>
-    Private Structure Anonymous_1b5f787e_41ca_472c_8595_3484490ffe0c
-        Public dmPosition As PointL
-        Public dmDisplayOrientation As UInteger
-        Public dmDisplayFixedOutput As UInteger
+    Private Structure PDODFO
+        Private ReadOnly dmPosition As PointL
+        Private ReadOnly dmDisplayOrientation As UInteger
+        Private ReadOnly dmDisplayFixedOutput As UInteger
     End Structure
 
     <StructLayout(LayoutKind.Sequential)>
     Private Structure PointL
-        Public x As Integer
-        Public y As Integer
+        Private ReadOnly x As Integer
+        Private ReadOnly y As Integer
     End Structure
 
     <DllImport("user32.dll", EntryPoint:="EnumDisplaySettingsExW")>
-    Private Shared Function EnumDisplaySettingsExW(<MarshalAs(UnmanagedType.LPWStr)> lpszDeviceName As String, iModeNum As Integer, ByRef lpDevMode As DEVMODEW, dwFlags As UInteger) As <MarshalAs(UnmanagedType.Bool)> Boolean
+    Private Shared Function EnumDisplaySettingsExW(<MarshalAs(UnmanagedType.LPWStr)> DeviceName As String, ModeNum As Integer, ByRef DevMode As DevModeW, Flags As UInteger) As <MarshalAs(UnmanagedType.Bool)> Boolean
     End Function
 
     Public Shared Function GetSizesAsStrings() As String()
@@ -218,9 +218,9 @@ Public Class SupportedScreenSizes
     Public Shared Function GetSizes() As Size()
         Dim SizeList As New List(Of Size)
         Dim Index As Integer = 0
-        Dim DM As New DEVMODEW
+        Dim DM As New DevModeW
         DM.dmFields = DMPelswidth Or DMPelsheight
-        DM.dmSize = CUShort(Marshal.SizeOf(GetType(DEVMODEW)))
+        DM.dmSize = CUShort(Marshal.SizeOf(GetType(DevModeW)))
         While EnumDisplaySettingsExW(Screen.PrimaryScreen.DeviceName, Index, DM, 0)
             Dim Size As New Size(CInt(DM.dmPelsWidth), CInt(DM.dmPelsHeight))
             If Not SizeList.Contains(Size) Then SizeList.Add(Size)

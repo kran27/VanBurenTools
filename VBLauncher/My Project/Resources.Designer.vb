@@ -65,7 +65,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property _8_Ball() As Byte()
             Get
-                Dim obj As Object = ResourceManager.GetObject("_8_Ball", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("8_Ball", resourceCulture)
                 Return CType(obj,Byte())
             End Get
         End Property
@@ -75,7 +75,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property _8_Ball_I() As Byte()
             Get
-                Dim obj As Object = ResourceManager.GetObject("_8_Ball_I", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("8_Ball_I", resourceCulture)
                 Return CType(obj,Byte())
             End Get
         End Property
@@ -85,7 +85,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property _8_Ball_Icon() As System.Drawing.Bitmap
             Get
-                Dim obj As Object = ResourceManager.GetObject("_8_Ball_Icon", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("8_Ball_Icon", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
@@ -95,7 +95,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property _Exit() As System.Drawing.Bitmap
             Get
-                Dim obj As Object = ResourceManager.GetObject("_Exit", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Exit", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
@@ -357,9 +357,9 @@ Namespace My.Resources
         '''<summary>
         '''  Looks up a localized resource of type System.Byte[].
         '''</summary>
-        Friend ReadOnly Property DXD3D8() As Byte()
+        Friend ReadOnly Property DXd3d8() As Byte()
             Get
-                Dim obj As Object = ResourceManager.GetObject("DXD3D8", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("DXd3d8", resourceCulture)
                 Return CType(obj,Byte())
             End Get
         End Property

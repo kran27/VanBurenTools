@@ -1,4 +1,7 @@
-﻿Public Class Form1
+﻿Imports System.IO
+Imports System.IO.Compression
+
+Public Class Form1
     Public FixDir As String = Application.StartupPath & "\Override\Fixes"
 
     Public MoveForm As Boolean
@@ -9,7 +12,7 @@
     End Sub
 
     Public Sub MoveForm_MouseMove(Sender As Object, E As MouseEventArgs) Handles PictureBox4.MouseMove, PictureBox5.MouseMove
-        If MoveForm Then Me.Location = Me.Location + (E.Location - MoveFormMousePosition)
+        If MoveForm Then Location = Location + (E.Location - MoveFormMousePosition)
     End Sub
 
     Public Sub MoveForm_MouseUp(Sender As Object, E As MouseEventArgs) Handles PictureBox4.MouseUp, PictureBox5.MouseUp
@@ -19,8 +22,7 @@
     Private Sub Startup() Handles MyBase.Load
         PictureBox4.Parent = PictureBox5
         Dim Random As New Random
-        Dim Rand As String = Random.Next(1, 9)
-        Select Case Rand
+        Select Case Random.Next(1, 9)
             Case 1 : PictureBox5.Image = My.Resources.BG1
             Case 2 : PictureBox5.Image = My.Resources.BG2
             Case 3 : PictureBox5.Image = My.Resources.BG3
@@ -31,23 +33,23 @@
             Case 8 : PictureBox5.Image = My.Resources.BG8
             Case 9 : PictureBox5.Image = My.Resources.BG9
         End Select
-        If Not IO.File.Exists(Application.StartupPath & "\dgVoodoo.conf") Then IO.File.WriteAllBytes(Application.StartupPath & "\dgVoodoo.conf", My.Resources.dgV2conf)
-        If IO.Directory.Exists(FixDir) Then IO.Directory.Delete(FixDir, 1)
-        If Not IO.File.Exists(Application.StartupPath & "\F3.exe") Then
+        If Not File.Exists(Application.StartupPath & "\dgVoodoo.conf") Then File.WriteAllBytes(Application.StartupPath & "\dgVoodoo.conf", My.Resources.dgV2conf)
+        If Directory.Exists(FixDir) Then Directory.Delete(FixDir, 1)
+        If Not File.Exists(Application.StartupPath & "\F3.exe") Then
             MsgBox("Please put the launcher in the same directory as the game so you can launch it!", MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly, "Game Executable Not Found!")
         Else
-            IO.Directory.CreateDirectory(FixDir)
-            IO.File.WriteAllBytes(FixDir & "\Fixes.zip", My.Resources.Fixes)
-            IO.Compression.ZipFile.ExtractToDirectory(FixDir & "\Fixes.zip", FixDir)
-            IO.File.Delete(FixDir & "\Fixes.zip")
+            Directory.CreateDirectory(FixDir)
+            File.WriteAllBytes(FixDir & "\Fixes.zip", My.Resources.Fixes)
+            ZipFile.ExtractToDirectory(FixDir & "\Fixes.zip", FixDir)
+            File.Delete(FixDir & "\Fixes.zip")
         End If
-        If IO.Directory.Exists(Application.StartupPath & "\Override\UnusedThings") Then IO.Directory.Delete(Application.StartupPath & "\Override\UnusedThings", 1)
-        If IO.File.Exists(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT") Then IO.File.Delete(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT")
-        If IO.Directory.Exists(Application.StartupPath & "\Override\FemaleFix") Then IO.Directory.Delete(Application.StartupPath & "\Override\FemaleFix", 1)
+        If Directory.Exists(Application.StartupPath & "\Override\UnusedThings") Then Directory.Delete(Application.StartupPath & "\Override\UnusedThings", 1)
+        If File.Exists(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT") Then File.Delete(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT")
+        If Directory.Exists(Application.StartupPath & "\Override\FemaleFix") Then Directory.Delete(Application.StartupPath & "\Override\FemaleFix", 1)
     End Sub
 
     Private Sub PictureBox1_Click() Handles PictureBox1.Click
-        If Not IO.File.Exists(Application.StartupPath & "\F3.exe") Then
+        If Not File.Exists(Application.StartupPath & "\F3.exe") Then
             MsgBox("Please put the launcher in the same directory as the game!", MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly, "Game Executable Not Found!")
         Else
             Process.Start("F3.exe")
@@ -56,7 +58,7 @@
     End Sub
 
     Private Sub PictureBox2_Click() Handles PictureBox2.Click
-        If Not IO.File.Exists(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini") Then IO.File.WriteAllText(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini", My.Resources.Default_F3)
+        If Not File.Exists(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini") Then File.WriteAllText(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini", My.Resources.Default_F3)
         Form2.ShowDialog()
     End Sub
 
