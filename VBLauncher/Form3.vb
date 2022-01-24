@@ -27,6 +27,7 @@ Public Class Form3
             If Currentbpp IsNot Nothing Then bpp = Currentbpp.ToString
             If OVRAM IsNot Nothing And OVRAM > VRAM Then VRAM = OVRAM
         Next
+        ComboBox4.Items.Clear()
         ComboBox4.Items.AddRange(SupportedScreenSizes.GetSizesAsStrings)
         ComboBox4.SelectedItem = Line(35).Remove(0, 8) & "x" & Line(29).Remove(0, 9)
         If Line(28) = "fullscreen = 1" Then CheckBox1.Checked = True Else CheckBox1.Checked = False
@@ -135,8 +136,8 @@ Public Class Form3
 End Class
 
 Public Class SupportedScreenSizes
-    Private Const DMPelswidth As Integer = &H80000
-    Private Const DMPelsheight As Integer = &H100000
+    Private Const DMPelsWidth As Integer = &H80000
+    Private Const DMPelsHeight As Integer = &H100000
 
     <StructLayout(LayoutKind.Sequential, CharSet:=CharSet.Unicode)>
     Private Structure DevModeW
@@ -157,40 +158,11 @@ Public Class SupportedScreenSizes
         Private ReadOnly dmBitsPerPel As UInteger
         Public ReadOnly dmPelsWidth As UInteger
         Public ReadOnly dmPelsHeight As UInteger
-        Private ReadOnly Union2 As DFN
-        Private ReadOnly dmDisplayFrequency As UInteger
-        Private ReadOnly dmICMMethod As UInteger
-        Private ReadOnly dmICMIntent As UInteger
-        Private ReadOnly dmMediaType As UInteger
-        Private ReadOnly dmDitherType As UInteger
-        Private ReadOnly dmReserved1 As UInteger
-        Private ReadOnly dmReserved2 As UInteger
-        Private ReadOnly dmPanningWidth As UInteger
-        Private ReadOnly dmPanningHeight As UInteger
     End Structure
 
     <StructLayout(LayoutKind.Explicit)>
     Private Structure S1S2
-        <FieldOffset(0)> Private ReadOnly Struct1 As OPSPLWSCDSPQ
-        <FieldOffset(0)> Private ReadOnly Struct2 As PDODFO
-    End Structure
-
-    <StructLayout(LayoutKind.Explicit)>
-    Private Structure DFN
-        <FieldOffset(0)> Private ReadOnly dmDisplayFlags As UInteger
-        <FieldOffset(0)> Private ReadOnly dmNup As UInteger
-    End Structure
-
-    <StructLayout(LayoutKind.Sequential)>
-    Private Structure OPSPLWSCDSPQ
-        Private ReadOnly dmOrientation As Short
-        Private ReadOnly dmPaperSize As Short
-        Private ReadOnly dmPaperLength As Short
-        Private ReadOnly dmPaperWidth As Short
-        Private ReadOnly dmScale As Short
-        Private ReadOnly dmCopies As Short
-        Private ReadOnly dmDefaultSource As Short
-        Private ReadOnly dmPrintQuality As Short
+        <FieldOffset(0)> Private ReadOnly Struct1 As PDODFO
     End Structure
 
     <StructLayout(LayoutKind.Sequential)>
@@ -207,7 +179,7 @@ Public Class SupportedScreenSizes
     End Structure
 
     <DllImport("user32.dll", EntryPoint:="EnumDisplaySettingsExW")>
-    Private Shared Function EnumDisplaySettingsExW(<MarshalAs(UnmanagedType.LPWStr)> DeviceName As String, ModeNum As Integer, ByRef DevMode As DevModeW, Flags As UInteger) As <MarshalAs(UnmanagedType.Bool)> Boolean
+    Private Shared Function EnumDisplaySettingsExW(<MarshalAs(UnmanagedType.LPWStr)> DeviceName As String, ModeNum As Integer, ByRef DevMode As DevModeW, Flags As UInteger) As Boolean
     End Function
 
     Public Shared Function GetSizesAsStrings() As String()
