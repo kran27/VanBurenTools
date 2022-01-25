@@ -1,9 +1,9 @@
 ﻿Imports System.IO
 Imports System.IO.Compression
+Imports System.Runtime.InteropServices
 
 Public Class Form1
     Public FixDir As String = Application.StartupPath & "\Override\Fixes"
-
     Public MoveForm As Boolean
     Public MoveFormMousePosition As Point
 
@@ -33,18 +33,23 @@ Public Class Form1
             Case 8 : PictureBox5.Image = My.Resources.BG8
             Case 9 : PictureBox5.Image = My.Resources.BG9
         End Select
-        If Not File.Exists(Application.StartupPath & "\dgVoodoo.conf") Then File.WriteAllBytes(Application.StartupPath & "\dgVoodoo.conf", My.Resources.dgV2conf)
         If Directory.Exists(FixDir) Then Directory.Delete(FixDir, 1)
-        If Not File.Exists(Application.StartupPath & "\F3.exe") Then
-            MsgBox("Please put the launcher in the same directory as the game so you can launch it!", MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly, "Game Executable Not Found!")
-        Else
+        If File.Exists(Application.StartupPath & "\F3.exe") Then
             Directory.CreateDirectory(FixDir)
             File.WriteAllBytes(FixDir & "\Fixes.zip", My.Resources.Fixes)
             ZipFile.ExtractToDirectory(FixDir & "\Fixes.zip", FixDir)
             File.Delete(FixDir & "\Fixes.zip")
+            If Not File.Exists(Application.StartupPath & "\dgVoodoo.conf") Then _
+                File.WriteAllBytes(Application.StartupPath & "\dgVoodoo.conf", My.Resources.dgV2conf)
+            AddFontResource(Application.StartupPath & "\Fonts\TT0807M_.TTF")
+            AddFontResource(Application.StartupPath & "\Fonts\r_fallouty.ttf")
+        Else
+            MsgBox("Please put the launcher in the same directory as the game so you can launch it!",
+                   MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly, "Game Executable Not Found!")
         End If
         If Directory.Exists(Application.StartupPath & "\Override\UnusedThings") Then Directory.Delete(Application.StartupPath & "\Override\UnusedThings", 1)
-        If File.Exists(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT") Then File.Delete(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT")
+        If File.Exists(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT") Then _
+            File.Delete(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT")
         If Directory.Exists(Application.StartupPath & "\Override\FemaleFix") Then Directory.Delete(Application.StartupPath & "\Override\FemaleFix", 1)
     End Sub
 
@@ -58,12 +63,18 @@ Public Class Form1
     End Sub
 
     Private Sub PictureBox2_Click() Handles PictureBox2.Click
-        If Not File.Exists(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini") Then File.WriteAllText(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini", My.Resources.Default_F3)
+        If Not File.Exists(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini") Then _
+            File.WriteAllText(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini",
+                              My.Resources.Default_F3)
         Form2.ShowDialog()
     End Sub
 
     Private Sub PictureBox3_Click() Handles PictureBox3.Click
         Application.Exit()
     End Sub
+
+    <DllImport("gdi32.dll")>
+    Public Shared Function AddFontResource(ByVal FontPath As String) As Integer
+    End Function
 
 End Class

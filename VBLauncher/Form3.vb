@@ -191,7 +191,7 @@ Public Class SupportedScreenSizes
         Dim SizeList As New List(Of Size)
         Dim Index As Integer = 0
         Dim DM As New DevModeW
-        DM.dmFields = DMPelswidth Or DMPelsheight
+        DM.dmFields = DMPelsWidth Or DMPelsHeight
         DM.dmSize = CUShort(Marshal.SizeOf(GetType(DevModeW)))
         While EnumDisplaySettingsExW(Screen.PrimaryScreen.DeviceName, Index, DM, 0)
             Dim Size As New Size(CInt(DM.dmPelsWidth), CInt(DM.dmPelsHeight))
