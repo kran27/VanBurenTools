@@ -2,13 +2,12 @@
 Imports System.IO.Compression
 
 Public Class Form2
-    Public OvrDir As String = Application.StartupPath & "\Override"
     Public IFDir As String = My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini"
     Public Line() As String = File.ReadAllLines(IFDir)
     Public SysLine() As String
-    Public HelmType As String = OvrDir & "\Helmet\Helmet.type"
-    Public HelmInv As String = OvrDir & "\Helmet\Interface\HeaMotorcycle_default_INV.tga"
-    Public HelmTex As String = OvrDir & "\Helmet\Critters\HeaMotorcycle_default_LG.tga"
+    Public HelmType As String = "Override\Helmet\Helmet.type"
+    Public HelmInv As String = "Override\Helmet\Interface\HeaMotorcycle_default_INV.tga"
+    Public HelmTex As String = "Override\Helmet\Critters\HeaMotorcycle_default_LG.tga"
 
     Function SearchForFiles(RootFolder As String, FileFilter() As String) As List(Of String)
         Dim ReturnedData As New List(Of String)
@@ -44,17 +43,17 @@ Public Class Form2
         SysLine(23) = "azimuth = " & Azimuth
         SysLine(24) = "elevation = " & Elevation
         SysLine(26) = "fov = " & FOV
-        File.WriteAllLines(OvrDir & "\MenuMap\Engine\sys.ini", SysLine)
+        File.WriteAllLines("Override\MenuMap\Engine\sys.ini", SysLine)
     End Sub
 
     Private Sub CheckOptions() Handles MyBase.Load
         If Line(25) = "enable startup movies = 1" Then CheckBox1.Checked = True Else CheckBox1.Checked = False
-        If Directory.Exists(OvrDir & "\SUMM") Then CheckBox2.Checked = True Else CheckBox2.Checked = False
-        If Directory.Exists(OvrDir & "\MapLightFix") Then CheckBox4.Checked = True Else CheckBox4.Checked = False
+        If Directory.Exists("Override\SUMM") Then CheckBox2.Checked = True Else CheckBox2.Checked = False
+        If Directory.Exists("Override\MapLightFix") Then CheckBox4.Checked = True Else CheckBox4.Checked = False
 
-        If Not File.Exists(OvrDir & "\MenuMap\Engine\sys.ini") Then Directory.CreateDirectory(OvrDir & "\MenuMap\Engine") : _
-            File.WriteAllBytes(OvrDir & "\MenuMap\Engine\sys.ini", My.Resources.Default_sys)
-        SysLine = File.ReadAllLines(OvrDir & "\MenuMap\Engine\sys.ini")
+        If Not File.Exists("Override\MenuMap\Engine\sys.ini") Then Directory.CreateDirectory("Override\MenuMap\Engine") : _
+            File.WriteAllBytes("Override\MenuMap\Engine\sys.ini", My.Resources.Default_sys)
+        SysLine = File.ReadAllLines("Override\MenuMap\Engine\sys.ini")
         Select Case SysLine(19)
             Case "map name = mainmenu.map" : ComboBox1.SelectedIndex = 0
             Case "map name = zz_TestMapsaarontemp2.map" : ComboBox1.SelectedIndex = 1
@@ -75,14 +74,14 @@ Public Class Form2
             Case "map name = 00_04_Tutorial_Vault.map" : ComboBox1.SelectedIndex = 16
         End Select
         If SysLine(13) = "FOV Min = 0.5" Then CheckBox3.Checked = True
-        Dim Files = SearchForFiles(OvrDir, {"*.map"})
+        Dim Files = SearchForFiles("Override", {"*.map"})
         For Each File As Object In Files
             Dim FI As New FileInfo(File)
             If Not ComboBox3.Items.Contains(FI.Name) Then
                 ComboBox3.Items.Add(FI.Name)
             End If
         Next
-        SysLine = File.ReadAllLines(OvrDir & "\MenuMap\Engine\sys.ini")
+        SysLine = File.ReadAllLines("Override\MenuMap\Engine\sys.ini")
         ComboBox3.Text = SysLine(52).Remove(0, 12)
         If File.Exists(HelmType) Then
             Select Case File.ReadAllText(HelmType)
@@ -110,11 +109,11 @@ Public Class Form2
         If CheckBox1.Checked Then WriteToF3Ini(25, "enable startup movies = 1") Else _
             WriteToF3Ini(25, "enable startup movies = 0")
         If CheckBox2.Checked Then
-            Directory.CreateDirectory(OvrDir & "\SUMM\Interface")
-            File.WriteAllBytes(OvrDir & "\SUMM\Interface\Mainmenu.int", My.Resources.Mainmenu)
-            File.WriteAllBytes(OvrDir & "\SUMM\Interface\f3_front_end_buttons.tga", My.Resources.f3_front_end_buttons)
-        ElseIf Directory.Exists(OvrDir & "\SUMM") Then
-            Directory.Delete(OvrDir & "\SUMM", 1)
+            Directory.CreateDirectory("Override\SUMM\Interface")
+            File.WriteAllBytes("Override\SUMM\Interface\Mainmenu.int", My.Resources.Mainmenu)
+            File.WriteAllBytes("Override\SUMM\Interface\f3_front_end_buttons.tga", My.Resources.f3_front_end_buttons)
+        ElseIf Directory.Exists("Override\SUMM") Then
+            Directory.Delete("Override\SUMM", 1)
         End If
 
         Select Case ComboBox1.SelectedIndex
@@ -138,7 +137,7 @@ Public Class Form2
             Case 15 : WriteMainMenu("00_03_Tutorial_Junktown.map", 80, 7.5, 50, 5, 10, 68)
             Case 16 : WriteMainMenu("00_04_Tutorial_Vault.map", 50, 50.5, 0, 36, 25, 68)
         End Select
-        SysLine = File.ReadAllLines(OvrDir & "\MenuMap\Engine\sys.ini")
+        SysLine = File.ReadAllLines("Override\MenuMap\Engine\sys.ini")
         If CheckBox3.Checked Then
             SysLine(12) = "FOV Speed = 10"
             SysLine(16) = "Scroll Speed = 125"
@@ -151,18 +150,18 @@ Public Class Form2
             SysLine(14) = "FOV Max = 15"
         End If
         SysLine(52) = "Start map = " & ComboBox3.Text
-        File.WriteAllLines(OvrDir & "\MenuMap\Engine\sys.ini", SysLine)
-        If Directory.Exists(OvrDir & "\MapLightFix") Then Directory.Delete(OvrDir & "\MapLightFix", True)
+        File.WriteAllLines("Override\MenuMap\Engine\sys.ini", SysLine)
+        If Directory.Exists("Override\MapLightFix") Then Directory.Delete("Override\MapLightFix", True)
         If CheckBox4.Checked = True Then
-            File.WriteAllBytes(OvrDir & "\MapLightFix.zip", My.Resources.MapLightFix)
-            ZipFile.ExtractToDirectory(OvrDir & "\MapLightFix.zip", OvrDir & "\MapLightFix")
-            File.Delete(OvrDir & "\MapLightFix.zip")
+            File.WriteAllBytes("Override\MapLightFix.zip", My.Resources.MapLightFix)
+            ZipFile.ExtractToDirectory("Override\MapLightFix.zip", "Override\MapLightFix")
+            File.Delete("Override\MapLightFix.zip")
         End If
 
-        If Directory.Exists(OvrDir & "\Helmet") Then Directory.Delete(OvrDir & "\Helmet", 1)
+        If Directory.Exists("Override\Helmet") Then Directory.Delete("Override\Helmet", 1)
         If Not ComboBox2.SelectedIndex = 0 Then _
-            Directory.CreateDirectory(OvrDir & "\Helmet\Critters") : _
-                Directory.CreateDirectory(OvrDir & "\Helmet\Interface")
+            Directory.CreateDirectory("Override\Helmet\Critters") : _
+                Directory.CreateDirectory("Override\Helmet\Interface")
         Select Case ComboBox2.SelectedIndex
             Case 1 : File.WriteAllText(HelmType, "8Ball")
                 File.WriteAllBytes(HelmInv, My.Resources._8_Ball_I)

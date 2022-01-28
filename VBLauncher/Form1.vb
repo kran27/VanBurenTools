@@ -3,7 +3,6 @@ Imports System.IO.Compression
 Imports System.Runtime.InteropServices
 
 Public Class Form1
-    Public FixDir As String = Application.StartupPath & "\Override\Fixes"
     Public MoveForm As Boolean
     Public MoveFormMousePosition As Point
 
@@ -33,28 +32,24 @@ Public Class Form1
             Case 8 : PictureBox5.Image = My.Resources.BG8
             Case 9 : PictureBox5.Image = My.Resources.BG9
         End Select
-        If Directory.Exists(FixDir) Then Directory.Delete(FixDir, 1)
-        If File.Exists(Application.StartupPath & "\F3.exe") Then
-            Directory.CreateDirectory(FixDir)
-            File.WriteAllBytes(FixDir & "\Fixes.zip", My.Resources.Fixes)
-            ZipFile.ExtractToDirectory(FixDir & "\Fixes.zip", FixDir)
-            File.Delete(FixDir & "\Fixes.zip")
-            If Not File.Exists(Application.StartupPath & "\dgVoodoo.conf") Then _
-                File.WriteAllBytes(Application.StartupPath & "\dgVoodoo.conf", My.Resources.dgV2conf)
-            AddFontResource(Application.StartupPath & "\Fonts\TT0807M_.TTF")
-            AddFontResource(Application.StartupPath & "\Fonts\r_fallouty.ttf")
+        If Directory.Exists("Override\Fixes") Then Directory.Delete("Override\Fixes", 1)
+        If File.Exists("F3.exe") Then
+            Directory.CreateDirectory("Override\Fixes")
+            File.WriteAllBytes("Override\Fixes\Fixes.zip", My.Resources.Fixes)
+            ZipFile.ExtractToDirectory("Override\Fixes\Fixes.zip", "Override\Fixes")
+            File.Delete("Override\Fixes\Fixes.zip")
+            AddFontResource("Fonts\TT0807M_.TTF")
+            AddFontResource("Fonts\r_fallouty.ttf")
         Else
             MsgBox("Please put the launcher in the same directory as the game so you can launch it!",
                    MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly, "Game Executable Not Found!")
         End If
-        If Directory.Exists(Application.StartupPath & "\Override\UnusedThings") Then Directory.Delete(Application.StartupPath & "\Override\UnusedThings", 1)
         If File.Exists(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT") Then _
             File.Delete(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT")
-        If Directory.Exists(Application.StartupPath & "\Override\FemaleFix") Then Directory.Delete(Application.StartupPath & "\Override\FemaleFix", 1)
     End Sub
 
-    Private Sub PictureBox1_Click() Handles PictureBox1.Click
-        If Not File.Exists(Application.StartupPath & "\F3.exe") Then
+    Private Shared Sub PictureBox1_Click() Handles PictureBox1.Click
+        If Not File.Exists("F3.exe") Then
             MsgBox("Please put the launcher in the same directory as the game!", MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly, "Game Executable Not Found!")
         Else
             Process.Start("F3.exe")
@@ -69,12 +64,12 @@ Public Class Form1
         Form2.ShowDialog()
     End Sub
 
-    Private Sub PictureBox3_Click() Handles PictureBox3.Click
+    Private Shared Sub PictureBox3_Click() Handles PictureBox3.Click
         Application.Exit()
     End Sub
 
     <DllImport("gdi32.dll")>
-    Public Shared Function AddFontResource(ByVal FontPath As String) As Integer
+    Public Shared Function AddFontResource(FontPath As String) As Integer
     End Function
 
 End Class

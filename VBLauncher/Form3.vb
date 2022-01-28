@@ -1,10 +1,11 @@
-﻿Imports System.Runtime.InteropServices
+﻿Imports System.IO
+Imports System.Runtime.InteropServices
 Imports sm = System.Management
 
 Public Class Form3
     Public IFDir As String = My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini"
-    Public Line() As String = IO.File.ReadAllLines(IFDir)
-    Public dgV2Line() As String = IO.File.ReadAllLines(Application.StartupPath & "\dgVoodoo.conf")
+    Public Line() As String = File.ReadAllLines(IFDir)
+    Public dgV2Line() As String
     Public Hz As Double
     Public bpp As String
     Public VRAM As String
@@ -12,12 +13,15 @@ Public Class Form3
     Public SelW As String
 
     Public Sub WriteTodgV2(LineNum As Integer, TextValue As String)
-        dgV2Line = IO.File.ReadAllLines(Application.StartupPath & "\dgVoodoo.conf")
+        dgV2Line = File.ReadAllLines("dgVoodoo.conf")
         dgV2Line(LineNum) = TextValue
-        IO.File.WriteAllLines(Application.StartupPath & "\dgVoodoo.conf", dgV2Line)
+        File.WriteAllLines("dgVoodoo.conf", dgV2Line)
     End Sub
 
     Private Sub DetectOptions() Handles MyBase.Shown
+        If Not File.Exists("dgVoodoo.conf") Then _
+            File.WriteAllBytes("dgVoodoo.conf", My.Resources.dgV2conf)
+        dgV2Line = File.ReadAllLines("dgVoodoo.conf")
         Dim Query As New sm.SelectQuery("Win32_VideoController")
         For Each Mo As sm.ManagementObject In New sm.ManagementObjectSearcher(Query).Get
             Dim CurrentRefreshRate As Object = Mo("CurrentRefreshRate")
@@ -31,8 +35,8 @@ Public Class Form3
         ComboBox4.Items.AddRange(SupportedScreenSizes.GetSizesAsStrings)
         ComboBox4.SelectedItem = Line(35).Remove(0, 8) & "x" & Line(29).Remove(0, 9)
         If Line(28) = "fullscreen = 1" Then CheckBox1.Checked = True Else CheckBox1.Checked = False
-        If Not IO.File.Exists(Application.StartupPath & "\d3d8.dll") Then : ComboBox1.SelectedIndex = 0
-        ElseIf IO.File.Exists(Application.StartupPath & "\wined3d.dll") Then : ComboBox1.SelectedIndex = 4
+        If Not File.Exists("d3d8.dll") Then : ComboBox1.SelectedIndex = 0
+        ElseIf File.Exists("wined3d.dll") Then : ComboBox1.SelectedIndex = 4
         ElseIf dgV2Line(3) = "OutputAPI = d3d11_fl10_1" Then : ComboBox1.SelectedIndex = 1
         ElseIf dgV2Line(3) = "OutputAPI = d3d11_fl11_0" Then : ComboBox1.SelectedIndex = 2
         ElseIf dgV2Line(3) = "OutputAPI = d3d12_fl12_0" Then : ComboBox1.SelectedIndex = 3 : End If
@@ -60,7 +64,7 @@ Public Class Form3
     End Sub
 
     Private Sub ApplyChanges() Handles Button1.Click
-        Dim Iteration As Integer = 0
+        Dim Iteration = 0
         For Each S As Size In SupportedScreenSizes.GetSizes()
             If Iteration = ComboBox4.SelectedIndex Then
                 SelW = S.Width.ToString()
@@ -68,36 +72,36 @@ Public Class Form3
             End If
             Iteration += 1
         Next
-        If bpp >= 32 Then Line(30) = "mode32bpp = 1" : IO.File.WriteAllLines(IFDir, Line)
+        If bpp >= 32 Then Line(30) = "mode32bpp = 1" : File.WriteAllLines(IFDir, Line)
         If CheckBox1.Checked Then
             Line(28) = "fullscreen = 1"
             Line(31) = "refresh = " & Hz
-            IO.File.WriteAllLines(IFDir, Line)
+            File.WriteAllLines(IFDir, Line)
         Else
             Line(28) = "fullscreen = 0"
-            IO.File.WriteAllLines(IFDir, Line)
+            File.WriteAllLines(IFDir, Line)
         End If
         Line(29) = "height = " & SelH : Line(35) = "width = " & SelW
-        IO.File.WriteAllLines(IFDir, Line)
+        File.WriteAllLines(IFDir, Line)
         Select Case ComboBox1.SelectedIndex
             Case 0
-                IO.File.Delete(Application.StartupPath & "\d3d8.dll")
-                IO.File.Delete(Application.StartupPath & "\wined3d.dll")
+                File.Delete("d3d8.dll")
+                File.Delete("wined3d.dll")
             Case 1
-                IO.File.Delete(Application.StartupPath & "\wined3d.dll")
-                IO.File.WriteAllBytes(Application.StartupPath & "\d3d8.dll", My.Resources.DXd3d8)
+                File.Delete("wined3d.dll")
+                File.WriteAllBytes("d3d8.dll", My.Resources.DXd3d8)
                 WriteTodgV2(3, "OutputAPI = d3d11_fl10_1")
             Case 2
-                IO.File.Delete(Application.StartupPath & "\wined3d.dll")
-                IO.File.WriteAllBytes(Application.StartupPath & "\d3d8.dll", My.Resources.DXd3d8)
+                File.Delete("wined3d.dll")
+                File.WriteAllBytes("d3d8.dll", My.Resources.DXd3d8)
                 WriteTodgV2(3, "OutputAPI = d3d11_fl11_0")
             Case 3
-                IO.File.Delete(Application.StartupPath & "\wined3d.dll")
-                IO.File.WriteAllBytes(Application.StartupPath & "\d3d8.dll", My.Resources.DXd3d8)
+                File.Delete("wined3d.dll")
+                File.WriteAllBytes("d3d8.dll", My.Resources.DXd3d8)
                 WriteTodgV2(3, "OutputAPI = d3d12_fl12_0")
             Case 4
-                IO.File.WriteAllBytes(Application.StartupPath & "\d3d8.dll", My.Resources.GLd3d8)
-                IO.File.WriteAllBytes(Application.StartupPath & "\wined3d.dll", My.Resources.GLwined3d)
+                File.WriteAllBytes("d3d8.dll", My.Resources.GLd3d8)
+                File.WriteAllBytes("wined3d.dll", My.Resources.GLwined3d)
         End Select
         Select Case ComboBox2.SelectedIndex
             Case 0 : WriteTodgV2(41, "Antialiasing = off")
@@ -189,7 +193,7 @@ Public Class SupportedScreenSizes
 
     Public Shared Function GetSizes() As Size()
         Dim SizeList As New List(Of Size)
-        Dim Index As Integer = 0
+        Dim Index = 0
         Dim DM As New DevModeW
         DM.dmFields = DMPelsWidth Or DMPelsHeight
         DM.dmSize = CUShort(Marshal.SizeOf(GetType(DevModeW)))
