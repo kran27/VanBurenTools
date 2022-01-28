@@ -18,7 +18,8 @@ Public Class Form3
         File.WriteAllLines("dgVoodoo.conf", dgV2Line)
     End Sub
 
-    Private Sub DetectOptions() Handles MyBase.Shown
+    Private Sub CheckOptions() Handles MyBase.Load
+        MyBase.Icon = My.Resources.F3
         If Not File.Exists("dgVoodoo.conf") Then _
             File.WriteAllBytes("dgVoodoo.conf", My.Resources.dgV2conf)
         dgV2Line = File.ReadAllLines("dgVoodoo.conf")

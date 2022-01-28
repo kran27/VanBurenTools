@@ -19,6 +19,11 @@ Public Class Form1
     End Sub
 
     Private Sub Startup() Handles MyBase.Load
+        MyBase.Icon = My.Resources.F3
+        PictureBox1.Image = My.Resources.Launch
+        PictureBox2.Image = My.Resources.Options
+        PictureBox3.Image = My.Resources._Exit
+        PictureBox4.Image = My.Resources.Logo
         PictureBox4.Parent = PictureBox5
         Dim Random As New Random
         Select Case Random.Next(1, 9)

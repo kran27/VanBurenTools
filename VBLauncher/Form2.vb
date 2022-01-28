@@ -47,6 +47,7 @@ Public Class Form2
     End Sub
 
     Private Sub CheckOptions() Handles MyBase.Load
+        MyBase.Icon = My.Resources.F3
         If Line(25) = "enable startup movies = 1" Then CheckBox1.Checked = True Else CheckBox1.Checked = False
         If Directory.Exists("Override\SUMM") Then CheckBox2.Checked = True Else CheckBox2.Checked = False
         If Directory.Exists("Override\MapLightFix") Then CheckBox4.Checked = True Else CheckBox4.Checked = False
