@@ -49,7 +49,7 @@ Partial Class Form2
         '
         'Button1
         '
-        Me.Button1.Location = New System.Drawing.Point(242, 285)
+        Me.Button1.Location = New System.Drawing.Point(209, 285)
         Me.Button1.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(61, 25)
@@ -78,7 +78,7 @@ Partial Class Form2
         Me.GroupBox1.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.GroupBox1.Name = "GroupBox1"
         Me.GroupBox1.Padding = New System.Windows.Forms.Padding(4, 3, 4, 3)
-        Me.GroupBox1.Size = New System.Drawing.Size(290, 122)
+        Me.GroupBox1.Size = New System.Drawing.Size(257, 122)
         Me.GroupBox1.TabIndex = 7
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "General Tweaks"
@@ -130,7 +130,7 @@ Partial Class Form2
         Me.GroupBox2.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.GroupBox2.Name = "GroupBox2"
         Me.GroupBox2.Padding = New System.Windows.Forms.Padding(4, 3, 4, 3)
-        Me.GroupBox2.Size = New System.Drawing.Size(290, 139)
+        Me.GroupBox2.Size = New System.Drawing.Size(257, 139)
         Me.GroupBox2.TabIndex = 8
         Me.GroupBox2.TabStop = False
         Me.GroupBox2.Text = "Fun Tweaks"
@@ -143,7 +143,7 @@ Partial Class Form2
         Me.ComboBox3.Location = New System.Drawing.Point(105, 17)
         Me.ComboBox3.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.ComboBox3.Name = "ComboBox3"
-        Me.ComboBox3.Size = New System.Drawing.Size(176, 23)
+        Me.ComboBox3.Size = New System.Drawing.Size(144, 23)
         Me.ComboBox3.TabIndex = 8
         '
         'Label4
@@ -164,13 +164,13 @@ Partial Class Form2
         Me.ComboBox1.Location = New System.Drawing.Point(111, 46)
         Me.ComboBox1.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.ComboBox1.Name = "ComboBox1"
-        Me.ComboBox1.Size = New System.Drawing.Size(170, 23)
+        Me.ComboBox1.Size = New System.Drawing.Size(138, 23)
         Me.ComboBox1.TabIndex = 1
         '
         'Label3
         '
         Me.Label3.AutoSize = True
-        Me.Label3.Location = New System.Drawing.Point(154, 101)
+        Me.Label3.Location = New System.Drawing.Point(122, 101)
         Me.Label3.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(51, 15)
@@ -185,7 +185,7 @@ Partial Class Form2
         Me.ComboBox2.Location = New System.Drawing.Point(62, 75)
         Me.ComboBox2.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.ComboBox2.Name = "ComboBox2"
-        Me.ComboBox2.Size = New System.Drawing.Size(143, 23)
+        Me.ComboBox2.Size = New System.Drawing.Size(111, 23)
         Me.ComboBox2.TabIndex = 5
         '
         'Label2
@@ -200,7 +200,7 @@ Partial Class Form2
         '
         'PictureBox1
         '
-        Me.PictureBox1.Location = New System.Drawing.Point(213, 75)
+        Me.PictureBox1.Location = New System.Drawing.Point(181, 75)
         Me.PictureBox1.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.PictureBox1.Name = "PictureBox1"
         Me.PictureBox1.Size = New System.Drawing.Size(75, 58)
@@ -220,7 +220,7 @@ Partial Class Form2
         'Button2
         '
         Me.Button2.DialogResult = System.Windows.Forms.DialogResult.Cancel
-        Me.Button2.Location = New System.Drawing.Point(173, 285)
+        Me.Button2.Location = New System.Drawing.Point(140, 285)
         Me.Button2.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.Button2.Name = "Button2"
         Me.Button2.Size = New System.Drawing.Size(61, 25)
@@ -244,7 +244,7 @@ Partial Class Form2
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.CancelButton = Me.Button2
-        Me.ClientSize = New System.Drawing.Size(316, 322)
+        Me.ClientSize = New System.Drawing.Size(283, 322)
         Me.Controls.Add(Me.Button3)
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.GroupBox1)

@@ -59,7 +59,7 @@ Partial Class Form3
         Me.GroupBox1.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.GroupBox1.Name = "GroupBox1"
         Me.GroupBox1.Padding = New System.Windows.Forms.Padding(4, 3, 4, 3)
-        Me.GroupBox1.Size = New System.Drawing.Size(258, 204)
+        Me.GroupBox1.Size = New System.Drawing.Size(221, 205)
         Me.GroupBox1.TabIndex = 0
         Me.GroupBox1.TabStop = False
         Me.GroupBox1.Text = "Options"
@@ -68,10 +68,10 @@ Partial Class Form3
         '
         Me.ComboBox4.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.ComboBox4.FormattingEnabled = True
-        Me.ComboBox4.Location = New System.Drawing.Point(77, 103)
+        Me.ComboBox4.Location = New System.Drawing.Point(77, 104)
         Me.ComboBox4.Margin = New System.Windows.Forms.Padding(2)
         Me.ComboBox4.Name = "ComboBox4"
-        Me.ComboBox4.Size = New System.Drawing.Size(175, 23)
+        Me.ComboBox4.Size = New System.Drawing.Size(136, 23)
         Me.ComboBox4.TabIndex = 23
         '
         'Label4
@@ -87,7 +87,7 @@ Partial Class Form3
         'CheckBox3
         '
         Me.CheckBox3.AutoSize = True
-        Me.CheckBox3.Location = New System.Drawing.Point(6, 156)
+        Me.CheckBox3.Location = New System.Drawing.Point(6, 157)
         Me.CheckBox3.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.CheckBox3.Name = "CheckBox3"
         Me.CheckBox3.Size = New System.Drawing.Size(133, 19)
@@ -98,7 +98,7 @@ Partial Class Form3
         'CheckBox4
         '
         Me.CheckBox4.AutoSize = True
-        Me.CheckBox4.Location = New System.Drawing.Point(6, 180)
+        Me.CheckBox4.Location = New System.Drawing.Point(6, 181)
         Me.CheckBox4.Margin = New System.Windows.Forms.Padding(2)
         Me.CheckBox4.Name = "CheckBox4"
         Me.CheckBox4.Size = New System.Drawing.Size(145, 19)
@@ -122,16 +122,16 @@ Partial Class Form3
         Me.ComboBox3.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.ComboBox3.FormattingEnabled = True
         Me.ComboBox3.Items.AddRange(New Object() {"Default (Bilinear)", "Point Sampled", "Linear Mip", "Anisotropic 2x", "Anisotropic 4x", "Anisotropic 8x", "Anisotropic 16x"})
-        Me.ComboBox3.Location = New System.Drawing.Point(101, 76)
+        Me.ComboBox3.Location = New System.Drawing.Point(101, 77)
         Me.ComboBox3.Margin = New System.Windows.Forms.Padding(2)
         Me.ComboBox3.Name = "ComboBox3"
-        Me.ComboBox3.Size = New System.Drawing.Size(151, 23)
+        Me.ComboBox3.Size = New System.Drawing.Size(112, 23)
         Me.ComboBox3.TabIndex = 18
         '
         'Label2
         '
         Me.Label2.AutoSize = True
-        Me.Label2.Location = New System.Drawing.Point(6, 52)
+        Me.Label2.Location = New System.Drawing.Point(6, 53)
         Me.Label2.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.Label2.Name = "Label2"
         Me.Label2.Size = New System.Drawing.Size(74, 15)
@@ -143,10 +143,10 @@ Partial Class Form3
         Me.ComboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.ComboBox2.FormattingEnabled = True
         Me.ComboBox2.Items.AddRange(New Object() {"Off", "2x MSAA", "4x MSAA", "8x MSAA"})
-        Me.ComboBox2.Location = New System.Drawing.Point(84, 49)
+        Me.ComboBox2.Location = New System.Drawing.Point(84, 50)
         Me.ComboBox2.Margin = New System.Windows.Forms.Padding(2)
         Me.ComboBox2.Name = "ComboBox2"
-        Me.ComboBox2.Size = New System.Drawing.Size(168, 23)
+        Me.ComboBox2.Size = New System.Drawing.Size(129, 23)
         Me.ComboBox2.TabIndex = 16
         '
         'ComboBox1
@@ -154,10 +154,10 @@ Partial Class Form3
         Me.ComboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
         Me.ComboBox1.FormattingEnabled = True
         Me.ComboBox1.Items.AddRange(New Object() {"DirectX 8 (Default)", "DirectX 10", "DirectX 11", "DirectX 12", "OpenGL"})
-        Me.ComboBox1.Location = New System.Drawing.Point(98, 21)
+        Me.ComboBox1.Location = New System.Drawing.Point(98, 22)
         Me.ComboBox1.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.ComboBox1.Name = "ComboBox1"
-        Me.ComboBox1.Size = New System.Drawing.Size(152, 23)
+        Me.ComboBox1.Size = New System.Drawing.Size(115, 23)
         Me.ComboBox1.TabIndex = 15
         Me.ToolTip1.SetToolTip(Me.ComboBox1, "DirectX 11 Recommended!" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "DirectX 10-12 via dgVoodoo2 by Dege" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "dege.fw.hu" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "OpenGL " &
         "via WineD3D for Windows" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "fdossena.com")
@@ -165,7 +165,7 @@ Partial Class Form3
         'Label1
         '
         Me.Label1.AutoSize = True
-        Me.Label1.Location = New System.Drawing.Point(8, 24)
+        Me.Label1.Location = New System.Drawing.Point(8, 25)
         Me.Label1.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(82, 15)
@@ -175,7 +175,7 @@ Partial Class Form3
         'CheckBox1
         '
         Me.CheckBox1.AutoSize = True
-        Me.CheckBox1.Location = New System.Drawing.Point(8, 131)
+        Me.CheckBox1.Location = New System.Drawing.Point(8, 132)
         Me.CheckBox1.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.CheckBox1.Name = "CheckBox1"
         Me.CheckBox1.Size = New System.Drawing.Size(79, 19)
@@ -186,7 +186,7 @@ Partial Class Form3
         'Button2
         '
         Me.Button2.DialogResult = System.Windows.Forms.DialogResult.Cancel
-        Me.Button2.Location = New System.Drawing.Point(141, 222)
+        Me.Button2.Location = New System.Drawing.Point(104, 223)
         Me.Button2.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.Button2.Name = "Button2"
         Me.Button2.Size = New System.Drawing.Size(61, 25)
@@ -196,7 +196,7 @@ Partial Class Form3
         '
         'Button1
         '
-        Me.Button1.Location = New System.Drawing.Point(210, 222)
+        Me.Button1.Location = New System.Drawing.Point(173, 223)
         Me.Button1.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.Button1.Name = "Button1"
         Me.Button1.Size = New System.Drawing.Size(61, 25)
@@ -208,7 +208,7 @@ Partial Class Form3
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(284, 259)
+        Me.ClientSize = New System.Drawing.Size(247, 260)
         Me.Controls.Add(Me.Button2)
         Me.Controls.Add(Me.Button1)
         Me.Controls.Add(Me.GroupBox1)

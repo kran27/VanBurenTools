@@ -137,6 +137,9 @@ Public Class Form3
         If ComboBox1.SelectedIndex = 1 Then CheckBox4.Enabled = 0
     End Sub
 
+    Private Sub ComboBox3_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ComboBox3.SelectedIndexChanged
+
+    End Sub
 End Class
 
 Public Class SupportedScreenSizes
