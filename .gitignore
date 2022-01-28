@@ -13,3 +13,15 @@ VBLauncher/My Project/PublishProfiles/ClickOnceProfile.pubxml.user
 VBLauncher/bin/Release/VBLauncher.exe.config
 VBLauncher/bin/Release/VBLauncher.pdb
 VBLauncher/bin/Release/VBLauncher.xml
+VBLauncher/bin/Release/VBLauncher.dll.config
+VBLauncher/bin/Release/VBLauncher.deps.json
+VBLauncher/bin/Release/Application Files/VBLauncher_0_0_0_0/Launcher.exe.deploy
+VBLauncher/bin/Release/Application Files/VBLauncher_0_0_0_0/sni.dll.deploy
+VBLauncher/bin/Release/Application Files/VBLauncher_0_0_0_0/VBLauncher.dll.config.deploy
+VBLauncher/bin/Release/Application Files/VBLauncher_0_0_0_0/VBLauncher.dll.manifest
+VBLauncher/bin/Release/Application Files/VBLauncher_0_0_0_0/VBLauncher.exe.deploy
+VBLauncher/bin/Release/Application Files/VBLauncher_0_0_0_0/VBLauncher.xml.deploy
+VBLauncher/bin/Release/Launcher.exe
+VBLauncher/bin/Release/setup.exe
+VBLauncher/bin/Release/sni.dll
+VBLauncher/bin/Release/VBLauncher.application
