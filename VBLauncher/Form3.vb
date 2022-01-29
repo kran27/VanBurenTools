@@ -50,8 +50,8 @@ Public Class Form3
             Case "Filtering = 8" : ComboBox3.SelectedIndex = 5
             Case "Filtering = 16" : ComboBox3.SelectedIndex = 6
         End Select
-        If dgV2Line(39) = "DisableMipmapping = 0" Then CheckBox3.Checked = True Else CheckBox3.Checked = False
-        If dgV2Line(45) = "PhongShadingWhenPossible = 1" Then CheckBox4.Checked = True Else CheckBox4.Checked = False
+        If dgV2Line(39) = "DisableMipmapping = false" Then CheckBox3.Checked = True Else CheckBox3.Checked = False
+        If dgV2Line(45) = "PhongShadingWhenPossible = true" Then CheckBox4.Checked = True Else CheckBox4.Checked = False
     End Sub
 
     Private Sub ApplyChanges() Handles Button1.Click
@@ -105,8 +105,8 @@ Public Class Form3
             Case 5 : WriteTodgV2(37, "Filtering = 8")
             Case 6 : WriteTodgV2(37, "Filtering = 16")
         End Select
-        If CheckBox3.Checked Then WriteTodgV2(39, "DisableMipmapping = 0") Else WriteTodgV2(39, "DisableMipmapping = 1")
-        If CheckBox4.Checked Then WriteTodgV2(45, "PhongShadingWhenPossible = 1") Else WriteTodgV2(45, "PhongShadingWhenPossible = 0")
+        If CheckBox3.Checked Then WriteTodgV2(39, "DisableMipmapping = false") Else WriteTodgV2(39, "DisableMipmapping = true")
+        If CheckBox4.Checked Then WriteTodgV2(45, "PhongShadingWhenPossible = true") Else WriteTodgV2(45, "PhongShadingWhenPossible = false")
         WriteTodgV2(29, "FPSLimit = " & Math.Round(Hz))
         WriteToF3Ini(30, "mode32bpp = 1")
         WriteToF3Ini(31, "refresh = " & Hz)
