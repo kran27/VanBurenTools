@@ -19,7 +19,7 @@ Public Class Form1
     End Sub
 
     Private Sub Startup() Handles MyBase.Load
-        MyBase.Icon = My.Resources.F3
+        Icon = My.Resources.F3
         PictureBox1.Image = My.Resources.Launch
         PictureBox2.Image = My.Resources.Options
         PictureBox3.Image = My.Resources._Exit
