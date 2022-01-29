@@ -6,7 +6,6 @@ Public Class Form3
     Public IFDir As String = My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini"
     Public Line() As String = File.ReadAllLines(IFDir)
     Public dgV2Line() As String
-    Public VRAM As String
     Public SelH As String
     Public SelW As String
 
@@ -15,6 +14,7 @@ Public Class Form3
         dgV2Line(LineNum) = TextValue
         File.WriteAllLines("dgVoodoo.conf", dgV2Line)
     End Sub
+
     Public Sub WriteToF3Ini(LineNum As Integer, TextValue As String)
         Line = File.ReadAllLines(IFDir)
         Line(LineNum) = TextValue
@@ -26,12 +26,6 @@ Public Class Form3
         If Not File.Exists("dgVoodoo.conf") Then _
             File.WriteAllBytes("dgVoodoo.conf", My.Resources.dgV2conf)
         dgV2Line = File.ReadAllLines("dgVoodoo.conf")
-        Dim Query As New SelectQuery("Win32_VideoController")
-        For Each OVRAM In
-            From Mo As ManagementObject In New ManagementObjectSearcher(Query).Get Select OVRAM1 = Mo("AdapterRAM")
-            Where OVRAM1 IsNot Nothing And OVRAM1 > VRAM
-            VRAM = OVRAM
-        Next
         ComboBox4.Items.Clear()
         ComboBox4.Items.AddRange(EDSEW.GetSizesAsStrings)
         ComboBox4.SelectedItem = Line(35).Remove(0, 8) & "x" & Line(29).Remove(0, 9)
@@ -113,9 +107,6 @@ Public Class Form3
         End Select
         If CheckBox3.Checked Then WriteTodgV2(39, "DisableMipmapping = 0") Else WriteTodgV2(39, "DisableMipmapping = 1")
         If CheckBox4.Checked Then WriteTodgV2(45, "PhongShadingWhenPossible = 1") Else WriteTodgV2(45, "PhongShadingWhenPossible = 0")
-        VRAM /= 1048576
-        If VRAM > 4096 Then VRAM = 4096
-        WriteTodgV2(36, "VRAM = " & VRAM)
         WriteTodgV2(29, "FPSLimit = " & Math.Round(Hz))
         WriteToF3Ini(30, "mode32bpp = 1")
         WriteToF3Ini(31, "refresh = " & Hz)
@@ -139,9 +130,10 @@ Public Class Form3
 End Class
 
 Public Class EDSEW
+
     <StructLayout(LayoutKind.Sequential, CharSet:=CharSet.Unicode)>
     Private Structure DevModeW
-        <MarshalAs(UnmanagedType.ByValTStr, SizeConst := 32)> Private ReadOnly dmDeviceName As String
+        <MarshalAs(UnmanagedType.ByValTStr, SizeConst:=32)> Private ReadOnly dmDeviceName As String
         Private ReadOnly dmSpecVersion As UShort
         Private ReadOnly dmDriverVersion As UShort
         Public dmSize As UShort
@@ -153,7 +145,7 @@ Public Class EDSEW
         Private ReadOnly dmYResolution As Short
         Private ReadOnly dmTTOption As Short
         Private ReadOnly dmCollate As Short
-        <MarshalAs(UnmanagedType.ByValTStr, SizeConst := 32)> Private ReadOnly dmFormName As String
+        <MarshalAs(UnmanagedType.ByValTStr, SizeConst:=32)> Private ReadOnly dmFormName As String
         Private ReadOnly dmLogPixels As UShort
         Private ReadOnly dmBitsPerPel As UInteger
         Public ReadOnly dmPelsWidth As UInteger
@@ -186,7 +178,7 @@ Public Class EDSEW
         Private ReadOnly y As Integer
     End Structure
 
-    <DllImport("user32.dll", EntryPoint := "EnumDisplaySettingsExW")>
+    <DllImport("user32.dll", EntryPoint:="EnumDisplaySettingsExW")>
     Private Shared Function EnumDisplaySettingsExW(<MarshalAs(UnmanagedType.LPWStr)> DeviceName As String, ModeNum As Integer, ByRef DevMode As DevModeW, Flags As UInteger) As Boolean
     End Function
 
@@ -219,4 +211,5 @@ Public Class EDSEW
         End While
         Return SizeList.ToArray
     End Function
+
 End Class
