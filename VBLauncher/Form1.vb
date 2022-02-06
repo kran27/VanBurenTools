@@ -26,7 +26,7 @@ Public Class Form1
         PictureBox4.Image = My.Resources.Logo
         PictureBox4.Parent = PictureBox5
         Dim Random As New Random
-        Select Case Random.Next(1, 9)
+        Select Case Random.Next(1, 11)
             Case 1 : PictureBox5.Image = My.Resources.BG1
             Case 2 : PictureBox5.Image = My.Resources.BG2
             Case 3 : PictureBox5.Image = My.Resources.BG3
@@ -36,6 +36,8 @@ Public Class Form1
             Case 7 : PictureBox5.Image = My.Resources.BG7
             Case 8 : PictureBox5.Image = My.Resources.BG8
             Case 9 : PictureBox5.Image = My.Resources.BG9
+            Case 10 : PictureBox5.Image = My.Resources.BG10
+            Case 11 : PictureBox5.Image = My.Resources.BG11
         End Select
         If Directory.Exists("Override\Fixes") Then Directory.Delete("Override\Fixes", 1)
         If File.Exists("F3.exe") Then
