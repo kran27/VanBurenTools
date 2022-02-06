@@ -39,7 +39,10 @@ Public Class Form1
             Case 10 : PictureBox5.Image = My.Resources.BG10
             Case 11 : PictureBox5.Image = My.Resources.BG11
         End Select
-        If Directory.Exists("Override\Fixes") Then Directory.Delete("Override\Fixes", 1)
+        Try
+            Directory.Delete("Override\Fixes", 1)
+        Catch Ex As Exception : Console.WriteLine("Fix Directory Not Found")
+        End Try
         If File.Exists("F3.exe") Then
             Directory.CreateDirectory("Override\Fixes")
             File.WriteAllBytes("Override\Fixes\Fixes.zip", My.Resources.Fixes)
@@ -56,12 +59,13 @@ Public Class Form1
     End Sub
 
     Private Shared Sub PictureBox1_Click() Handles PictureBox1.Click
-        If Not File.Exists("F3.exe") Then
-            MsgBox("Please put the launcher in the same directory as the game!", MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly, "Game Executable Not Found!")
-        Else
+        Try
             Process.Start("F3.exe")
             Application.Exit()
-        End If
+        Catch Ex As Exception
+            MsgBox("Please put the launcher in the same directory as the game!",
+                   MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly, "Game Executable Not Found!")
+        End Try
     End Sub
 
     Private Sub PictureBox2_Click() Handles PictureBox2.Click

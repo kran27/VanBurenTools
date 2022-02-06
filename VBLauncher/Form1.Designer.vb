@@ -71,7 +71,7 @@ Partial Class Form1
         '
         Me.PictureBox4.BackColor = System.Drawing.Color.Transparent
         Me.PictureBox4.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.PictureBox4.Location = New System.Drawing.Point(475, 318)
+        Me.PictureBox4.Location = New System.Drawing.Point(478, 317)
         Me.PictureBox4.Margin = New System.Windows.Forms.Padding(4)
         Me.PictureBox4.Name = "PictureBox4"
         Me.PictureBox4.Size = New System.Drawing.Size(149, 150)
@@ -85,7 +85,7 @@ Partial Class Form1
         Me.PictureBox5.Location = New System.Drawing.Point(0, 0)
         Me.PictureBox5.Margin = New System.Windows.Forms.Padding(4)
         Me.PictureBox5.Name = "PictureBox5"
-        Me.PictureBox5.Size = New System.Drawing.Size(637, 481)
+        Me.PictureBox5.Size = New System.Drawing.Size(640, 480)
         Me.PictureBox5.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage
         Me.PictureBox5.TabIndex = 4
         Me.PictureBox5.TabStop = False
@@ -95,7 +95,7 @@ Partial Class Form1
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.Black
-        Me.ClientSize = New System.Drawing.Size(637, 481)
+        Me.ClientSize = New System.Drawing.Size(640, 480)
         Me.Controls.Add(Me.PictureBox4)
         Me.Controls.Add(Me.PictureBox3)
         Me.Controls.Add(Me.PictureBox2)
