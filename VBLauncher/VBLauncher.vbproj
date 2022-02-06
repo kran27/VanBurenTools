@@ -36,6 +36,14 @@
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Resources\Menu INIs\**" />
+    <Compile Remove="Resources\UnusedThings\**" />
+    <EmbeddedResource Remove="Resources\Menu INIs\**" />
+    <EmbeddedResource Remove="Resources\UnusedThings\**" />
+    <None Remove="Resources\Menu INIs\**" />
+    <None Remove="Resources\UnusedThings\**" />
+  </ItemGroup>
+  <ItemGroup>
     <Import Include="System.Drawing" />
     <Import Include="System.Windows.Forms" />
   </ItemGroup>
@@ -67,53 +75,6 @@
       <Generator>MyApplicationCodeGenerator</Generator>
       <LastGenOutput>Application.Designer.vb</LastGenOutput>
     </None>
-    <None Include="Resources\Default_sys.ini" />
-    <None Include="Resources\Helmets\8 Ball.tga" />
-    <None Include="Resources\Menu INIs\AaronMap2.ini" />
-    <None Include="Resources\Menu INIs\Building1.ini" />
-    <None Include="Resources\Menu INIs\Building2.ini" />
-    <None Include="Resources\Menu INIs\Building3.ini" />
-    <None Include="Resources\Menu INIs\Building4.ini" />
-    <None Include="Resources\Menu INIs\Canyon.ini" />
-    <None Include="Resources\Menu INIs\Canyon2.ini" />
-    <None Include="Resources\Menu INIs\Cave.ini" />
-    <None Include="Resources\Menu INIs\Default.ini" />
-    <None Include="Resources\Menu INIs\Fences.ini" />
-    <None Include="Resources\Menu INIs\ScottEMap1.ini" />
-    <None Include="Resources\Menu INIs\ScottEMap2.ini" />
-    <None Include="Resources\Menu INIs\ScottEMap4.ini" />
-    <None Include="Resources\Menu INIs\Shacks.ini" />
-    <None Include="Resources\Menu INIs\StartMap.ini" />
-    <None Include="Resources\Menu INIs\Tutorial.ini" />
-    <None Include="Resources\Menu INIs\UncappedZoom.ini" />
-    <None Include="Resources\Menu INIs\Vault.ini" />
-    <None Include="Resources\PCFemale.CRT" />
-    <None Include="Resources\UnusedThings.zip" />
-    <None Include="Resources\UnusedThings\CrittersAnt.CRT" />
-    <None Include="Resources\UnusedThings\CrittersAntQ.CRT" />
-    <None Include="Resources\UnusedThings\CrittersBat.CRT" />
-    <None Include="Resources\UnusedThings\CrittersBeetle.CRT" />
-    <None Include="Resources\UnusedThings\CrittersCentipede.CRT" />
-    <None Include="Resources\UnusedThings\CrittersDeathclaw.CRT" />
-    <None Include="Resources\UnusedThings\CrittersDesertStalker.CRT" />
-    <None Include="Resources\UnusedThings\CrittersGila.CRT" />
-    <None Include="Resources\UnusedThings\CrittersManTrap.CRT" />
-    <None Include="Resources\UnusedThings\CrittersRadToad.CRT" />
-    <None Include="Resources\UnusedThings\CrittersRat.CRT" />
-    <None Include="Resources\UnusedThings\CrittersThornSlinger.CRT" />
-    <None Include="Resources\UnusedThings\CrittersTiger.CRT" />
-    <None Include="Resources\UnusedThings\CrittersWaspGiant.CRT" />
-    <None Include="Resources\UnusedThings\CrittersWeedling.CRT" />
-    <None Include="Resources\UnusedThings\CrittersWolf.CRT" />
-    <None Include="Resources\UnusedThings\CR_DesertStalk.b3d" />
-    <None Include="Resources\UnusedThings\CR_DesertStalk.g3d" />
-    <None Include="Resources\UnusedThings\DS_Propsvehiclesdunebuggy.itm" />
-    <None Include="Resources\UnusedThings\DS_Propsvehiclesmotorcycle.itm" />
-    <None Include="Resources\UnusedThings\Weapons2mmGaussPistol.wea" />
-    <None Include="Resources\UnusedThings\WeaponsLaserSaw.wea" />
-    <None Include="Resources\UnusedThings\WeaponsSawedOffShotgun.wea" />
-    <None Include="Resources\UnusedThings\WP_2mmGaussPistol_ACT.tga" />
-    <None Include="Resources\UnusedThings\WP_2mmGaussPistol_INV.tga" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.3.261602">

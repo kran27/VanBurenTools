@@ -1,5 +1,4 @@
 ﻿Imports System.IO
-Imports System.Management
 Imports System.Runtime.InteropServices
 
 Public Class Form3
