@@ -39,10 +39,7 @@ Public Class Form1
             Case 10 : PictureBox5.Image = My.Resources.BG10
             Case 11 : PictureBox5.Image = My.Resources.BG11
         End Select
-        Try
-            Directory.Delete("Override\Fixes", 1)
-        Catch Ex As Exception : Console.WriteLine("Fix Directory Not Found")
-        End Try
+        Try : Directory.Delete("Override\Fixes", 1) : Catch : End Try
         If File.Exists("F3.exe") Then
             Directory.CreateDirectory("Override\Fixes")
             File.WriteAllBytes("Override\Fixes\Fixes.zip", My.Resources.Fixes)

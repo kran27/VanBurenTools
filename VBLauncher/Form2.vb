@@ -84,26 +84,7 @@ Public Class Form2
         Next
         SysLine = File.ReadAllLines("Override\MenuMap\Engine\sys.ini")
         ComboBox3.Text = SysLine(52).Remove(0, 12)
-        If File.Exists(HelmType) Then
-            Select Case File.ReadAllText(HelmType)
-                Case "8Ball" : ComboBox2.SelectedIndex = 1
-                Case "American" : ComboBox2.SelectedIndex = 2
-                Case "Black" : ComboBox2.SelectedIndex = 3
-                Case "Blue" : ComboBox2.SelectedIndex = 4
-                Case "Eye" : ComboBox2.SelectedIndex = 5
-                Case "Flames" : ComboBox2.SelectedIndex = 6
-                Case "FullSkull" : ComboBox2.SelectedIndex = 7
-                Case "Green" : ComboBox2.SelectedIndex = 8
-                Case "Grey" : ComboBox2.SelectedIndex = 9
-                Case "Police" : ComboBox2.SelectedIndex = 10
-                Case "Red" : ComboBox2.SelectedIndex = 11
-                Case "ShotSmiley" : ComboBox2.SelectedIndex = 12
-                Case "Skull" : ComboBox2.SelectedIndex = 13
-                Case "Yellow" : ComboBox2.SelectedIndex = 14
-            End Select
-        Else
-            ComboBox2.SelectedIndex = 0
-        End If
+        If File.Exists(HelmType) Then ComboBox2.SelectedItem = File.ReadAllText(HelmType) Else ComboBox2.SelectedIndex = 0
     End Sub
 
     Private Sub ApplyChanges() Handles Button1.Click
@@ -116,11 +97,8 @@ Public Class Form2
         ElseIf Directory.Exists("Override\SUMM") Then
             Directory.Delete("Override\SUMM", 1)
         End If
-
         Select Case ComboBox1.SelectedIndex
-            Case 0
-                If Line(29) = "height = 768" Then WriteMainMenu("mainmenu.map", 0, 5.5, 0, 0, 0, 68) Else _
-                    WriteMainMenu("mainmenu.map", 0, 5.5, 0, 2, 0.75, 59.2)
+            Case 0 : WriteMainMenu("mainmenu.map", 0, 5.5, 0, 2, 0.75, 59.2)
             Case 1 : WriteMainMenu("zz_TestMapsaarontemp2.map", 0, 0, 0, 0, 0, 0)
             Case 2 : WriteMainMenu("zz_TestMapsTest_City_Building01.map", 0, 5.5, 0, 45, -2.5, 57)
             Case 3 : WriteMainMenu("zz_TestMapsTest_City_Building02.map", 0, 5.5, 0, 43, -2.5, 57)
@@ -152,61 +130,34 @@ Public Class Form2
         End If
         SysLine(52) = "Start map = " & ComboBox3.Text
         File.WriteAllLines("Override\MenuMap\Engine\sys.ini", SysLine)
-        If Directory.Exists("Override\MapLightFix") Then Directory.Delete("Override\MapLightFix", True)
+        Try : Directory.Delete("Override\MapLightFix", True) : Catch : End Try
         If CheckBox4.Checked = True Then
             File.WriteAllBytes("Override\MapLightFix.zip", My.Resources.MapLightFix)
             ZipFile.ExtractToDirectory("Override\MapLightFix.zip", "Override\MapLightFix")
             File.Delete("Override\MapLightFix.zip")
         End If
-
-        If Directory.Exists("Override\Helmet") Then Directory.Delete("Override\Helmet", 1)
-        If Not ComboBox2.SelectedIndex = 0 Then _
-            Directory.CreateDirectory("Override\Helmet\Critters") : _
-                Directory.CreateDirectory("Override\Helmet\Interface")
-        Select Case ComboBox2.SelectedIndex
-            Case 1 : File.WriteAllText(HelmType, "8Ball")
-                File.WriteAllBytes(HelmInv, My.Resources._8_Ball_I)
-                File.WriteAllBytes(HelmTex, My.Resources._8_Ball)
-            Case 2 : File.WriteAllText(HelmType, "American")
-                File.WriteAllBytes(HelmInv, My.Resources.AmericanI)
-                File.WriteAllBytes(HelmTex, My.Resources.American)
-            Case 3 : File.WriteAllText(HelmType, "Black")
-                File.WriteAllBytes(HelmInv, My.Resources.BlackI)
-                File.WriteAllBytes(HelmTex, My.Resources.Black)
-            Case 4 : File.WriteAllText(HelmType, "Blue")
-                File.WriteAllBytes(HelmInv, My.Resources.BlueI)
-                File.WriteAllBytes(HelmTex, My.Resources.Blue)
-            Case 5 : File.WriteAllText(HelmType, "Eye")
-                File.WriteAllBytes(HelmInv, My.Resources.EyeI)
-                File.WriteAllBytes(HelmTex, My.Resources.Eye)
-            Case 6 : File.WriteAllText(HelmType, "Flames")
-                File.WriteAllBytes(HelmInv, My.Resources.FlamesI)
-                File.WriteAllBytes(HelmTex, My.Resources.Flames)
-            Case 7 : File.WriteAllText(HelmType, "FullSkull")
-                File.WriteAllBytes(HelmInv, My.Resources.Full_SkullI)
-                File.WriteAllBytes(HelmTex, My.Resources.Full_Skull)
-            Case 8 : File.WriteAllText(HelmType, "Green")
-                File.WriteAllBytes(HelmInv, My.Resources.GreenI)
-                File.WriteAllBytes(HelmTex, My.Resources.Green)
-            Case 9 : File.WriteAllText(HelmType, "Grey")
-                File.WriteAllBytes(HelmInv, My.Resources.GreyI)
-                File.WriteAllBytes(HelmTex, My.Resources.Grey)
-            Case 10 : File.WriteAllText(HelmType, "Police")
-                File.WriteAllBytes(HelmInv, My.Resources.PoliceI)
-                File.WriteAllBytes(HelmTex, My.Resources.Police)
-            Case 11 : File.WriteAllText(HelmType, "Red")
-                File.WriteAllBytes(HelmInv, My.Resources.RedI)
-                File.WriteAllBytes(HelmTex, My.Resources.Red)
-            Case 12 : File.WriteAllText(HelmType, "ShotSmiley")
-                File.WriteAllBytes(HelmInv, My.Resources.Shot_SmileyI)
-                File.WriteAllBytes(HelmTex, My.Resources.Shot_Smiley)
-            Case 13 : File.WriteAllText(HelmType, "Skull")
-                File.WriteAllBytes(HelmInv, My.Resources.SkullI)
-                File.WriteAllBytes(HelmTex, My.Resources.Skull)
-            Case 14 : File.WriteAllText(HelmType, "Yellow")
-                File.WriteAllBytes(HelmInv, My.Resources.YellowI)
-                File.WriteAllBytes(HelmTex, My.Resources.Yellow)
-        End Select
+        Try : Directory.Delete("Override\Helmet", 1) : Catch : End Try
+        If Not ComboBox2.SelectedIndex = 0 Then
+            Directory.CreateDirectory("Override\Helmet\Critters")
+            Directory.CreateDirectory("Override\Helmet\Interface")
+            File.WriteAllText(HelmType, ComboBox2.Text)
+            Select Case ComboBox2.SelectedIndex
+                Case 1 : File.WriteAllBytes(HelmInv, My.Resources._8_Ball_I) : File.WriteAllBytes(HelmTex, My.Resources._8_Ball)
+                Case 2 : File.WriteAllBytes(HelmInv, My.Resources.AmericanI) : File.WriteAllBytes(HelmTex, My.Resources.American)
+                Case 3 : File.WriteAllBytes(HelmInv, My.Resources.BlackI) : File.WriteAllBytes(HelmTex, My.Resources.Black)
+                Case 4 : File.WriteAllBytes(HelmInv, My.Resources.BlueI) : File.WriteAllBytes(HelmTex, My.Resources.Blue)
+                Case 5 : File.WriteAllBytes(HelmInv, My.Resources.EyeI) : File.WriteAllBytes(HelmTex, My.Resources.Eye)
+                Case 6 : File.WriteAllBytes(HelmInv, My.Resources.FlamesI) : File.WriteAllBytes(HelmTex, My.Resources.Flames)
+                Case 7 : File.WriteAllBytes(HelmInv, My.Resources.Full_SkullI) : File.WriteAllBytes(HelmTex, My.Resources.Full_Skull)
+                Case 8 : File.WriteAllBytes(HelmInv, My.Resources.GreenI) : File.WriteAllBytes(HelmTex, My.Resources.Green)
+                Case 9 : File.WriteAllBytes(HelmInv, My.Resources.GreyI) : File.WriteAllBytes(HelmTex, My.Resources.Grey)
+                Case 10 : File.WriteAllBytes(HelmInv, My.Resources.PoliceI) : File.WriteAllBytes(HelmTex, My.Resources.Police)
+                Case 11 : File.WriteAllBytes(HelmInv, My.Resources.RedI) : File.WriteAllBytes(HelmTex, My.Resources.Red)
+                Case 12 : File.WriteAllBytes(HelmInv, My.Resources.Shot_SmileyI) : File.WriteAllBytes(HelmTex, My.Resources.Shot_Smiley)
+                Case 13 : File.WriteAllBytes(HelmInv, My.Resources.SkullI) : File.WriteAllBytes(HelmTex, My.Resources.Skull)
+                Case 14 : File.WriteAllBytes(HelmInv, My.Resources.YellowI) : File.WriteAllBytes(HelmTex, My.Resources.Yellow)
+            End Select
+        End If
         Hide()
     End Sub
 
