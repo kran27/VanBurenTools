@@ -118,15 +118,6 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="American" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\American.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="AmericanI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\AmericanI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="American_Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\American Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="BG1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Launcher\BG1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -154,89 +145,23 @@
   <data name="BG9" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Launcher\BG9.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-    <data name="BG10" type="System.Resources.ResXFileRef, System.Windows.Forms">
+  <data name="BG10" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Launcher\BG10.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="BG11" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Launcher\BG11.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Black" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Black.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="BlackI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\BlackI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Black_Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Black Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Blue" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Blue.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="BlueI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\BlueI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Blue_Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Blue Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="Default_F3" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Default_F3.ini;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
-  <data name="Default_Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Default Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="Default_sys" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Default_sys;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Eye" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Eye.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="EyeI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\EyeI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Eye_Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Eye Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="F3" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\F3.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="f3_front_end_buttons" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\f3_front_end_buttons.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Flames" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Flames.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="FlamesI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\FlamesI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Flames_Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Flames Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Full_Skull" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Full Skull.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Full_SkullI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Full SkullI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Full_Skull_Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Full Skull Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Green" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Green.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="GreenI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\GreenI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Green_Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Green Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Grey" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Grey.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="GreyI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\GreyI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Grey_Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Grey Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Launch" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Launcher\Launch.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -247,59 +172,8 @@
   <data name="Options" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Launcher\Options.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Police" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Police.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="PoliceI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\PoliceI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Police_Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Police Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Red" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Red.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="RedI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\RedI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Red_Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Red Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Shot_Smiley" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Shot Smiley.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Shot_SmileyI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Shot SmileyI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Shot_Smiley_Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Shot Smiley Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Skull" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Skull.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="SkullI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\SkullI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Skull_Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Skull Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="Fixes" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Fixes.zip;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Yellow" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Yellow.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="YellowI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\YellowI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Yellow_Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Yellow Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="8_Ball_I" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\8-Ball I.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="8_Ball_Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\8-Ball Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Exit" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Launcher\Exit.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -322,7 +196,133 @@
   <data name="MapLightFix" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\MapLightFix.zip;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="8_Ball" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\8-Ball.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="8-Ball Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\8-Ball Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="American Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\American Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="AmericanI" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\AmericanI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Black Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Black Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="BlackI" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\BlackI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Blue Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Blue Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="BlueI" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\BlueI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Default Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Default Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Eye Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Eye Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="EyeI" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\EyeI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Flames Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Flames Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="FlamesI" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\FlamesI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Full Skull Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Full Skull Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Full SkullI" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Full SkullI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Green Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Green Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="GreenI" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\GreenI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Grey Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Grey Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="GreyI" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\GreyI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Police Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Police Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="PoliceI" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\PoliceI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Red Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Red Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="RedI" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\RedI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Shot Smiley Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Shot Smiley Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Shot SmileyI" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Shot SmileyI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Skull Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Skull Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SkullI" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\SkullI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Yellow Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Yellow Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="YellowI" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\YellowI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="8-BallI" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\8-BallI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="8-Ball" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\8-Ball.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="American" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\American.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Black" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Black.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Blue" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Blue.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Eye" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Eye.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Flames" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Flames.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Full Skull" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Full Skull.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Green" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Green.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Grey" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Grey.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Police" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Police.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Red" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Red.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Shot Smiley" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Shot Smiley.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Skull" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Skull.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Yellow" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Helmets\Yellow.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
 </root>

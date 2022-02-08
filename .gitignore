@@ -1,15 +1,14 @@
 .vs/
-VBLauncher/bin/Debug/
+VBLauncher/bin/Debug
 VBLauncher/bin/Release/net6.0-windows
-VBLauncher/obj/
-VBLauncher/bin/Release/Override/
+VBLauncher/obj
+VBLauncher/bin/Release/Override
 VBLauncher/bin/Release/d3d8.dll
 VBLauncher/bin/Release/dgVoodoo.conf
 VBLauncher/bin/Release/wined3d.dll
 VBLauncher/VBLauncher.vbproj.user
 VBLauncher.sln.DotSettings.user
-VBLauncher/My Project/PublishProfiles/ClickOnceProfile.pubxml
-VBLauncher/My Project/PublishProfiles/ClickOnceProfile.pubxml.user
+VBLauncher/My Project/PublishProfiles
 VBLauncher/bin/Release/VBLauncher.exe.config
 VBLauncher/bin/Release/VBLauncher.pdb
 VBLauncher/bin/Release/VBLauncher.xml

@@ -7,7 +7,7 @@ Public Class Form2
     Public SysLine() As String
     Public HelmType As String = "Override\Helmet\Helmet.type"
     Public HelmInv As String = "Override\Helmet\Interface\HeaMotorcycle_default_INV.tga"
-    Public HelmTex As String = "Override\Helmet\Critters\HeaMotorcycle_default_LG.tga"
+    Public HelmTex As String = "Override\Helmet\Critters\HeaMotorcycle_default_LG.png"
 
     Function SearchForFiles(RootFolder As String, FileFilter() As String) As List(Of String)
         Dim ReturnedData As New List(Of String)

@@ -64,7 +64,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property _8_Ball() As Byte()
             Get
-                Dim obj As Object = ResourceManager.GetObject("8_Ball", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("8-Ball", resourceCulture)
                 Return CType(obj,Byte())
             End Get
         End Property
@@ -74,7 +74,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property _8_Ball_I() As Byte()
             Get
-                Dim obj As Object = ResourceManager.GetObject("8_Ball_I", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("8-BallI", resourceCulture)
                 Return CType(obj,Byte())
             End Get
         End Property
@@ -84,7 +84,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property _8_Ball_Icon() As System.Drawing.Bitmap
             Get
-                Dim obj As Object = ResourceManager.GetObject("8_Ball_Icon", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("8-Ball Icon", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
@@ -114,7 +114,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property American_Icon() As System.Drawing.Bitmap
             Get
-                Dim obj As Object = ResourceManager.GetObject("American_Icon", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("American Icon", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
@@ -254,7 +254,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property Black_Icon() As System.Drawing.Bitmap
             Get
-                Dim obj As Object = ResourceManager.GetObject("Black_Icon", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Black Icon", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
@@ -284,7 +284,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property Blue_Icon() As System.Drawing.Bitmap
             Get
-                Dim obj As Object = ResourceManager.GetObject("Blue_Icon", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Blue Icon", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
@@ -348,7 +348,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property Default_Icon() As System.Drawing.Bitmap
             Get
-                Dim obj As Object = ResourceManager.GetObject("Default_Icon", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Default Icon", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
@@ -398,7 +398,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property Eye_Icon() As System.Drawing.Bitmap
             Get
-                Dim obj As Object = ResourceManager.GetObject("Eye_Icon", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Eye Icon", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
@@ -458,7 +458,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property Flames_Icon() As System.Drawing.Bitmap
             Get
-                Dim obj As Object = ResourceManager.GetObject("Flames_Icon", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Flames Icon", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
@@ -478,7 +478,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property Full_Skull() As Byte()
             Get
-                Dim obj As Object = ResourceManager.GetObject("Full_Skull", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Full Skull", resourceCulture)
                 Return CType(obj,Byte())
             End Get
         End Property
@@ -488,7 +488,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property Full_Skull_Icon() As System.Drawing.Bitmap
             Get
-                Dim obj As Object = ResourceManager.GetObject("Full_Skull_Icon", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Full Skull Icon", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
@@ -498,7 +498,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property Full_SkullI() As Byte()
             Get
-                Dim obj As Object = ResourceManager.GetObject("Full_SkullI", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Full SkullI", resourceCulture)
                 Return CType(obj,Byte())
             End Get
         End Property
@@ -538,7 +538,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property Green_Icon() As System.Drawing.Bitmap
             Get
-                Dim obj As Object = ResourceManager.GetObject("Green_Icon", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Green Icon", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
@@ -568,7 +568,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property Grey_Icon() As System.Drawing.Bitmap
             Get
-                Dim obj As Object = ResourceManager.GetObject("Grey_Icon", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Grey Icon", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
@@ -648,7 +648,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property Police_Icon() As System.Drawing.Bitmap
             Get
-                Dim obj As Object = ResourceManager.GetObject("Police_Icon", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Police Icon", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
@@ -678,7 +678,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property Red_Icon() As System.Drawing.Bitmap
             Get
-                Dim obj As Object = ResourceManager.GetObject("Red_Icon", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Red Icon", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
@@ -698,7 +698,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property Shot_Smiley() As Byte()
             Get
-                Dim obj As Object = ResourceManager.GetObject("Shot_Smiley", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Shot Smiley", resourceCulture)
                 Return CType(obj,Byte())
             End Get
         End Property
@@ -708,7 +708,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property Shot_Smiley_Icon() As System.Drawing.Bitmap
             Get
-                Dim obj As Object = ResourceManager.GetObject("Shot_Smiley_Icon", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Shot Smiley Icon", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
@@ -718,7 +718,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property Shot_SmileyI() As Byte()
             Get
-                Dim obj As Object = ResourceManager.GetObject("Shot_SmileyI", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Shot SmileyI", resourceCulture)
                 Return CType(obj,Byte())
             End Get
         End Property
@@ -738,7 +738,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property Skull_Icon() As System.Drawing.Bitmap
             Get
-                Dim obj As Object = ResourceManager.GetObject("Skull_Icon", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Skull Icon", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
@@ -768,7 +768,7 @@ Namespace My.Resources
         '''</summary>
         Friend ReadOnly Property Yellow_Icon() As System.Drawing.Bitmap
             Get
-                Dim obj As Object = ResourceManager.GetObject("Yellow_Icon", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("Yellow Icon", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property
