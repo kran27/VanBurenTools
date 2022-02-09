@@ -94,8 +94,8 @@ Public Class Form2
             Directory.CreateDirectory("Override\SUMM\Interface")
             File.WriteAllBytes("Override\SUMM\Interface\Mainmenu.int", My.Resources.Mainmenu)
             File.WriteAllBytes("Override\SUMM\Interface\f3_front_end_buttons.tga", My.Resources.f3_front_end_buttons)
-        ElseIf Directory.Exists("Override\SUMM") Then
-            Directory.Delete("Override\SUMM", 1)
+        Else
+            Try : Directory.Delete("Override\SUMM", 1) : Catch : End Try
         End If
         Select Case ComboBox1.SelectedIndex
             Case 0 : WriteMainMenu("mainmenu.map", 0, 5.5, 0, 2, 0.75, 59.2)
