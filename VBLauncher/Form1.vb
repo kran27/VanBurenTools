@@ -20,24 +20,25 @@ Public Class Form1
 
     Private Sub Startup() Handles MyBase.Load
         Icon = My.Resources.F3
-        PictureBox1.Image = My.Resources.Launch
-        PictureBox2.Image = My.Resources.Options
-        PictureBox3.Image = My.Resources._Exit
-        PictureBox4.Image = My.Resources.Logo
+        PictureBox1.BackgroundImage = My.Resources.Launch
+        PictureBox2.BackgroundImage = My.Resources.Options
+        PictureBox3.BackgroundImage = My.Resources._Exit
+        PictureBox4.BackgroundImage = My.Resources.Logo
         PictureBox4.Parent = PictureBox5
         Dim Random As New Random
-        Select Case Random.Next(1, 11)
-            Case 1 : PictureBox5.Image = My.Resources.BG1
-            Case 2 : PictureBox5.Image = My.Resources.BG2
-            Case 3 : PictureBox5.Image = My.Resources.BG3
-            Case 4 : PictureBox5.Image = My.Resources.BG4
-            Case 5 : PictureBox5.Image = My.Resources.BG5
-            Case 6 : PictureBox5.Image = My.Resources.BG6
-            Case 7 : PictureBox5.Image = My.Resources.BG7
-            Case 8 : PictureBox5.Image = My.Resources.BG8
-            Case 9 : PictureBox5.Image = My.Resources.BG9
-            Case 10 : PictureBox5.Image = My.Resources.BG10
-            Case 11 : PictureBox5.Image = My.Resources.BG11
+        Select Case Random.Next(1, 12)
+            Case 1 : PictureBox5.BackgroundImage = My.Resources.BG1
+            Case 2 : PictureBox5.BackgroundImage = My.Resources.BG2
+            Case 3 : PictureBox5.BackgroundImage = My.Resources.BG3
+            Case 4 : PictureBox5.BackgroundImage = My.Resources.BG4
+            Case 5 : PictureBox5.BackgroundImage = My.Resources.BG5
+            Case 6 : PictureBox5.BackgroundImage = My.Resources.BG6
+            Case 7 : PictureBox5.BackgroundImage = My.Resources.BG7
+            Case 8 : PictureBox5.BackgroundImage = My.Resources.BG8
+            Case 9 : PictureBox5.BackgroundImage = My.Resources.BG9
+            Case 10 : PictureBox5.BackgroundImage = My.Resources.BG10
+            Case 11 : PictureBox5.BackgroundImage = My.Resources.BG11
+            Case 12 : PictureBox5.BackgroundImage = My.Resources.BG12
         End Select
         Try : Directory.Delete("Override\Fixes", 1) : Catch : End Try
         If File.Exists("F3.exe") Then
