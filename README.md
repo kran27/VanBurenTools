@@ -6,5 +6,6 @@ A launcher and settings editor/mod loader for Fallout Van Buren
 - Put the .exe in the game directory
 - Open the options menu(s) and apply your desired tweaks before launching
 > Uses:
-- [WineD3D](https://fdossena.com/?p=wined3d/index.frag)
 - [dgVoodoo2](http://dege.fw.hu/)
+- [DXVK](https://github.com/doitsujin/dxvk)
+- [WineD3D](https://fdossena.com/?p=wined3d/index.frag)

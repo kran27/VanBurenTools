@@ -512,27 +512,47 @@ Namespace My.Resources
                 Return CType(obj,Byte())
             End Get
         End Property
-        
+
         '''<summary>
         '''  Looks up a localized resource of type System.Byte[].
         '''</summary>
         Friend ReadOnly Property GLd3d8() As Byte()
             Get
                 Dim obj As Object = ResourceManager.GetObject("GLd3d8", resourceCulture)
-                Return CType(obj,Byte())
+                Return CType(obj, Byte())
             End Get
         End Property
-        
+
         '''<summary>
         '''  Looks up a localized resource of type System.Byte[].
         '''</summary>
         Friend ReadOnly Property GLwined3d() As Byte()
             Get
                 Dim obj As Object = ResourceManager.GetObject("GLwined3d", resourceCulture)
-                Return CType(obj,Byte())
+                Return CType(obj, Byte())
             End Get
         End Property
-        
+
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property VKd3d11() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("VKd3d11", resourceCulture)
+                Return CType(obj, Byte())
+            End Get
+        End Property
+
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
+        Friend ReadOnly Property VKdxgi() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("VKdxgi", resourceCulture)
+                Return CType(obj, Byte())
+            End Get
+        End Property
+
         '''<summary>
         '''  Looks up a localized resource of type System.Byte[].
         '''</summary>

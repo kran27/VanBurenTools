@@ -29,11 +29,19 @@ Public Class Form3
         ComboBox4.Items.AddRange(EDSEW.GetSizesAsStrings)
         ComboBox4.SelectedItem = Line(35).Remove(0, 8) & "x" & Line(29).Remove(0, 9)
         If Line(28) = "fullscreen = 1" Then CheckBox1.Checked = True Else CheckBox1.Checked = False
-        If Not File.Exists("d3d8.dll") Then : ComboBox1.SelectedIndex = 0
-        ElseIf File.Exists("wined3d.dll") Then : ComboBox1.SelectedIndex = 4
-        ElseIf dgV2Line(3) = "OutputAPI = d3d11_fl10_1" Then : ComboBox1.SelectedIndex = 1
-        ElseIf dgV2Line(3) = "OutputAPI = d3d11_fl11_0" Then : ComboBox1.SelectedIndex = 2
-        ElseIf dgV2Line(3) = "OutputAPI = d3d12_fl12_0" Then : ComboBox1.SelectedIndex = 3 : End If
+        If File.Exists("d3d8.dll") Then
+            If File.Exists("d3d11.dll") Then
+                If File.Exists("wined3d.dll") Then
+                    ComboBox1.SelectedIndex = 2
+                Else
+                    ComboBox1.SelectedIndex = 3
+                End If
+            Else
+                ComboBox1.SelectedIndex = 1
+            End If
+        Else
+            ComboBox1.SelectedIndex = 0
+        End If
         Select Case dgV2Line(41)
             Case "Antialiasing = off" : ComboBox2.SelectedIndex = 0
             Case "Antialiasing = 2x" : ComboBox2.SelectedIndex = 1
@@ -72,22 +80,25 @@ Public Class Form3
         Select Case ComboBox1.SelectedIndex
             Case 0
                 File.Delete("d3d8.dll")
+                File.Delete("d3d11.dll")
+                File.Delete("dxgi.dll")
                 File.Delete("wined3d.dll")
             Case 1
+                File.Delete("d3d11.dll")
+                File.Delete("dxgi.dll")
                 File.Delete("wined3d.dll")
                 File.WriteAllBytes("d3d8.dll", My.Resources.DXd3d8)
                 WriteTodgV2(3, "OutputAPI = d3d11_fl10_1")
             Case 2
-                File.Delete("wined3d.dll")
-                File.WriteAllBytes("d3d8.dll", My.Resources.DXd3d8)
-                WriteTodgV2(3, "OutputAPI = d3d11_fl11_0")
+                File.Delete("d3d11.dll")
+                File.Delete("dxgi.dll")
+                File.WriteAllBytes("d3d8.dll", My.Resources.GLd3d8)
+                File.WriteAllBytes("wined3d.dll", My.Resources.GLwined3d)
             Case 3
                 File.Delete("wined3d.dll")
                 File.WriteAllBytes("d3d8.dll", My.Resources.DXd3d8)
-                WriteTodgV2(3, "OutputAPI = d3d12_fl12_0")
-            Case 4
-                File.WriteAllBytes("d3d8.dll", My.Resources.GLd3d8)
-                File.WriteAllBytes("wined3d.dll", My.Resources.GLwined3d)
+                File.WriteAllBytes("d3d11.dll", My.Resources.VKd3d11)
+                File.WriteAllBytes("dxgi.dll", My.Resources.VKdxgi)
         End Select
         Select Case ComboBox2.SelectedIndex
             Case 0 : WriteTodgV2(41, "Antialiasing = off")
@@ -112,20 +123,24 @@ Public Class Form3
         Hide()
     End Sub
 
-    Private Sub ComboBox1_SelectedIndexChanged() Handles ComboBox1.SelectedIndexChanged
+    Private Sub DisableOptions() Handles ComboBox1.SelectedIndexChanged
         Select Case ComboBox1.SelectedIndex
-            Case 1, 2, 3
-                Label2.Enabled = 1 : Label3.Enabled = 1
-                ComboBox2.Enabled = 1 : ComboBox3.Enabled = 1
-                CheckBox3.Enabled = 1 : CheckBox4.Enabled = 1
+            Case 2, 0
+                ComboBox2.Enabled = False
+                ComboBox3.Enabled = False
+                CheckBox3.Enabled = False
+                CheckBox4.Enabled = False
+                Label2.Enabled = False
+                Label3.Enabled = False
             Case Else
-                Label2.Enabled = 0 : Label3.Enabled = 0
-                ComboBox2.Enabled = 0 : ComboBox3.Enabled = 0
-                CheckBox3.Enabled = 0 : CheckBox4.Enabled = 0
+                ComboBox2.Enabled = True
+                ComboBox3.Enabled = True
+                CheckBox3.Enabled = True
+                CheckBox4.Enabled = True
+                Label2.Enabled = True
+                Label3.Enabled = True
         End Select
-        If ComboBox1.SelectedIndex = 1 Then CheckBox4.Enabled = 0
     End Sub
-
 End Class
 
 Public Class EDSEW

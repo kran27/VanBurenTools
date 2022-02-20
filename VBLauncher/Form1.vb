@@ -6,15 +6,15 @@ Public Class Form1
     Public MoveForm As Boolean
     Public MoveFormMousePosition As Point
 
-    Public Sub MoveForm_MouseDown(Sender As Object, E As MouseEventArgs) Handles PictureBox4.MouseDown, PictureBox5.MouseDown
+    Public Sub MoveForm_MouseDown(Sender As Object, E As MouseEventArgs) Handles PictureBox5.MouseDown, PictureBox4.MouseDown
         If E.Button = MouseButtons.Left Then MoveForm = 1 : MoveFormMousePosition = E.Location
     End Sub
 
-    Public Sub MoveForm_MouseMove(Sender As Object, E As MouseEventArgs) Handles PictureBox4.MouseMove, PictureBox5.MouseMove
+    Public Sub MoveForm_MouseMove(Sender As Object, E As MouseEventArgs) Handles PictureBox5.MouseMove, PictureBox4.MouseMove
         If MoveForm Then Location = Location + (E.Location - MoveFormMousePosition)
     End Sub
 
-    Public Sub MoveForm_MouseUp(Sender As Object, E As MouseEventArgs) Handles PictureBox4.MouseUp, PictureBox5.MouseUp
+    Public Sub MoveForm_MouseUp(Sender As Object, E As MouseEventArgs) Handles PictureBox5.MouseUp, PictureBox4.MouseUp
         If E.Button = MouseButtons.Left Then MoveForm = 0
     End Sub
 
