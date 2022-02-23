@@ -20,6 +20,9 @@ Public Class Form1
 
     Private Sub Startup() Handles MyBase.Load
         Icon = My.Resources.F3
+        Dim Attribute = DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE
+        Dim preference = DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND
+        DwmSetWindowAttribute(MyBase.Handle, Attribute, preference, 8)
         PictureBox1.BackgroundImage = My.Resources.Launch
         PictureBox2.BackgroundImage = My.Resources.Options
         PictureBox3.BackgroundImage = My.Resources._Exit
@@ -49,8 +52,7 @@ Public Class Form1
             AddFontResource("Fonts\TT0807M_.TTF")
             AddFontResource("Fonts\r_fallouty.ttf")
         Else
-            MsgBox("Please put the launcher in the same directory as the game so you can launch it!",
-                   MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly, "Game Executable Not Found!")
+            Form4.ShowError("Please put the launcher in the same directory as the game so you can launch it!", "Game Executable Not Found!")
         End If
         If File.Exists(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT") Then _
             File.Delete(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT")
@@ -61,8 +63,7 @@ Public Class Form1
             Process.Start("F3.exe")
             Application.Exit()
         Catch Ex As Exception
-            MsgBox("Please put the launcher in the same directory as the game!",
-                   MsgBoxStyle.Critical Or MsgBoxStyle.OkOnly, "Game Executable Not Found!")
+            Form4.ShowError("Please put the launcher in the same directory as the game so you can launch it!", "Game Executable Not Found!")
         End Try
     End Sub
 
@@ -81,4 +82,20 @@ Public Class Form1
     Public Shared Function AddFontResource(FontPath As String) As Integer
     End Function
 
+    Public Enum DWMWINDOWATTRIBUTE
+        DWMWA_WINDOW_CORNER_PREFERENCE = 33
+    End Enum
+
+    Public Enum DWM_WINDOW_CORNER_PREFERENCE
+        DWMWCP_DEFAULT = 0
+        DWMWCP_DONOTROUND = 1
+        DWMWCP_ROUND = 2
+        DWMWCP_ROUNDSMALL = 3
+    End Enum
+
+    <DllImport("dwmapi.dll")>
+    Private Shared Function DwmSetWindowAttribute(ByVal hwnd As IntPtr, ByVal attribute As DWMWINDOWATTRIBUTE, ByRef pvAttribute As DWM_WINDOW_CORNER_PREFERENCE, ByVal cbAttribute As UInteger) As Long
+    End Function
+
 End Class
+

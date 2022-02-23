@@ -141,6 +141,15 @@ Public Class Form3
                 Label3.Enabled = True
         End Select
     End Sub
+
+    <DllImport("dwmapi.dll")>
+    Private Shared Function DwmSetWindowAttribute(hwnd As IntPtr, attr As Integer, attrValue As Integer(), attrSize As Integer) As Integer
+    End Function
+
+    Protected Overrides Sub OnHandleCreated(e As EventArgs)
+        If DwmSetWindowAttribute(Handle, 19, {1}, 4) <> 0 Then DwmSetWindowAttribute(Handle, 20, {1}, 4)
+    End Sub
+
 End Class
 
 Public Class EDSEW

@@ -1,6 +1,6 @@
 ﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class Form3
-    Inherits System.Windows.Forms.Form
+    Inherits DarkUI.Forms.DarkForm
 
     'Form overrides dispose to clean up the component list.
     <System.Diagnostics.DebuggerNonUserCode()>
@@ -23,20 +23,20 @@ Partial Class Form3
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
-        Me.GroupBox1 = New System.Windows.Forms.GroupBox()
-        Me.ComboBox4 = New System.Windows.Forms.ComboBox()
-        Me.Label4 = New System.Windows.Forms.Label()
-        Me.CheckBox3 = New System.Windows.Forms.CheckBox()
-        Me.CheckBox4 = New System.Windows.Forms.CheckBox()
-        Me.Label3 = New System.Windows.Forms.Label()
-        Me.ComboBox3 = New System.Windows.Forms.ComboBox()
-        Me.Label2 = New System.Windows.Forms.Label()
-        Me.ComboBox2 = New System.Windows.Forms.ComboBox()
-        Me.ComboBox1 = New System.Windows.Forms.ComboBox()
-        Me.Label1 = New System.Windows.Forms.Label()
-        Me.CheckBox1 = New System.Windows.Forms.CheckBox()
-        Me.Button2 = New System.Windows.Forms.Button()
-        Me.Button1 = New System.Windows.Forms.Button()
+        Me.GroupBox1 = New DarkUI.Controls.DarkGroupBox()
+        Me.ComboBox4 = New DarkUI.Controls.DarkComboBox()
+        Me.Label4 = New DarkUI.Controls.DarkLabel()
+        Me.CheckBox3 = New DarkUI.Controls.DarkCheckBox()
+        Me.CheckBox4 = New DarkUI.Controls.DarkCheckBox()
+        Me.Label3 = New DarkUI.Controls.DarkLabel()
+        Me.ComboBox3 = New DarkUI.Controls.DarkComboBox()
+        Me.Label2 = New DarkUI.Controls.DarkLabel()
+        Me.ComboBox2 = New DarkUI.Controls.DarkComboBox()
+        Me.ComboBox1 = New DarkUI.Controls.DarkComboBox()
+        Me.Label1 = New DarkUI.Controls.DarkLabel()
+        Me.CheckBox1 = New DarkUI.Controls.DarkCheckBox()
+        Me.Button2 = New DarkUI.Controls.DarkButton()
+        Me.Button1 = New DarkUI.Controls.DarkButton()
         Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
         Me.GroupBox1.SuspendLayout()
         Me.SuspendLayout()

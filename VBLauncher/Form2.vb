@@ -1,5 +1,6 @@
 ﻿Imports System.IO
 Imports System.IO.Compression
+Imports System.Runtime.InteropServices
 
 Public Class Form2
     Public IFDir As String = My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini"
@@ -51,7 +52,6 @@ Public Class Form2
         If Line(25) = "enable startup movies = 1" Then CheckBox1.Checked = True Else CheckBox1.Checked = False
         If Directory.Exists("Override\SUMM") Then CheckBox2.Checked = True Else CheckBox2.Checked = False
         If Directory.Exists("Override\MapLightFix") Then CheckBox4.Checked = True Else CheckBox4.Checked = False
-
         If Not File.Exists("Override\MenuMap\Engine\sys.ini") Then Directory.CreateDirectory("Override\MenuMap\Engine") : _
             File.WriteAllBytes("Override\MenuMap\Engine\sys.ini", My.Resources.Default_sys)
         SysLine = File.ReadAllLines("Override\MenuMap\Engine\sys.ini")
@@ -187,6 +187,14 @@ Public Class Form2
 
     Private Sub ComboBox3_SelectedIndexChanged() Handles ComboBox3.SelectedIndexChanged
         ToolTip1.SetToolTip(ComboBox3, ComboBox3.Text)
+    End Sub
+
+    <DllImport("dwmapi.dll")>
+    Private Shared Function DwmSetWindowAttribute(hwnd As IntPtr, attr As Integer, attrValue As Integer(), attrSize As Integer) As Integer
+    End Function
+
+    Protected Overrides Sub OnHandleCreated(e As EventArgs)
+        If DwmSetWindowAttribute(Handle, 19, {1}, 4) <> 0 Then DwmSetWindowAttribute(Handle, 20, {1}, 4)
     End Sub
 
 End Class
