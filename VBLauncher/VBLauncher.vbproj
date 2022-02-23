@@ -77,8 +77,12 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="DarkModeUI" Version="3.1.0" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Dark Mode UI">
+      <HintPath>My Project\Dark Mode UI.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="My Project\Resources.resx">
