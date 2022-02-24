@@ -21,7 +21,7 @@ Public Class Form1
     Private Sub Startup() Handles MyBase.Load
         Icon = My.Resources.F3
         DwmSetWindowAttribute(Handle, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE,
-                              DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_DEFAULT, 0)
+                              DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND, 8)
         PictureBox1.BackgroundImage = My.Resources.Launch
         PictureBox2.BackgroundImage = My.Resources.Options
         PictureBox3.BackgroundImage = My.Resources._Exit
@@ -86,7 +86,7 @@ Public Class Form1
     End Enum
 
     Public Enum DWM_WINDOW_CORNER_PREFERENCE
-        DWMWCP_DEFAULT = 0
+        DWMWCP_ROUND = 2
     End Enum
 
     <DllImport("dwmapi.dll")>
