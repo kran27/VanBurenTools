@@ -92,7 +92,7 @@ Public Class Form1
     <DllImport("dwmapi.dll")>
     Private Shared Function DwmSetWindowAttribute(hwnd As IntPtr, Attribute As DWMWINDOWATTRIBUTE,
                                                   ByRef pvAttribute As DWM_WINDOW_CORNER_PREFERENCE,
-                                                  cbAttribute As UInteger)
+                                                  cbAttribute As UInteger) As Long
     End Function
 
 End Class
