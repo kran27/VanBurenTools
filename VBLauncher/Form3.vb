@@ -1,5 +1,6 @@
 ﻿Imports System.IO
 Imports System.Runtime.InteropServices
+Imports DarkUI2.Config
 
 Public Class Form3
     Public IFDir As String = My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini"
@@ -31,11 +32,9 @@ Public Class Form3
         If Line(28) = "fullscreen = 1" Then CheckBox1.Checked = True Else CheckBox1.Checked = False
         If File.Exists("d3d8.dll") Then
             If File.Exists("d3d11.dll") Then
-                If File.Exists("wined3d.dll") Then
-                    ComboBox1.SelectedIndex = 2
-                Else
-                    ComboBox1.SelectedIndex = 3
-                End If
+                ComboBox1.SelectedIndex = 3
+            ElseIf File.Exists("wined3d.dll") Then
+                ComboBox1.SelectedIndex = 2
             Else
                 ComboBox1.SelectedIndex = 1
             End If
@@ -130,15 +129,15 @@ Public Class Form3
                 ComboBox3.Enabled = False
                 CheckBox3.Enabled = False
                 CheckBox4.Enabled = False
-                Label2.Enabled = False
-                Label3.Enabled = False
+                Label2.ForeColor = ThemeProvider.Theme.Colors.DisabledText
+                Label3.ForeColor = ThemeProvider.Theme.Colors.DisabledText
             Case Else
                 ComboBox2.Enabled = True
                 ComboBox3.Enabled = True
                 CheckBox3.Enabled = True
                 CheckBox4.Enabled = True
-                Label2.Enabled = True
-                Label3.Enabled = True
+                Label2.ForeColor = ThemeProvider.Theme.Colors.LightText
+                Label3.ForeColor = ThemeProvider.Theme.Colors.LightText
         End Select
     End Sub
 

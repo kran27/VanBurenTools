@@ -3,6 +3,7 @@ VBLauncher/bin/Debug
 VBLauncher/bin/Release/net6.0-windows
 VBLauncher/obj
 VBLauncher/bin/Release/Override
+/VBLauncher/bin/Release/Application Files
 VBLauncher/bin/Release/d3d8.dll
 VBLauncher/bin/Release/dgVoodoo.conf
 VBLauncher/bin/Release/wined3d.dll

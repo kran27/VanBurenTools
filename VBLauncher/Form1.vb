@@ -20,9 +20,8 @@ Public Class Form1
 
     Private Sub Startup() Handles MyBase.Load
         Icon = My.Resources.F3
-        Dim Attribute = DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE
-        Dim preference = DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND
-        DwmSetWindowAttribute(MyBase.Handle, Attribute, preference, 8)
+        DwmSetWindowAttribute(Handle, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE,
+                              DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_DEFAULT, 0)
         PictureBox1.BackgroundImage = My.Resources.Launch
         PictureBox2.BackgroundImage = My.Resources.Options
         PictureBox3.BackgroundImage = My.Resources._Exit
@@ -88,14 +87,12 @@ Public Class Form1
 
     Public Enum DWM_WINDOW_CORNER_PREFERENCE
         DWMWCP_DEFAULT = 0
-        DWMWCP_DONOTROUND = 1
-        DWMWCP_ROUND = 2
-        DWMWCP_ROUNDSMALL = 3
     End Enum
 
     <DllImport("dwmapi.dll")>
-    Private Shared Function DwmSetWindowAttribute(ByVal hwnd As IntPtr, ByVal attribute As DWMWINDOWATTRIBUTE, ByRef pvAttribute As DWM_WINDOW_CORNER_PREFERENCE, ByVal cbAttribute As UInteger) As Long
+    Private Shared Function DwmSetWindowAttribute(hwnd As IntPtr, Attribute As DWMWINDOWATTRIBUTE,
+                                                  ByRef pvAttribute As DWM_WINDOW_CORNER_PREFERENCE,
+                                                  cbAttribute As UInteger)
     End Function
 
 End Class
-
