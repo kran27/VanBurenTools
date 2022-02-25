@@ -48,7 +48,6 @@ Partial Class Form3
         '
         'GroupBox1
         '
-        Me.GroupBox1.BorderColor = System.Drawing.Color.FromArgb(CType(CType(51, Byte), Integer), CType(CType(51, Byte), Integer), CType(CType(51, Byte), Integer))
         Me.GroupBox1.Controls.Add(Me.ComboBox4)
         Me.GroupBox1.Controls.Add(Me.Label4)
         Me.GroupBox1.Controls.Add(Me.CheckBox3)
@@ -73,7 +72,7 @@ Partial Class Form3
         '
         Me.ComboBox4.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable
         Me.ComboBox4.FormattingEnabled = True
-        Me.ComboBox4.Location = New System.Drawing.Point(77, 109)
+        Me.ComboBox4.Location = New System.Drawing.Point(77, 108)
         Me.ComboBox4.Margin = New System.Windows.Forms.Padding(2)
         Me.ComboBox4.Name = "ComboBox4"
         Me.ComboBox4.Size = New System.Drawing.Size(138, 24)
@@ -118,9 +117,9 @@ Partial Class Form3
         Me.Label3.Location = New System.Drawing.Point(8, 83)
         Me.Label3.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(90, 16)
+        Me.Label3.Size = New System.Drawing.Size(93, 16)
         Me.Label3.TabIndex = 19
-        Me.Label3.Text = "Texture Filtering"
+        Me.Label3.Text = "Texture Filtering "
         '
         'ComboBox3
         '

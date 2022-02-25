@@ -1,6 +1,6 @@
 ﻿Imports System.IO
 Imports System.Runtime.InteropServices
-Imports DarkUI2.Config
+Imports DarkUI2.Config.ThemeProvider
 
 Public Class Form3
     Public IFDir As String = My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini"
@@ -129,24 +129,16 @@ Public Class Form3
                 ComboBox3.Enabled = False
                 CheckBox3.Enabled = False
                 CheckBox4.Enabled = False
-                Label2.ForeColor = ThemeProvider.Theme.Colors.DisabledText
-                Label3.ForeColor = ThemeProvider.Theme.Colors.DisabledText
+                Label2.Enabled = False
+                Label3.Enabled = False
             Case Else
                 ComboBox2.Enabled = True
                 ComboBox3.Enabled = True
                 CheckBox3.Enabled = True
                 CheckBox4.Enabled = True
-                Label2.ForeColor = ThemeProvider.Theme.Colors.LightText
-                Label3.ForeColor = ThemeProvider.Theme.Colors.LightText
+                Label2.Enabled = True
+                Label3.Enabled = True
         End Select
-    End Sub
-
-    <DllImport("dwmapi.dll")>
-    Private Shared Function DwmSetWindowAttribute(hwnd As IntPtr, attr As Integer, attrValue As Integer(), attrSize As Integer) As Integer
-    End Function
-
-    Protected Overrides Sub OnHandleCreated(e As EventArgs)
-        If DwmSetWindowAttribute(Handle, 19, {1}, 4) <> 0 Then DwmSetWindowAttribute(Handle, 20, {1}, 4)
     End Sub
 
 End Class

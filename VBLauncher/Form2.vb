@@ -1,6 +1,5 @@
 ﻿Imports System.IO
 Imports System.IO.Compression
-Imports System.Runtime.InteropServices
 
 Public Class Form2
     Public IFDir As String = My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini"
@@ -187,14 +186,6 @@ Public Class Form2
 
     Private Sub ComboBox3_SelectedIndexChanged() Handles ComboBox3.SelectedIndexChanged
         ToolTip1.SetToolTip(ComboBox3, ComboBox3.Text)
-    End Sub
-
-    <DllImport("dwmapi.dll")>
-    Private Shared Function DwmSetWindowAttribute(hwnd As IntPtr, attr As Integer, attrValue As Integer(), attrSize As Integer) As Integer
-    End Function
-
-    Protected Overrides Sub OnHandleCreated(e As EventArgs)
-        If DwmSetWindowAttribute(Handle, 19, {1}, 4) <> 0 Then DwmSetWindowAttribute(Handle, 20, {1}, 4)
     End Sub
 
 End Class

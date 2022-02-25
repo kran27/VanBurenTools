@@ -1,6 +1,7 @@
 ﻿Imports System.IO
 Imports System.IO.Compression
 Imports System.Runtime.InteropServices
+Imports DarkUI2.Forms.DarkMessageBox
 
 Public Class Form1
     Public MoveForm As Boolean
@@ -51,7 +52,7 @@ Public Class Form1
             AddFontResource("Fonts\TT0807M_.TTF")
             AddFontResource("Fonts\r_fallouty.ttf")
         Else
-            Form4.ShowError("Please put the launcher in the same directory as the game so you can launch it!", "Game Executable Not Found!")
+            ShowError("Please put the launcher in the same directory as the game so you can launch it!", "Game Executable Not Found!")
         End If
         If File.Exists(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT") Then _
             File.Delete(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT")
@@ -62,7 +63,7 @@ Public Class Form1
             Process.Start("F3.exe")
             Application.Exit()
         Catch Ex As Exception
-            Form4.ShowError("Please put the launcher in the same directory as the game so you can launch it!", "Game Executable Not Found!")
+            ShowError("Please put the launcher in the same directory as the game so you can launch it!", "Game Executable Not Found!")
         End Try
     End Sub
 
