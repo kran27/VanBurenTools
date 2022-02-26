@@ -1,6 +1,5 @@
 ﻿Imports System.IO
 Imports System.Runtime.InteropServices
-Imports DarkUI2.Config.ThemeProvider
 
 Public Class Form3
     Public IFDir As String = My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini"

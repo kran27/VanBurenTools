@@ -72,7 +72,7 @@ Partial Class Form3
         '
         Me.ComboBox4.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable
         Me.ComboBox4.FormattingEnabled = True
-        Me.ComboBox4.Location = New System.Drawing.Point(77, 108)
+        Me.ComboBox4.Location = New System.Drawing.Point(77, 109)
         Me.ComboBox4.Margin = New System.Windows.Forms.Padding(2)
         Me.ComboBox4.Name = "ComboBox4"
         Me.ComboBox4.Size = New System.Drawing.Size(138, 24)
