@@ -23,7 +23,7 @@ Public Class Form1
         Icon = My.Resources.F3
         DwmSetWindowAttribute(Handle, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE,
                               DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND, 8)
-        PictureBox1.BackgroundImage = My.Resources.Launch
+            PictureBox1.BackgroundImage = My.Resources.Launch
         PictureBox2.BackgroundImage = My.Resources.Options
         PictureBox3.BackgroundImage = My.Resources._Exit
         PictureBox4.BackgroundImage = My.Resources.Logo

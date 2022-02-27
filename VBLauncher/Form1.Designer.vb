@@ -25,91 +25,91 @@ Partial Class Form1
     'Do not modify it using the code editor.
     <DebuggerStepThrough()>
     Private Sub InitializeComponent()
-        Me.PictureBox1 = New PictureBox()
-        Me.PictureBox2 = New PictureBox()
-        Me.PictureBox3 = New PictureBox()
-        Me.PictureBox4 = New PictureBox()
-        Me.PictureBox5 = New PictureBox()
-        CType(Me.PictureBox1, ISupportInitialize).BeginInit()
-        CType(Me.PictureBox2, ISupportInitialize).BeginInit()
-        CType(Me.PictureBox3, ISupportInitialize).BeginInit()
-        CType(Me.PictureBox4, ISupportInitialize).BeginInit()
-        CType(Me.PictureBox5, ISupportInitialize).BeginInit()
+        Me.PictureBox1 = New System.Windows.Forms.PictureBox()
+        Me.PictureBox2 = New System.Windows.Forms.PictureBox()
+        Me.PictureBox3 = New System.Windows.Forms.PictureBox()
+        Me.PictureBox4 = New System.Windows.Forms.PictureBox()
+        Me.PictureBox5 = New System.Windows.Forms.PictureBox()
+        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.PictureBox2, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.PictureBox3, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.PictureBox4, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.PictureBox5, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'PictureBox1
         '
-        Me.PictureBox1.BackColor = Color.Transparent
-        Me.PictureBox1.BackgroundImageLayout = ImageLayout.Stretch
-        Me.PictureBox1.Location = New Point(13, 13)
-        Me.PictureBox1.Margin = New Padding(4)
+        Me.PictureBox1.BackColor = System.Drawing.Color.Transparent
+        Me.PictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.PictureBox1.Location = New System.Drawing.Point(13, 13)
+        Me.PictureBox1.Margin = New System.Windows.Forms.Padding(4)
         Me.PictureBox1.Name = "PictureBox1"
-        Me.PictureBox1.Size = New Size(192, 29)
+        Me.PictureBox1.Size = New System.Drawing.Size(192, 29)
         Me.PictureBox1.TabIndex = 0
         Me.PictureBox1.TabStop = False
         '
         'PictureBox2
         '
-        Me.PictureBox2.BackColor = Color.Transparent
-        Me.PictureBox2.BackgroundImageLayout = ImageLayout.Stretch
-        Me.PictureBox2.Location = New Point(13, 50)
-        Me.PictureBox2.Margin = New Padding(4)
+        Me.PictureBox2.BackColor = System.Drawing.Color.Transparent
+        Me.PictureBox2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.PictureBox2.Location = New System.Drawing.Point(13, 50)
+        Me.PictureBox2.Margin = New System.Windows.Forms.Padding(4)
         Me.PictureBox2.Name = "PictureBox2"
-        Me.PictureBox2.Size = New Size(192, 29)
+        Me.PictureBox2.Size = New System.Drawing.Size(192, 29)
         Me.PictureBox2.TabIndex = 1
         Me.PictureBox2.TabStop = False
         '
         'PictureBox3
         '
-        Me.PictureBox3.BackColor = Color.Transparent
-        Me.PictureBox3.BackgroundImageLayout = ImageLayout.Stretch
-        Me.PictureBox3.Location = New Point(13, 87)
-        Me.PictureBox3.Margin = New Padding(4)
+        Me.PictureBox3.BackColor = System.Drawing.Color.Transparent
+        Me.PictureBox3.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.PictureBox3.Location = New System.Drawing.Point(13, 87)
+        Me.PictureBox3.Margin = New System.Windows.Forms.Padding(4)
         Me.PictureBox3.Name = "PictureBox3"
-        Me.PictureBox3.Size = New Size(192, 29)
+        Me.PictureBox3.Size = New System.Drawing.Size(192, 29)
         Me.PictureBox3.TabIndex = 2
         Me.PictureBox3.TabStop = False
         '
         'PictureBox4
         '
-        Me.PictureBox4.BackColor = Color.Transparent
-        Me.PictureBox4.BackgroundImageLayout = ImageLayout.Stretch
-        Me.PictureBox4.Location = New Point(478, 317)
-        Me.PictureBox4.Margin = New Padding(4)
+        Me.PictureBox4.BackColor = System.Drawing.Color.Transparent
+        Me.PictureBox4.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.PictureBox4.Location = New System.Drawing.Point(478, 317)
+        Me.PictureBox4.Margin = New System.Windows.Forms.Padding(4)
         Me.PictureBox4.Name = "PictureBox4"
-        Me.PictureBox4.Size = New Size(149, 150)
+        Me.PictureBox4.Size = New System.Drawing.Size(149, 150)
         Me.PictureBox4.TabIndex = 3
         Me.PictureBox4.TabStop = False
         '
         'PictureBox5
         '
-        Me.PictureBox5.Location = New Point(0, 0)
+        Me.PictureBox5.Location = New System.Drawing.Point(0, 0)
         Me.PictureBox5.Name = "PictureBox5"
-        Me.PictureBox5.Size = New Size(640, 480)
+        Me.PictureBox5.Size = New System.Drawing.Size(640, 480)
         Me.PictureBox5.TabIndex = 4
         Me.PictureBox5.TabStop = False
         '
         'Form1
         '
-        Me.AutoScaleDimensions = New SizeF(7.0!, 16.0!)
-        Me.AutoScaleMode = AutoScaleMode.Font
-        Me.BackColor = Color.Black
-        Me.ClientSize = New Size(640, 480)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
+        Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
+        Me.BackColor = System.Drawing.Color.Black
+        Me.ClientSize = New System.Drawing.Size(640, 480)
         Me.Controls.Add(Me.PictureBox4)
         Me.Controls.Add(Me.PictureBox3)
         Me.Controls.Add(Me.PictureBox2)
         Me.Controls.Add(Me.PictureBox1)
         Me.Controls.Add(Me.PictureBox5)
-        Me.FormBorderStyle = FormBorderStyle.None
-        Me.Margin = New Padding(4)
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
+        Me.Margin = New System.Windows.Forms.Padding(4)
         Me.Name = "Form1"
-        Me.StartPosition = FormStartPosition.CenterScreen
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Van Buren Launcher"
-        CType(Me.PictureBox1, ISupportInitialize).EndInit()
-        CType(Me.PictureBox2, ISupportInitialize).EndInit()
-        CType(Me.PictureBox3, ISupportInitialize).EndInit()
-        CType(Me.PictureBox4, ISupportInitialize).EndInit()
-        CType(Me.PictureBox5, ISupportInitialize).EndInit()
+        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.PictureBox2, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.PictureBox3, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.PictureBox4, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.PictureBox5, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
 
     End Sub
