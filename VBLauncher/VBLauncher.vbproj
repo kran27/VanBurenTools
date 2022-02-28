@@ -48,8 +48,11 @@
     <Import Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="DarkUI2">
-      <HintPath>My Project\DarkUI2.dll</HintPath>
+    <Reference Include="AltUI">
+      <HintPath>My Project\AltUI.dll</HintPath>
+    </Reference>
+    <Reference Include="AltUIDarkUI2AltUI">
+      <HintPath>My Project\AltUIDarkUI2AltUI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

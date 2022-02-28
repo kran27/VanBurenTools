@@ -1,6 +1,6 @@
 ﻿Imports System.ComponentModel
-Imports DarkUI2.Controls
-Imports DarkUI2.Forms
+Imports AltUI.Controls
+Imports AltUI.Forms
 Imports Microsoft.VisualBasic.CompilerServices
 
 <DesignerGenerated()>
@@ -28,20 +28,20 @@ Partial Class Form3
     <DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
-        Me.GroupBox1 = New DarkUI2.Controls.DarkGroupBox()
-        Me.ComboBox4 = New DarkUI2.Controls.DarkComboBox()
-        Me.Label4 = New DarkUI2.Controls.DarkLabel()
-        Me.CheckBox3 = New DarkUI2.Controls.DarkCheckBox()
-        Me.CheckBox4 = New DarkUI2.Controls.DarkCheckBox()
-        Me.Label3 = New DarkUI2.Controls.DarkLabel()
-        Me.ComboBox3 = New DarkUI2.Controls.DarkComboBox()
-        Me.Label2 = New DarkUI2.Controls.DarkLabel()
-        Me.ComboBox2 = New DarkUI2.Controls.DarkComboBox()
-        Me.ComboBox1 = New DarkUI2.Controls.DarkComboBox()
-        Me.Label1 = New DarkUI2.Controls.DarkLabel()
-        Me.CheckBox1 = New DarkUI2.Controls.DarkCheckBox()
-        Me.Button2 = New DarkUI2.Controls.DarkButton()
-        Me.Button1 = New DarkUI2.Controls.DarkButton()
+        Me.GroupBox1 = New AltUI.Controls.DarkGroupBox()
+        Me.ComboBox4 = New AltUI.Controls.DarkComboBox()
+        Me.Label4 = New AltUI.Controls.DarkLabel()
+        Me.CheckBox3 = New AltUI.Controls.DarkCheckBox()
+        Me.CheckBox4 = New AltUI.Controls.DarkCheckBox()
+        Me.Label3 = New AltUI.Controls.DarkLabel()
+        Me.ComboBox3 = New AltUI.Controls.DarkComboBox()
+        Me.Label2 = New AltUI.Controls.DarkLabel()
+        Me.ComboBox2 = New AltUI.Controls.DarkComboBox()
+        Me.ComboBox1 = New AltUI.Controls.DarkComboBox()
+        Me.Label1 = New AltUI.Controls.DarkLabel()
+        Me.CheckBox1 = New AltUI.Controls.DarkCheckBox()
+        Me.Button2 = New AltUI.Controls.DarkButton()
+        Me.Button1 = New AltUI.Controls.DarkButton()
         Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
         Me.GroupBox1.SuspendLayout()
         Me.SuspendLayout()

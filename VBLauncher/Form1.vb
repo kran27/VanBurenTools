@@ -1,7 +1,7 @@
 ﻿Imports System.IO
 Imports System.IO.Compression
 Imports System.Runtime.InteropServices
-Imports DarkUI2.Forms.DarkMessageBox
+Imports AltUI.Forms.DarkMessageBox
 
 Public Class Form1
     Public MoveForm As Boolean
@@ -21,9 +21,19 @@ Public Class Form1
 
     Private Sub Startup() Handles MyBase.Load
         Icon = My.Resources.F3
+        Height = 480
+        PictureBox1.Height = 29
+        PictureBox2.Height = 29
+        PictureBox3.Height = 29
+        PictureBox4.Height = 150
+        PictureBox5.Height = 480
+        PictureBox1.Location = New Point(13, 13)
+        PictureBox2.Location = New Point(13, 50)
+        PictureBox3.Location = New Point(13, 87)
+        PictureBox4.Location = New Point(478, 317)
         DwmSetWindowAttribute(Handle, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE,
                               DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND, 8)
-            PictureBox1.BackgroundImage = My.Resources.Launch
+        PictureBox1.BackgroundImage = My.Resources.Launch
         PictureBox2.BackgroundImage = My.Resources.Options
         PictureBox3.BackgroundImage = My.Resources._Exit
         PictureBox4.BackgroundImage = My.Resources.Logo

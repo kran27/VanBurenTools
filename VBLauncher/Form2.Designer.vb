@@ -1,6 +1,6 @@
 ﻿Imports System.ComponentModel
-Imports DarkUI2.Controls
-Imports DarkUI2.Forms
+Imports AltUI.Controls
+Imports AltUI.Forms
 Imports Microsoft.VisualBasic.CompilerServices
 
 <DesignerGenerated()>
@@ -28,24 +28,24 @@ Partial Class Form2
     <DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
-        Me.Button1 = New DarkUI2.Controls.DarkButton()
-        Me.CheckBox1 = New DarkUI2.Controls.DarkCheckBox()
-        Me.GroupBox1 = New DarkUI2.Controls.DarkGroupBox()
-        Me.CheckBox4 = New DarkUI2.Controls.DarkCheckBox()
-        Me.CheckBox3 = New DarkUI2.Controls.DarkCheckBox()
-        Me.CheckBox2 = New DarkUI2.Controls.DarkCheckBox()
-        Me.GroupBox2 = New DarkUI2.Controls.DarkGroupBox()
-        Me.ComboBox3 = New DarkUI2.Controls.DarkComboBox()
-        Me.Label4 = New DarkUI2.Controls.DarkLabel()
-        Me.ComboBox1 = New DarkUI2.Controls.DarkComboBox()
-        Me.Label3 = New DarkUI2.Controls.DarkLabel()
-        Me.ComboBox2 = New DarkUI2.Controls.DarkComboBox()
-        Me.Label2 = New DarkUI2.Controls.DarkLabel()
+        Me.Button1 = New AltUI.Controls.DarkButton()
+        Me.CheckBox1 = New AltUI.Controls.DarkCheckBox()
+        Me.GroupBox1 = New AltUI.Controls.DarkGroupBox()
+        Me.CheckBox4 = New AltUI.Controls.DarkCheckBox()
+        Me.CheckBox3 = New AltUI.Controls.DarkCheckBox()
+        Me.CheckBox2 = New AltUI.Controls.DarkCheckBox()
+        Me.GroupBox2 = New AltUI.Controls.DarkGroupBox()
+        Me.ComboBox3 = New AltUI.Controls.DarkComboBox()
+        Me.Label4 = New AltUI.Controls.DarkLabel()
+        Me.ComboBox1 = New AltUI.Controls.DarkComboBox()
+        Me.Label3 = New AltUI.Controls.DarkLabel()
+        Me.ComboBox2 = New AltUI.Controls.DarkComboBox()
+        Me.Label2 = New AltUI.Controls.DarkLabel()
         Me.PictureBox1 = New System.Windows.Forms.PictureBox()
-        Me.Label1 = New DarkUI2.Controls.DarkLabel()
+        Me.Label1 = New AltUI.Controls.DarkLabel()
         Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
-        Me.Button3 = New DarkUI2.Controls.DarkButton()
-        Me.Button2 = New DarkUI2.Controls.DarkButton()
+        Me.Button3 = New AltUI.Controls.DarkButton()
+        Me.Button2 = New AltUI.Controls.DarkButton()
         Me.GroupBox1.SuspendLayout()
         Me.GroupBox2.SuspendLayout()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
