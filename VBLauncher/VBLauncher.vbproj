@@ -51,9 +51,6 @@
     <Reference Include="AltUI">
       <HintPath>My Project\AltUI.dll</HintPath>
     </Reference>
-    <Reference Include="AltUIDarkUI2AltUI">
-      <HintPath>My Project\AltUIDarkUI2AltUI.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Form2.Designer.vb">
