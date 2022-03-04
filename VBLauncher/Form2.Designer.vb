@@ -160,7 +160,7 @@ Partial Class Form2
         '
         Me.Label3.AutoSize = True
         Me.Label3.ForeColor = System.Drawing.Color.FromArgb(CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer))
-        Me.Label3.Location = New System.Drawing.Point(123, 109)
+        Me.Label3.Location = New System.Drawing.Point(122, 109)
         Me.Label3.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.Label3.Name = "Label3"
         Me.Label3.Size = New System.Drawing.Size(50, 16)
@@ -175,7 +175,7 @@ Partial Class Form2
         Me.ComboBox2.Location = New System.Drawing.Point(60, 82)
         Me.ComboBox2.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.ComboBox2.Name = "ComboBox2"
-        Me.ComboBox2.Size = New System.Drawing.Size(113, 24)
+        Me.ComboBox2.Size = New System.Drawing.Size(112, 24)
         Me.ComboBox2.TabIndex = 8
         '
         'Label2
@@ -191,7 +191,7 @@ Partial Class Form2
         '
         'PictureBox1
         '
-        Me.PictureBox1.Location = New System.Drawing.Point(181, 82)
+        Me.PictureBox1.Location = New System.Drawing.Point(180, 82)
         Me.PictureBox1.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.PictureBox1.Name = "PictureBox1"
         Me.PictureBox1.Size = New System.Drawing.Size(75, 62)
