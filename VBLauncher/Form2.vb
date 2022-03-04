@@ -48,9 +48,8 @@ Public Class Form2
 
     Private Sub CheckOptions() Handles MyBase.Load
         Icon = My.Resources.F3
-        If Line(25) = "enable startup movies = 1" Then CheckBox1.Checked = True Else CheckBox1.Checked = False
-        If Directory.Exists("Override\SUMM") Then CheckBox2.Checked = True Else CheckBox2.Checked = False
-        If Directory.Exists("Override\MapLightFix") Then CheckBox4.Checked = True Else CheckBox4.Checked = False
+        CheckBox1.Checked = Line(25) = "enable startup movies = 1"
+        CheckBox2.Checked = Directory.Exists("Override\SUMM")
         If Not File.Exists("Override\MenuMap\Engine\sys.ini") Then Directory.CreateDirectory("Override\MenuMap\Engine") : _
             File.WriteAllBytes("Override\MenuMap\Engine\sys.ini", My.Resources.Default_sys)
         SysLine = File.ReadAllLines("Override\MenuMap\Engine\sys.ini")
@@ -129,12 +128,6 @@ Public Class Form2
         End If
         SysLine(52) = "Start map = " & ComboBox3.Text
         File.WriteAllLines("Override\MenuMap\Engine\sys.ini", SysLine)
-        Try : Directory.Delete("Override\MapLightFix", True) : Catch : End Try
-        If CheckBox4.Checked = True Then
-            File.WriteAllBytes("Override\MapLightFix.zip", My.Resources.MapLightFix)
-            ZipFile.ExtractToDirectory("Override\MapLightFix.zip", "Override\MapLightFix")
-            File.Delete("Override\MapLightFix.zip")
-        End If
         Try : Directory.Delete("Override\Helmet", 1) : Catch : End Try
         If Not ComboBox2.SelectedIndex = 0 Then
             Directory.CreateDirectory("Override\Helmet\Critters")
