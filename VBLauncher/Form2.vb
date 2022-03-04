@@ -72,7 +72,7 @@ Public Class Form2
             Case "map name = 00_03_Tutorial_Junktown.map" : ComboBox1.SelectedIndex = 15
             Case "map name = 00_04_Tutorial_Vault.map" : ComboBox1.SelectedIndex = 16
         End Select
-        If SysLine(13) = "FOV Min = 0.5" Then CheckBox3.Checked = True
+        CheckBox3.Checked = SysLine(13) = "FOV Min = 0.5"
         Dim Files = SearchForFiles("Override", {"*.map"})
         For Each File As Object In Files
             Dim FI As New FileInfo(File)
@@ -82,7 +82,8 @@ Public Class Form2
         Next
         SysLine = File.ReadAllLines("Override\MenuMap\Engine\sys.ini")
         ComboBox3.Text = SysLine(52).Remove(0, 12)
-        If File.Exists(HelmType) Then ComboBox2.SelectedItem = File.ReadAllText(HelmType) Else ComboBox2.SelectedIndex = 0
+        Try : ComboBox2.SelectedItem = File.ReadAllText(HelmType)
+        Catch : ComboBox2.SelectedIndex = 0 : End Try
     End Sub
 
     Private Sub ApplyChanges() Handles Button1.Click

@@ -28,7 +28,7 @@ Public Class Form3
         ComboBox4.Items.Clear()
         ComboBox4.Items.AddRange(EDSEW.GetSizesAsStrings)
         ComboBox4.SelectedItem = Line(35).Remove(0, 8) & "x" & Line(29).Remove(0, 9)
-        If Line(28) = "fullscreen = 1" Then CheckBox1.Checked = True Else CheckBox1.Checked = False
+        CheckBox1.Checked = Line(28) = "fullscreen = 1"
         If File.Exists("d3d8.dll") Then
             If File.Exists("d3d11.dll") Then
                 ComboBox1.SelectedIndex = 3
@@ -55,8 +55,8 @@ Public Class Form3
             Case "Filtering = 8" : ComboBox3.SelectedIndex = 5
             Case "Filtering = 16" : ComboBox3.SelectedIndex = 6
         End Select
-        If dgV2Line(39) = "DisableMipmapping = false" Then CheckBox3.Checked = True Else CheckBox3.Checked = False
-        If dgV2Line(45) = "PhongShadingWhenPossible = true" Then CheckBox4.Checked = True Else CheckBox4.Checked = False
+        CheckBox3.Checked = dgV2Line(39) = "DisableMipmapping = false"
+        CheckBox4.Checked = dgV2Line(45) = "PhongShadingWhenPossible = true"
     End Sub
 
     Private Sub ApplyChanges() Handles Button1.Click
