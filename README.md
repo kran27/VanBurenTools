@@ -9,4 +9,4 @@ A launcher and settings editor/mod loader for Fallout Van Buren
 - [dgVoodoo2](http://dege.fw.hu/)
 - [DXVK](https://github.com/doitsujin/dxvk)
 - [WineD3D](https://fdossena.com/?p=wined3d/index.frag)
-- [DarkUI](https://github.com/kran27/DarkUI)
+- [AltUI](https://github.com/kran27/AltUI)
