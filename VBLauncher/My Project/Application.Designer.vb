@@ -33,7 +33,7 @@ Namespace My
 
         <DebuggerStepThrough()>
         Protected Overrides Sub OnCreateMainForm()
-            Me.MainForm = VBLauncher.Form1
+            Me.MainForm = VBLauncher.Main
         End Sub
     End Class
 End Namespace

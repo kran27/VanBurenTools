@@ -53,11 +53,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Form2.Designer.vb">
-      <DependentUpon>Form2.vb</DependentUpon>
+    <Compile Update="Options.Designer.vb">
+      <DependentUpon>Options.vb</DependentUpon>
     </Compile>
-    <Compile Update="Form3.Designer.vb">
-      <DependentUpon>Form3.vb</DependentUpon>
+    <Compile Update="VideoOptions.Designer.vb">
+      <DependentUpon>VideoOptions.vb</DependentUpon>
     </Compile>
     <Compile Update="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
