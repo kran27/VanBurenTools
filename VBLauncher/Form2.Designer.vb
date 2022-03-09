@@ -66,9 +66,9 @@ Partial Class Form2
         Me.CheckBox1.Location = New System.Drawing.Point(8, 22)
         Me.CheckBox1.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.CheckBox1.Name = "CheckBox1"
-        Me.CheckBox1.Size = New System.Drawing.Size(141, 20)
+        Me.CheckBox1.Size = New System.Drawing.Size(127, 20)
         Me.CheckBox1.TabIndex = 1
-        Me.CheckBox1.Text = "Enable Startup Videos"
+        Me.CheckBox1.Text = "Enable Intro Videos"
         '
         'GroupBox1
         '
@@ -82,7 +82,7 @@ Partial Class Form2
         Me.GroupBox1.Size = New System.Drawing.Size(257, 100)
         Me.GroupBox1.TabIndex = 0
         Me.GroupBox1.TabStop = False
-        Me.GroupBox1.Text = "General Tweaks"
+        Me.GroupBox1.Text = "Tweaks"
         '
         'CheckBox3
         '
@@ -100,9 +100,9 @@ Partial Class Form2
         Me.CheckBox2.Location = New System.Drawing.Point(8, 48)
         Me.CheckBox2.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.CheckBox2.Name = "CheckBox2"
-        Me.CheckBox2.Size = New System.Drawing.Size(188, 20)
+        Me.CheckBox2.Size = New System.Drawing.Size(187, 20)
         Me.CheckBox2.TabIndex = 2
-        Me.CheckBox2.Text = "Remove Useless Menu Options"
+        Me.CheckBox2.Text = "Remove Useless Menu Buttons"
         '
         'GroupBox2
         '
@@ -121,17 +121,17 @@ Partial Class Form2
         Me.GroupBox2.Size = New System.Drawing.Size(257, 146)
         Me.GroupBox2.TabIndex = 5
         Me.GroupBox2.TabStop = False
-        Me.GroupBox2.Text = "Fun Tweaks"
+        Me.GroupBox2.Text = "Preferences"
         '
         'ComboBox3
         '
         Me.ComboBox3.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable
         Me.ComboBox3.FormattingEnabled = True
         Me.ComboBox3.Items.AddRange(New Object() {"00_03_Tutorial_Junktown.map", "00_04_Tutorial_Vault.map", "04_0202_Spelunking.map", "98_Canyon_Random_01.map", "98_Canyon_Random_02.map", "Default_StartMap.map", "Mainmenu.map", "zz_TestMapsScottE_Test1.map", "zz_TestMapsScottE_Test2.map", "zz_TestMapsScottE_Test4.map", "zz_TestMapsTest_City_Building01.map", "zz_TestMapsTest_City_Building02.map", "zz_TestMapsTest_City_Building03.map", "zz_TestMapsTest_City_Building04.map", "zz_TestMapsTest_City_Fences.map", "zz_TestMapsTest_Junktown_Shacks.map", "zz_TestMapsaarontemp2.map"})
-        Me.ComboBox3.Location = New System.Drawing.Point(104, 22)
+        Me.ComboBox3.Location = New System.Drawing.Point(107, 22)
         Me.ComboBox3.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.ComboBox3.Name = "ComboBox3"
-        Me.ComboBox3.Size = New System.Drawing.Size(145, 24)
+        Me.ComboBox3.Size = New System.Drawing.Size(142, 24)
         Me.ComboBox3.TabIndex = 6
         '
         'Label4
@@ -141,9 +141,9 @@ Partial Class Form2
         Me.Label4.Location = New System.Drawing.Point(8, 25)
         Me.Label4.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(88, 16)
+        Me.Label4.Size = New System.Drawing.Size(91, 16)
         Me.Label4.TabIndex = 0
-        Me.Label4.Text = "NewGame Map"
+        Me.Label4.Text = "New Game Map"
         '
         'ComboBox1
         '

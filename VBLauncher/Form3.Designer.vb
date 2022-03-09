@@ -95,9 +95,10 @@ Partial Class Form3
         Me.CheckBox3.Location = New System.Drawing.Point(8, 164)
         Me.CheckBox3.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.CheckBox3.Name = "CheckBox3"
-        Me.CheckBox3.Size = New System.Drawing.Size(132, 20)
+        Me.CheckBox3.Size = New System.Drawing.Size(94, 20)
         Me.CheckBox3.TabIndex = 5
-        Me.CheckBox3.Text = "Enable Mipmapping"
+        Me.CheckBox3.Text = "Mipmapping"
+        Me.ToolTip1.SetToolTip(Me.CheckBox3, "Disabling reduces texture blur at distance")
         '
         'CheckBox4
         '
@@ -105,10 +106,10 @@ Partial Class Form3
         Me.CheckBox4.Location = New System.Drawing.Point(8, 189)
         Me.CheckBox4.Margin = New System.Windows.Forms.Padding(2)
         Me.CheckBox4.Name = "CheckBox4"
-        Me.CheckBox4.Size = New System.Drawing.Size(146, 20)
+        Me.CheckBox4.Size = New System.Drawing.Size(108, 20)
         Me.CheckBox4.TabIndex = 6
-        Me.CheckBox4.Text = "Enable Phong Shading"
-        Me.ToolTip1.SetToolTip(Me.CheckBox4, "A different shading method," & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "very slightly darkens shadows in some places.")
+        Me.CheckBox4.Text = "Phong Shading"
+        Me.ToolTip1.SetToolTip(Me.CheckBox4, "Alternative shading," & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Slightly improves visuals")
         '
         'Label3
         '
@@ -125,7 +126,7 @@ Partial Class Form3
         '
         Me.ComboBox3.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable
         Me.ComboBox3.FormattingEnabled = True
-        Me.ComboBox3.Items.AddRange(New Object() {"Default (Bilinear)", "Point Sampled", "Linear Mip", "Anisotropic 2x", "Anisotropic 4x", "Anisotropic 8x", "Anisotropic 16x"})
+        Me.ComboBox3.Items.AddRange(New Object() {"Bilinear (Default)", "Nearest-Point", "Linear", "Anisotropic 2x", "Anisotropic 4x", "Anisotropic 8x", "Anisotropic 16x"})
         Me.ComboBox3.Location = New System.Drawing.Point(102, 80)
         Me.ComboBox3.Margin = New System.Windows.Forms.Padding(2)
         Me.ComboBox3.Name = "ComboBox3"
