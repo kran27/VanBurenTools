@@ -126,7 +126,7 @@ Partial Class VideoOptions
         '
         Me.TextureCB.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable
         Me.TextureCB.FormattingEnabled = True
-        Me.TextureCB.Items.AddRange(New Object() {"Bilinear (Default)", "Nearest-Point", "Linear", "Anisotropic 2x", "Anisotropic 4x", "Anisotropic 8x", "Anisotropic 16x"})
+        Me.TextureCB.Items.AddRange(New Object() {"Bilinear (Default)", "Point Sampled", "Linear", "Anisotropic 2x", "Anisotropic 4x", "Anisotropic 8x", "Anisotropic 16x"})
         Me.TextureCB.Location = New System.Drawing.Point(102, 75)
         Me.TextureCB.Margin = New System.Windows.Forms.Padding(2)
         Me.TextureCB.Name = "TextureCB"
