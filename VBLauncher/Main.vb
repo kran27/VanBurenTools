@@ -21,18 +21,6 @@ Public Class Main
 
     Private Sub Startup() Handles MyBase.Load
         Icon = My.Resources.F3
-        Height = 480
-        LaunchB.Height = 29
-        OptionsB.Height = 29
-        ExitB.Height = 29
-        Logo.Height = 150
-        Background.Height = 480
-        LaunchB.Location = New Point(13, 13)
-        OptionsB.Location = New Point(13, 50)
-        ExitB.Location = New Point(13, 87)
-        Logo.Location = New Point(478, 317)
-        DwmSetWindowAttribute(Handle, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE,
-                              DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND, 8)
         LaunchB.BackgroundImage = My.Resources.Launch
         OptionsB.BackgroundImage = My.Resources.Options
         ExitB.BackgroundImage = My.Resources._Exit
@@ -90,20 +78,6 @@ Public Class Main
 
     <DllImport("gdi32.dll")>
     Public Shared Function AddFontResource(FontPath As String) As Integer
-    End Function
-
-    Public Enum DWMWINDOWATTRIBUTE
-        DWMWA_WINDOW_CORNER_PREFERENCE = 33
-    End Enum
-
-    Public Enum DWM_WINDOW_CORNER_PREFERENCE
-        DWMWCP_ROUND = 2
-    End Enum
-
-    <DllImport("dwmapi.dll")>
-    Private Shared Function DwmSetWindowAttribute(hwnd As IntPtr, Attribute As DWMWINDOWATTRIBUTE,
-                                                  ByRef pvAttribute As DWM_WINDOW_CORNER_PREFERENCE,
-                                                  cbAttribute As UInteger) As Long
     End Function
 
 End Class

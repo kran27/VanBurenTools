@@ -1,5 +1,4 @@
 ﻿Imports System.IO
-Imports System.IO.Compression
 
 Public Class Options
     Public IFDir As String = My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini"

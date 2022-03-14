@@ -3,7 +3,7 @@ Imports Microsoft.VisualBasic.CompilerServices
 
 <DesignerGenerated()>
 Partial Class Main
-    Inherits Form
+    Inherits AltUI.Forms.DarkForm
 
     'Form overrides dispose to clean up the component list.
     <DebuggerNonUserCode()>
