@@ -2,23 +2,25 @@
 Imports System.IO.Compression
 Imports System.Runtime.InteropServices
 Imports AltUI.Forms.DarkMessageBox
+Imports VBLauncher.PShared
 
 Public Class Main
-    Public MoveForm As Boolean
-    Public MoveFormMousePosition As Point
+#Region "Move Form"
+    Private MoveForm As Boolean
+    Private MoveFormMousePosition As Point
 
-    Public Sub MoveForm_MouseDown(Sender As Object, E As MouseEventArgs) Handles Background.MouseDown, Logo.MouseDown
+    Private Sub MoveForm_MouseDown(Sender As Object, E As MouseEventArgs) Handles Background.MouseDown, Logo.MouseDown
         If E.Button = MouseButtons.Left Then MoveForm = 1 : MoveFormMousePosition = E.Location
     End Sub
 
-    Public Sub MoveForm_MouseMove(Sender As Object, E As MouseEventArgs) Handles Background.MouseMove, Logo.MouseMove
+    Private Sub MoveForm_MouseMove(Sender As Object, E As MouseEventArgs) Handles Background.MouseMove, Logo.MouseMove
         If MoveForm Then Location = Location + (E.Location - MoveFormMousePosition)
     End Sub
 
-    Public Sub MoveForm_MouseUp(Sender As Object, E As MouseEventArgs) Handles Background.MouseUp, Logo.MouseUp
+    Private Sub MoveForm_MouseUp(Sender As Object, E As MouseEventArgs) Handles Background.MouseUp, Logo.MouseUp
         If E.Button = MouseButtons.Left Then MoveForm = 0
     End Sub
-
+#End Region
     Private Sub Startup() Handles MyBase.Load
         Icon = My.Resources.F3
         LaunchB.BackgroundImage = My.Resources.Launch
@@ -52,11 +54,14 @@ Public Class Main
         Else
             ShowError("Please put the launcher in the same directory as the game so you can launch it!", "Game Executable Not Found!")
         End If
-        If File.Exists(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT") Then _
-            File.Delete(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT")
+        Try : File.Delete(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT")
+        Catch : End Try
+        If Not File.Exists(F3Dir) Then
+            File.WriteAllText(F3Dir, My.Resources.Default_F3)
+        End If
     End Sub
 
-    Private Shared Sub PictureBox1_Click() Handles LaunchB.Click
+    Private Shared Sub LaunchGame() Handles LaunchB.Click
         Try
             Process.Start("F3.exe")
             Application.Exit()
@@ -65,19 +70,19 @@ Public Class Main
         End Try
     End Sub
 
-    Private Sub PictureBox2_Click() Handles OptionsB.Click
+    Private Sub OpenOptions() Handles OptionsB.Click
         If Not File.Exists(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini") Then _
             File.WriteAllText(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini",
                               My.Resources.Default_F3)
         Options.ShowDialog()
     End Sub
 
-    Private Shared Sub PictureBox3_Click() Handles ExitB.Click
+    Private Sub ExitLauncher() Handles ExitB.Click
         Application.Exit()
     End Sub
 
     <DllImport("gdi32.dll")>
-    Public Shared Function AddFontResource(FontPath As String) As Integer
+    Private Shared Function AddFontResource(FontPath As String) As Integer
     End Function
 
 End Class

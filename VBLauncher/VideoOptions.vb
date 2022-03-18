@@ -1,34 +1,22 @@
 ﻿Imports System.IO
 Imports System.Runtime.InteropServices
+Imports VBLauncher.PShared
 
 Public Class VideoOptions
-    Public IFDir As String = My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini"
-    Public Line() As String = File.ReadAllLines(IFDir)
-    Public dgV2Line() As String
-    Public SelH As String
-    Public SelW As String
-
-    Public Sub WriteTodgV2(LineNum As Integer, TextValue As String)
-        dgV2Line = File.ReadAllLines("dgVoodoo.conf")
-        dgV2Line(LineNum) = TextValue
-        File.WriteAllLines("dgVoodoo.conf", dgV2Line)
-    End Sub
-
-    Public Sub WriteToF3Ini(LineNum As Integer, TextValue As String)
-        Line = File.ReadAllLines(IFDir)
-        Line(LineNum) = TextValue
-        File.WriteAllLines(IFDir, Line)
-    End Sub
+    Private dgV2Conf() As String
+    Private SelH As String
+    Private SelW As String
 
     Private Sub CheckOptions() Handles MyBase.Load
         Icon = My.Resources.F3
         If Not File.Exists("dgVoodoo.conf") Then _
             File.WriteAllBytes("dgVoodoo.conf", My.Resources.dgV2conf)
-        dgV2Line = File.ReadAllLines("dgVoodoo.conf")
+        dgV2Conf = File.ReadAllLines("dgVoodoo.conf")
+        F3Ini = File.ReadAllLines(F3Dir)
         ResolutionCB.Items.Clear()
         ResolutionCB.Items.AddRange(EDSEW.GetSizesAsStrings)
-        ResolutionCB.SelectedItem = Line(35).Remove(0, 8) & "x" & Line(29).Remove(0, 9)
-        FullscreenCB.Checked = Line(28) = "fullscreen = 1"
+        ResolutionCB.SelectedItem = GetValue(F3Ini, "width") & "x" & GetValue(F3Ini, "height")
+        FullscreenCB.Checked = GetValue(F3Ini, "fullscreen") = 1
         If File.Exists("d3d8.dll") Then
             If File.Exists("d3d11.dll") Then
                 APICB.SelectedIndex = 3
@@ -40,27 +28,27 @@ Public Class VideoOptions
         Else
             APICB.SelectedIndex = 0
         End If
-        Select Case dgV2Line(41)
-            Case "Antialiasing = off" : AACB.SelectedIndex = 0
-            Case "Antialiasing = 2x" : AACB.SelectedIndex = 1
-            Case "Antialiasing = 4x" : AACB.SelectedIndex = 2
-            Case "Antialiasing = 8x" : AACB.SelectedIndex = 3
+        Select Case GetValue(dgV2Conf, "Antialiasing")
+            Case "off" : AACB.SelectedIndex = 0
+            Case "2x" : AACB.SelectedIndex = 1
+            Case "4x" : AACB.SelectedIndex = 2
+            Case "8x" : AACB.SelectedIndex = 3
         End Select
-        Select Case dgV2Line(37)
-            Case "Filtering = appdriven" : TextureCB.SelectedIndex = 0
-            Case "Filtering = pointsampled" : TextureCB.SelectedIndex = 1
-            Case "Filtering = Linearmip" : TextureCB.SelectedIndex = 2
-            Case "Filtering = 2" : TextureCB.SelectedIndex = 3
-            Case "Filtering = 4" : TextureCB.SelectedIndex = 4
-            Case "Filtering = 8" : TextureCB.SelectedIndex = 5
-            Case "Filtering = 16" : TextureCB.SelectedIndex = 6
+        Select Case GetValue(dgV2Conf, "Filtering")
+            Case "appdriven" : TextureCB.SelectedIndex = 0
+            Case "pointsampled" : TextureCB.SelectedIndex = 1
+            Case "Linearmip" : TextureCB.SelectedIndex = 2
+            Case "2" : TextureCB.SelectedIndex = 3
+            Case "4" : TextureCB.SelectedIndex = 4
+            Case "8" : TextureCB.SelectedIndex = 5
+            Case "16" : TextureCB.SelectedIndex = 6
         End Select
-        MipmapCB.Checked = dgV2Line(39) = "DisableMipmapping = false"
-        PhongCB.Checked = dgV2Line(45) = "PhongShadingWhenPossible = true"
+        MipmapCB.Checked = Not Boolean.Parse(GetValue(dgV2Conf, "DisableMipmapping"))
+        PhongCB.Checked = GetValue(dgV2Conf, "PhongShadingWhenPossible")
     End Sub
 
     Private Sub ApplyChanges() Handles ApplyB.Click
-        Dim Hz As Double = EDSEW.GetRefreshRate()
+        Dim Hz As Integer = EDSEW.GetRefreshRate()
         Dim Iteration = 0
         For Each S As Size In EDSEW.GetSizes()
             If Iteration = ResolutionCB.SelectedIndex Then
@@ -69,12 +57,8 @@ Public Class VideoOptions
             End If
             Iteration += 1
         Next
-        If FullscreenCB.Checked Then
-            WriteToF3Ini(28, "fullscreen = 1")
-        Else
-            WriteToF3Ini(28, "fullscreen = 0")
-        End If
-        WriteToF3Ini(29, "height = " & SelH) : WriteToF3Ini(35, "width = " & SelW)
+        SetValue(F3Ini, "fullscreen", If(FullscreenCB.Checked, 1, 0))
+        SetValue(F3Ini, "width", SelW) : SetValue(F3Ini, "height", SelH)
         Select Case APICB.SelectedIndex
             Case 0
                 File.Delete("d3d8.dll")
@@ -86,7 +70,6 @@ Public Class VideoOptions
                 File.Delete("dxgi.dll")
                 File.Delete("wined3d.dll")
                 File.WriteAllBytes("d3d8.dll", My.Resources.DXd3d8)
-                WriteTodgV2(3, "OutputAPI = d3d11_fl10_1")
             Case 2
                 File.Delete("d3d11.dll")
                 File.Delete("dxgi.dll")
@@ -99,25 +82,26 @@ Public Class VideoOptions
                 File.WriteAllBytes("dxgi.dll", My.Resources.VKdxgi)
         End Select
         Select Case AACB.SelectedIndex
-            Case 0 : WriteTodgV2(41, "Antialiasing = off")
-            Case 1 : WriteTodgV2(41, "Antialiasing = 2x")
-            Case 2 : WriteTodgV2(41, "Antialiasing = 4x")
-            Case 3 : WriteTodgV2(41, "Antialiasing = 8x")
+            Case 0 : SetValue(dgV2Conf, "Antialiasing", "off")
+            Case 1 : SetValue(dgV2Conf, "Antialiasing", "2x")
+            Case 2 : SetValue(dgV2Conf, "Antialiasing", "4x")
+            Case 3 : SetValue(dgV2Conf, "Antialiasing", "8x")
         End Select
         Select Case TextureCB.SelectedIndex
-            Case 0 : WriteTodgV2(37, "Filtering = appdriven")
-            Case 1 : WriteTodgV2(37, "Filtering = pointsampled")
-            Case 2 : WriteTodgV2(37, "Filtering = Linearmip")
-            Case 3 : WriteTodgV2(37, "Filtering = 2")
-            Case 4 : WriteTodgV2(37, "Filtering = 4")
-            Case 5 : WriteTodgV2(37, "Filtering = 8")
-            Case 6 : WriteTodgV2(37, "Filtering = 16")
+            Case 0 : SetValue(dgV2Conf, "Filtering", "appdriven")
+            Case 1 : SetValue(dgV2Conf, "Filtering", "pointsampled")
+            Case 2 : SetValue(dgV2Conf, "Filtering", "Linearmip")
+            Case 3 : SetValue(dgV2Conf, "Filtering", "2")
+            Case 4 : SetValue(dgV2Conf, "Filtering", "4")
+            Case 5 : SetValue(dgV2Conf, "Filtering", "8")
+            Case 6 : SetValue(dgV2Conf, "Filtering", "16")
         End Select
-        If MipmapCB.Checked Then WriteTodgV2(39, "DisableMipmapping = false") Else WriteTodgV2(39, "DisableMipmapping = true")
-        If PhongCB.Checked Then WriteTodgV2(45, "PhongShadingWhenPossible = true") Else WriteTodgV2(45, "PhongShadingWhenPossible = false")
-        WriteTodgV2(29, "FPSLimit = " & Math.Round(Hz))
-        WriteToF3Ini(30, "mode32bpp = 1")
-        WriteToF3Ini(31, "refresh = " & Hz)
+        SetValue(dgV2Conf, "DisableMipmapping", Not MipmapCB.Checked)
+        SetValue(dgV2Conf, "PhongShadingWhenPossible", PhongCB.Checked)
+        SetValue(dgV2Conf, "FPSLimit", Hz)
+        SetValue(F3Ini, "refresh", Hz)
+        File.WriteAllLines("dgVoodoo.conf", dgV2Conf)
+        File.WriteAllLines(F3Dir, F3Ini)
         Hide()
     End Sub
 
@@ -142,6 +126,7 @@ Public Class VideoOptions
 
 End Class
 
+#Region "GPU/Display Information"
 Public Class EDSEW
 
     <StructLayout(LayoutKind.Sequential, CharSet:=CharSet.Unicode)>
@@ -224,5 +209,5 @@ Public Class EDSEW
         End While
         Return SizeList.ToArray
     End Function
-
 End Class
+#End Region

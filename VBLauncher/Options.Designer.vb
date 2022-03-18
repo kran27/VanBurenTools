@@ -52,7 +52,7 @@ Partial Class Options
         '
         'ApplyB
         '
-        Me.ApplyB.Location = New System.Drawing.Point(209, 253)
+        Me.ApplyB.Location = New System.Drawing.Point(209, 241)
         Me.ApplyB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.ApplyB.Name = "ApplyB"
         Me.ApplyB.Padding = New System.Windows.Forms.Padding(5)
@@ -63,7 +63,7 @@ Partial Class Options
         'IntrosCB
         '
         Me.IntrosCB.AutoSize = True
-        Me.IntrosCB.Location = New System.Drawing.Point(8, 21)
+        Me.IntrosCB.Location = New System.Drawing.Point(9, 18)
         Me.IntrosCB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.IntrosCB.Name = "IntrosCB"
         Me.IntrosCB.Size = New System.Drawing.Size(127, 19)
@@ -79,7 +79,7 @@ Partial Class Options
         Me.TweaksGB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.TweaksGB.Name = "TweaksGB"
         Me.TweaksGB.Padding = New System.Windows.Forms.Padding(4, 3, 4, 3)
-        Me.TweaksGB.Size = New System.Drawing.Size(257, 94)
+        Me.TweaksGB.Size = New System.Drawing.Size(257, 85)
         Me.TweaksGB.TabIndex = 0
         Me.TweaksGB.TabStop = False
         Me.TweaksGB.Text = "Tweaks"
@@ -87,7 +87,7 @@ Partial Class Options
         'CameraCB
         '
         Me.CameraCB.AutoSize = True
-        Me.CameraCB.Location = New System.Drawing.Point(8, 69)
+        Me.CameraCB.Location = New System.Drawing.Point(9, 60)
         Me.CameraCB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.CameraCB.Name = "CameraCB"
         Me.CameraCB.Size = New System.Drawing.Size(139, 19)
@@ -97,7 +97,7 @@ Partial Class Options
         'ButtonsCB
         '
         Me.ButtonsCB.AutoSize = True
-        Me.ButtonsCB.Location = New System.Drawing.Point(8, 45)
+        Me.ButtonsCB.Location = New System.Drawing.Point(9, 39)
         Me.ButtonsCB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.ButtonsCB.Name = "ButtonsCB"
         Me.ButtonsCB.Size = New System.Drawing.Size(188, 19)
@@ -114,11 +114,11 @@ Partial Class Options
         Me.PreferencesGB.Controls.Add(Me.HelmetL)
         Me.PreferencesGB.Controls.Add(Me.HelmetPI)
         Me.PreferencesGB.Controls.Add(Me.MainMenuL)
-        Me.PreferencesGB.Location = New System.Drawing.Point(13, 111)
+        Me.PreferencesGB.Location = New System.Drawing.Point(13, 102)
         Me.PreferencesGB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.PreferencesGB.Name = "PreferencesGB"
         Me.PreferencesGB.Padding = New System.Windows.Forms.Padding(4, 3, 4, 3)
-        Me.PreferencesGB.Size = New System.Drawing.Size(257, 137)
+        Me.PreferencesGB.Size = New System.Drawing.Size(257, 133)
         Me.PreferencesGB.TabIndex = 5
         Me.PreferencesGB.TabStop = False
         Me.PreferencesGB.Text = "Preferences"
@@ -128,17 +128,17 @@ Partial Class Options
         Me.NewGameCB.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable
         Me.NewGameCB.FormattingEnabled = True
         Me.NewGameCB.Items.AddRange(New Object() {"00_03_Tutorial_Junktown.map", "00_04_Tutorial_Vault.map", "04_0202_Spelunking.map", "98_Canyon_Random_01.map", "98_Canyon_Random_02.map", "Default_StartMap.map", "Mainmenu.map", "zz_TestMapsScottE_Test1.map", "zz_TestMapsScottE_Test2.map", "zz_TestMapsScottE_Test4.map", "zz_TestMapsTest_City_Building01.map", "zz_TestMapsTest_City_Building02.map", "zz_TestMapsTest_City_Building03.map", "zz_TestMapsTest_City_Building04.map", "zz_TestMapsTest_City_Fences.map", "zz_TestMapsTest_Junktown_Shacks.map", "zz_TestMapsaarontemp2.map"})
-        Me.NewGameCB.Location = New System.Drawing.Point(107, 21)
+        Me.NewGameCB.Location = New System.Drawing.Point(99, 17)
         Me.NewGameCB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.NewGameCB.Name = "NewGameCB"
-        Me.NewGameCB.Size = New System.Drawing.Size(142, 24)
+        Me.NewGameCB.Size = New System.Drawing.Size(149, 24)
         Me.NewGameCB.TabIndex = 6
         '
         'NewGameL
         '
         Me.NewGameL.AutoSize = True
         Me.NewGameL.ForeColor = System.Drawing.Color.FromArgb(CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer))
-        Me.NewGameL.Location = New System.Drawing.Point(8, 23)
+        Me.NewGameL.Location = New System.Drawing.Point(7, 21)
         Me.NewGameL.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.NewGameL.Name = "NewGameL"
         Me.NewGameL.Size = New System.Drawing.Size(92, 15)
@@ -150,17 +150,17 @@ Partial Class Options
         Me.MainMenuCB.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable
         Me.MainMenuCB.FormattingEnabled = True
         Me.MainMenuCB.Items.AddRange(New Object() {"Default", "Aaron Map 2", "Building 1", "Building 2", "Building 3", "Building 4", "Canyon 1", "Canyon 2", "Cave", "Fences", "Scott E Map 1", "Scott E Map 2", "Scott E Map 4", "Shacks", "Start Map", "Tutorial", "Vault"})
-        Me.MainMenuCB.Location = New System.Drawing.Point(111, 49)
+        Me.MainMenuCB.Location = New System.Drawing.Point(103, 45)
         Me.MainMenuCB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.MainMenuCB.Name = "MainMenuCB"
-        Me.MainMenuCB.Size = New System.Drawing.Size(138, 24)
+        Me.MainMenuCB.Size = New System.Drawing.Size(145, 24)
         Me.MainMenuCB.TabIndex = 7
         '
         'HelmetPL
         '
         Me.HelmetPL.AutoSize = True
         Me.HelmetPL.ForeColor = System.Drawing.Color.FromArgb(CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer))
-        Me.HelmetPL.Location = New System.Drawing.Point(122, 102)
+        Me.HelmetPL.Location = New System.Drawing.Point(126, 100)
         Me.HelmetPL.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.HelmetPL.Name = "HelmetPL"
         Me.HelmetPL.Size = New System.Drawing.Size(51, 15)
@@ -172,17 +172,17 @@ Partial Class Options
         Me.HelmetCB.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable
         Me.HelmetCB.FormattingEnabled = True
         Me.HelmetCB.Items.AddRange(New Object() {"Default", "8-Ball", "American", "Black", "Blue", "Eye", "Flames", "Full Skull", "Green", "Grey", "Police", "Red", "Shot Smiley", "Skull", "Yellow"})
-        Me.HelmetCB.Location = New System.Drawing.Point(60, 77)
+        Me.HelmetCB.Location = New System.Drawing.Point(54, 73)
         Me.HelmetCB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.HelmetCB.Name = "HelmetCB"
-        Me.HelmetCB.Size = New System.Drawing.Size(112, 24)
+        Me.HelmetCB.Size = New System.Drawing.Size(123, 24)
         Me.HelmetCB.TabIndex = 8
         '
         'HelmetL
         '
         Me.HelmetL.AutoSize = True
         Me.HelmetL.ForeColor = System.Drawing.Color.FromArgb(CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer))
-        Me.HelmetL.Location = New System.Drawing.Point(8, 80)
+        Me.HelmetL.Location = New System.Drawing.Point(7, 78)
         Me.HelmetL.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.HelmetL.Name = "HelmetL"
         Me.HelmetL.Size = New System.Drawing.Size(46, 15)
@@ -191,7 +191,7 @@ Partial Class Options
         '
         'HelmetPI
         '
-        Me.HelmetPI.Location = New System.Drawing.Point(180, 77)
+        Me.HelmetPI.Location = New System.Drawing.Point(180, 73)
         Me.HelmetPI.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.HelmetPI.Name = "HelmetPI"
         Me.HelmetPI.Size = New System.Drawing.Size(75, 58)
@@ -202,7 +202,7 @@ Partial Class Options
         '
         Me.MainMenuL.AutoSize = True
         Me.MainMenuL.ForeColor = System.Drawing.Color.FromArgb(CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer))
-        Me.MainMenuL.Location = New System.Drawing.Point(8, 52)
+        Me.MainMenuL.Location = New System.Drawing.Point(7, 50)
         Me.MainMenuL.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.MainMenuL.Name = "MainMenuL"
         Me.MainMenuL.Size = New System.Drawing.Size(95, 15)
@@ -211,7 +211,7 @@ Partial Class Options
         '
         'VideoB
         '
-        Me.VideoB.Location = New System.Drawing.Point(13, 253)
+        Me.VideoB.Location = New System.Drawing.Point(13, 241)
         Me.VideoB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.VideoB.Name = "VideoB"
         Me.VideoB.Padding = New System.Windows.Forms.Padding(5)
@@ -222,7 +222,7 @@ Partial Class Options
         'CloseB
         '
         Me.CloseB.DialogResult = System.Windows.Forms.DialogResult.Cancel
-        Me.CloseB.Location = New System.Drawing.Point(140, 253)
+        Me.CloseB.Location = New System.Drawing.Point(140, 241)
         Me.CloseB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.CloseB.Name = "CloseB"
         Me.CloseB.Padding = New System.Windows.Forms.Padding(5)
@@ -235,7 +235,7 @@ Partial Class Options
         Me.AcceptButton = Me.ApplyB
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(283, 290)
+        Me.ClientSize = New System.Drawing.Size(283, 278)
         Me.Controls.Add(Me.CloseB)
         Me.Controls.Add(Me.VideoB)
         Me.Controls.Add(Me.PreferencesGB)

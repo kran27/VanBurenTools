@@ -1,77 +1,52 @@
 ﻿Imports System.IO
+Imports VBLauncher.PShared
 
 Public Class Options
-    Public IFDir As String = My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini"
-    Public Line() As String = File.ReadAllLines(IFDir)
-    Public SysLine() As String
-    Public HelmType As String = "Override\Helmet\Helmet.type"
-    Public HelmInv As String = "Override\Helmet\Interface\HeaMotorcycle_default_INV.tga"
-    Public HelmTex As String = "Override\Helmet\Critters\HeaMotorcycle_default_LG.png"
+    Private ReadOnly HelmType As String = "Override\Helmet\Helmet.type"
+    Private ReadOnly HelmInv As String = "Override\Helmet\Interface\HeaMotorcycle_default_INV.tga"
+    Private ReadOnly HelmTex As String = "Override\Helmet\Critters\HeaMotorcycle_default_LG.png"
 
-    Function SearchForFiles(RootFolder As String, FileFilter() As String) As List(Of String)
-        Dim ReturnedData As New List(Of String)
-        Dim FolderStack As New Stack(Of String)
-        FolderStack.Push(RootFolder)
-        Do While FolderStack.Count > 0
-            Dim ThisFolder As String = FolderStack.Pop
-            Try
-                For Each SubFolder In Directory.GetDirectories(ThisFolder)
-                    FolderStack.Push(SubFolder)
-                Next
-                For Each FileExt In FileFilter
-                    ReturnedData.AddRange(Directory.GetFiles(ThisFolder, FileExt))
-                Next
-            Catch Ex As Exception
-            End Try
-        Loop
-        Return ReturnedData
-    End Function
-
-    Public Sub WriteToF3Ini(LineNum As Integer, TextValue As String)
-        Line = File.ReadAllLines(IFDir)
-        Line(LineNum) = TextValue
-        File.WriteAllLines(IFDir, Line)
-    End Sub
-
-    Public Sub WriteMainMenu(MapName As String, TargetX As String, TargetY As String, TargetZ As String,
+    Private Sub WriteMainMenu(MapName As String, TargetX As String, TargetY As String, TargetZ As String,
                              Azimuth As String, Elevation As String, FOV As String)
-        SysLine(19) = "map name = " & MapName
-        SysLine(20) = "target x = " & TargetX
-        SysLine(21) = "target y = " & TargetY
-        SysLine(22) = "target z = " & TargetZ
-        SysLine(23) = "azimuth = " & Azimuth
-        SysLine(24) = "elevation = " & Elevation
-        SysLine(26) = "fov = " & FOV
-        File.WriteAllLines("Override\MenuMap\Engine\sys.ini", SysLine)
+        SetValue(SysIni, "map name", MapName)
+        SetValue(SysIni, "target x", TargetX)
+        SetValue(SysIni, "target y", TargetY)
+        SetValue(SysIni, "target z", TargetZ)
+        SetValue(SysIni, "azimuth", Azimuth)
+        SetValue(SysIni, "elevation", Elevation)
+        SetValue(SysIni, "fov", FOV)
     End Sub
 
     Private Sub CheckOptions() Handles MyBase.Load
         Icon = My.Resources.F3
-        IntrosCB.Checked = Line(25) = "enable startup movies = 1"
+        If Not File.Exists(SysDir) Then
+            Directory.CreateDirectory("Override\MenuMap\Engine")
+            File.WriteAllBytes(SysDir, My.Resources.Default_sys)
+        End If
+        SysIni = File.ReadAllLines(SysDir)
+        F3Ini = File.ReadAllLines(F3Dir)
+        IntrosCB.Checked = GetValue(F3Ini, "enable startup movies") = 1
         ButtonsCB.Checked = Directory.Exists("Override\SUMM")
-        If Not File.Exists("Override\MenuMap\Engine\sys.ini") Then Directory.CreateDirectory("Override\MenuMap\Engine") : _
-            File.WriteAllBytes("Override\MenuMap\Engine\sys.ini", My.Resources.Default_sys)
-        SysLine = File.ReadAllLines("Override\MenuMap\Engine\sys.ini")
-        Select Case SysLine(19)
-            Case "map name = mainmenu.map" : MainMenuCB.SelectedIndex = 0
-            Case "map name = zz_TestMapsaarontemp2.map" : MainMenuCB.SelectedIndex = 1
-            Case "map name = zz_TestMapsTest_City_Building01.map" : MainMenuCB.SelectedIndex = 2
-            Case "map name = zz_TestMapsTest_City_Building02.map" : MainMenuCB.SelectedIndex = 3
-            Case "map name = zz_TestMapsTest_City_Building03.map" : MainMenuCB.SelectedIndex = 4
-            Case "map name = zz_TestMapsTest_City_Building04.map" : MainMenuCB.SelectedIndex = 5
-            Case "map name = 98_Canyon_Random_01.map" : MainMenuCB.SelectedIndex = 6
-            Case "map name = 98_Canyon_Random_02.map" : MainMenuCB.SelectedIndex = 7
-            Case "map name = 04_0202_Spelunking.map" : MainMenuCB.SelectedIndex = 8
-            Case "map name = zz_TestMapsTest_City_Fences.map" : MainMenuCB.SelectedIndex = 9
-            Case "map name = zz_TestMapsScottE_Test1.map" : MainMenuCB.SelectedIndex = 10
-            Case "map name = zz_TestMapsScottE_Test2.map" : MainMenuCB.SelectedIndex = 11
-            Case "map name = zz_TestMapsScottE_Test4.map" : MainMenuCB.SelectedIndex = 12
-            Case "map name = zz_TestMapsTest_Junktown_Shacks.map" : MainMenuCB.SelectedIndex = 13
-            Case "map name = Default_StartMap.map" : MainMenuCB.SelectedIndex = 14
-            Case "map name = 00_03_Tutorial_Junktown.map" : MainMenuCB.SelectedIndex = 15
-            Case "map name = 00_04_Tutorial_Vault.map" : MainMenuCB.SelectedIndex = 16
+        Select Case GetValue(SysIni, "map name")
+            Case "mainmenu.map" : MainMenuCB.SelectedIndex = 0
+            Case "zz_TestMapsaarontemp2.map" : MainMenuCB.SelectedIndex = 1
+            Case "zz_TestMapsTest_City_Building01.map" : MainMenuCB.SelectedIndex = 2
+            Case "zz_TestMapsTest_City_Building02.map" : MainMenuCB.SelectedIndex = 3
+            Case "zz_TestMapsTest_City_Building03.map" : MainMenuCB.SelectedIndex = 4
+            Case "zz_TestMapsTest_City_Building04.map" : MainMenuCB.SelectedIndex = 5
+            Case "98_Canyon_Random_01.map" : MainMenuCB.SelectedIndex = 6
+            Case "98_Canyon_Random_02.map" : MainMenuCB.SelectedIndex = 7
+            Case "04_0202_Spelunking.map" : MainMenuCB.SelectedIndex = 8
+            Case "zz_TestMapsTest_City_Fences.map" : MainMenuCB.SelectedIndex = 9
+            Case "zz_TestMapsScottE_Test1.map" : MainMenuCB.SelectedIndex = 10
+            Case "zz_TestMapsScottE_Test2.map" : MainMenuCB.SelectedIndex = 11
+            Case "zz_TestMapsScottE_Test4.map" : MainMenuCB.SelectedIndex = 12
+            Case "zz_TestMapsTest_Junktown_Shacks.map" : MainMenuCB.SelectedIndex = 13
+            Case "Default_StartMap.map" : MainMenuCB.SelectedIndex = 14
+            Case "00_03_Tutorial_Junktown.map" : MainMenuCB.SelectedIndex = 15
+            Case "00_04_Tutorial_Vault.map" : MainMenuCB.SelectedIndex = 16
         End Select
-        CameraCB.Checked = SysLine(13) = "FOV Min = 0.5"
+        CameraCB.Checked = GetValue(SysIni, "FOV Min") = 0.5
         Dim Files = SearchForFiles("Override", {"*.map"})
         For Each File As Object In Files
             Dim FI As New FileInfo(File)
@@ -79,15 +54,17 @@ Public Class Options
                 NewGameCB.Items.Add(FI.Name)
             End If
         Next
-        SysLine = File.ReadAllLines("Override\MenuMap\Engine\sys.ini")
-        NewGameCB.Text = SysLine(52).Remove(0, 12)
+        NewGameCB.Text = GetValue(SysIni, "Start map")
         Try : HelmetCB.SelectedItem = File.ReadAllText(HelmType)
         Catch : HelmetCB.SelectedIndex = 0 : End Try
     End Sub
 
     Private Sub ApplyChanges() Handles ApplyB.Click
-        If IntrosCB.Checked Then WriteToF3Ini(25, "enable startup movies = 1") Else _
-            WriteToF3Ini(25, "enable startup movies = 0")
+        If IntrosCB.Checked Then
+            SetValue(F3Ini, "enable startup movies", 1)
+        Else
+            SetValue(F3Ini, "enable startup movies", 0)
+        End If
         If ButtonsCB.Checked Then
             Directory.CreateDirectory("Override\SUMM\Interface")
             File.WriteAllBytes("Override\SUMM\Interface\Mainmenu.int", My.Resources.Mainmenu)
@@ -114,20 +91,18 @@ Public Class Options
             Case 15 : WriteMainMenu("00_03_Tutorial_Junktown.map", 80, 7.5, 50, 5, 10, 68)
             Case 16 : WriteMainMenu("00_04_Tutorial_Vault.map", 50, 50.5, 0, 36, 25, 68)
         End Select
-        SysLine = File.ReadAllLines("Override\MenuMap\Engine\sys.ini")
         If CameraCB.Checked Then
-            SysLine(12) = "FOV Speed = 10"
-            SysLine(16) = "Scroll Speed = 125"
-            SysLine(13) = "FOV Min = 0.5"
-            SysLine(14) = "FOV Max = 100"
+            SetValue(SysIni, "FOV Speed", 10)
+            SetValue(SysIni, "Scroll Speed", 250)
+            SetValue(SysIni, "FOV Min", 0.5)
+            SetValue(SysIni, "FOV Max", 100)
         Else
-            SysLine(12) = "FOV Speed = 6.5"
-            SysLine(16) = "Scroll Speed = 96"
-            SysLine(13) = "FOV Min = 6"
-            SysLine(14) = "FOV Max = 15"
+            SetValue(SysIni, "FOV Speed", 6.5)
+            SetValue(SysIni, "Scroll Speed", 96)
+            SetValue(SysIni, "FOV Min", 6)
+            SetValue(SysIni, "FOV Max", 15)
         End If
-        SysLine(52) = "Start map = " & NewGameCB.Text
-        File.WriteAllLines("Override\MenuMap\Engine\sys.ini", SysLine)
+        SetValue(SysIni, "Start map", NewGameCB.Text)
         Try : Directory.Delete("Override\Helmet", 1) : Catch : End Try
         If Not HelmetCB.SelectedIndex = 0 Then
             Directory.CreateDirectory("Override\Helmet\Critters")
@@ -150,6 +125,8 @@ Public Class Options
                 Case 14 : File.WriteAllBytes(HelmInv, My.Resources.YellowI) : File.WriteAllBytes(HelmTex, My.Resources.Yellow)
             End Select
         End If
+        File.WriteAllLines(SysDir, SysIni)
+        File.WriteAllLines(F3Dir, F3Ini)
         Hide()
     End Sub
 
@@ -173,11 +150,11 @@ Public Class Options
         End Select
     End Sub
 
-    Private Sub Button3_Click() Handles VideoB.Click
+    Private Sub OpenVideoOptions() Handles VideoB.Click
         VideoOptions.ShowDialog()
     End Sub
 
-    Private Sub ComboBox3_SelectedIndexChanged() Handles NewGameCB.SelectedIndexChanged
+    Private Sub NewGameToolTip() Handles NewGameCB.SelectedIndexChanged
         ToolTip1.SetToolTip(NewGameCB, NewGameCB.Text)
     End Sub
 
