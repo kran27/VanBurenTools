@@ -5,15 +5,15 @@ Public Class PShared
     Public Shared F3Ini() As String
     Public Shared SysIni() As String
     Public Shared CurrentKey As String
-    Public Shared Function GetValue(File As String(), IniKey As String)
+    Public Shared Function Ini(File As String(), IniKey As String, Optional Value As String = Nothing)
         CurrentKey = IniKey
-        Return File(Array.FindIndex(File, AddressOf KeyName)).Remove(0, IniKey.Length + 3)
+        If Value IsNot Nothing Then
+            File(Array.FindIndex(File, AddressOf KeyName)) = IniKey & " = " & Value
+            Return Nothing
+        Else
+            Return File(Array.FindIndex(File, AddressOf KeyName)).Remove(0, IniKey.Length + 3)
+        End If
     End Function
-
-    Public Shared Sub SetValue(File As String(), IniKey As String, Value As String)
-        CurrentKey = IniKey
-        File(Array.FindIndex(File, AddressOf KeyName)) = IniKey & " = " & Value
-    End Sub
 
     Public Shared Function KeyName(s As String) As Boolean
         Return s.StartsWith(CurrentKey)

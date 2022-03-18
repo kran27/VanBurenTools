@@ -56,9 +56,6 @@ Public Class Main
         End If
         Try : File.Delete(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT")
         Catch : End Try
-        If Not File.Exists(F3Dir) Then
-            File.WriteAllText(F3Dir, My.Resources.Default_F3)
-        End If
     End Sub
 
     Private Shared Sub LaunchGame() Handles LaunchB.Click
@@ -71,9 +68,9 @@ Public Class Main
     End Sub
 
     Private Sub OpenOptions() Handles OptionsB.Click
-        If Not File.Exists(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini") Then _
-            File.WriteAllText(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini",
-                              My.Resources.Default_F3)
+        If Not File.Exists(F3Dir) Then
+            File.WriteAllText(F3Dir, My.Resources.Default_F3)
+        End If
         Options.ShowDialog()
     End Sub
 

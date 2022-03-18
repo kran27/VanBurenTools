@@ -8,13 +8,13 @@ Public Class Options
 
     Private Sub WriteMainMenu(MapName As String, TargetX As String, TargetY As String, TargetZ As String,
                              Azimuth As String, Elevation As String, FOV As String)
-        SetValue(SysIni, "map name", MapName)
-        SetValue(SysIni, "target x", TargetX)
-        SetValue(SysIni, "target y", TargetY)
-        SetValue(SysIni, "target z", TargetZ)
-        SetValue(SysIni, "azimuth", Azimuth)
-        SetValue(SysIni, "elevation", Elevation)
-        SetValue(SysIni, "fov", FOV)
+        Ini(SysIni, "map name", MapName)
+        Ini(SysIni, "target x", TargetX)
+        Ini(SysIni, "target y", TargetY)
+        Ini(SysIni, "target z", TargetZ)
+        Ini(SysIni, "azimuth", Azimuth)
+        Ini(SysIni, "elevation", Elevation)
+        Ini(SysIni, "fov", FOV)
     End Sub
 
     Private Sub CheckOptions() Handles MyBase.Load
@@ -25,9 +25,9 @@ Public Class Options
         End If
         SysIni = File.ReadAllLines(SysDir)
         F3Ini = File.ReadAllLines(F3Dir)
-        IntrosCB.Checked = GetValue(F3Ini, "enable startup movies") = 1
+        IntrosCB.Checked = Ini(F3Ini, "enable startup movies") = 1
         ButtonsCB.Checked = Directory.Exists("Override\SUMM")
-        Select Case GetValue(SysIni, "map name")
+        Select Case Ini(SysIni, "map name")
             Case "mainmenu.map" : MainMenuCB.SelectedIndex = 0
             Case "zz_TestMapsaarontemp2.map" : MainMenuCB.SelectedIndex = 1
             Case "zz_TestMapsTest_City_Building01.map" : MainMenuCB.SelectedIndex = 2
@@ -46,7 +46,7 @@ Public Class Options
             Case "00_03_Tutorial_Junktown.map" : MainMenuCB.SelectedIndex = 15
             Case "00_04_Tutorial_Vault.map" : MainMenuCB.SelectedIndex = 16
         End Select
-        CameraCB.Checked = GetValue(SysIni, "FOV Min") = 0.5
+        CameraCB.Checked = Ini(SysIni, "FOV Min") = 0.5
         Dim Files = SearchForFiles("Override", {"*.map"})
         For Each File As Object In Files
             Dim FI As New FileInfo(File)
@@ -54,16 +54,16 @@ Public Class Options
                 NewGameCB.Items.Add(FI.Name)
             End If
         Next
-        NewGameCB.Text = GetValue(SysIni, "Start map")
+        NewGameCB.Text = Ini(SysIni, "Start map")
         Try : HelmetCB.SelectedItem = File.ReadAllText(HelmType)
         Catch : HelmetCB.SelectedIndex = 0 : End Try
     End Sub
 
     Private Sub ApplyChanges() Handles ApplyB.Click
         If IntrosCB.Checked Then
-            SetValue(F3Ini, "enable startup movies", 1)
+            Ini(F3Ini, "enable startup movies", 1)
         Else
-            SetValue(F3Ini, "enable startup movies", 0)
+            Ini(F3Ini, "enable startup movies", 0)
         End If
         If ButtonsCB.Checked Then
             Directory.CreateDirectory("Override\SUMM\Interface")
@@ -92,17 +92,17 @@ Public Class Options
             Case 16 : WriteMainMenu("00_04_Tutorial_Vault.map", 50, 50.5, 0, 36, 25, 68)
         End Select
         If CameraCB.Checked Then
-            SetValue(SysIni, "FOV Speed", 10)
-            SetValue(SysIni, "Scroll Speed", 250)
-            SetValue(SysIni, "FOV Min", 0.5)
-            SetValue(SysIni, "FOV Max", 100)
+            Ini(SysIni, "FOV Speed", 10)
+            Ini(SysIni, "Scroll Speed", 250)
+            Ini(SysIni, "FOV Min", 0.5)
+            Ini(SysIni, "FOV Max", 100)
         Else
-            SetValue(SysIni, "FOV Speed", 6.5)
-            SetValue(SysIni, "Scroll Speed", 96)
-            SetValue(SysIni, "FOV Min", 6)
-            SetValue(SysIni, "FOV Max", 15)
+            Ini(SysIni, "FOV Speed", 6.5)
+            Ini(SysIni, "Scroll Speed", 96)
+            Ini(SysIni, "FOV Min", 6)
+            Ini(SysIni, "FOV Max", 15)
         End If
-        SetValue(SysIni, "Start map", NewGameCB.Text)
+        Ini(SysIni, "Start map", NewGameCB.Text)
         Try : Directory.Delete("Override\Helmet", 1) : Catch : End Try
         If Not HelmetCB.SelectedIndex = 0 Then
             Directory.CreateDirectory("Override\Helmet\Critters")
