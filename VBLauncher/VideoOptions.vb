@@ -15,8 +15,8 @@ Public Class VideoOptions
         F3Ini = File.ReadAllLines(F3Dir)
         ResolutionCB.Items.Clear()
         ResolutionCB.Items.AddRange(EDSEW.GetSizesAsStrings)
-        ResolutionCB.SelectedItem = Ini(F3Ini, "width") & "x" & Ini(F3Ini, "height")
-        FullscreenCB.Checked = Ini(F3Ini, "fullscreen") = 1
+        ResolutionCB.SelectedItem = Ini(F3Ini, "Graphics", "width") & "x" & Ini(F3Ini, "Graphics", "height")
+        FullscreenCB.Checked = Ini(F3Ini, "Graphics", "fullscreen") = 1
         If File.Exists("d3d8.dll") Then
             If File.Exists("d3d11.dll") Then
                 APICB.SelectedIndex = 3
@@ -28,13 +28,13 @@ Public Class VideoOptions
         Else
             APICB.SelectedIndex = 0
         End If
-        Select Case Ini(dgV2Conf, "Antialiasing")
+        Select Case Ini(dgV2Conf, "DirectX", "Antialiasing")
             Case "off" : AACB.SelectedIndex = 0
             Case "2x" : AACB.SelectedIndex = 1
             Case "4x" : AACB.SelectedIndex = 2
             Case "8x" : AACB.SelectedIndex = 3
         End Select
-        Select Case Ini(dgV2Conf, "Filtering")
+        Select Case Ini(dgV2Conf, "DirectX", "Filtering")
             Case "appdriven" : TextureCB.SelectedIndex = 0
             Case "pointsampled" : TextureCB.SelectedIndex = 1
             Case "Linearmip" : TextureCB.SelectedIndex = 2
@@ -43,8 +43,8 @@ Public Class VideoOptions
             Case "8" : TextureCB.SelectedIndex = 5
             Case "16" : TextureCB.SelectedIndex = 6
         End Select
-        MipmapCB.Checked = Not Boolean.Parse(Ini(dgV2Conf, "DisableMipmapping"))
-        PhongCB.Checked = Ini(dgV2Conf, "PhongShadingWhenPossible")
+        MipmapCB.Checked = Not Boolean.Parse(Ini(dgV2Conf, "DirectX", "DisableMipmapping"))
+        PhongCB.Checked = Boolean.Parse(Ini(dgV2Conf, "DirectX", "PhongShadingWhenPossible"))
     End Sub
 
     Private Sub ApplyChanges() Handles ApplyB.Click
@@ -57,8 +57,8 @@ Public Class VideoOptions
             End If
             Iteration += 1
         Next
-        Ini(F3Ini, "fullscreen", If(FullscreenCB.Checked, 1, 0))
-        Ini(F3Ini, "width", SelW) : Ini(F3Ini, "height", SelH)
+        Ini(F3Ini, "Graphics", "fullscreen", If(FullscreenCB.Checked, 1, 0))
+        Ini(F3Ini, "Graphics", "width", SelW) : Ini(F3Ini, "Graphics", "height", SelH)
         Select Case APICB.SelectedIndex
             Case 0
                 File.Delete("d3d8.dll")
@@ -82,24 +82,24 @@ Public Class VideoOptions
                 File.WriteAllBytes("dxgi.dll", My.Resources.VKdxgi)
         End Select
         Select Case AACB.SelectedIndex
-            Case 0 : Ini(dgV2Conf, "Antialiasing", "off")
-            Case 1 : Ini(dgV2Conf, "Antialiasing", "2x")
-            Case 2 : Ini(dgV2Conf, "Antialiasing", "4x")
-            Case 3 : Ini(dgV2Conf, "Antialiasing", "8x")
+            Case 0 : Ini(dgV2Conf, "DirectX", "Antialiasing", "off")
+            Case 1 : Ini(dgV2Conf, "DirectX", "Antialiasing", "2x")
+            Case 2 : Ini(dgV2Conf, "DirectX", "Antialiasing", "4x")
+            Case 3 : Ini(dgV2Conf, "DirectX", "Antialiasing", "8x")
         End Select
         Select Case TextureCB.SelectedIndex
-            Case 0 : Ini(dgV2Conf, "Filtering", "appdriven")
-            Case 1 : Ini(dgV2Conf, "Filtering", "pointsampled")
-            Case 2 : Ini(dgV2Conf, "Filtering", "Linearmip")
-            Case 3 : Ini(dgV2Conf, "Filtering", "2")
-            Case 4 : Ini(dgV2Conf, "Filtering", "4")
-            Case 5 : Ini(dgV2Conf, "Filtering", "8")
-            Case 6 : Ini(dgV2Conf, "Filtering", "16")
+            Case 0 : Ini(dgV2Conf, "DirectX", "Filtering", "appdriven")
+            Case 1 : Ini(dgV2Conf, "DirectX", "Filtering", "pointsampled")
+            Case 2 : Ini(dgV2Conf, "DirectX", "Filtering", "Linearmip")
+            Case 3 : Ini(dgV2Conf, "DirectX", "Filtering", "2")
+            Case 4 : Ini(dgV2Conf, "DirectX", "Filtering", "4")
+            Case 5 : Ini(dgV2Conf, "DirectX", "Filtering", "8")
+            Case 6 : Ini(dgV2Conf, "DirectX", "Filtering", "16")
         End Select
-        Ini(dgV2Conf, "DisableMipmapping", Not MipmapCB.Checked)
-        Ini(dgV2Conf, "PhongShadingWhenPossible", PhongCB.Checked)
-        Ini(dgV2Conf, "FPSLimit", Hz)
-        Ini(F3Ini, "refresh", Hz)
+        Ini(dgV2Conf, "DirectX", "DisableMipmapping", Not MipmapCB.Checked)
+        Ini(dgV2Conf, "DirectX", "PhongShadingWhenPossible", PhongCB.Checked)
+        Ini(dgV2Conf, "DirectX", "FPSLimit", Hz)
+        Ini(F3Ini, "Graphics", "refresh", Hz)
         File.WriteAllLines("dgVoodoo.conf", dgV2Conf)
         File.WriteAllLines(F3Dir, F3Ini)
         Hide()

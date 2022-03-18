@@ -4,19 +4,30 @@ Public Class PShared
     Public Shared SysDir As String = "Override\MenuMap\Engine\sys.ini"
     Public Shared F3Ini() As String
     Public Shared SysIni() As String
-    Public Shared CurrentKey As String
-    Public Shared Function Ini(File As String(), IniKey As String, Optional Value As String = Nothing)
-        CurrentKey = IniKey
+    Private Shared CheckFor As String
+    Public Shared Function Ini(IniArray As String(), IniSection As String, IniKey As String, Optional Value As String = Nothing)
+        CheckFor = "[" & IniSection & "]"
+        Dim SectionStart = Array.FindIndex(IniArray, AddressOf StartsWith)
+        CheckFor = "["
+        Dim SectionEnd = Array.FindIndex(IniArray, SectionStart + 1, AddressOf StartsWith) - 1
+        If SectionEnd = -1 Then
+            SectionEnd = IniArray.Length - 1
+        End If
+        CheckFor = IniKey
+        Dim KeyIndex = Array.FindIndex(IniArray, SectionStart + 1, AddressOf StartsWith)
+        If KeyIndex > SectionEnd Then
+            Return Nothing
+        End If
         If Value IsNot Nothing Then
-            File(Array.FindIndex(File, AddressOf KeyName)) = IniKey & " = " & Value
+            IniArray(Array.FindIndex(IniArray, SectionStart + 1, AddressOf StartsWith)) = IniKey & " = " & Value
             Return Nothing
         Else
-            Return File(Array.FindIndex(File, AddressOf KeyName)).Remove(0, IniKey.Length + 3)
+            Return IniArray(Array.FindIndex(IniArray, SectionStart + 1, AddressOf StartsWith)).Remove(0, IniKey.Substring(IniKey.IndexOf("=") + 1).Length + 3)
         End If
     End Function
 
-    Public Shared Function KeyName(s As String) As Boolean
-        Return s.StartsWith(CurrentKey)
+    Public Shared Function StartsWith(Item As String)
+        Return Item.StartsWith(CheckFor)
     End Function
 
     Public Shared Function SearchForFiles(RootFolder As String, FileFilter() As String) As List(Of String)
