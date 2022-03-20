@@ -6,7 +6,7 @@ Public Class Options
     Private ReadOnly HelmInv As String = "Override\Helmet\Interface\HeaMotorcycle_default_INV.tga"
     Private ReadOnly HelmTex As String = "Override\Helmet\Critters\HeaMotorcycle_default_LG.png"
 
-    Private Sub WriteMainMenu(MapName As String, TargetX As String, TargetY As String, TargetZ As String,
+    Private Sub SetMainMenu(MapName As String, TargetX As String, TargetY As String, TargetZ As String,
                              Azimuth As String, Elevation As String, FOV As String)
         Ini(SysIni, "Mainmenu", "map name", MapName)
         Ini(SysIni, "Mainmenu", "target x", TargetX)
@@ -19,12 +19,20 @@ Public Class Options
 
     Private Sub CheckOptions() Handles MyBase.Load
         Icon = My.Resources.F3
-        If Not File.Exists(SysDir) Then
+        Try
+            F3Ini = File.ReadAllLines(F3Dir)
+        Catch
+            Directory.CreateDirectory(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3")
+            File.WriteAllText(F3Dir, My.Resources.Default_F3)
+            F3Ini = File.ReadAllLines(F3Dir)
+        End Try
+        Try
+            SysIni = File.ReadAllLines(SysDir)
+        Catch
             Directory.CreateDirectory("Override\MenuMap\Engine")
-            File.WriteAllBytes(SysDir, My.Resources.Default_sys)
-        End If
-        SysIni = File.ReadAllLines(SysDir)
-        F3Ini = File.ReadAllLines(F3Dir)
+            File.WriteAllText(SysDir, My.Resources.Default_sys)
+            SysIni = File.ReadAllLines(SysDir)
+        End Try
         IntrosCB.Checked = Ini(F3Ini, "Graphics", "enable startup movies") = 1
         ButtonsCB.Checked = Directory.Exists("Override\SUMM")
         Select Case Ini(SysIni, "Mainmenu", "map name")
@@ -69,23 +77,23 @@ Public Class Options
             Try : Directory.Delete("Override\SUMM", 1) : Catch : End Try
         End If
         Select Case MainMenuCB.SelectedIndex
-            Case 0 : WriteMainMenu("mainmenu.map", 0, 5.5, 0, 2, 0.75, 59.2)
-            Case 1 : WriteMainMenu("zz_TestMapsaarontemp2.map", 0, 0, 0, 0, 0, 0)
-            Case 2 : WriteMainMenu("zz_TestMapsTest_City_Building01.map", 0, 5.5, 0, 45, -2.5, 57)
-            Case 3 : WriteMainMenu("zz_TestMapsTest_City_Building02.map", 0, 5.5, 0, 43, -2.5, 57)
-            Case 4 : WriteMainMenu("zz_TestMapsTest_City_Building03.map", 0, 5.5, 0, 43, -5, 57)
-            Case 5 : WriteMainMenu("zz_TestMapsTest_City_Building04.map", 0, 5.5, 0, 43, -5.5, 57)
-            Case 6 : WriteMainMenu("98_Canyon_Random_01.map", 50, 5, 10, 61, 0, 45)
-            Case 7 : WriteMainMenu("98_Canyon_Random_02.map", 55, 5, 10, 36, -2.5, 50)
-            Case 8 : WriteMainMenu("04_0202_Spelunking.map", 70, 5, 45, 15, 5, 50)
-            Case 9 : WriteMainMenu("zz_TestMapsTest_City_Fences.map", 0, 40, 0, 42, 35, 50)
-            Case 10 : WriteMainMenu("zz_TestMapsScottE_Test1.map", 85, 30, 30, 255, 39, 60)
-            Case 11 : WriteMainMenu("zz_TestMapsScottE_Test2.map", 145, 80, -85, 0.5, 25, 75)
-            Case 12 : WriteMainMenu("zz_TestMapsScottE_Test4.map", 0, 7.5, 0, 45, 12.5, 50)
-            Case 13 : WriteMainMenu("zz_TestMapsTest_Junktown_Shacks.map", 0, 50, -10, 42, 39, 50)
-            Case 14 : WriteMainMenu("Default_StartMap.map", 60, 7.5, 25, 270, 8, 27)
-            Case 15 : WriteMainMenu("00_03_Tutorial_Junktown.map", 80, 7.5, 50, 5, 10, 68)
-            Case 16 : WriteMainMenu("00_04_Tutorial_Vault.map", 50, 50.5, 0, 36, 25, 68)
+            Case 0 : SetMainMenu("mainmenu.map", 0, 5.5, 0, 2, 0.75, 59.2)
+            Case 1 : SetMainMenu("zz_TestMapsaarontemp2.map", 0, 0, 0, 0, 0, 0)
+            Case 2 : SetMainMenu("zz_TestMapsTest_City_Building01.map", 0, 5.5, 0, 45, -2.5, 57)
+            Case 3 : SetMainMenu("zz_TestMapsTest_City_Building02.map", 0, 5.5, 0, 43, -2.5, 57)
+            Case 4 : SetMainMenu("zz_TestMapsTest_City_Building03.map", 0, 5.5, 0, 43, -5, 57)
+            Case 5 : SetMainMenu("zz_TestMapsTest_City_Building04.map", 0, 5.5, 0, 43, -5.5, 57)
+            Case 6 : SetMainMenu("98_Canyon_Random_01.map", 50, 5, 10, 61, 0, 45)
+            Case 7 : SetMainMenu("98_Canyon_Random_02.map", 55, 5, 10, 36, -2.5, 50)
+            Case 8 : SetMainMenu("04_0202_Spelunking.map", 70, 5, 45, 15, 5, 50)
+            Case 9 : SetMainMenu("zz_TestMapsTest_City_Fences.map", 0, 40, 0, 42, 35, 50)
+            Case 10 : SetMainMenu("zz_TestMapsScottE_Test1.map", 85, 30, 30, 255, 39, 60)
+            Case 11 : SetMainMenu("zz_TestMapsScottE_Test2.map", 145, 80, -85, 0.5, 25, 75)
+            Case 12 : SetMainMenu("zz_TestMapsScottE_Test4.map", 0, 7.5, 0, 45, 12.5, 50)
+            Case 13 : SetMainMenu("zz_TestMapsTest_Junktown_Shacks.map", 0, 50, -10, 42, 39, 50)
+            Case 14 : SetMainMenu("Default_StartMap.map", 60, 7.5, 25, 270, 8, 27)
+            Case 15 : SetMainMenu("00_03_Tutorial_Junktown.map", 80, 7.5, 50, 5, 10, 68)
+            Case 16 : SetMainMenu("00_04_Tutorial_Vault.map", 50, 50.5, 0, 36, 25, 68)
         End Select
         If CameraCB.Checked Then
             Ini(SysIni, "Camera", "FOV Speed", 10)

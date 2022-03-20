@@ -26,7 +26,7 @@ Public Class PShared
         End If
     End Function
 
-    Public Shared Function StartsWith(Item As String)
+    Private Shared Function StartsWith(Item As String)
         Return Item.StartsWith(CheckFor)
     End Function
 

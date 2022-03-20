@@ -9,9 +9,13 @@ Public Class VideoOptions
 
     Private Sub CheckOptions() Handles MyBase.Load
         Icon = My.Resources.F3
-        If Not File.Exists("dgVoodoo.conf") Then _
+        Try
+            dgV2Conf = File.ReadAllLines("dgVoodoo.conf")
+        Catch
+            File.Exists("dgVoodoo.conf")
             File.WriteAllBytes("dgVoodoo.conf", My.Resources.dgV2conf)
-        dgV2Conf = File.ReadAllLines("dgVoodoo.conf")
+            dgV2Conf = File.ReadAllLines("dgVoodoo.conf")
+        End Try
         F3Ini = File.ReadAllLines(F3Dir)
         ResolutionCB.Items.Clear()
         ResolutionCB.Items.AddRange(EDSEW.GetSizesAsStrings)

@@ -154,9 +154,6 @@
   <data name="Default_F3" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Default_F3.ini;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
-  <data name="Default_sys" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Default_sys;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="F3" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\F3.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -330,5 +327,8 @@
   </data>
   <data name="VKdxgi" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Wrappers\DXVK\VKdxgi.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Default_sys" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Default_sys.ini;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
 </root>

@@ -68,9 +68,6 @@ Public Class Main
     End Sub
 
     Private Sub OpenOptions() Handles OptionsB.Click
-        If Not File.Exists(F3Dir) Then
-            File.WriteAllText(F3Dir, My.Resources.Default_F3)
-        End If
         Options.ShowDialog()
     End Sub
 
