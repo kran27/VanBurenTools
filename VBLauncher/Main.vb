@@ -54,6 +54,7 @@ Public Class Main
         Else
             ShowError("Please put the launcher in the same directory as the game so you can launch it!", "Game Executable Not Found!")
         End If
+        AllowTransparency = False
         Try : File.Delete(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT")
         Catch : End Try
     End Sub
