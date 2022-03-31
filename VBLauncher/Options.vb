@@ -1,5 +1,6 @@
 ﻿Imports System.IO
-Imports VBLauncher.PShared
+Imports VBLauncher.General
+Imports VBLauncher.IniManager
 
 Public Class Options
     Private ReadOnly HelmType As String = "Override\Helmet\Helmet.type"

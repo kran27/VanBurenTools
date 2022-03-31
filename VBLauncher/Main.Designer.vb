@@ -91,7 +91,7 @@ Partial Class Main
         '
         'Main
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.Black
         Me.ClientSize = New System.Drawing.Size(640, 480)
@@ -105,6 +105,7 @@ Partial Class Main
         Me.Name = "Main"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Van Buren Launcher"
+        Me.TransparencyKey = System.Drawing.Color.FromArgb(CType(CType(32, Byte), Integer), CType(CType(32, Byte), Integer), CType(CType(32, Byte), Integer))
         CType(Me.LaunchB, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.OptionsB, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.ExitB, System.ComponentModel.ISupportInitialize).EndInit()

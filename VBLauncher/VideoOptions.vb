@@ -1,6 +1,6 @@
 ﻿Imports System.IO
-Imports System.Runtime.InteropServices
-Imports VBLauncher.PShared
+Imports VBLauncher.IniManager
+Imports VBLauncher.VideoInfo
 
 Public Class VideoOptions
     Private dgV2Conf() As String
@@ -18,7 +18,7 @@ Public Class VideoOptions
         End Try
         F3Ini = File.ReadAllLines(F3Dir)
         ResolutionCB.Items.Clear()
-        ResolutionCB.Items.AddRange(EDSEW.GetSizesAsStrings)
+        ResolutionCB.Items.AddRange(GetSizesAsStrings)
         ResolutionCB.SelectedItem = Ini(F3Ini, "Graphics", "width") & "x" & Ini(F3Ini, "Graphics", "height")
         FullscreenCB.Checked = Ini(F3Ini, "Graphics", "fullscreen") = 1
         If File.Exists("d3d8.dll") Then
@@ -52,9 +52,9 @@ Public Class VideoOptions
     End Sub
 
     Private Sub ApplyChanges() Handles ApplyB.Click
-        Dim Hz As Integer = EDSEW.GetRefreshRate()
+        Dim Hz As Integer = GetRefreshRate()
         Dim Iteration = 0
-        For Each S As Size In EDSEW.GetSizes()
+        For Each S As Size In GetSizes()
             If Iteration = ResolutionCB.SelectedIndex Then
                 SelW = S.Width.ToString()
                 SelH = S.Height.ToString()
@@ -129,89 +129,3 @@ Public Class VideoOptions
     End Sub
 
 End Class
-
-#Region "GPU/Display Information"
-Public Class EDSEW
-
-    <StructLayout(LayoutKind.Sequential, CharSet:=CharSet.Unicode)>
-    Private Structure DevModeW
-        <MarshalAs(UnmanagedType.ByValTStr, SizeConst:=32)> Private ReadOnly dmDeviceName As String
-        Private ReadOnly dmSpecVersion As UShort
-        Private ReadOnly dmDriverVersion As UShort
-        Public dmSize As UShort
-        Private ReadOnly dmDriverExtra As UShort
-        Private ReadOnly dmFields As UInteger
-        Private ReadOnly Union1 As Struct1
-        Private ReadOnly dmColor As Short
-        Private ReadOnly dmDuplex As Short
-        Private ReadOnly dmYResolution As Short
-        Private ReadOnly dmTTOption As Short
-        Private ReadOnly dmCollate As Short
-        <MarshalAs(UnmanagedType.ByValTStr, SizeConst:=32)> Private ReadOnly dmFormName As String
-        Private ReadOnly dmLogPixels As UShort
-        Private ReadOnly dmBitsPerPel As UInteger
-        Public ReadOnly dmPelsWidth As UInteger
-        Public ReadOnly dmPelsHeight As UInteger
-        Private ReadOnly Union2 As DFN
-        Public ReadOnly dmDisplayFrequency As UInteger
-    End Structure
-
-    <StructLayout(LayoutKind.Explicit)>
-    Private Structure Struct1
-        <FieldOffset(0)> Private ReadOnly Struct1 As PDODFO
-    End Structure
-
-    <StructLayout(LayoutKind.Explicit)>
-    Private Structure DFN
-        <FieldOffset(0)> Private ReadOnly dmDisplayFlags As UInteger
-        <FieldOffset(0)> Private ReadOnly dmNup As UInteger
-    End Structure
-
-    <StructLayout(LayoutKind.Sequential)>
-    Private Structure PDODFO
-        Private ReadOnly dmPosition As PointL
-        Private ReadOnly dmDisplayOrientation As UInteger
-        Private ReadOnly dmDisplayFixedOutput As UInteger
-    End Structure
-
-    <StructLayout(LayoutKind.Sequential)>
-    Private Structure PointL
-        Private ReadOnly x As Integer
-        Private ReadOnly y As Integer
-    End Structure
-
-    <DllImport("user32.dll", EntryPoint:="EnumDisplaySettingsExW")>
-    Private Shared Function EnumDisplaySettingsExW(<MarshalAs(UnmanagedType.LPWStr)> DeviceName As String, ModeNum As Integer, ByRef DevMode As DevModeW, Flags As UInteger) As Boolean
-    End Function
-
-    Public Shared Function GetSizesAsStrings() As String()
-        Dim SizeList As List(Of String) = (From S In GetSizes() Select S.Width.ToString & "x" & S.Height.ToString).ToList()
-        Return SizeList.ToArray
-    End Function
-
-    Public Shared Function GetRefreshRate() As Double
-        Dim DM As New DevModeW
-        Dim Hz = 0
-        Dim Index = 0
-        DM.dmSize = CUShort(Marshal.SizeOf(GetType(DevModeW)))
-        While EnumDisplaySettingsExW(Screen.PrimaryScreen.DeviceName, Index, DM, 0)
-            If DM.dmDisplayFrequency > Hz Then Hz = DM.dmDisplayFrequency
-            Index += 1
-        End While
-        Return Hz
-    End Function
-
-    Public Shared Function GetSizes() As Size()
-        Dim DM As New DevModeW
-        Dim Index = 0
-        Dim SizeList As New List(Of Size)
-        DM.dmSize = CUShort(Marshal.SizeOf(GetType(DevModeW)))
-        While EnumDisplaySettingsExW(Screen.PrimaryScreen.DeviceName, Index, DM, 0)
-            Dim Size As New Size(CInt(DM.dmPelsWidth), CInt(DM.dmPelsHeight))
-            If Not SizeList.Contains(Size) Then SizeList.Add(Size)
-            Index += 1
-        End While
-        Return SizeList.ToArray
-    End Function
-End Class
-#End Region

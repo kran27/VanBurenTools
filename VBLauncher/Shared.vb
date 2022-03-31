@@ -1,5 +1,7 @@
 ﻿Imports System.IO
-Public Class PShared
+Imports System.Runtime.InteropServices
+
+Public Class IniManager
     Public Shared F3Dir As String = My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini"
     Public Shared SysDir As String = "Override\MenuMap\Engine\sys.ini"
     Public Shared F3Ini() As String
@@ -30,6 +32,9 @@ Public Class PShared
         Return Item.StartsWith(CheckFor)
     End Function
 
+End Class
+
+Public Class General
     Public Shared Function SearchForFiles(RootFolder As String, FileFilter() As String) As List(Of String)
         Dim ReturnedData As New List(Of String)
         Dim FolderStack As New Stack(Of String)
@@ -48,5 +53,88 @@ Public Class PShared
         Loop
         Return ReturnedData
     End Function
+End Class
 
+Public Class VideoInfo
+
+    <StructLayout(LayoutKind.Sequential, CharSet:=CharSet.Unicode)>
+    Private Structure DevModeW
+        <MarshalAs(UnmanagedType.ByValTStr, SizeConst:=32)> Private ReadOnly dmDeviceName As String
+        Private ReadOnly dmSpecVersion As UShort
+        Private ReadOnly dmDriverVersion As UShort
+        Public dmSize As UShort
+        Private ReadOnly dmDriverExtra As UShort
+        Private ReadOnly dmFields As UInteger
+        Private ReadOnly Union1 As Struct1
+        Private ReadOnly dmColor As Short
+        Private ReadOnly dmDuplex As Short
+        Private ReadOnly dmYResolution As Short
+        Private ReadOnly dmTTOption As Short
+        Private ReadOnly dmCollate As Short
+        <MarshalAs(UnmanagedType.ByValTStr, SizeConst:=32)> Private ReadOnly dmFormName As String
+        Private ReadOnly dmLogPixels As UShort
+        Private ReadOnly dmBitsPerPel As UInteger
+        Public ReadOnly dmPelsWidth As UInteger
+        Public ReadOnly dmPelsHeight As UInteger
+        Private ReadOnly Union2 As DFN
+        Public ReadOnly dmDisplayFrequency As UInteger
+    End Structure
+
+    <StructLayout(LayoutKind.Explicit)>
+    Private Structure Struct1
+        <FieldOffset(0)> Private ReadOnly Struct1 As PDODFO
+    End Structure
+
+    <StructLayout(LayoutKind.Explicit)>
+    Private Structure DFN
+        <FieldOffset(0)> Private ReadOnly dmDisplayFlags As UInteger
+        <FieldOffset(0)> Private ReadOnly dmNup As UInteger
+    End Structure
+
+    <StructLayout(LayoutKind.Sequential)>
+    Private Structure PDODFO
+        Private ReadOnly dmPosition As PointL
+        Private ReadOnly dmDisplayOrientation As UInteger
+        Private ReadOnly dmDisplayFixedOutput As UInteger
+    End Structure
+
+    <StructLayout(LayoutKind.Sequential)>
+    Private Structure PointL
+        Private ReadOnly x As Integer
+        Private ReadOnly y As Integer
+    End Structure
+
+    <DllImport("user32.dll", EntryPoint:="EnumDisplaySettingsExW")>
+    Private Shared Function EnumDisplaySettingsExW(<MarshalAs(UnmanagedType.LPWStr)> DeviceName As String, ModeNum As Integer, ByRef DevMode As DevModeW, Flags As UInteger) As Boolean
+    End Function
+
+    Public Shared Function GetSizesAsStrings() As String()
+        Dim SizeList As List(Of String) = (From S In GetSizes() Select S.Width.ToString & "x" & S.Height.ToString).ToList()
+        Return SizeList.ToArray
+    End Function
+
+    Public Shared Function GetRefreshRate() As Double
+        Dim DM As New DevModeW
+        Dim Hz = 0
+        Dim Index = 0
+        DM.dmSize = CUShort(Marshal.SizeOf(GetType(DevModeW)))
+        While EnumDisplaySettingsExW(Screen.PrimaryScreen.DeviceName, Index, DM, 0)
+            If DM.dmDisplayFrequency > Hz Then Hz = DM.dmDisplayFrequency
+            Index += 1
+        End While
+        Return Hz
+    End Function
+
+    Public Shared Function GetSizes() As Size()
+        Dim DM As New DevModeW
+        Dim Index = 0
+        Dim SizeList As New List(Of Size)
+        DM.dmSize = CUShort(Marshal.SizeOf(GetType(DevModeW)))
+        While EnumDisplaySettingsExW(Screen.PrimaryScreen.DeviceName, Index, DM, 0)
+            Dim Size As New Size(CInt(DM.dmPelsWidth), CInt(DM.dmPelsHeight))
+            If Not SizeList.Contains(Size) Then SizeList.Add(Size)
+            Index += 1
+        End While
+        Return SizeList.ToArray
+    End Function
 End Class

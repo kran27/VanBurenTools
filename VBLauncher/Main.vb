@@ -2,8 +2,6 @@
 Imports System.IO.Compression
 Imports System.Runtime.InteropServices
 Imports AltUI.Forms.DarkMessageBox
-Imports VBLauncher.PShared
-
 Public Class Main
 #Region "Move Form"
     Private MoveForm As Boolean
@@ -80,4 +78,7 @@ Public Class Main
     Private Shared Function AddFontResource(FontPath As String) As Integer
     End Function
 
+    Private Sub LaunchGame(sender As Object, e As EventArgs) Handles LaunchB.Click
+
+    End Sub
 End Class
