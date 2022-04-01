@@ -29,6 +29,8 @@ Partial Class VideoOptions
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Me.OptionsGB = New AltUI.Controls.DarkGroupBox()
+        Me.SSFL = New AltUI.Controls.DarkLabel()
+        Me.SSFCB = New AltUI.Controls.DarkComboBox()
         Me.ResolutionCB = New AltUI.Controls.DarkComboBox()
         Me.ResolutionL = New AltUI.Controls.DarkLabel()
         Me.MipmapCB = New AltUI.Controls.DarkCheckBox()
@@ -48,6 +50,8 @@ Partial Class VideoOptions
         '
         'OptionsGB
         '
+        Me.OptionsGB.Controls.Add(Me.SSFL)
+        Me.OptionsGB.Controls.Add(Me.SSFCB)
         Me.OptionsGB.Controls.Add(Me.ResolutionCB)
         Me.OptionsGB.Controls.Add(Me.ResolutionL)
         Me.OptionsGB.Controls.Add(Me.MipmapCB)
@@ -59,20 +63,43 @@ Partial Class VideoOptions
         Me.OptionsGB.Controls.Add(Me.APICB)
         Me.OptionsGB.Controls.Add(Me.APIL)
         Me.OptionsGB.Controls.Add(Me.FullscreenCB)
-        Me.OptionsGB.Location = New System.Drawing.Point(13, 11)
+        Me.OptionsGB.Location = New System.Drawing.Point(13, 12)
         Me.OptionsGB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.OptionsGB.Name = "OptionsGB"
         Me.OptionsGB.Padding = New System.Windows.Forms.Padding(4, 3, 4, 3)
-        Me.OptionsGB.Size = New System.Drawing.Size(221, 185)
+        Me.OptionsGB.Size = New System.Drawing.Size(221, 233)
         Me.OptionsGB.TabIndex = 0
         Me.OptionsGB.TabStop = False
         Me.OptionsGB.Text = "Options"
+        '
+        'SSFL
+        '
+        Me.SSFL.AutoSize = True
+        Me.SSFL.ForeColor = System.Drawing.Color.FromArgb(CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer))
+        Me.SSFL.Location = New System.Drawing.Point(8, 141)
+        Me.SSFL.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.SSFL.Name = "SSFL"
+        Me.SSFL.Size = New System.Drawing.Size(113, 16)
+        Me.SSFL.TabIndex = 23
+        Me.SSFL.Text = "Supersample Factor "
+        '
+        'SSFCB
+        '
+        Me.SSFCB.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable
+        Me.SSFCB.FormattingEnabled = True
+        Me.SSFCB.Items.AddRange(New Object() {"None", "2x", "3x", "4x"})
+        Me.SSFCB.Location = New System.Drawing.Point(120, 136)
+        Me.SSFCB.Margin = New System.Windows.Forms.Padding(2)
+        Me.SSFCB.Name = "SSFCB"
+        Me.SSFCB.Size = New System.Drawing.Size(92, 24)
+        Me.SSFCB.TabIndex = 4
+        Me.ToolTip1.SetToolTip(Me.SSFCB, "Increases visual quality by" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "rendering the scene above" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "your display resolution")
         '
         'ResolutionCB
         '
         Me.ResolutionCB.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable
         Me.ResolutionCB.FormattingEnabled = True
-        Me.ResolutionCB.Location = New System.Drawing.Point(72, 101)
+        Me.ResolutionCB.Location = New System.Drawing.Point(72, 108)
         Me.ResolutionCB.Margin = New System.Windows.Forms.Padding(2)
         Me.ResolutionCB.Name = "ResolutionCB"
         Me.ResolutionCB.Size = New System.Drawing.Size(140, 24)
@@ -82,32 +109,32 @@ Partial Class VideoOptions
         '
         Me.ResolutionL.AutoSize = True
         Me.ResolutionL.ForeColor = System.Drawing.Color.FromArgb(CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer))
-        Me.ResolutionL.Location = New System.Drawing.Point(8, 105)
+        Me.ResolutionL.Location = New System.Drawing.Point(8, 112)
         Me.ResolutionL.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.ResolutionL.Name = "ResolutionL"
-        Me.ResolutionL.Size = New System.Drawing.Size(63, 15)
+        Me.ResolutionL.Size = New System.Drawing.Size(63, 16)
         Me.ResolutionL.TabIndex = 22
         Me.ResolutionL.Text = "Resolution"
         '
         'MipmapCB
         '
         Me.MipmapCB.AutoSize = True
-        Me.MipmapCB.Location = New System.Drawing.Point(9, 143)
+        Me.MipmapCB.Location = New System.Drawing.Point(9, 189)
         Me.MipmapCB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.MipmapCB.Name = "MipmapCB"
-        Me.MipmapCB.Size = New System.Drawing.Size(95, 19)
-        Me.MipmapCB.TabIndex = 5
+        Me.MipmapCB.Size = New System.Drawing.Size(94, 20)
+        Me.MipmapCB.TabIndex = 6
         Me.MipmapCB.Text = "Mipmapping"
         Me.ToolTip1.SetToolTip(Me.MipmapCB, "Disabling reduces texture blur at distance")
         '
         'PhongCB
         '
         Me.PhongCB.AutoSize = True
-        Me.PhongCB.Location = New System.Drawing.Point(9, 160)
+        Me.PhongCB.Location = New System.Drawing.Point(9, 207)
         Me.PhongCB.Margin = New System.Windows.Forms.Padding(2)
         Me.PhongCB.Name = "PhongCB"
-        Me.PhongCB.Size = New System.Drawing.Size(107, 19)
-        Me.PhongCB.TabIndex = 6
+        Me.PhongCB.Size = New System.Drawing.Size(107, 20)
+        Me.PhongCB.TabIndex = 7
         Me.PhongCB.Text = "Phong Shading"
         Me.ToolTip1.SetToolTip(Me.PhongCB, "Alternative shading," & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Slightly improves visuals")
         '
@@ -115,10 +142,10 @@ Partial Class VideoOptions
         '
         Me.TextureL.AutoSize = True
         Me.TextureL.ForeColor = System.Drawing.Color.FromArgb(CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer))
-        Me.TextureL.Location = New System.Drawing.Point(8, 77)
+        Me.TextureL.Location = New System.Drawing.Point(8, 82)
         Me.TextureL.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.TextureL.Name = "TextureL"
-        Me.TextureL.Size = New System.Drawing.Size(94, 15)
+        Me.TextureL.Size = New System.Drawing.Size(94, 16)
         Me.TextureL.TabIndex = 19
         Me.TextureL.Text = "Texture Filtering "
         '
@@ -127,21 +154,20 @@ Partial Class VideoOptions
         Me.TextureCB.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable
         Me.TextureCB.FormattingEnabled = True
         Me.TextureCB.Items.AddRange(New Object() {"Bilinear (Default)", "Point Sampled", "Linear", "Anisotropic 2x", "Anisotropic 4x", "Anisotropic 8x", "Anisotropic 16x"})
-        Me.TextureCB.Location = New System.Drawing.Point(100, 73)
+        Me.TextureCB.Location = New System.Drawing.Point(100, 78)
         Me.TextureCB.Margin = New System.Windows.Forms.Padding(2)
         Me.TextureCB.Name = "TextureCB"
         Me.TextureCB.Size = New System.Drawing.Size(112, 24)
         Me.TextureCB.TabIndex = 2
-        Me.TextureCB.BringToFront()
         '
         'AAL
         '
         Me.AAL.AutoSize = True
         Me.AAL.ForeColor = System.Drawing.Color.FromArgb(CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer))
-        Me.AAL.Location = New System.Drawing.Point(8, 49)
+        Me.AAL.Location = New System.Drawing.Point(8, 52)
         Me.AAL.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.AAL.Name = "AAL"
-        Me.AAL.Size = New System.Drawing.Size(74, 15)
+        Me.AAL.Size = New System.Drawing.Size(74, 16)
         Me.AAL.TabIndex = 17
         Me.AAL.Text = "Anti Aliasing"
         '
@@ -150,7 +176,7 @@ Partial Class VideoOptions
         Me.AACB.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable
         Me.AACB.FormattingEnabled = True
         Me.AACB.Items.AddRange(New Object() {"Off", "2x MSAA", "4x MSAA", "8x MSAA"})
-        Me.AACB.Location = New System.Drawing.Point(83, 45)
+        Me.AACB.Location = New System.Drawing.Point(83, 48)
         Me.AACB.Margin = New System.Windows.Forms.Padding(2)
         Me.AACB.Name = "AACB"
         Me.AACB.Size = New System.Drawing.Size(129, 24)
@@ -161,7 +187,7 @@ Partial Class VideoOptions
         Me.APICB.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable
         Me.APICB.FormattingEnabled = True
         Me.APICB.Items.AddRange(New Object() {"DirectX 8 (Default)", "DirectX 11", "OpenGL", "Vulkan"})
-        Me.APICB.Location = New System.Drawing.Point(91, 17)
+        Me.APICB.Location = New System.Drawing.Point(91, 18)
         Me.APICB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.APICB.Name = "APICB"
         Me.APICB.Size = New System.Drawing.Size(121, 24)
@@ -174,49 +200,49 @@ Partial Class VideoOptions
         '
         Me.APIL.AutoSize = True
         Me.APIL.ForeColor = System.Drawing.Color.FromArgb(CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer))
-        Me.APIL.Location = New System.Drawing.Point(8, 21)
+        Me.APIL.Location = New System.Drawing.Point(8, 22)
         Me.APIL.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.APIL.Name = "APIL"
-        Me.APIL.Size = New System.Drawing.Size(82, 15)
+        Me.APIL.Size = New System.Drawing.Size(82, 16)
         Me.APIL.TabIndex = 14
         Me.APIL.Text = "Rendering API"
         '
         'FullscreenCB
         '
         Me.FullscreenCB.AutoSize = True
-        Me.FullscreenCB.Location = New System.Drawing.Point(9, 126)
+        Me.FullscreenCB.Location = New System.Drawing.Point(9, 170)
         Me.FullscreenCB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.FullscreenCB.Name = "FullscreenCB"
-        Me.FullscreenCB.Size = New System.Drawing.Size(79, 19)
-        Me.FullscreenCB.TabIndex = 4
+        Me.FullscreenCB.Size = New System.Drawing.Size(79, 20)
+        Me.FullscreenCB.TabIndex = 5
         Me.FullscreenCB.Text = "Fullscreen"
         '
         'CloseB
         '
         Me.CloseB.DialogResult = System.Windows.Forms.DialogResult.Cancel
-        Me.CloseB.Location = New System.Drawing.Point(104, 202)
+        Me.CloseB.Location = New System.Drawing.Point(104, 251)
         Me.CloseB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.CloseB.Name = "CloseB"
         Me.CloseB.Padding = New System.Windows.Forms.Padding(5)
-        Me.CloseB.Size = New System.Drawing.Size(61, 25)
-        Me.CloseB.TabIndex = 7
+        Me.CloseB.Size = New System.Drawing.Size(61, 27)
+        Me.CloseB.TabIndex = 8
         Me.CloseB.Text = "Close"
         '
         'ApplyB
         '
-        Me.ApplyB.Location = New System.Drawing.Point(173, 202)
+        Me.ApplyB.Location = New System.Drawing.Point(173, 251)
         Me.ApplyB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.ApplyB.Name = "ApplyB"
         Me.ApplyB.Padding = New System.Windows.Forms.Padding(5)
-        Me.ApplyB.Size = New System.Drawing.Size(61, 25)
-        Me.ApplyB.TabIndex = 8
+        Me.ApplyB.Size = New System.Drawing.Size(61, 27)
+        Me.ApplyB.TabIndex = 9
         Me.ApplyB.Text = "Apply"
         '
         'VideoOptions
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(247, 239)
+        Me.ClientSize = New System.Drawing.Size(247, 291)
         Me.Controls.Add(Me.CloseB)
         Me.Controls.Add(Me.ApplyB)
         Me.Controls.Add(Me.OptionsGB)
@@ -228,6 +254,7 @@ Partial Class VideoOptions
         Me.ShowInTaskbar = False
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Video Options"
+        Me.TransparencyKey = System.Drawing.Color.FromArgb(CType(CType(32, Byte), Integer), CType(CType(32, Byte), Integer), CType(CType(32, Byte), Integer))
         Me.OptionsGB.ResumeLayout(False)
         Me.OptionsGB.PerformLayout()
         Me.ResumeLayout(False)
@@ -248,4 +275,6 @@ Partial Class VideoOptions
     Friend WithEvents MipmapCB As DarkCheckBox
     Friend WithEvents ResolutionCB As DarkComboBox
     Friend WithEvents ResolutionL As DarkLabel
+    Friend WithEvents SSFCB As DarkComboBox
+    Friend WithEvents SSFL As DarkLabel
 End Class

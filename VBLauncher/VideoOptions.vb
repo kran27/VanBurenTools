@@ -8,6 +8,8 @@ Public Class VideoOptions
     Private SelW As String
 
     Private Sub CheckOptions() Handles MyBase.Load
+        TextureCB.BringToFront()
+        SSFCB.BringToFront()
         Icon = My.Resources.F3
         Try
             dgV2Conf = File.ReadAllLines("dgVoodoo.conf")
@@ -46,6 +48,12 @@ Public Class VideoOptions
             Case "4" : TextureCB.SelectedIndex = 4
             Case "8" : TextureCB.SelectedIndex = 5
             Case "16" : TextureCB.SelectedIndex = 6
+        End Select
+        Select Case Ini(dgV2Conf, "DirectX", "Resolution")
+            Case "unforced" : SSFCB.SelectedIndex = 0
+            Case "2x" : SSFCB.SelectedIndex = 1
+            Case "3x" : SSFCB.SelectedIndex = 2
+            Case "4x" : SSFCB.SelectedIndex = 3
         End Select
         MipmapCB.Checked = Not Boolean.Parse(Ini(dgV2Conf, "DirectX", "DisableMipmapping"))
         PhongCB.Checked = Boolean.Parse(Ini(dgV2Conf, "DirectX", "PhongShadingWhenPossible"))
@@ -95,10 +103,16 @@ Public Class VideoOptions
             Case 0 : Ini(dgV2Conf, "DirectX", "Filtering", "appdriven")
             Case 1 : Ini(dgV2Conf, "DirectX", "Filtering", "pointsampled")
             Case 2 : Ini(dgV2Conf, "DirectX", "Filtering", "Linearmip")
-            Case 3 : Ini(dgV2Conf, "DirectX", "Filtering", "2")
-            Case 4 : Ini(dgV2Conf, "DirectX", "Filtering", "4")
-            Case 5 : Ini(dgV2Conf, "DirectX", "Filtering", "8")
-            Case 6 : Ini(dgV2Conf, "DirectX", "Filtering", "16")
+            Case 3 : Ini(dgV2Conf, "DirectX", "Filtering", 2)
+            Case 4 : Ini(dgV2Conf, "DirectX", "Filtering", 4)
+            Case 5 : Ini(dgV2Conf, "DirectX", "Filtering", 8)
+            Case 6 : Ini(dgV2Conf, "DirectX", "Filtering", 16)
+        End Select
+        Select Case SSFCB.SelectedIndex
+            Case 0 : Ini(dgV2Conf, "DirectX", "Resolution", "unforced")
+            Case 1 : Ini(dgV2Conf, "DirectX", "Resolution", "2x")
+            Case 2 : Ini(dgV2Conf, "DirectX", "Resolution", "3x")
+            Case 3 : Ini(dgV2Conf, "DirectX", "Resolution", "4x")
         End Select
         Ini(dgV2Conf, "DirectX", "DisableMipmapping", Not MipmapCB.Checked)
         Ini(dgV2Conf, "DirectX", "PhongShadingWhenPossible", PhongCB.Checked)
@@ -113,17 +127,22 @@ Public Class VideoOptions
         Select Case APICB.SelectedIndex
             Case 2, 0
                 AACB.Enabled = False
+                SSFCB.Enabled = False
                 TextureCB.Enabled = False
                 MipmapCB.Enabled = False
                 PhongCB.Enabled = False
                 AAL.Enabled = False
+                SSFL.Enabled = False
                 TextureL.Enabled = False
+
             Case Else
                 AACB.Enabled = True
+                SSFCB.Enabled = True
                 TextureCB.Enabled = True
                 MipmapCB.Enabled = True
                 PhongCB.Enabled = True
                 AAL.Enabled = True
+                SSFL.Enabled = True
                 TextureL.Enabled = True
         End Select
     End Sub
