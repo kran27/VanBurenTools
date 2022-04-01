@@ -8,6 +8,7 @@ Public Class IniManager
     Public Shared SysIni() As String
     Private Shared CheckFor As String
     Public Shared Function Ini(IniArray As String(), IniSection As String, IniKey As String, Optional Value As String = Nothing)
+        ' Find bounds of section
         CheckFor = "[" & IniSection & "]"
         Dim SectionStart = Array.FindIndex(IniArray, AddressOf StartsWith)
         CheckFor = "["
@@ -15,16 +16,22 @@ Public Class IniManager
         If SectionEnd = -1 Then
             SectionEnd = IniArray.Length - 1
         End If
+        ' Find Key
         CheckFor = IniKey
         Dim KeyIndex = Array.FindIndex(IniArray, SectionStart + 1, AddressOf StartsWith)
-        If KeyIndex > SectionEnd Then
-            Return Nothing
-        End If
+        Dim KeyLine = IniArray(KeyIndex)
+        Dim KeyValue = KeyLine.Remove(0, IniKey.Substring(IniKey.IndexOf("=") + 1).Length + 3)
+        If KeyIndex > SectionEnd Then Return Nothing
+        ' Find comment, remove comment from value if present
+        Dim Comment = Nothing
+        Try : Comment = KeyLine.Remove(0, KeyLine.Substring(KeyLine.IndexOf(";") + 1).Length + 3) : Catch : End Try
+        If Comment IsNot Nothing Then KeyValue = KeyValue.Substring(0, KeyValue.LastIndexOf(";") - 1).Trim
+        ' Either apply changes or return value
         If Value IsNot Nothing Then
-            IniArray(Array.FindIndex(IniArray, SectionStart + 1, AddressOf StartsWith)) = IniKey & " = " & Value
+            IniArray(KeyIndex) = Trim(IniKey & " = " & Value & " " & Comment)
             Return Nothing
         Else
-            Return IniArray(Array.FindIndex(IniArray, SectionStart + 1, AddressOf StartsWith)).Remove(0, IniKey.Substring(IniKey.IndexOf("=") + 1).Length + 3)
+            Return KeyValue
         End If
     End Function
 
