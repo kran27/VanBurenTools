@@ -102,7 +102,7 @@ Public Class VideoOptions
         End Select
         Ini(dgV2Conf, "DirectX", "DisableMipmapping", Not MipmapCB.Checked)
         Ini(dgV2Conf, "DirectX", "PhongShadingWhenPossible", PhongCB.Checked)
-        Ini(dgV2Conf, "DirectX", "FPSLimit", Hz)
+        Ini(dgV2Conf, "GeneralExt", "FPSLimit", Hz)
         Ini(F3Ini, "Graphics", "refresh", Hz)
         File.WriteAllLines("dgVoodoo.conf", dgV2Conf)
         File.WriteAllLines(F3Dir, F3Ini)

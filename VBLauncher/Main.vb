@@ -75,10 +75,7 @@ Public Class Main
     End Sub
 
     <DllImport("gdi32.dll")>
-    Private Shared Function AddFontResource(FontPath As String) As Integer
-    End Function
-
-    Private Sub LaunchGame(sender As Object, e As EventArgs) Handles LaunchB.Click
-
+    Private Shared Sub AddFontResource(FontPath As String)
     End Sub
+
 End Class
