@@ -56,6 +56,7 @@ Public Class Options
             Case "00_04_Tutorial_Vault.map" : MainMenuCB.SelectedIndex = 16
         End Select
         CameraCB.Checked = Ini(SysIni, "Camera", "FOV Min") = 0.5
+        AltCamCB.Checked = Ini(SysIni, "Camera", "Distance Max") = 70
         Dim Files = SearchForFiles("Override", {"*.map"})
         For Each File As Object In Files
             Dim FI As New FileInfo(File)
@@ -96,16 +97,24 @@ Public Class Options
             Case 15 : SetMainMenu("00_03_Tutorial_Junktown.map", 80, 7.5, 50, 5, 10, 68)
             Case 16 : SetMainMenu("00_04_Tutorial_Vault.map", 50, 50.5, 0, 36, 25, 68)
         End Select
-        If CameraCB.Checked Then
-            Ini(SysIni, "Camera", "FOV Speed", 10)
-            Ini(SysIni, "Camera", "Scroll Speed", 250)
-            Ini(SysIni, "Camera", "FOV Min", 0.5)
-            Ini(SysIni, "Camera", "FOV Max", 100)
+        If AltCamCB.Checked Then
+            Ini(SysIni, "Camera", "Distance Max", 70)
+            Ini(SysIni, "Camera", "Distance Min", 70)
+            Ini(SysIni, "Camera", "Elevation Max", 90)
+            Ini(SysIni, "Camera", "Elevation Min", 36)
+            Ini(SysIni, "Camera", "FOV Speed", If(CameraCB.Checked, 10, 32.5))
+            Ini(SysIni, "Camera", "Scroll Speed", If(CameraCB.Checked, 250, 96))
+            Ini(SysIni, "Camera", "FOV Min", If(CameraCB.Checked, 0.5, 30))
+            Ini(SysIni, "Camera", "FOV Max", If(CameraCB.Checked, 100, 75))
         Else
-            Ini(SysIni, "Camera", "FOV Speed", 6.5)
-            Ini(SysIni, "Camera", "Scroll Speed", 96)
-            Ini(SysIni, "Camera", "FOV Min", 6)
-            Ini(SysIni, "Camera", "FOV Max", 15)
+            Ini(SysIni, "Camera", "Distance Max", 350)
+            Ini(SysIni, "Camera", "Distance Min", 350)
+            Ini(SysIni, "Camera", "Elevation Max", 89)
+            Ini(SysIni, "Camera", "Elevation Min", 38.5)
+            Ini(SysIni, "Camera", "FOV Speed", If(CameraCB.Checked, 10, 6.5))
+            Ini(SysIni, "Camera", "Scroll Speed", If(CameraCB.Checked, 250, 96))
+            Ini(SysIni, "Camera", "FOV Min", If(CameraCB.Checked, 0.5, 6))
+            Ini(SysIni, "Camera", "FOV Max", If(CameraCB.Checked, 100, 15))
         End If
         Ini(SysIni, "Server", "Start map", NewGameCB.Text)
         Try : Directory.Delete("Override\Helmet", 1) : Catch : End Try

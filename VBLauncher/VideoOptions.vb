@@ -134,7 +134,6 @@ Public Class VideoOptions
                 AAL.Enabled = False
                 SSFL.Enabled = False
                 TextureL.Enabled = False
-
             Case Else
                 AACB.Enabled = True
                 SSFCB.Enabled = True

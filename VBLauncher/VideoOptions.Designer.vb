@@ -254,7 +254,6 @@ Partial Class VideoOptions
         Me.ShowInTaskbar = False
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Video Options"
-        Me.TransparencyKey = System.Drawing.Color.FromArgb(CType(CType(32, Byte), Integer), CType(CType(32, Byte), Integer), CType(CType(32, Byte), Integer))
         Me.OptionsGB.ResumeLayout(False)
         Me.OptionsGB.PerformLayout()
         Me.ResumeLayout(False)
