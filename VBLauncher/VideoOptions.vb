@@ -53,11 +53,9 @@ Public Class VideoOptions
         End Select
         Select Case Ini(dgV2Conf, "DirectX", "Resolution")
             Case "unforced" : SSFCB.SelectedIndex = 0
-            Case "max_fhd" : SSFCB.SelectedIndex = 1
-            Case "max_qhd" : SSFCB.SelectedIndex = 2
-            Case "2x" : SSFCB.SelectedIndex = 3
-            Case "3x" : SSFCB.SelectedIndex = 4
-            Case "4x" : SSFCB.SelectedIndex = 5
+            Case "2x" : SSFCB.SelectedIndex = 1
+            Case "3x" : SSFCB.SelectedIndex = 2
+            Case "4x" : SSFCB.SelectedIndex = 3
         End Select
         MipmapCB.Checked = Not Boolean.Parse(Ini(dgV2Conf, "DirectX", "DisableMipmapping"))
         PhongCB.Checked = Boolean.Parse(Ini(dgV2Conf, "DirectX", "PhongShadingWhenPossible"))
@@ -108,11 +106,9 @@ Public Class VideoOptions
         End Select
         Select Case SSFCB.SelectedIndex
             Case 0 : Ini(dgV2Conf, "DirectX", "Resolution", "unforced")
-            Case 1 : Ini(dgV2Conf, "DirectX", "Resolution", "max_fhd")
-            Case 2 : Ini(dgV2Conf, "DirectX", "Resolution", "max_qhd")
-            Case 3 : Ini(dgV2Conf, "DirectX", "Resolution", "2x")
-            Case 4 : Ini(dgV2Conf, "DirectX", "Resolution", "3x")
-            Case 5 : Ini(dgV2Conf, "DirectX", "Resolution", "4x")
+            Case 1 : Ini(dgV2Conf, "DirectX", "Resolution", "2x")
+            Case 2 : Ini(dgV2Conf, "DirectX", "Resolution", "3x")
+            Case 3 : Ini(dgV2Conf, "DirectX", "Resolution", "4x")
         End Select
         Ini(dgV2Conf, "DirectX", "DisableMipmapping", Not MipmapCB.Checked)
         Ini(dgV2Conf, "DirectX", "PhongShadingWhenPossible", PhongCB.Checked)
@@ -150,7 +146,7 @@ Public Class VideoOptions
         Dim index = SSFCB.SelectedIndex
         Dim res = StrToSize(ResolutionCB.Text)
         SSFCB.Items.Clear()
-        Dim resolutions() As String = {SizeToStr(res), "1920x1080", "2560x1440", SizeToStr(res, 2), SizeToStr(res, 3), SizeToStr(res, 4)}
+        Dim resolutions() As String = {SizeToStr(res), SizeToStr(res, 2), SizeToStr(res, 3), SizeToStr(res, 4)}
         SSFCB.Items.AddRange(resolutions)
         SSFCB.SelectedIndex = index
     End Sub
