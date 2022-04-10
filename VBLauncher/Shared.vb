@@ -13,7 +13,7 @@ Public Class IniManager
         Dim SectionStart = Array.FindIndex(IniArray, AddressOf StartsWith)
         CheckFor = "["
         Dim SectionEnd = Array.FindIndex(IniArray, SectionStart + 1, AddressOf StartsWith) - 1
-        If SectionEnd = -1 Then
+        If SectionEnd < 0 Then
             SectionEnd = IniArray.Length - 1
         End If
         ' Find Key

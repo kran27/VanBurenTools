@@ -145,7 +145,7 @@ Partial Class Options
         Me.NewGameL.Name = "NewGameL"
         Me.NewGameL.Size = New System.Drawing.Size(91, 16)
         Me.NewGameL.TabIndex = 0
-        Me.NewGameL.Text = "New Game Map"
+        Me.NewGameL.Text = "New Game Map "
         '
         'MainMenuCB
         '
