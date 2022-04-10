@@ -78,19 +78,18 @@ Partial Class VideoOptions
         Me.SSFL.Location = New System.Drawing.Point(8, 141)
         Me.SSFL.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.SSFL.Name = "SSFL"
-        Me.SSFL.Size = New System.Drawing.Size(113, 16)
+        Me.SSFL.Size = New System.Drawing.Size(103, 16)
         Me.SSFL.TabIndex = 23
-        Me.SSFL.Text = "Supersample Factor"
+        Me.SSFL.Text = "Render Resolution"
         '
         'SSFCB
         '
         Me.SSFCB.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable
         Me.SSFCB.FormattingEnabled = True
-        Me.SSFCB.Items.AddRange(New Object() {"None", "2x", "3x", "4x"})
-        Me.SSFCB.Location = New System.Drawing.Point(120, 136)
+        Me.SSFCB.Location = New System.Drawing.Point(113, 137)
         Me.SSFCB.Margin = New System.Windows.Forms.Padding(2)
         Me.SSFCB.Name = "SSFCB"
-        Me.SSFCB.Size = New System.Drawing.Size(92, 24)
+        Me.SSFCB.Size = New System.Drawing.Size(99, 24)
         Me.SSFCB.TabIndex = 4
         Me.ToolTip1.SetToolTip(Me.SSFCB, "Increases visual quality by" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "rendering the scene above" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "your display resolution")
         '
@@ -98,10 +97,10 @@ Partial Class VideoOptions
         '
         Me.ResolutionCB.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable
         Me.ResolutionCB.FormattingEnabled = True
-        Me.ResolutionCB.Location = New System.Drawing.Point(72, 108)
+        Me.ResolutionCB.Location = New System.Drawing.Point(114, 108)
         Me.ResolutionCB.Margin = New System.Windows.Forms.Padding(2)
         Me.ResolutionCB.Name = "ResolutionCB"
-        Me.ResolutionCB.Size = New System.Drawing.Size(140, 24)
+        Me.ResolutionCB.Size = New System.Drawing.Size(98, 24)
         Me.ResolutionCB.TabIndex = 3
         '
         'ResolutionL
@@ -110,9 +109,9 @@ Partial Class VideoOptions
         Me.ResolutionL.Location = New System.Drawing.Point(8, 112)
         Me.ResolutionL.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.ResolutionL.Name = "ResolutionL"
-        Me.ResolutionL.Size = New System.Drawing.Size(63, 16)
+        Me.ResolutionL.Size = New System.Drawing.Size(104, 16)
         Me.ResolutionL.TabIndex = 22
-        Me.ResolutionL.Text = "Resolution"
+        Me.ResolutionL.Text = "Display Resolution"
         '
         'MipmapCB
         '
@@ -142,7 +141,7 @@ Partial Class VideoOptions
         Me.TextureL.Location = New System.Drawing.Point(8, 82)
         Me.TextureL.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.TextureL.Name = "TextureL"
-        Me.TextureL.Size = New System.Drawing.Size(94, 16)
+        Me.TextureL.Size = New System.Drawing.Size(91, 16)
         Me.TextureL.TabIndex = 19
         Me.TextureL.Text = "Texture Filtering"
         '

@@ -144,4 +144,24 @@ Public Class VideoInfo
         End While
         Return SizeList.ToArray
     End Function
+
+    Public Shared Function StrToSize(str As String) As Size
+        Try
+            Dim a = str.Split(New Char() {"x"})
+            Return New Size() With {
+            .Width = Integer.Parse(a(0)),
+            .Height = Integer.Parse(a(1))
+        }
+        Catch
+            Return New Size() With {
+            .Width = 0,
+            .Height = 0
+        }
+        End Try
+    End Function
+
+    Public Shared Function SizeToStr(size As Size, Optional mult As Integer = 1) As String
+        Return size.Width * mult & "x" & size.Height * mult
+    End Function
+
 End Class

@@ -15,13 +15,15 @@ Public Class VideoOptions
             dgV2Conf = File.ReadAllLines("dgVoodoo.conf")
         Catch
             File.Exists("dgVoodoo.conf")
-            File.WriteAllBytes("dgVoodoo.conf", My.Resources.dgV2conf)
+            File.WriteAllText("dgVoodoo.conf", My.Resources.dgV2conf)
             dgV2Conf = File.ReadAllLines("dgVoodoo.conf")
         End Try
         F3Ini = File.ReadAllLines(F3Dir)
         ResolutionCB.Items.Clear()
         ResolutionCB.Items.AddRange(GetSizesAsStrings)
-        ResolutionCB.SelectedItem = Ini(F3Ini, "Graphics", "width") & "x" & Ini(F3Ini, "Graphics", "height")
+        Dim inires = New Size(Ini(F3Ini, "Graphics", "width"), Ini(F3Ini, "Graphics", "height"))
+        ResolutionCB.SelectedItem = SizeToStr(inires)
+        SetupSSCB()
         FullscreenCB.Checked = Ini(F3Ini, "Graphics", "fullscreen") = 1
         If File.Exists("d3d8.dll") Then
             If File.Exists("d3d11.dll") Then
@@ -51,9 +53,11 @@ Public Class VideoOptions
         End Select
         Select Case Ini(dgV2Conf, "DirectX", "Resolution")
             Case "unforced" : SSFCB.SelectedIndex = 0
-            Case "2x" : SSFCB.SelectedIndex = 1
-            Case "3x" : SSFCB.SelectedIndex = 2
-            Case "4x" : SSFCB.SelectedIndex = 3
+            Case "max_fhd" : SSFCB.SelectedIndex = 1
+            Case "max_qhd" : SSFCB.SelectedIndex = 2
+            Case "2x" : SSFCB.SelectedIndex = 3
+            Case "3x" : SSFCB.SelectedIndex = 4
+            Case "4x" : SSFCB.SelectedIndex = 5
         End Select
         MipmapCB.Checked = Not Boolean.Parse(Ini(dgV2Conf, "DirectX", "DisableMipmapping"))
         PhongCB.Checked = Boolean.Parse(Ini(dgV2Conf, "DirectX", "PhongShadingWhenPossible"))
@@ -62,15 +66,9 @@ Public Class VideoOptions
     Private Sub ApplyChanges() Handles ApplyB.Click
         Dim Hz As Integer = GetRefreshRate()
         Dim Iteration = 0
-        For Each S As Size In GetSizes()
-            If Iteration = ResolutionCB.SelectedIndex Then
-                SelW = S.Width.ToString()
-                SelH = S.Height.ToString()
-            End If
-            Iteration += 1
-        Next
+        Dim res = StrToSize(ResolutionCB.Text)
         Ini(F3Ini, "Graphics", "fullscreen", If(FullscreenCB.Checked, 1, 0))
-        Ini(F3Ini, "Graphics", "width", SelW) : Ini(F3Ini, "Graphics", "height", SelH)
+        Ini(F3Ini, "Graphics", "width", res.Width) : Ini(F3Ini, "Graphics", "height", res.Height)
         Select Case APICB.SelectedIndex
             Case 0
                 File.Delete("d3d8.dll")
@@ -110,9 +108,11 @@ Public Class VideoOptions
         End Select
         Select Case SSFCB.SelectedIndex
             Case 0 : Ini(dgV2Conf, "DirectX", "Resolution", "unforced")
-            Case 1 : Ini(dgV2Conf, "DirectX", "Resolution", "2x")
-            Case 2 : Ini(dgV2Conf, "DirectX", "Resolution", "3x")
-            Case 3 : Ini(dgV2Conf, "DirectX", "Resolution", "4x")
+            Case 1 : Ini(dgV2Conf, "DirectX", "Resolution", "max_fhd")
+            Case 2 : Ini(dgV2Conf, "DirectX", "Resolution", "max_qhd")
+            Case 3 : Ini(dgV2Conf, "DirectX", "Resolution", "2x")
+            Case 4 : Ini(dgV2Conf, "DirectX", "Resolution", "3x")
+            Case 5 : Ini(dgV2Conf, "DirectX", "Resolution", "4x")
         End Select
         Ini(dgV2Conf, "DirectX", "DisableMipmapping", Not MipmapCB.Checked)
         Ini(dgV2Conf, "DirectX", "PhongShadingWhenPossible", PhongCB.Checked)
@@ -144,6 +144,15 @@ Public Class VideoOptions
                 SSFL.Enabled = True
                 TextureL.Enabled = True
         End Select
+    End Sub
+
+    Private Sub SetupSSCB() Handles ResolutionCB.SelectedIndexChanged
+        Dim index = SSFCB.SelectedIndex
+        Dim res = StrToSize(ResolutionCB.Text)
+        SSFCB.Items.Clear()
+        Dim resolutions() As String = {SizeToStr(res), "1920x1080", "2560x1440", SizeToStr(res, 2), SizeToStr(res, 3), SizeToStr(res, 4)}
+        SSFCB.Items.AddRange(resolutions)
+        SSFCB.SelectedIndex = index
     End Sub
 
 End Class

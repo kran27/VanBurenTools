@@ -151,9 +151,6 @@
   <data name="BG11" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Launcher\BG11.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Default_F3" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Default_F3.ini;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
   <data name="F3" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\F3.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -177,9 +174,6 @@
   </data>
   <data name="GLwined3d" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Wrappers\WineD3D\GLwined3d.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="dgV2conf" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Wrappers\dgVoodoo2\dgVoodoo.conf;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="DXd3d8" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Wrappers\dgVoodoo2\DXD3D8.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -328,7 +322,240 @@
   <data name="VKdxgi" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Wrappers\DXVK\VKdxgi.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="Default_sys" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Default_sys.ini;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  <data name="Default_F3" xml:space="preserve">
+    <value>[Audio]
+CDAudio = 0
+DirectMusic = 0
+DirectShow = 0
+Music = 1
+MusicVolume = 100
+
+[Client]
+debug = 17416248
+port = 22501
+rate = 0
+timeout = 600000
+
+[Combat]
+mode = 0
+
+[Graphics]
+adapter = 0
+clear blue = 0
+clear green = 0
+clear red = 0
+device = 0
+displaymode = 12
+enable bilinear filtering = 1
+enable lighting = 1
+enable startup movies = 1
+enable transparency = 1
+enable wireframe = 0
+fullscreen = 1
+height = 600
+mode32bpp = 0
+refresh = 0
+shadow type = 0
+stats = 0
+vsync = 0
+width = 800
+
+[HotKeys]
++2 = ActionbarWindow
++` = ConsoleWindow
++A = AttackModeSelect
++C = CharacterRecordWindow
++Ctrl+A = AttackModeCycle
++Ctrl+B = ToggleBilinearFiltering
++Ctrl+F = ToggleFullscreen
++Ctrl+K = Kill
++Ctrl+L = ToggleLighting
++Ctrl+M = MemoryPoolTest
++Ctrl+N = RequestNewGame
++Ctrl+O = ToggleOctreeDrawing
++Ctrl+S = ToggleShadow
++Ctrl+T = ToggleTransparency
++Ctrl+W = ToggleWireframe
++Down = CameraDown
++Esc = EscapeMenu
++F = FeedbackWindow
++F1 = ToggleStatistics
++G = GameOptions
++H = HotKeyOptions
++Home = CameraReset
++I = InventoryWindow
++L = LoadGameOptions
++Left = CameraAzimuthInc
++M = MultiplayerOptions
++Num 2 = CameraScrollDown_On
++Num 4 = CameraScrollLeft_On
++Num 6 = CameraScrollRight_On
++Num 8 = CameraScrollUp_On
++P = PipBoy
++Page Down = CameraZoomOut_On
++Page Up = CameraZoomIn_On
++Right = CameraAzimuthDec
++S = SneakToggle
++T = WeaponLinkToggle
++U = UseSkill
++Up = CameraTop
++V = VideoOptions
++W = WeaponToggle
++X = CameraMouseRotate_On
+-Num 2 = CameraScrollDown_Off
+-Num 4 = CameraScrollLeft_Off
+-Num 6 = CameraScrollRight_Off
+-Num 8 = CameraScrollUp_Off
+-Page Down = CameraZoomOut_Off
+-Page Up = CameraZoomIn_Off
+-X = CameraMouseRotate_Off
+
+[Network]
+configuration = 3
+
+[Server]
+debug = 17416248
+port = 21498
+rate = 33
+timeout = 600000</value>
+  </data>
+  <data name="Default_sys" xml:space="preserve">
+    <value>[Audio]
+GroupList = FO3.gls
+MusicJumpList = F3.sco
+
+[Camera]
+Azimuth Speed = 360.000000
+Distance Max = 350.000000
+Distance Min = 350.000000
+Distance Speed = 800.000000
+Elevation Max = 89.000000
+Elevation Min = 38.500000
+Elevation Speed = 360.000000
+FOV Speed = 6.50000
+FOV Min = 6.00000
+FOV Max = 15.0000
+Scroll Border = 0.010000
+Scroll Speed = 96.000000
+
+[Mainmenu]
+map name = mainmenu.map
+target x = 0.0
+target y = 5.5
+target z = 0.0
+azimuth = 0.0
+elevation = 0.0
+distance = 0
+fov = 68.0
+znear = 1.0f
+zfar = 10000.0f
+
+[CharGen]
+character x = 259.36
+character y = 0
+character z = 271.19
+character yaw = 130
+familiar x = 261.52
+familiar y = 0
+familiar z = 272.1
+familiar yaw = 130
+animal x = 258
+animal y = 0
+animal z = 269.3
+animal yaw = 130
+target x = 90.92
+target y = 13.56
+target z = 429.31
+azimuth = 313.2
+elevation = -4.5
+distance = 245
+fov = 35
+
+[Server]
+Start map = 00_03_Tutorial_Junktown.map
+Start map entry point = 0
+
+[World]
+Seconds Per Round = 6
+Year = 2253
+Month = 10
+Day = 18
+Hour = 13
+Minute = 13
+Second = 13</value>
+  </data>
+  <data name="dgV2conf" xml:space="preserve">
+    <value>Version = 0x278
+
+[General]
+OutputAPI = bestavailable
+Adapters = all
+FullScreenOutput = default
+FullScreenMode = true
+ScalingMode = unspecified
+ProgressiveScanlineOrder = false
+EnumerateRefreshRates = false
+Brightness = 100
+Color = 100
+Contrast = 100
+InheritColorProfileInFullScreenMode = true
+KeepWindowAspectRatio = true
+CaptureMouse = true
+CenterAppWindow = false
+
+[GeneralExt]
+DesktopResolution = 
+DesktopBitDepth = 
+DeframerSize = 1
+ImageScaleFactor = 1
+CursorScaleFactor = 1
+DisplayROI = 
+Resampling = bilinear
+FreeMouse = false
+WindowedAttributes = 
+FullscreenAttributes = 
+FPSLimit = 0
+Environment = 
+EnableGDIHooking = false
+
+[DirectX]
+DisableAndPassThru = false
+VideoCard = internal3D
+VRAM = 256
+Filtering = 16
+KeepFilterIfPointSampled = false
+DisableMipmapping = true
+Resolution = unforced
+Antialiasing = 8x
+AppControlledScreenMode = false
+DisableAltEnterToToggleScreenMode = false
+BilinearBlitStretch = true
+PhongShadingWhenPossible = true
+ForceVerticalSync = false
+dgVoodooWatermark = false
+FastVideoMemoryAccess = false
+
+[DirectXExt]
+AdapterIDType = 
+VendorID = 
+DeviceID = 
+SubsystemID = 
+RevisionID = 
+DefaultEnumeratedResolutions = all
+ExtraEnumeratedResolutions = 
+EnumeratedResolutionBitdepths = all
+DitheringEffect = pure32bit
+Dithering = forcealways
+DitherOrderedMatrixSizeScale = 0
+DepthBuffersBitDepth = appdriven
+Default3DRenderFormat = argb8888
+MaxVSConstRegisters = 256
+NPatchTesselationLevel = 0
+MSD3DDeviceNames = false
+RTTexturesForceScaleAndMSAA = true
+SmoothedDepthSampling = true
+DeferredScreenModeSwitch = false
+PrimarySurfaceBatchedUpdate = false
+EnableSpecializedShaders = true</value>
   </data>
 </root>
