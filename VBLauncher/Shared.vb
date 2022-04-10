@@ -20,12 +20,12 @@ Public Class IniManager
         CheckFor = IniKey
         Dim KeyIndex = Array.FindIndex(IniArray, SectionStart + 1, AddressOf StartsWith)
         Dim KeyLine = IniArray(KeyIndex)
-        Dim KeyValue = KeyLine.Remove(0, IniKey.Substring(IniKey.IndexOf("=") + 1).Length + 3)
+        Dim KeyValue = KeyLine.Substring(KeyLine.IndexOf("=") + 1).Trim
         If KeyIndex > SectionEnd Then Return Nothing
         ' Find comment, remove comment from value if present
         Dim Comment = Nothing
-        Try : Comment = KeyLine.Remove(0, KeyLine.Substring(KeyLine.IndexOf(";") + 1).Length + 3) : Catch : End Try
-        If Comment IsNot Nothing Then KeyValue = KeyValue.Substring(0, KeyValue.LastIndexOf(";") - 1).Trim
+        Try : Comment = KeyValue.Substring(KeyValue.IndexOf(";")) : Catch : End Try
+        If Comment IsNot Nothing Then KeyValue = KeyValue.Substring(0, KeyValue.LastIndexOf(";")).Trim
         ' Either apply changes or return value
         If Value IsNot Nothing Then
             IniArray(KeyIndex) = Trim(IniKey & " = " & Value & " " & Comment)
