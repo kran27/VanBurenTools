@@ -139,13 +139,12 @@ Partial Class Options
         'NewGameL
         '
         Me.NewGameL.AutoSize = True
-        Me.NewGameL.ForeColor = System.Drawing.Color.FromArgb(CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer))
         Me.NewGameL.Location = New System.Drawing.Point(7, 22)
         Me.NewGameL.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.NewGameL.Name = "NewGameL"
         Me.NewGameL.Size = New System.Drawing.Size(91, 16)
         Me.NewGameL.TabIndex = 0
-        Me.NewGameL.Text = "New Game Map "
+        Me.NewGameL.Text = "New Game Map"
         '
         'MainMenuCB
         '
@@ -161,7 +160,6 @@ Partial Class Options
         'HelmetPL
         '
         Me.HelmetPL.AutoSize = True
-        Me.HelmetPL.ForeColor = System.Drawing.Color.FromArgb(CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer))
         Me.HelmetPL.Location = New System.Drawing.Point(126, 107)
         Me.HelmetPL.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.HelmetPL.Name = "HelmetPL"
@@ -183,7 +181,6 @@ Partial Class Options
         'HelmetL
         '
         Me.HelmetL.AutoSize = True
-        Me.HelmetL.ForeColor = System.Drawing.Color.FromArgb(CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer))
         Me.HelmetL.Location = New System.Drawing.Point(7, 83)
         Me.HelmetL.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.HelmetL.Name = "HelmetL"
@@ -203,7 +200,6 @@ Partial Class Options
         'MainMenuL
         '
         Me.MainMenuL.AutoSize = True
-        Me.MainMenuL.ForeColor = System.Drawing.Color.FromArgb(CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer))
         Me.MainMenuL.Location = New System.Drawing.Point(7, 53)
         Me.MainMenuL.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.MainMenuL.Name = "MainMenuL"

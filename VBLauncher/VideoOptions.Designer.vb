@@ -75,13 +75,12 @@ Partial Class VideoOptions
         'SSFL
         '
         Me.SSFL.AutoSize = True
-        Me.SSFL.ForeColor = System.Drawing.Color.FromArgb(CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer))
         Me.SSFL.Location = New System.Drawing.Point(8, 141)
         Me.SSFL.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.SSFL.Name = "SSFL"
         Me.SSFL.Size = New System.Drawing.Size(113, 16)
         Me.SSFL.TabIndex = 23
-        Me.SSFL.Text = "Supersample Factor "
+        Me.SSFL.Text = "Supersample Factor"
         '
         'SSFCB
         '
@@ -108,7 +107,6 @@ Partial Class VideoOptions
         'ResolutionL
         '
         Me.ResolutionL.AutoSize = True
-        Me.ResolutionL.ForeColor = System.Drawing.Color.FromArgb(CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer))
         Me.ResolutionL.Location = New System.Drawing.Point(8, 112)
         Me.ResolutionL.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.ResolutionL.Name = "ResolutionL"
@@ -141,13 +139,12 @@ Partial Class VideoOptions
         'TextureL
         '
         Me.TextureL.AutoSize = True
-        Me.TextureL.ForeColor = System.Drawing.Color.FromArgb(CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer))
         Me.TextureL.Location = New System.Drawing.Point(8, 82)
         Me.TextureL.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.TextureL.Name = "TextureL"
         Me.TextureL.Size = New System.Drawing.Size(94, 16)
         Me.TextureL.TabIndex = 19
-        Me.TextureL.Text = "Texture Filtering "
+        Me.TextureL.Text = "Texture Filtering"
         '
         'TextureCB
         '
@@ -163,7 +160,6 @@ Partial Class VideoOptions
         'AAL
         '
         Me.AAL.AutoSize = True
-        Me.AAL.ForeColor = System.Drawing.Color.FromArgb(CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer))
         Me.AAL.Location = New System.Drawing.Point(8, 52)
         Me.AAL.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.AAL.Name = "AAL"
@@ -199,7 +195,6 @@ Partial Class VideoOptions
         'APIL
         '
         Me.APIL.AutoSize = True
-        Me.APIL.ForeColor = System.Drawing.Color.FromArgb(CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer), CType(CType(220, Byte), Integer))
         Me.APIL.Location = New System.Drawing.Point(8, 22)
         Me.APIL.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.APIL.Name = "APIL"
