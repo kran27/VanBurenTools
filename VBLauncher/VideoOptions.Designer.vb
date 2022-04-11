@@ -67,7 +67,7 @@ Partial Class VideoOptions
         Me.OptionsGB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.OptionsGB.Name = "OptionsGB"
         Me.OptionsGB.Padding = New System.Windows.Forms.Padding(4, 3, 4, 3)
-        Me.OptionsGB.Size = New System.Drawing.Size(221, 233)
+        Me.OptionsGB.Size = New System.Drawing.Size(235, 226)
         Me.OptionsGB.TabIndex = 0
         Me.OptionsGB.TabStop = False
         Me.OptionsGB.Text = "Options"
@@ -75,7 +75,7 @@ Partial Class VideoOptions
         'SSFL
         '
         Me.SSFL.AutoSize = True
-        Me.SSFL.Location = New System.Drawing.Point(8, 141)
+        Me.SSFL.Location = New System.Drawing.Point(8, 142)
         Me.SSFL.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.SSFL.Name = "SSFL"
         Me.SSFL.Size = New System.Drawing.Size(103, 16)
@@ -86,10 +86,10 @@ Partial Class VideoOptions
         '
         Me.SSFCB.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable
         Me.SSFCB.FormattingEnabled = True
-        Me.SSFCB.Location = New System.Drawing.Point(113, 137)
+        Me.SSFCB.Location = New System.Drawing.Point(113, 138)
         Me.SSFCB.Margin = New System.Windows.Forms.Padding(2)
         Me.SSFCB.Name = "SSFCB"
-        Me.SSFCB.Size = New System.Drawing.Size(99, 24)
+        Me.SSFCB.Size = New System.Drawing.Size(113, 24)
         Me.SSFCB.TabIndex = 4
         Me.ToolTip1.SetToolTip(Me.SSFCB, "Increases visual quality by" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "rendering the scene above" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "your display resolution")
         '
@@ -100,7 +100,7 @@ Partial Class VideoOptions
         Me.ResolutionCB.Location = New System.Drawing.Point(114, 108)
         Me.ResolutionCB.Margin = New System.Windows.Forms.Padding(2)
         Me.ResolutionCB.Name = "ResolutionCB"
-        Me.ResolutionCB.Size = New System.Drawing.Size(98, 24)
+        Me.ResolutionCB.Size = New System.Drawing.Size(112, 24)
         Me.ResolutionCB.TabIndex = 3
         '
         'ResolutionL
@@ -116,7 +116,7 @@ Partial Class VideoOptions
         'MipmapCB
         '
         Me.MipmapCB.AutoSize = True
-        Me.MipmapCB.Location = New System.Drawing.Point(9, 189)
+        Me.MipmapCB.Location = New System.Drawing.Point(9, 182)
         Me.MipmapCB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.MipmapCB.Name = "MipmapCB"
         Me.MipmapCB.Size = New System.Drawing.Size(94, 20)
@@ -127,10 +127,10 @@ Partial Class VideoOptions
         'PhongCB
         '
         Me.PhongCB.AutoSize = True
-        Me.PhongCB.Location = New System.Drawing.Point(9, 207)
+        Me.PhongCB.Location = New System.Drawing.Point(9, 200)
         Me.PhongCB.Margin = New System.Windows.Forms.Padding(2)
         Me.PhongCB.Name = "PhongCB"
-        Me.PhongCB.Size = New System.Drawing.Size(107, 20)
+        Me.PhongCB.Size = New System.Drawing.Size(108, 20)
         Me.PhongCB.TabIndex = 7
         Me.PhongCB.Text = "Phong Shading"
         Me.ToolTip1.SetToolTip(Me.PhongCB, "Alternative shading," & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Slightly improves visuals")
@@ -141,7 +141,7 @@ Partial Class VideoOptions
         Me.TextureL.Location = New System.Drawing.Point(8, 82)
         Me.TextureL.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.TextureL.Name = "TextureL"
-        Me.TextureL.Size = New System.Drawing.Size(91, 16)
+        Me.TextureL.Size = New System.Drawing.Size(90, 16)
         Me.TextureL.TabIndex = 19
         Me.TextureL.Text = "Texture Filtering"
         '
@@ -153,7 +153,7 @@ Partial Class VideoOptions
         Me.TextureCB.Location = New System.Drawing.Point(100, 78)
         Me.TextureCB.Margin = New System.Windows.Forms.Padding(2)
         Me.TextureCB.Name = "TextureCB"
-        Me.TextureCB.Size = New System.Drawing.Size(112, 24)
+        Me.TextureCB.Size = New System.Drawing.Size(126, 24)
         Me.TextureCB.TabIndex = 2
         '
         'AAL
@@ -174,7 +174,7 @@ Partial Class VideoOptions
         Me.AACB.Location = New System.Drawing.Point(83, 48)
         Me.AACB.Margin = New System.Windows.Forms.Padding(2)
         Me.AACB.Name = "AACB"
-        Me.AACB.Size = New System.Drawing.Size(129, 24)
+        Me.AACB.Size = New System.Drawing.Size(143, 24)
         Me.AACB.TabIndex = 1
         '
         'APICB
@@ -185,7 +185,7 @@ Partial Class VideoOptions
         Me.APICB.Location = New System.Drawing.Point(91, 18)
         Me.APICB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.APICB.Name = "APICB"
-        Me.APICB.Size = New System.Drawing.Size(121, 24)
+        Me.APICB.Size = New System.Drawing.Size(135, 24)
         Me.APICB.TabIndex = 0
         Me.ToolTip1.SetToolTip(Me.APICB, "DX11 + Vulkan modes use dgVoodoo2" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "dege.fw.hu" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "OpenGL uses WineD3D (GNU LGPL V2+)" &
         "" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "fdossena.com/?p=wined3d/index.frag" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Vulkan uses DXVK (zlib/libpng)" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "github.com" &
@@ -204,7 +204,7 @@ Partial Class VideoOptions
         'FullscreenCB
         '
         Me.FullscreenCB.AutoSize = True
-        Me.FullscreenCB.Location = New System.Drawing.Point(9, 170)
+        Me.FullscreenCB.Location = New System.Drawing.Point(9, 163)
         Me.FullscreenCB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.FullscreenCB.Name = "FullscreenCB"
         Me.FullscreenCB.Size = New System.Drawing.Size(79, 20)
@@ -214,7 +214,7 @@ Partial Class VideoOptions
         'CloseB
         '
         Me.CloseB.DialogResult = System.Windows.Forms.DialogResult.Cancel
-        Me.CloseB.Location = New System.Drawing.Point(104, 251)
+        Me.CloseB.Location = New System.Drawing.Point(118, 244)
         Me.CloseB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.CloseB.Name = "CloseB"
         Me.CloseB.Padding = New System.Windows.Forms.Padding(5)
@@ -224,7 +224,7 @@ Partial Class VideoOptions
         '
         'ApplyB
         '
-        Me.ApplyB.Location = New System.Drawing.Point(173, 251)
+        Me.ApplyB.Location = New System.Drawing.Point(187, 244)
         Me.ApplyB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.ApplyB.Name = "ApplyB"
         Me.ApplyB.Padding = New System.Windows.Forms.Padding(5)
@@ -236,7 +236,7 @@ Partial Class VideoOptions
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 16.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(247, 291)
+        Me.ClientSize = New System.Drawing.Size(261, 283)
         Me.Controls.Add(Me.CloseB)
         Me.Controls.Add(Me.ApplyB)
         Me.Controls.Add(Me.OptionsGB)

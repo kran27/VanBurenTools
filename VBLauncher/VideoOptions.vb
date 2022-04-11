@@ -20,9 +20,13 @@ Public Class VideoOptions
         End Try
         F3Ini = File.ReadAllLines(F3Dir)
         ResolutionCB.Items.Clear()
-        ResolutionCB.Items.AddRange(GetSizesAsStrings)
-        Dim inires = New Size(Ini(F3Ini, "Graphics", "width"), Ini(F3Ini, "Graphics", "height"))
-        ResolutionCB.SelectedItem = SizeToStr(inires)
+        ResolutionCB.Items.AddRange(GetResAsStrings)
+        Dim inires = New Resolution With {
+            .Width = Ini(F3Ini, "Graphics", "width"),
+            .Height = Ini(F3Ini, "Graphics", "height"),
+            .Hz = Ini(F3Ini, "Graphics", "refresh")
+        }
+        ResolutionCB.SelectedItem = ResToStr(inires)
         SetupSSCB()
         FullscreenCB.Checked = Ini(F3Ini, "Graphics", "fullscreen") = 1
         If File.Exists("d3d8.dll") Then
@@ -62,9 +66,7 @@ Public Class VideoOptions
     End Sub
 
     Private Sub ApplyChanges() Handles ApplyB.Click
-        Dim Hz As Integer = GetRefreshRate()
-        Dim Iteration = 0
-        Dim res = StrToSize(ResolutionCB.Text)
+        Dim res = StrToRes(ResolutionCB.Text)
         Ini(F3Ini, "Graphics", "fullscreen", If(FullscreenCB.Checked, 1, 0))
         Ini(F3Ini, "Graphics", "width", res.Width) : Ini(F3Ini, "Graphics", "height", res.Height)
         Select Case APICB.SelectedIndex
@@ -112,8 +114,8 @@ Public Class VideoOptions
         End Select
         Ini(dgV2Conf, "DirectX", "DisableMipmapping", Not MipmapCB.Checked)
         Ini(dgV2Conf, "DirectX", "PhongShadingWhenPossible", PhongCB.Checked)
-        Ini(dgV2Conf, "GeneralExt", "FPSLimit", Hz)
-        Ini(F3Ini, "Graphics", "refresh", Hz)
+        Ini(dgV2Conf, "GeneralExt", "FPSLimit", res.Hz)
+        Ini(F3Ini, "Graphics", "refresh", res.Hz)
         File.WriteAllLines("dgVoodoo.conf", dgV2Conf)
         File.WriteAllLines(F3Dir, F3Ini)
         Hide()
@@ -144,9 +146,9 @@ Public Class VideoOptions
 
     Private Sub SetupSSCB() Handles ResolutionCB.SelectedIndexChanged
         Dim index = SSFCB.SelectedIndex
-        Dim res = StrToSize(ResolutionCB.Text)
+        Dim res = StrToRes(ResolutionCB.Text)
         SSFCB.Items.Clear()
-        Dim resolutions() As String = {SizeToStr(res), SizeToStr(res, 2), SizeToStr(res, 3), SizeToStr(res, 4)}
+        Dim resolutions() As String = {ResToStr(res, False), ResToStr(res, False, 2), ResToStr(res, False, 3), ResToStr(res, False, 4)}
         SSFCB.Items.AddRange(resolutions)
         SSFCB.SelectedIndex = index
     End Sub

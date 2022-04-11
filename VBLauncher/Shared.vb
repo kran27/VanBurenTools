@@ -115,53 +115,60 @@ Public Class VideoInfo
     Private Shared Function EnumDisplaySettingsExW(<MarshalAs(UnmanagedType.LPWStr)> DeviceName As String, ModeNum As Integer, ByRef DevMode As DevModeW, Flags As UInteger) As Boolean
     End Function
 
-    Public Shared Function GetSizesAsStrings() As String()
-        Dim SizeList As List(Of String) = (From S In GetSizes() Select S.Width.ToString & "x" & S.Height.ToString).ToList()
+    Public Shared Function GetResAsStrings() As String()
+        Dim SizeList As New List(Of String)(From S In GetResolution() Select S.Width.ToString & "x" & S.Height.ToString & "@" & S.Hz.ToString)
         Return SizeList.ToArray
     End Function
 
-    Public Shared Function GetRefreshRate() As Double
-        Dim DM As New DevModeW
-        Dim Hz = 0
-        Dim Index = 0
-        DM.dmSize = CUShort(Marshal.SizeOf(GetType(DevModeW)))
-        While EnumDisplaySettingsExW(Screen.PrimaryScreen.DeviceName, Index, DM, 0)
-            If DM.dmDisplayFrequency > Hz Then Hz = DM.dmDisplayFrequency
-            Index += 1
-        End While
-        Return Hz
-    End Function
 
-    Public Shared Function GetSizes() As Size()
+    Public Shared Function GetResolution() As Resolution()
         Dim DM As New DevModeW
         Dim Index = 0
-        Dim SizeList As New List(Of Size)
+        Dim SizeList As New List(Of Resolution)
         DM.dmSize = CUShort(Marshal.SizeOf(GetType(DevModeW)))
         While EnumDisplaySettingsExW(Screen.PrimaryScreen.DeviceName, Index, DM, 0)
-            Dim Size As New Size(CInt(DM.dmPelsWidth), CInt(DM.dmPelsHeight))
-            If Not SizeList.Contains(Size) Then SizeList.Add(Size)
+            Dim Resolution As New Resolution With
+            {.Width = DM.dmPelsWidth, .Height = DM.dmPelsHeight, .Hz = DM.dmDisplayFrequency}
+            If Not SizeList.Contains(Resolution) Then
+                Try
+                    If SizeList.Last.Width = Resolution.Width Then
+                        SizeList.Remove(SizeList.Last)
+                    End If
+                Catch : End Try
+                SizeList.Add(Resolution)
+            End If
             Index += 1
         End While
         Return SizeList.ToArray
     End Function
 
-    Public Shared Function StrToSize(str As String) As Size
+    Public Shared Function StrToRes(str As String) As Resolution
         Try
             Dim a = str.Split(New Char() {"x"})
-            Return New Size() With {
+            Dim b = a(1).Split(New Char() {"@"})
+            a(1) = b(0)
+            Return New Resolution() With {
             .Width = Integer.Parse(a(0)),
-            .Height = Integer.Parse(a(1))
+            .Height = Integer.Parse(a(1)),
+            .Hz = Integer.Parse(b(1))
         }
         Catch
-            Return New Size() With {
+            Return New Resolution() With {
             .Width = 0,
-            .Height = 0
+            .Height = 0,
+            .Hz = 0
         }
         End Try
     End Function
 
-    Public Shared Function SizeToStr(size As Size, Optional mult As Integer = 1) As String
-        Return size.Width * mult & "x" & size.Height * mult
+    Public Shared Function ResToStr(res As Resolution, Optional ShowHz As Boolean = True, Optional mult As Integer = 1) As String
+        Return res.Width * mult & "x" & res.Height * mult & If(ShowHz, "@" & res.Hz, "")
     End Function
 
+End Class
+
+Public Class Resolution
+    Public Property Width As Integer
+    Public Property Height As Integer
+    Public Property Hz As Integer
 End Class
