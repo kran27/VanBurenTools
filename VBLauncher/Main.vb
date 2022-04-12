@@ -19,6 +19,7 @@ Public Class Main
         If E.Button = MouseButtons.Left Then MoveForm = 0
     End Sub
 #End Region
+    Private ReadOnly BGs As Bitmap() = {My.Resources.BG1, My.Resources.BG2, My.Resources.BG3, My.Resources.BG4, My.Resources.BG5, My.Resources.BG6, My.Resources.BG7, My.Resources.BG8, My.Resources.BG9, My.Resources.BG10, My.Resources.BG11, My.Resources.BG12}
     Private Sub Startup() Handles MyBase.Load
         Icon = My.Resources.F3
         LaunchB.BackgroundImage = My.Resources.Launch
@@ -27,20 +28,7 @@ Public Class Main
         Logo.BackgroundImage = My.Resources.Logo
         Logo.Parent = Background
         Dim Random As New Random
-        Select Case Random.Next(1, 12)
-            Case 1 : Background.BackgroundImage = My.Resources.BG1
-            Case 2 : Background.BackgroundImage = My.Resources.BG2
-            Case 3 : Background.BackgroundImage = My.Resources.BG3
-            Case 4 : Background.BackgroundImage = My.Resources.BG4
-            Case 5 : Background.BackgroundImage = My.Resources.BG5
-            Case 6 : Background.BackgroundImage = My.Resources.BG6
-            Case 7 : Background.BackgroundImage = My.Resources.BG7
-            Case 8 : Background.BackgroundImage = My.Resources.BG8
-            Case 9 : Background.BackgroundImage = My.Resources.BG9
-            Case 10 : Background.BackgroundImage = My.Resources.BG10
-            Case 11 : Background.BackgroundImage = My.Resources.BG11
-            Case 12 : Background.BackgroundImage = My.Resources.BG12
-        End Select
+        Background.BackgroundImage = BGs(Random.Next(0, 11))
         Try : Directory.Delete("Override\Fixes", 1) : Catch : End Try
         If File.Exists("F3.exe") Then
             Directory.CreateDirectory("Override\Fixes")
@@ -61,7 +49,7 @@ Public Class Main
         Try
             Process.Start("F3.exe")
             Application.Exit()
-        Catch Ex As Exception
+        Catch
             ShowError("Please put the launcher in the same directory as the game so you can launch it!", "Game Executable Not Found!")
         End Try
     End Sub
