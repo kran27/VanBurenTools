@@ -4,9 +4,9 @@ Imports VBLauncher.VideoInfo
 
 Public Class VideoOptions
     Private dgV2Conf() As String
-    Private SelH As String
-    Private SelW As String
-
+    Private ReadOnly AAModes As String() = {"off", "2x", "4x", "8x"}
+    Private ReadOnly FModes As String() = {"appdriven", "pointsampled", "Linearmip", "2", "4", "8", "16"}
+    Private ReadOnly SSModes As String() = {"unforced", "2x", "3x", "4x"}
     Private Sub CheckOptions() Handles MyBase.Load
         TextureCB.BringToFront()
         SSFCB.BringToFront()
@@ -40,27 +40,9 @@ Public Class VideoOptions
         Else
             APICB.SelectedIndex = 0
         End If
-        Select Case Ini(dgV2Conf, "DirectX", "Antialiasing")
-            Case "off" : AACB.SelectedIndex = 0
-            Case "2x" : AACB.SelectedIndex = 1
-            Case "4x" : AACB.SelectedIndex = 2
-            Case "8x" : AACB.SelectedIndex = 3
-        End Select
-        Select Case Ini(dgV2Conf, "DirectX", "Filtering")
-            Case "appdriven" : TextureCB.SelectedIndex = 0
-            Case "pointsampled" : TextureCB.SelectedIndex = 1
-            Case "Linearmip" : TextureCB.SelectedIndex = 2
-            Case "2" : TextureCB.SelectedIndex = 3
-            Case "4" : TextureCB.SelectedIndex = 4
-            Case "8" : TextureCB.SelectedIndex = 5
-            Case "16" : TextureCB.SelectedIndex = 6
-        End Select
-        Select Case Ini(dgV2Conf, "DirectX", "Resolution")
-            Case "unforced" : SSFCB.SelectedIndex = 0
-            Case "2x" : SSFCB.SelectedIndex = 1
-            Case "3x" : SSFCB.SelectedIndex = 2
-            Case "4x" : SSFCB.SelectedIndex = 3
-        End Select
+        AACB.SelectedIndex = AAModes.ToList.IndexOf(Ini(dgV2Conf, "DirectX", "Antialiasing"))
+        TextureCB.SelectedIndex = FModes.ToList.IndexOf(Ini(dgV2Conf, "DirectX", "Filtering"))
+        SSFCB.SelectedIndex = SSModes.ToList.IndexOf(Ini(dgV2Conf, "DirectX", "Resolution"))
         MipmapCB.Checked = Not Boolean.Parse(Ini(dgV2Conf, "DirectX", "DisableMipmapping"))
         PhongCB.Checked = Boolean.Parse(Ini(dgV2Conf, "DirectX", "PhongShadingWhenPossible"))
     End Sub
@@ -91,27 +73,9 @@ Public Class VideoOptions
                 File.WriteAllBytes("d3d11.dll", My.Resources.VKd3d11)
                 File.WriteAllBytes("dxgi.dll", My.Resources.VKdxgi)
         End Select
-        Select Case AACB.SelectedIndex
-            Case 0 : Ini(dgV2Conf, "DirectX", "Antialiasing", "off")
-            Case 1 : Ini(dgV2Conf, "DirectX", "Antialiasing", "2x")
-            Case 2 : Ini(dgV2Conf, "DirectX", "Antialiasing", "4x")
-            Case 3 : Ini(dgV2Conf, "DirectX", "Antialiasing", "8x")
-        End Select
-        Select Case TextureCB.SelectedIndex
-            Case 0 : Ini(dgV2Conf, "DirectX", "Filtering", "appdriven")
-            Case 1 : Ini(dgV2Conf, "DirectX", "Filtering", "pointsampled")
-            Case 2 : Ini(dgV2Conf, "DirectX", "Filtering", "Linearmip")
-            Case 3 : Ini(dgV2Conf, "DirectX", "Filtering", 2)
-            Case 4 : Ini(dgV2Conf, "DirectX", "Filtering", 4)
-            Case 5 : Ini(dgV2Conf, "DirectX", "Filtering", 8)
-            Case 6 : Ini(dgV2Conf, "DirectX", "Filtering", 16)
-        End Select
-        Select Case SSFCB.SelectedIndex
-            Case 0 : Ini(dgV2Conf, "DirectX", "Resolution", "unforced")
-            Case 1 : Ini(dgV2Conf, "DirectX", "Resolution", "2x")
-            Case 2 : Ini(dgV2Conf, "DirectX", "Resolution", "3x")
-            Case 3 : Ini(dgV2Conf, "DirectX", "Resolution", "4x")
-        End Select
+        Ini(dgV2Conf, "DirectX", "Antialiasing", AAModes(AACB.SelectedIndex))
+        Ini(dgV2Conf, "DirectX", "Filtering", FModes(TextureCB.SelectedIndex))
+        Ini(dgV2Conf, "DirectX", "Resolution", SSModes(SSFCB.SelectedIndex))
         Ini(dgV2Conf, "DirectX", "DisableMipmapping", Not MipmapCB.Checked)
         Ini(dgV2Conf, "DirectX", "PhongShadingWhenPossible", PhongCB.Checked)
         Ini(dgV2Conf, "GeneralExt", "FPSLimit", res.Hz)
