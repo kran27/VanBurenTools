@@ -2,33 +2,31 @@
 Imports System.Runtime.InteropServices
 
 Public Class IniManager
-    Public Shared F3Dir As String = My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\F3.ini"
+    Public Shared F3Dir As String = $"{My.Computer.FileSystem.SpecialDirectories.MyDocuments}\F3\F3.ini"
     Public Shared SysDir As String = "Override\MenuMap\Engine\sys.ini"
     Public Shared F3Ini() As String
     Public Shared SysIni() As String
     Private Shared CheckFor As String
     Public Shared Function Ini(IniArray As String(), IniSection As String, IniKey As String, Optional Value As String = Nothing)
         ' Find bounds of section
-        CheckFor = "[" & IniSection & "]"
+        CheckFor = $"[{IniSection}]"
         Dim SectionStart = Array.FindIndex(IniArray, AddressOf StartsWith)
         CheckFor = "["
         Dim SectionEnd = Array.FindIndex(IniArray, SectionStart + 1, AddressOf StartsWith) - 1
-        If SectionEnd < 0 Then
-            SectionEnd = IniArray.Length - 1
-        End If
-        ' Find Key
+        If SectionEnd < 0 Then SectionEnd = IniArray.Length - 1
+        ' Find key location and value
         CheckFor = IniKey
         Dim KeyIndex = Array.FindIndex(IniArray, SectionStart + 1, AddressOf StartsWith)
+                If KeyIndex > SectionEnd Then Return Nothing        
         Dim KeyLine = IniArray(KeyIndex)
         Dim KeyValue = KeyLine.Substring(KeyLine.IndexOf("=") + 1).Trim
-        If KeyIndex > SectionEnd Then Return Nothing
-        ' Find comment, remove comment from value if present
+        ' Find comment, if any
         Dim Comment = Nothing
         Try : Comment = KeyValue.Substring(KeyValue.IndexOf(";")) : Catch : End Try
         If Comment IsNot Nothing Then KeyValue = KeyValue.Substring(0, KeyValue.LastIndexOf(";")).Trim
-        ' Either apply changes or return value
+        ' Either set or return value
         If Value IsNot Nothing Then
-            IniArray(KeyIndex) = Trim(IniKey & " = " & Value & " " & Comment)
+            IniArray(KeyIndex) = Trim($"{IniKey} = {Value} {Comment}")
             Return Nothing
         Else
             Return KeyValue
@@ -55,7 +53,7 @@ Public Class General
                 For Each FileExt In FileFilter
                     ReturnedData.AddRange(Directory.GetFiles(ThisFolder, FileExt))
                 Next
-            Catch Ex As Exception
+            Catch
             End Try
         Loop
         Return ReturnedData
@@ -116,8 +114,8 @@ Public Class VideoInfo
     End Function
 
     Public Shared Function GetResAsStrings() As String()
-        Dim SizeList As New List(Of String)(From S In GetResolution() Select S.Width.ToString & "x" & S.Height.ToString & "@" & S.Hz.ToString)
-        Return SizeList.ToArray
+        Dim SizeList As New List(Of String)(From S In GetResolution() Select $"{S.Width}x{S.Height}@{S.Hz}")
+        Return SizeList.ToArray()
     End Function
 
 
@@ -130,10 +128,7 @@ Public Class VideoInfo
             Dim Resolution As New Resolution With
             {.Width = DM.dmPelsWidth, .Height = DM.dmPelsHeight, .Hz = DM.dmDisplayFrequency}
             If Not SizeList.Contains(Resolution) Then
-                Try
-                    If SizeList.Last.Width = Resolution.Width Then
-                        SizeList.Remove(SizeList.Last)
-                    End If
+                Try : If SizeList.Last.Width = Resolution.Width Then SizeList.Remove(SizeList.Last)
                 Catch : End Try
                 SizeList.Add(Resolution)
             End If
@@ -146,11 +141,10 @@ Public Class VideoInfo
         Try
             Dim a = str.Split(New Char() {"x"})
             Dim b = a(1).Split(New Char() {"@"})
-            a(1) = b(0)
             Return New Resolution() With {
-            .Width = Integer.Parse(a(0)),
-            .Height = Integer.Parse(a(1)),
-            .Hz = Integer.Parse(b(1))
+            .Width = a(0),
+            .Height = b(0),
+            .Hz = b(1)
         }
         Catch
             Return New Resolution() With {
@@ -162,7 +156,7 @@ Public Class VideoInfo
     End Function
 
     Public Shared Function ResToStr(res As Resolution, Optional ShowHz As Boolean = True, Optional mult As Integer = 1) As String
-        Return res.Width * mult & "x" & res.Height * mult & If(ShowHz, "@" & res.Hz, "")
+        Return $"{res.Width * mult}x{res.Height * mult}{If(ShowHz, $"@{res.Hz}", "")}"
     End Function
 
 End Class

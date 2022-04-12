@@ -6,12 +6,12 @@ Public Class Options
     Private ReadOnly HelmType As String = "Override\Helmet\Helmet.type"
     Private ReadOnly HelmInv As String = "Override\Helmet\Interface\HeaMotorcycle_default_INV.tga"
     Private ReadOnly HelmTex As String = "Override\Helmet\Critters\HeaMotorcycle_default_LG.png"
-    Private ReadOnly MainMenus As MainMenuDef() = {MMD("mainmenu.map", 0, 5.5, 0, 2, 0.75, 59.2), MMD("mainmenu.map", 0, 5.5, 0, 2, 0.75, 59.2), MMD("zz_TestMapsaarontemp2.map", 0, 0, 0, 0, 0, 0), MMD("zz_TestMapsTest_City_Building01.map", 0, 5.5, 0, 45, -2.5, 57), MMD("zz_TestMapsTest_City_Building02.map", 0, 5.5, 0, 43, -2.5, 57), MMD("zz_TestMapsTest_City_Building03.map", 0, 5.5, 0, 43, -5, 57), MMD("zz_TestMapsTest_City_Building04.map", 0, 5.5, 0, 43, -5.5, 57), MMD("98_Canyon_Random_01.map", 50, 5, 10, 61, 0, 45), MMD("98_Canyon_Random_02.map", 55, 5, 10, 36, -2.5, 50), MMD("04_0202_Spelunking.map", 70, 5, 45, 15, 5, 50), MMD("zz_TestMapsTest_City_Fences.map", 0, 40, 0, 42, 35, 50), MMD("zz_TestMapsScottE_Test1.map", 85, 30, 30, 255, 39, 60), MMD("zz_TestMapsScottE_Test2.map", 145, 80, -85, 0.5, 25, 75), MMD("zz_TestMapsScottE_Test4.map", 0, 7.5, 0, 45, 12.5, 50), MMD("zz_TestMapsTest_Junktown_Shacks.map", 0, 50, -10, 42, 39, 50), MMD("Default_StartMap.map", 60, 7.5, 25, 270, 8, 27), MMD("00_03_Tutorial_Junktown.map", 80, 7.5, 50, 5, 10, 68), MMD("00_04_Tutorial_Vault.map", 50, 50.5, 0, 36, 25, 68)}
+    Private ReadOnly MainMenus As MainMenuDef() = {MMD("mainmenu.map", 0, 5.5, 0, 2, 0.75, 59.2), MMD("zz_TestMapsaarontemp2.map", 0, 0, 0, 0, 0, 0), MMD("zz_TestMapsTest_City_Building01.map", 0, 5.5, 0, 45, -2.5, 57), MMD("zz_TestMapsTest_City_Building02.map", 0, 5.5, 0, 43, -2.5, 57), MMD("zz_TestMapsTest_City_Building03.map", 0, 5.5, 0, 43, -5, 57), MMD("zz_TestMapsTest_City_Building04.map", 0, 5.5, 0, 43, -5.5, 57), MMD("98_Canyon_Random_01.map", 50, 5, 10, 61, 0, 45), MMD("98_Canyon_Random_02.map", 55, 5, 10, 36, -2.5, 50), MMD("04_0202_Spelunking.map", 70, 5, 45, 15, 5, 50), MMD("zz_TestMapsTest_City_Fences.map", 0, 40, 0, 42, 35, 50), MMD("zz_TestMapsScottE_Test1.map", 85, 30, 30, 255, 39, 60), MMD("zz_TestMapsScottE_Test2.map", 145, 80, -85, 0.5, 25, 75), MMD("zz_TestMapsScottE_Test4.map", 0, 7.5, 0, 45, 12.5, 50), MMD("zz_TestMapsTest_Junktown_Shacks.map", 0, 50, -10, 42, 39, 50), MMD("Default_StartMap.map", 60, 7.5, 25, 270, 8, 27), MMD("00_03_Tutorial_Junktown.map", 80, 7.5, 50, 5, 10, 68), MMD("00_04_Tutorial_Vault.map", 50, 50.5, 0, 36, 25, 68)}
     Private ReadOnly Maps As String() = {"mainmenu.map", "zz_TestMapsaarontemp2.map", "zz_TestMapsTest_City_Building01.map", "zz_TestMapsTest_City_Building02.map", "zz_TestMapsTest_City_Building03.map", "zz_TestMapsTest_City_Building04.map", "98_Canyon_Random_01.map", "98_Canyon_Random_02.map", "04_0202_Spelunking.map", "zz_TestMapsTest_City_Fences.map", "zz_TestMapsScottE_Test1.map", "zz_TestMapsScottE_Test2.map", "zz_TestMapsScottE_Test4.map", "zz_TestMapsTest_Junktown_Shacks.map", "Default_StartMap.map", "00_03_Tutorial_Junktown.map", "00_04_Tutorial_Vault.map"}
     Private ReadOnly Icons As Byte()() = {My.Resources._8_Ball_I, My.Resources.AmericanI, My.Resources.BlackI, My.Resources.BlueI, My.Resources.EyeI, My.Resources.FlamesI, My.Resources.Full_SkullI, My.Resources.GreenI, My.Resources.GreyI, My.Resources.PoliceI, My.Resources.RedI, My.Resources.Shot_SmileyI, My.Resources.SkullI, My.Resources.YellowI}
     Private ReadOnly Textures As Byte()() = {My.Resources._8_Ball, My.Resources.American, My.Resources.Black, My.Resources.Blue, My.Resources.Eye, My.Resources.Flames, My.Resources.Full_Skull, My.Resources.Green, My.Resources.Grey, My.Resources.Police, My.Resources.Red, My.Resources.Shot_Smiley, My.Resources.Skull, My.Resources.Yellow}
     Private ReadOnly PIcons As Bitmap() = {My.Resources.Default_Icon, My.Resources._8_Ball_Icon, My.Resources.American_Icon, My.Resources.Black_Icon, My.Resources.Blue_Icon, My.Resources.Eye_Icon, My.Resources.Flames_Icon, My.Resources.Full_Skull_Icon, My.Resources.Green_Icon, My.Resources.Grey_Icon, My.Resources.Police_Icon, My.Resources.Red_Icon, My.Resources.Shot_Smiley_Icon, My.Resources.Skull_Icon, My.Resources.Yellow_Icon}
-    Private Sub SetMainMenu(MMD As MainMenuDef)
+    Private Shared Sub SetMainMenu(MMD As MainMenuDef)
         Ini(SysIni, "Mainmenu", "map name", MMD.MapName)
         Ini(SysIni, "Mainmenu", "target x", MMD.TargetX)
         Ini(SysIni, "Mainmenu", "target y", MMD.TargetY)
@@ -21,7 +21,7 @@ Public Class Options
         Ini(SysIni, "Mainmenu", "fov", MMD.FOV)
     End Sub
 
-    Private Function MMD(MapName As String, TargetX As String, TargetY As String, TargetZ As String, Azimuth As String, Elevation As String, FOV As String) As MainMenuDef
+    Private Shared Function MMD(MapName As String, TargetX As String, TargetY As String, TargetZ As String, Azimuth As String, Elevation As String, FOV As String) As MainMenuDef
         Return New MainMenuDef With {.MapName = MapName, .TargetX = TargetX, .TargetY = TargetY, .TargetZ = TargetZ, .Azimuth = Azimuth, .Elevation = Elevation, .FOV = FOV}
     End Function
 
@@ -30,7 +30,7 @@ Public Class Options
         Try
             F3Ini = File.ReadAllLines(F3Dir)
         Catch
-            Directory.CreateDirectory(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3")
+            Directory.CreateDirectory($"{My.Computer.FileSystem.SpecialDirectories.MyDocuments}\F3")
             File.WriteAllText(F3Dir, My.Resources.Default_F3)
             F3Ini = File.ReadAllLines(F3Dir)
         End Try
@@ -67,7 +67,7 @@ Public Class Options
         Else
             Try : Directory.Delete("Override\SUMM", 1) : Catch : End Try
         End If
-        SetMainMenu(MainMenus(MainMenuCB.SelectedIndex + 1))
+        SetMainMenu(MainMenus(MainMenuCB.SelectedIndex))
         Ini(SysIni, "Camera", "Distance Max", If(AltCamCB.Checked, 70, 350))
         Ini(SysIni, "Camera", "Distance Min", If(AltCamCB.Checked, 70, 350))
         Ini(SysIni, "Camera", "FOV Speed", If(CameraCB.Checked, 10, 32.5))

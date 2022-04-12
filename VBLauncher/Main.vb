@@ -8,7 +8,10 @@ Public Class Main
     Private MoveFormMousePosition As Point
 
     Private Sub MoveForm_MouseDown(Sender As Object, E As MouseEventArgs) Handles Background.MouseDown, Logo.MouseDown
-        If E.Button = MouseButtons.Left Then MoveForm = 1 : MoveFormMousePosition = E.Location
+        If E.Button = MouseButtons.Left Then
+            MoveForm = 1
+            MoveFormMousePosition = E.Location
+        End If
     End Sub
 
     Private Sub MoveForm_MouseMove(Sender As Object, E As MouseEventArgs) Handles Background.MouseMove, Logo.MouseMove
@@ -41,7 +44,7 @@ Public Class Main
             ShowError("Please put the launcher in the same directory as the game so you can launch it!", "Game Executable Not Found!")
         End If
         AllowTransparency = False
-        Try : File.Delete(My.Computer.FileSystem.SpecialDirectories.MyDocuments & "\F3\Characters\None.CRT")
+        Try : File.Delete($"{My.Computer.FileSystem.SpecialDirectories.MyDocuments}\F3\Characters\None.CRT")
         Catch : End Try
     End Sub
 
