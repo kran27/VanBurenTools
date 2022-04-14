@@ -97,10 +97,10 @@ Partial Class VideoOptions
         '
         Me.ResolutionCB.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable
         Me.ResolutionCB.FormattingEnabled = True
-        Me.ResolutionCB.Location = New System.Drawing.Point(114, 108)
+        Me.ResolutionCB.Location = New System.Drawing.Point(89, 108)
         Me.ResolutionCB.Margin = New System.Windows.Forms.Padding(2)
         Me.ResolutionCB.Name = "ResolutionCB"
-        Me.ResolutionCB.Size = New System.Drawing.Size(112, 24)
+        Me.ResolutionCB.Size = New System.Drawing.Size(137, 24)
         Me.ResolutionCB.TabIndex = 3
         '
         'ResolutionL
@@ -109,9 +109,9 @@ Partial Class VideoOptions
         Me.ResolutionL.Location = New System.Drawing.Point(8, 112)
         Me.ResolutionL.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.ResolutionL.Name = "ResolutionL"
-        Me.ResolutionL.Size = New System.Drawing.Size(104, 16)
+        Me.ResolutionL.Size = New System.Drawing.Size(79, 16)
         Me.ResolutionL.TabIndex = 22
-        Me.ResolutionL.Text = "Display Resolution"
+        Me.ResolutionL.Text = "Display Mode"
         '
         'MipmapCB
         '
@@ -130,7 +130,7 @@ Partial Class VideoOptions
         Me.PhongCB.Location = New System.Drawing.Point(9, 200)
         Me.PhongCB.Margin = New System.Windows.Forms.Padding(2)
         Me.PhongCB.Name = "PhongCB"
-        Me.PhongCB.Size = New System.Drawing.Size(108, 20)
+        Me.PhongCB.Size = New System.Drawing.Size(107, 20)
         Me.PhongCB.TabIndex = 7
         Me.PhongCB.Text = "Phong Shading"
         Me.ToolTip1.SetToolTip(Me.PhongCB, "Alternative shading," & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Slightly improves visuals")
@@ -141,7 +141,7 @@ Partial Class VideoOptions
         Me.TextureL.Location = New System.Drawing.Point(8, 82)
         Me.TextureL.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.TextureL.Name = "TextureL"
-        Me.TextureL.Size = New System.Drawing.Size(90, 16)
+        Me.TextureL.Size = New System.Drawing.Size(91, 16)
         Me.TextureL.TabIndex = 19
         Me.TextureL.Text = "Texture Filtering"
         '
