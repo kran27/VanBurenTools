@@ -28,6 +28,7 @@ A launcher and settings editor/mod loader for Fallout Van Buren
 <details> <summary>Graphics</summary>
   
 - Support for DX11, OpenGL, and Vulkan
+- ReShade can be used on top of Vulkan
 - Antialiasing
 - Alternate Texture Filtering
 - Easy Switching of Resolution
