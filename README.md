@@ -3,7 +3,7 @@ A launcher and settings editor/mod loader for Fallout Van Buren
 - You can get the game and other tools from [here](https://archive.org/details/f3demo)
 - You can get the latest version of the launcher [here](https://github.com/kran27/VanBurenLauncher/raw/main/VBLauncher/bin/Release/VBLauncher.exe)
 <details> <summary>List of Features</summary>
-  
+  <br>
 <details> <summary>Cut Content</summary>
   
 - 2 Vehicles
