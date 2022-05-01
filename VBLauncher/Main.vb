@@ -30,8 +30,7 @@ Public Class Main
         ExitB.BackgroundImage = My.Resources._Exit
         Logo.BackgroundImage = My.Resources.Logo
         Logo.Parent = Background
-        Dim Random As New Random
-        Background.BackgroundImage = BGs(Random.Next(0, 12))
+        Background.BackgroundImage = BGs(New Random().Next(0, BGs.Length))
         Try : Directory.Delete("Override\Fixes", 1) : Catch : End Try
         If File.Exists("F3.exe") Then
             Directory.CreateDirectory("Override\Fixes")

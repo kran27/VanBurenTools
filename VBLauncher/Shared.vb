@@ -17,7 +17,7 @@ Public Class IniManager
         ' Find key location and value
         CheckFor = IniKey
         Dim KeyIndex = Array.FindIndex(IniArray, SectionStart + 1, AddressOf StartsWith)
-                If KeyIndex > SectionEnd Then Return Nothing        
+        If KeyIndex > SectionEnd Then Return Nothing
         Dim KeyLine = IniArray(KeyIndex)
         Dim KeyValue = KeyLine.Substring(KeyLine.IndexOf("=") + 1).Trim
         ' Find comment, if any

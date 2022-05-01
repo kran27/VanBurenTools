@@ -83,8 +83,8 @@ Partial Class Main
         '
         'Background
         '
-        Me.Background.Location = New System.Drawing.Point(0, 0)
         Me.Background.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.Background.Location = New System.Drawing.Point(0, 0)
         Me.Background.Name = "Background"
         Me.Background.Size = New System.Drawing.Size(640, 480)
         Me.Background.TabIndex = 4
@@ -92,8 +92,7 @@ Partial Class Main
         '
         'Main
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 16.0!)
-        Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
+        Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None
         Me.BackColor = System.Drawing.Color.Black
         Me.ClientSize = New System.Drawing.Size(640, 480)
         Me.Controls.Add(Me.Logo)
@@ -106,6 +105,7 @@ Partial Class Main
         Me.Name = "Main"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Van Buren Launcher"
+        Me.TransparencyKey = System.Drawing.Color.FromArgb(CType(CType(31, Byte), Integer), CType(CType(31, Byte), Integer), CType(CType(32, Byte), Integer))
         CType(Me.LaunchB, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.OptionsB, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.ExitB, System.ComponentModel.ISupportInitialize).EndInit()

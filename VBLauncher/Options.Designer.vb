@@ -31,6 +31,7 @@ Partial Class Options
         Me.ApplyB = New AltUI.Controls.DarkButton()
         Me.IntrosCB = New AltUI.Controls.DarkCheckBox()
         Me.TweaksGB = New AltUI.Controls.DarkGroupBox()
+        Me.CameraCB = New AltUI.Controls.DarkCheckBox()
         Me.AltCamCB = New AltUI.Controls.DarkCheckBox()
         Me.ButtonsCB = New AltUI.Controls.DarkCheckBox()
         Me.PreferencesGB = New AltUI.Controls.DarkGroupBox()
@@ -45,7 +46,6 @@ Partial Class Options
         Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
         Me.VideoB = New AltUI.Controls.DarkButton()
         Me.CloseB = New AltUI.Controls.DarkButton()
-        Me.CameraCB = New AltUI.Controls.DarkCheckBox()
         Me.TweaksGB.SuspendLayout()
         Me.PreferencesGB.SuspendLayout()
         CType(Me.HelmetPI, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -53,21 +53,24 @@ Partial Class Options
         '
         'ApplyB
         '
-        Me.ApplyB.Location = New System.Drawing.Point(209, 279)
+        Me.ApplyB.FlatBottom = False
+        Me.ApplyB.FlatTop = False
+        Me.ApplyB.HoldColour = False
+        Me.ApplyB.Location = New System.Drawing.Point(209, 262)
         Me.ApplyB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.ApplyB.Name = "ApplyB"
         Me.ApplyB.Padding = New System.Windows.Forms.Padding(5)
-        Me.ApplyB.Size = New System.Drawing.Size(61, 27)
+        Me.ApplyB.Size = New System.Drawing.Size(61, 25)
         Me.ApplyB.TabIndex = 10
         Me.ApplyB.Text = "Apply"
         '
         'IntrosCB
         '
         Me.IntrosCB.AutoSize = True
-        Me.IntrosCB.Location = New System.Drawing.Point(9, 19)
+        Me.IntrosCB.Location = New System.Drawing.Point(9, 18)
         Me.IntrosCB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.IntrosCB.Name = "IntrosCB"
-        Me.IntrosCB.Size = New System.Drawing.Size(127, 20)
+        Me.IntrosCB.Size = New System.Drawing.Size(127, 19)
         Me.IntrosCB.TabIndex = 1
         Me.IntrosCB.Text = "Enable Intro Videos"
         '
@@ -77,32 +80,42 @@ Partial Class Options
         Me.TweaksGB.Controls.Add(Me.AltCamCB)
         Me.TweaksGB.Controls.Add(Me.ButtonsCB)
         Me.TweaksGB.Controls.Add(Me.IntrosCB)
-        Me.TweaksGB.Location = New System.Drawing.Point(13, 12)
+        Me.TweaksGB.Location = New System.Drawing.Point(13, 11)
         Me.TweaksGB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.TweaksGB.Name = "TweaksGB"
         Me.TweaksGB.Padding = New System.Windows.Forms.Padding(4, 3, 4, 3)
-        Me.TweaksGB.Size = New System.Drawing.Size(257, 113)
+        Me.TweaksGB.Size = New System.Drawing.Size(257, 106)
         Me.TweaksGB.TabIndex = 0
         Me.TweaksGB.TabStop = False
         Me.TweaksGB.Text = "Tweaks"
         '
+        'CameraCB
+        '
+        Me.CameraCB.AutoSize = True
+        Me.CameraCB.Location = New System.Drawing.Point(9, 81)
+        Me.CameraCB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
+        Me.CameraCB.Name = "CameraCB"
+        Me.CameraCB.Size = New System.Drawing.Size(139, 19)
+        Me.CameraCB.TabIndex = 4
+        Me.CameraCB.Text = "Uncap Camera Zoom"
+        '
         'AltCamCB
         '
         Me.AltCamCB.AutoSize = True
-        Me.AltCamCB.Location = New System.Drawing.Point(9, 64)
+        Me.AltCamCB.Location = New System.Drawing.Point(9, 60)
         Me.AltCamCB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.AltCamCB.Name = "AltCamCB"
-        Me.AltCamCB.Size = New System.Drawing.Size(156, 20)
+        Me.AltCamCB.Size = New System.Drawing.Size(157, 19)
         Me.AltCamCB.TabIndex = 3
         Me.AltCamCB.Text = "Alternate Camera Angles"
         '
         'ButtonsCB
         '
         Me.ButtonsCB.AutoSize = True
-        Me.ButtonsCB.Location = New System.Drawing.Point(9, 42)
+        Me.ButtonsCB.Location = New System.Drawing.Point(9, 39)
         Me.ButtonsCB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.ButtonsCB.Name = "ButtonsCB"
-        Me.ButtonsCB.Size = New System.Drawing.Size(187, 20)
+        Me.ButtonsCB.Size = New System.Drawing.Size(188, 19)
         Me.ButtonsCB.TabIndex = 2
         Me.ButtonsCB.Text = "Remove Useless Menu Buttons"
         '
@@ -116,11 +129,11 @@ Partial Class Options
         Me.PreferencesGB.Controls.Add(Me.HelmetL)
         Me.PreferencesGB.Controls.Add(Me.HelmetPI)
         Me.PreferencesGB.Controls.Add(Me.MainMenuL)
-        Me.PreferencesGB.Location = New System.Drawing.Point(13, 131)
+        Me.PreferencesGB.Location = New System.Drawing.Point(13, 123)
         Me.PreferencesGB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.PreferencesGB.Name = "PreferencesGB"
         Me.PreferencesGB.Padding = New System.Windows.Forms.Padding(4, 3, 4, 3)
-        Me.PreferencesGB.Size = New System.Drawing.Size(257, 142)
+        Me.PreferencesGB.Size = New System.Drawing.Size(257, 133)
         Me.PreferencesGB.TabIndex = 5
         Me.PreferencesGB.TabStop = False
         Me.PreferencesGB.Text = "Preferences"
@@ -130,7 +143,7 @@ Partial Class Options
         Me.NewGameCB.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable
         Me.NewGameCB.FormattingEnabled = True
         Me.NewGameCB.Items.AddRange(New Object() {"00_03_Tutorial_Junktown.map", "00_04_Tutorial_Vault.map", "04_0202_Spelunking.map", "98_Canyon_Random_01.map", "98_Canyon_Random_02.map", "Default_StartMap.map", "Mainmenu.map", "zz_TestMapsScottE_Test1.map", "zz_TestMapsScottE_Test2.map", "zz_TestMapsScottE_Test4.map", "zz_TestMapsTest_City_Building01.map", "zz_TestMapsTest_City_Building02.map", "zz_TestMapsTest_City_Building03.map", "zz_TestMapsTest_City_Building04.map", "zz_TestMapsTest_City_Fences.map", "zz_TestMapsTest_Junktown_Shacks.map", "zz_TestMapsaarontemp2.map"})
-        Me.NewGameCB.Location = New System.Drawing.Point(99, 18)
+        Me.NewGameCB.Location = New System.Drawing.Point(99, 17)
         Me.NewGameCB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.NewGameCB.Name = "NewGameCB"
         Me.NewGameCB.Size = New System.Drawing.Size(149, 24)
@@ -139,10 +152,11 @@ Partial Class Options
         'NewGameL
         '
         Me.NewGameL.AutoSize = True
-        Me.NewGameL.Location = New System.Drawing.Point(7, 22)
+        Me.NewGameL.ForeColor = System.Drawing.Color.RebeccaPurple
+        Me.NewGameL.Location = New System.Drawing.Point(7, 21)
         Me.NewGameL.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.NewGameL.Name = "NewGameL"
-        Me.NewGameL.Size = New System.Drawing.Size(91, 16)
+        Me.NewGameL.Size = New System.Drawing.Size(92, 15)
         Me.NewGameL.TabIndex = 0
         Me.NewGameL.Text = "New Game Map"
         '
@@ -151,7 +165,7 @@ Partial Class Options
         Me.MainMenuCB.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable
         Me.MainMenuCB.FormattingEnabled = True
         Me.MainMenuCB.Items.AddRange(New Object() {"Default", "Aaron Map 2", "Building 1", "Building 2", "Building 3", "Building 4", "Canyon 1", "Canyon 2", "Cave", "Fences", "Scott E Map 1", "Scott E Map 2", "Scott E Map 4", "Shacks", "Start Map", "Tutorial", "Vault"})
-        Me.MainMenuCB.Location = New System.Drawing.Point(103, 48)
+        Me.MainMenuCB.Location = New System.Drawing.Point(103, 45)
         Me.MainMenuCB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.MainMenuCB.Name = "MainMenuCB"
         Me.MainMenuCB.Size = New System.Drawing.Size(145, 24)
@@ -160,10 +174,10 @@ Partial Class Options
         'HelmetPL
         '
         Me.HelmetPL.AutoSize = True
-        Me.HelmetPL.Location = New System.Drawing.Point(126, 107)
+        Me.HelmetPL.Location = New System.Drawing.Point(126, 100)
         Me.HelmetPL.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.HelmetPL.Name = "HelmetPL"
-        Me.HelmetPL.Size = New System.Drawing.Size(50, 16)
+        Me.HelmetPL.Size = New System.Drawing.Size(51, 15)
         Me.HelmetPL.TabIndex = 6
         Me.HelmetPL.Text = "Preview:"
         '
@@ -172,7 +186,7 @@ Partial Class Options
         Me.HelmetCB.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable
         Me.HelmetCB.FormattingEnabled = True
         Me.HelmetCB.Items.AddRange(New Object() {"Default", "8-Ball", "American", "Black", "Blue", "Eye", "Flames", "Full Skull", "Green", "Grey", "Police", "Red", "Shot Smiley", "Skull", "Yellow"})
-        Me.HelmetCB.Location = New System.Drawing.Point(54, 78)
+        Me.HelmetCB.Location = New System.Drawing.Point(54, 73)
         Me.HelmetCB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.HelmetCB.Name = "HelmetCB"
         Me.HelmetCB.Size = New System.Drawing.Size(123, 24)
@@ -181,74 +195,70 @@ Partial Class Options
         'HelmetL
         '
         Me.HelmetL.AutoSize = True
-        Me.HelmetL.Location = New System.Drawing.Point(7, 83)
+        Me.HelmetL.Location = New System.Drawing.Point(7, 78)
         Me.HelmetL.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.HelmetL.Name = "HelmetL"
-        Me.HelmetL.Size = New System.Drawing.Size(44, 16)
+        Me.HelmetL.Size = New System.Drawing.Size(46, 15)
         Me.HelmetL.TabIndex = 4
         Me.HelmetL.Text = "Helmet"
         '
         'HelmetPI
         '
-        Me.HelmetPI.Location = New System.Drawing.Point(180, 78)
+        Me.HelmetPI.Location = New System.Drawing.Point(180, 73)
         Me.HelmetPI.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.HelmetPI.Name = "HelmetPI"
-        Me.HelmetPI.Size = New System.Drawing.Size(75, 62)
+        Me.HelmetPI.Size = New System.Drawing.Size(75, 58)
         Me.HelmetPI.TabIndex = 3
         Me.HelmetPI.TabStop = False
         '
         'MainMenuL
         '
         Me.MainMenuL.AutoSize = True
-        Me.MainMenuL.Location = New System.Drawing.Point(7, 53)
+        Me.MainMenuL.Location = New System.Drawing.Point(7, 50)
         Me.MainMenuL.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.MainMenuL.Name = "MainMenuL"
-        Me.MainMenuL.Size = New System.Drawing.Size(95, 16)
+        Me.MainMenuL.Size = New System.Drawing.Size(95, 15)
         Me.MainMenuL.TabIndex = 0
         Me.MainMenuL.Text = "Main Menu Map"
         '
         'VideoB
         '
-        Me.VideoB.Location = New System.Drawing.Point(13, 279)
+        Me.VideoB.FlatBottom = False
+        Me.VideoB.FlatTop = False
+        Me.VideoB.HoldColour = False
+        Me.VideoB.Location = New System.Drawing.Point(13, 262)
         Me.VideoB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.VideoB.Name = "VideoB"
         Me.VideoB.Padding = New System.Windows.Forms.Padding(5)
-        Me.VideoB.Size = New System.Drawing.Size(97, 27)
+        Me.VideoB.Size = New System.Drawing.Size(97, 25)
         Me.VideoB.TabIndex = 8
         Me.VideoB.Text = "Video Options"
         '
         'CloseB
         '
         Me.CloseB.DialogResult = System.Windows.Forms.DialogResult.Cancel
-        Me.CloseB.Location = New System.Drawing.Point(140, 279)
+        Me.CloseB.FlatBottom = False
+        Me.CloseB.FlatTop = False
+        Me.CloseB.HoldColour = False
+        Me.CloseB.Location = New System.Drawing.Point(140, 262)
         Me.CloseB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.CloseB.Name = "CloseB"
         Me.CloseB.Padding = New System.Windows.Forms.Padding(5)
-        Me.CloseB.Size = New System.Drawing.Size(61, 27)
+        Me.CloseB.Size = New System.Drawing.Size(61, 25)
         Me.CloseB.TabIndex = 9
         Me.CloseB.Text = "Close"
-        '
-        'CameraCB
-        '
-        Me.CameraCB.AutoSize = True
-        Me.CameraCB.Location = New System.Drawing.Point(9, 86)
-        Me.CameraCB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
-        Me.CameraCB.Name = "CameraCB"
-        Me.CameraCB.Size = New System.Drawing.Size(137, 20)
-        Me.CameraCB.TabIndex = 4
-        Me.CameraCB.Text = "Uncap Camera Zoom"
         '
         'Options
         '
         Me.AcceptButton = Me.ApplyB
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 16.0!)
-        Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(283, 319)
+        Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None
+        Me.ClientSize = New System.Drawing.Size(283, 299)
         Me.Controls.Add(Me.CloseB)
         Me.Controls.Add(Me.VideoB)
         Me.Controls.Add(Me.PreferencesGB)
         Me.Controls.Add(Me.TweaksGB)
         Me.Controls.Add(Me.ApplyB)
+        Me.CustomBorder = True
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.MaximizeBox = False
@@ -257,6 +267,7 @@ Partial Class Options
         Me.ShowInTaskbar = False
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Options"
+        Me.TransparencyKey = System.Drawing.Color.FromArgb(CType(CType(31, Byte), Integer), CType(CType(31, Byte), Integer), CType(CType(32, Byte), Integer))
         Me.TweaksGB.ResumeLayout(False)
         Me.TweaksGB.PerformLayout()
         Me.PreferencesGB.ResumeLayout(False)
