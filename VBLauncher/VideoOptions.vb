@@ -10,7 +10,6 @@ Public Class VideoOptions
     Private Sub CheckOptions() Handles MyBase.Load
         TextureCB.BringToFront()
         SSFCB.BringToFront()
-        Icon = My.Resources.F3
         Try
             dgV2Conf = File.ReadAllLines("dgVoodoo.conf")
         Catch
@@ -22,13 +21,13 @@ Public Class VideoOptions
         ResolutionCB.Items.Clear()
         ResolutionCB.Items.AddRange(GetResAsStrings)
         Dim inires = New Resolution With {
-            .Width = Ini(F3Ini, "Graphics", "width"),
-            .Height = Ini(F3Ini, "Graphics", "height"),
-            .Hz = Ini(F3Ini, "Graphics", "refresh")
+            .Width = F3Ini.Ini("Graphics", "width"),
+            .Height = F3Ini.Ini("Graphics", "height"),
+            .Hz = F3Ini.Ini("Graphics", "refresh")
         }
         ResolutionCB.SelectedItem = ResToStr(inires)
         SetupSSCB()
-        FullscreenCB.Checked = Ini(F3Ini, "Graphics", "fullscreen") = 1
+        FullscreenCB.Checked = F3Ini.Ini("Graphics", "fullscreen") = 1
         If File.Exists("d3d8.dll") Then
             If File.Exists("d3d11.dll") Then
                 APICB.SelectedIndex = 3
@@ -40,17 +39,17 @@ Public Class VideoOptions
         Else
             APICB.SelectedIndex = 0
         End If
-        AACB.SelectedIndex = AAModes.ToList.IndexOf(Ini(dgV2Conf, "DirectX", "Antialiasing"))
-        TextureCB.SelectedIndex = FModes.ToList.IndexOf(Ini(dgV2Conf, "DirectX", "Filtering"))
-        SSFCB.SelectedIndex = SSModes.ToList.IndexOf(Ini(dgV2Conf, "DirectX", "Resolution"))
-        MipmapCB.Checked = Not Boolean.Parse(Ini(dgV2Conf, "DirectX", "DisableMipmapping"))
-        PhongCB.Checked = Boolean.Parse(Ini(dgV2Conf, "DirectX", "PhongShadingWhenPossible"))
+        AACB.SelectedIndex = AAModes.ToList.IndexOf(dgV2Conf.Ini("DirectX", "Antialiasing"))
+        TextureCB.SelectedIndex = FModes.ToList.IndexOf(dgV2Conf.Ini("DirectX", "Filtering"))
+        SSFCB.SelectedIndex = SSModes.ToList.IndexOf(dgV2Conf.Ini("DirectX", "Resolution"))
+        MipmapCB.Checked = Not Boolean.Parse(dgV2Conf.Ini("DirectX", "DisableMipmapping"))
+        PhongCB.Checked = Boolean.Parse(dgV2Conf.Ini("DirectX", "PhongShadingWhenPossible"))
     End Sub
 
     Private Sub ApplyChanges() Handles ApplyB.Click
         Dim res = StrToRes(ResolutionCB.Text)
-        Ini(F3Ini, "Graphics", "fullscreen", If(FullscreenCB.Checked, 1, 0))
-        Ini(F3Ini, "Graphics", "width", res.Width) : Ini(F3Ini, "Graphics", "height", res.Height)
+        F3Ini.Ini("Graphics", "fullscreen", If(FullscreenCB.Checked, 1, 0))
+        F3Ini.Ini("Graphics", "width", res.Width) : F3Ini.Ini("Graphics", "height", res.Height)
         Select Case APICB.SelectedIndex
             Case 0
                 File.Delete("d3d8.dll")
@@ -73,13 +72,13 @@ Public Class VideoOptions
                 File.WriteAllBytes("d3d11.dll", My.Resources.VKd3d11)
                 File.WriteAllBytes("dxgi.dll", My.Resources.VKdxgi)
         End Select
-        Ini(dgV2Conf, "DirectX", "Antialiasing", AAModes(AACB.SelectedIndex))
-        Ini(dgV2Conf, "DirectX", "Filtering", FModes(TextureCB.SelectedIndex))
-        Ini(dgV2Conf, "DirectX", "Resolution", SSModes(SSFCB.SelectedIndex))
-        Ini(dgV2Conf, "DirectX", "DisableMipmapping", Not MipmapCB.Checked)
-        Ini(dgV2Conf, "DirectX", "PhongShadingWhenPossible", PhongCB.Checked)
-        Ini(dgV2Conf, "GeneralExt", "FPSLimit", res.Hz)
-        Ini(F3Ini, "Graphics", "refresh", res.Hz)
+        dgV2Conf.Ini("DirectX", "Antialiasing", AAModes(AACB.SelectedIndex))
+        dgV2Conf.Ini("DirectX", "Filtering", FModes(TextureCB.SelectedIndex))
+        dgV2Conf.Ini("DirectX", "Resolution", SSModes(SSFCB.SelectedIndex))
+        dgV2Conf.Ini("DirectX", "DisableMipmapping", Not MipmapCB.Checked)
+        dgV2Conf.Ini("DirectX", "PhongShadingWhenPossible", PhongCB.Checked)
+        dgV2Conf.Ini("GeneralExt", "FPSLimit", res.Hz)
+        F3Ini.Ini("Graphics", "refresh", res.Hz)
         File.WriteAllLines("dgVoodoo.conf", dgV2Conf)
         File.WriteAllLines(F3Dir, F3Ini)
         Hide()

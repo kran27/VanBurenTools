@@ -25,21 +25,25 @@ Partial Class Main
     'Do not modify it using the code editor.
     <DebuggerStepThrough()>
     Private Sub InitializeComponent()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Main))
         Me.LaunchB = New System.Windows.Forms.PictureBox()
         Me.OptionsB = New System.Windows.Forms.PictureBox()
         Me.ExitB = New System.Windows.Forms.PictureBox()
         Me.Logo = New System.Windows.Forms.PictureBox()
         Me.Background = New System.Windows.Forms.PictureBox()
+        Me.KeybindB = New System.Windows.Forms.PictureBox()
         CType(Me.LaunchB, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.OptionsB, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.ExitB, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.Logo, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.Background, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.KeybindB, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'LaunchB
         '
         Me.LaunchB.BackColor = System.Drawing.Color.Transparent
+        Me.LaunchB.BackgroundImage = CType(resources.GetObject("LaunchB.BackgroundImage"), System.Drawing.Image)
         Me.LaunchB.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
         Me.LaunchB.Location = New System.Drawing.Point(13, 13)
         Me.LaunchB.Margin = New System.Windows.Forms.Padding(4)
@@ -51,6 +55,7 @@ Partial Class Main
         'OptionsB
         '
         Me.OptionsB.BackColor = System.Drawing.Color.Transparent
+        Me.OptionsB.BackgroundImage = CType(resources.GetObject("OptionsB.BackgroundImage"), System.Drawing.Image)
         Me.OptionsB.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
         Me.OptionsB.Location = New System.Drawing.Point(13, 50)
         Me.OptionsB.Margin = New System.Windows.Forms.Padding(4)
@@ -62,8 +67,9 @@ Partial Class Main
         'ExitB
         '
         Me.ExitB.BackColor = System.Drawing.Color.Transparent
+        Me.ExitB.BackgroundImage = CType(resources.GetObject("ExitB.BackgroundImage"), System.Drawing.Image)
         Me.ExitB.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.ExitB.Location = New System.Drawing.Point(13, 87)
+        Me.ExitB.Location = New System.Drawing.Point(13, 124)
         Me.ExitB.Margin = New System.Windows.Forms.Padding(4)
         Me.ExitB.Name = "ExitB"
         Me.ExitB.Size = New System.Drawing.Size(192, 29)
@@ -73,6 +79,7 @@ Partial Class Main
         'Logo
         '
         Me.Logo.BackColor = System.Drawing.Color.Transparent
+        Me.Logo.BackgroundImage = CType(resources.GetObject("Logo.BackgroundImage"), System.Drawing.Image)
         Me.Logo.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
         Me.Logo.Location = New System.Drawing.Point(478, 317)
         Me.Logo.Margin = New System.Windows.Forms.Padding(4)
@@ -90,17 +97,31 @@ Partial Class Main
         Me.Background.TabIndex = 4
         Me.Background.TabStop = False
         '
+        'KeybindB
+        '
+        Me.KeybindB.BackColor = System.Drawing.Color.Transparent
+        Me.KeybindB.BackgroundImage = CType(resources.GetObject("KeybindB.BackgroundImage"), System.Drawing.Image)
+        Me.KeybindB.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.KeybindB.Location = New System.Drawing.Point(13, 87)
+        Me.KeybindB.Margin = New System.Windows.Forms.Padding(4)
+        Me.KeybindB.Name = "KeybindB"
+        Me.KeybindB.Size = New System.Drawing.Size(192, 29)
+        Me.KeybindB.TabIndex = 5
+        Me.KeybindB.TabStop = False
+        '
         'Main
         '
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None
         Me.BackColor = System.Drawing.Color.Black
         Me.ClientSize = New System.Drawing.Size(640, 480)
+        Me.Controls.Add(Me.KeybindB)
         Me.Controls.Add(Me.Logo)
         Me.Controls.Add(Me.ExitB)
         Me.Controls.Add(Me.OptionsB)
         Me.Controls.Add(Me.LaunchB)
         Me.Controls.Add(Me.Background)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
+        Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Margin = New System.Windows.Forms.Padding(4)
         Me.Name = "Main"
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
@@ -111,6 +132,7 @@ Partial Class Main
         CType(Me.ExitB, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.Logo, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.Background, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.KeybindB, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
 
     End Sub
@@ -120,4 +142,5 @@ Partial Class Main
     Friend WithEvents ExitB As PictureBox
     Friend WithEvents Logo As PictureBox
     Friend WithEvents Background As PictureBox
+    Friend WithEvents KeybindB As PictureBox
 End Class

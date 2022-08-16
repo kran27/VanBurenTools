@@ -1,22 +1,20 @@
 ﻿Imports System.IO
 Imports System.Runtime.InteropServices
 
-Public Class IniManager
-    Public Shared F3Dir As String = $"{My.Computer.FileSystem.SpecialDirectories.MyDocuments}\F3\F3.ini"
-    Public Shared SysDir As String = "Override\MenuMap\Engine\sys.ini"
-    Public Shared F3Ini() As String
-    Public Shared SysIni() As String
-    Private Shared CheckFor As String
-    Public Shared Function Ini(IniArray As String(), IniSection As String, IniKey As String, Optional Value As String = Nothing)
+Public Module IniManager
+    Public F3Dir As String = $"{My.Computer.FileSystem.SpecialDirectories.MyDocuments}\F3\F3.ini"
+    Public SysDir As String = "Override\MenuMap\Engine\sys.ini"
+    Public F3Ini() As String
+    Public SysIni() As String
+
+    <System.Runtime.CompilerServices.Extension>
+    Public Function Ini(ByRef IniArray As String(), IniSection As String, IniKey As String, Optional Value As String = Nothing)
         ' Find bounds of section
-        CheckFor = $"[{IniSection}]"
-        Dim SectionStart = Array.FindIndex(IniArray, AddressOf StartsWith)
-        CheckFor = "["
-        Dim SectionEnd = Array.FindIndex(IniArray, SectionStart + 1, AddressOf StartsWith) - 1
+        Dim SectionStart = Array.FindIndex(IniArray, Function(x) x.StartsWith($"[{IniSection}]"))
+        Dim SectionEnd = Array.FindIndex(IniArray, SectionStart + 1, Function(x) x.StartsWith("[")) - 1
         If SectionEnd < 0 Then SectionEnd = IniArray.Length - 1
         ' Find key location and value
-        CheckFor = IniKey
-        Dim KeyIndex = Array.FindIndex(IniArray, SectionStart + 1, AddressOf StartsWith)
+        Dim KeyIndex = Array.FindIndex(IniArray, SectionStart + 1, Function(x) x.StartsWith(IniKey))
         If KeyIndex > SectionEnd Then Return Nothing
         Dim KeyLine = IniArray(KeyIndex)
         Dim KeyValue = KeyLine.Substring(KeyLine.IndexOf("=") + 1).Trim
@@ -33,14 +31,20 @@ Public Class IniManager
         End If
     End Function
 
-    Private Shared Function StartsWith(Item As String)
-        Return Item.StartsWith(CheckFor)
+    <System.Runtime.CompilerServices.Extension>
+    Public Function GetSection(IniArray As String(), IniSection As String) As String()
+        ' Find bounds of section
+        Dim SectionStart = Array.FindIndex(IniArray, Function(x) x.StartsWith($"[{IniSection}]"))
+        Dim SectionEnd = Array.FindIndex(IniArray, SectionStart + 1, Function(x) x.StartsWith("[")) - 1
+        If SectionEnd < 0 Then SectionEnd = IniArray.Length - 1
+        ' Return section
+        Return IniArray.Skip(SectionStart + 1).Take(SectionEnd - SectionStart).ToArray
     End Function
 
-End Class
+End Module
 
-Public Class General
-    Public Shared Function SearchForFiles(RootFolder As String, FileFilter() As String) As List(Of String)
+Public Module General
+    Public Function SearchForFiles(RootFolder As String, FileFilter() As String) As List(Of String)
         Dim ReturnedData As New List(Of String)
         Dim FolderStack As New Stack(Of String)
         FolderStack.Push(RootFolder)
@@ -58,7 +62,40 @@ Public Class General
         Loop
         Return ReturnedData
     End Function
-End Class
+    <System.Runtime.CompilerServices.Extension()>
+    Public Sub RemoveAt(Of T)(ByRef arr As T(), ByVal index As Integer)
+        'create an array 1 element less than the input array
+        Dim outArr(arr.Length - 1) As T
+        'copy the first part of the input array
+        Array.Copy(arr, 0, outArr, 0, index)
+        'then copy the second part of the input array
+        Array.Copy(arr, index + 1, outArr, index, arr.Length - 1 - index)
+
+        arr = outArr
+    End Sub
+    <System.Runtime.CompilerServices.Extension()>
+    Public Sub InsertAt(Of T)(
+          ByRef sourceArray() As T,
+          ByVal insertIndex As Integer,
+          ByVal newValue As T)
+
+        Dim newPosition As Integer
+        Dim counter As Integer
+
+        newPosition = insertIndex
+        If (newPosition < 0) Then newPosition = 0
+        If (newPosition > sourceArray.Length) Then _
+           newPosition = sourceArray.Length
+
+        Array.Resize(sourceArray, sourceArray.Length + 1)
+
+        For counter = sourceArray.Length - 2 To newPosition Step -1
+            sourceArray(counter + 1) = sourceArray(counter)
+        Next counter
+
+        sourceArray(newPosition) = newValue
+    End Sub
+End Module
 
 Public Class VideoInfo
 

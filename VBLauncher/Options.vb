@@ -12,13 +12,13 @@ Public Class Options
     Private ReadOnly Textures As Byte()() = {My.Resources._8_Ball, My.Resources.American, My.Resources.Black, My.Resources.Blue, My.Resources.Eye, My.Resources.Flames, My.Resources.Full_Skull, My.Resources.Green, My.Resources.Grey, My.Resources.Police, My.Resources.Red, My.Resources.Shot_Smiley, My.Resources.Skull, My.Resources.Yellow}
     Private ReadOnly PIcons As Bitmap() = {My.Resources.Default_Icon, My.Resources._8_Ball_Icon, My.Resources.American_Icon, My.Resources.Black_Icon, My.Resources.Blue_Icon, My.Resources.Eye_Icon, My.Resources.Flames_Icon, My.Resources.Full_Skull_Icon, My.Resources.Green_Icon, My.Resources.Grey_Icon, My.Resources.Police_Icon, My.Resources.Red_Icon, My.Resources.Shot_Smiley_Icon, My.Resources.Skull_Icon, My.Resources.Yellow_Icon}
     Private Shared Sub SetMainMenu(MMD As MainMenuDef)
-        Ini(SysIni, "Mainmenu", "map name", MMD.MapName)
-        Ini(SysIni, "Mainmenu", "target x", MMD.TargetX)
-        Ini(SysIni, "Mainmenu", "target y", MMD.TargetY)
-        Ini(SysIni, "Mainmenu", "target z", MMD.TargetZ)
-        Ini(SysIni, "Mainmenu", "azimuth", MMD.Azimuth)
-        Ini(SysIni, "Mainmenu", "elevation", MMD.Elevation)
-        Ini(SysIni, "Mainmenu", "fov", MMD.FOV)
+        SysIni.Ini("Mainmenu", "map name", MMD.MapName)
+        SysIni.Ini("Mainmenu", "target x", MMD.TargetX)
+        SysIni.Ini("Mainmenu", "target y", MMD.TargetY)
+        SysIni.Ini("Mainmenu", "target z", MMD.TargetZ)
+        SysIni.Ini("Mainmenu", "azimuth", MMD.Azimuth)
+        SysIni.Ini("Mainmenu", "elevation", MMD.Elevation)
+        SysIni.Ini("Mainmenu", "fov", MMD.FOV)
     End Sub
 
     Private Shared Function MMD(MapName As String, TargetX As String, TargetY As String, TargetZ As String, Azimuth As String, Elevation As String, FOV As String) As MainMenuDef
@@ -26,40 +26,23 @@ Public Class Options
     End Function
 
     Private Sub CheckOptions() Handles MyBase.Load
-        Icon = My.Resources.F3
-        Try
-            F3Ini = File.ReadAllLines(F3Dir)
-        Catch
-            Directory.CreateDirectory($"{My.Computer.FileSystem.SpecialDirectories.MyDocuments}\F3")
-            File.WriteAllText(F3Dir, My.Resources.Default_F3)
-            F3Ini = File.ReadAllLines(F3Dir)
-        End Try
-        Try
-            SysIni = File.ReadAllLines(SysDir)
-        Catch
-            Directory.CreateDirectory("Override\MenuMap\Engine")
-            File.WriteAllText(SysDir, My.Resources.Default_sys)
-            SysIni = File.ReadAllLines(SysDir)
-        End Try
-        IntrosCB.Checked = Ini(F3Ini, "Graphics", "enable startup movies") = 1
+        IntrosCB.Checked = F3Ini.Ini("Graphics", "enable startup movies") = 1
         ButtonsCB.Checked = Directory.Exists("Override\SUMM")
-        MainMenuCB.SelectedIndex = Maps.ToList.IndexOf(Ini(SysIni, "Mainmenu", "map name"))
-        CameraCB.Checked = Ini(SysIni, "Camera", "FOV Min") = 0.5
-        AltCamCB.Checked = Ini(SysIni, "Camera", "Distance Max") = 70
+        MainMenuCB.SelectedIndex = Array.IndexOf(Maps, SysIni.Ini("Mainmenu", "map name"))
+        CameraCB.Checked = SysIni.Ini("Camera", "FOV Min") = 0.5
+        AltCamCB.Checked = SysIni.Ini("Camera", "Distance Max") = 70
         Dim Files = SearchForFiles("Override", {"*.map"})
-        For Each File As Object In Files
+        For Each File In Files
             Dim FI As New FileInfo(File)
-            If Not NewGameCB.Items.Contains(FI.Name) Then
-                NewGameCB.Items.Add(FI.Name)
-            End If
+            If Not NewGameCB.Items.Contains(FI.Name) Then NewGameCB.Items.Add(FI.Name)
         Next
-        NewGameCB.Text = Ini(SysIni, "Server", "Start map")
+        NewGameCB.Text = SysIni.Ini("Server", "Start map")
         Try : HelmetCB.SelectedItem = File.ReadAllText(HelmType)
         Catch : HelmetCB.SelectedIndex = 0 : End Try
     End Sub
 
     Private Sub ApplyChanges() Handles ApplyB.Click
-        Ini(F3Ini, "Graphics", "enable startup movies", If(IntrosCB.Checked, 1, 0))
+        F3Ini.Ini("Graphics", "enable startup movies", If(IntrosCB.Checked, 1, 0))
         If ButtonsCB.Checked Then
             Directory.CreateDirectory("Override\SUMM\Interface")
             File.WriteAllBytes("Override\SUMM\Interface\Mainmenu.int", My.Resources.Mainmenu)
@@ -68,13 +51,13 @@ Public Class Options
             Try : Directory.Delete("Override\SUMM", 1) : Catch : End Try
         End If
         SetMainMenu(MainMenus(MainMenuCB.SelectedIndex))
-        Ini(SysIni, "Camera", "Distance Max", If(AltCamCB.Checked, 70, 350))
-        Ini(SysIni, "Camera", "Distance Min", If(AltCamCB.Checked, 70, 350))
-        Ini(SysIni, "Camera", "FOV Speed", If(CameraCB.Checked, 10, 32.5))
-        Ini(SysIni, "Camera", "Scroll Speed", If(CameraCB.Checked, 250, 96))
-        Ini(SysIni, "Camera", "FOV Min", If(CameraCB.Checked, 0.5, If(AltCamCB.Checked, 30, 6)))
-        Ini(SysIni, "Camera", "FOV Max", If(CameraCB.Checked, 100, If(AltCamCB.Checked, 75, 15)))
-        Ini(SysIni, "Server", "Start map", NewGameCB.Text)
+        SysIni.Ini("Camera", "Distance Max", If(AltCamCB.Checked, 70, 350))
+        SysIni.Ini("Camera", "Distance Min", If(AltCamCB.Checked, 70, 350))
+        SysIni.Ini("Camera", "FOV Speed", If(CameraCB.Checked, 10, 32.5))
+        SysIni.Ini("Camera", "Scroll Speed", If(CameraCB.Checked, 250, 96))
+        SysIni.Ini("Camera", "FOV Min", If(CameraCB.Checked, 0.5, If(AltCamCB.Checked, 30, 6)))
+        SysIni.Ini("Camera", "FOV Max", If(CameraCB.Checked, 100, If(AltCamCB.Checked, 75, 15)))
+        SysIni.Ini("Server", "Start map", NewGameCB.Text)
         Try : Directory.Delete("Override\Helmet", 1) : Catch : End Try
         If Not HelmetCB.SelectedIndex = 0 Then
             Directory.CreateDirectory("Override\Helmet\Critters")

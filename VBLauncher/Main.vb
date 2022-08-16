@@ -6,29 +6,21 @@ Public Class Main
 #Region "Move Form"
     Private MoveForm As Boolean
     Private MoveFormMousePosition As Point
-
     Private Sub MoveForm_MouseDown(Sender As Object, E As MouseEventArgs) Handles Background.MouseDown, Logo.MouseDown
         If E.Button = MouseButtons.Left Then
             MoveForm = 1
             MoveFormMousePosition = E.Location
         End If
     End Sub
-
     Private Sub MoveForm_MouseMove(Sender As Object, E As MouseEventArgs) Handles Background.MouseMove, Logo.MouseMove
         If MoveForm Then Location = Location + (E.Location - MoveFormMousePosition)
     End Sub
-
     Private Sub MoveForm_MouseUp(Sender As Object, E As MouseEventArgs) Handles Background.MouseUp, Logo.MouseUp
         If E.Button = MouseButtons.Left Then MoveForm = 0
     End Sub
 #End Region
     Private ReadOnly BGs As Bitmap() = {My.Resources.BG1, My.Resources.BG2, My.Resources.BG3, My.Resources.BG4, My.Resources.BG5, My.Resources.BG6, My.Resources.BG7, My.Resources.BG8, My.Resources.BG9, My.Resources.BG10, My.Resources.BG11, My.Resources.BG12}
     Private Sub Startup() Handles MyBase.Load
-        Icon = My.Resources.F3
-        LaunchB.BackgroundImage = My.Resources.Launch
-        OptionsB.BackgroundImage = My.Resources.Options
-        ExitB.BackgroundImage = My.Resources._Exit
-        Logo.BackgroundImage = My.Resources.Logo
         Logo.Parent = Background
         Background.BackgroundImage = BGs(New Random().Next(0, BGs.Length))
         Try : Directory.Delete("Override\Fixes", 1) : Catch : End Try
@@ -45,6 +37,20 @@ Public Class Main
         AllowTransparency = False
         Try : File.Delete($"{My.Computer.FileSystem.SpecialDirectories.MyDocuments}\F3\Characters\None.CRT")
         Catch : End Try
+        Try
+            F3Ini = File.ReadAllLines(F3Dir)
+        Catch
+            Directory.CreateDirectory($"{My.Computer.FileSystem.SpecialDirectories.MyDocuments}\F3")
+            File.WriteAllText(F3Dir, My.Resources.Default_F3)
+            F3Ini = File.ReadAllLines(F3Dir)
+        End Try
+        Try
+            SysIni = File.ReadAllLines(SysDir)
+        Catch
+            Directory.CreateDirectory("Override\MenuMap\Engine")
+            File.WriteAllText(SysDir, My.Resources.Default_sys)
+            SysIni = File.ReadAllLines(SysDir)
+        End Try
     End Sub
 
     Private Shared Sub LaunchGame() Handles LaunchB.Click
@@ -68,4 +74,7 @@ Public Class Main
     Private Shared Sub AddFontResource(FontPath As String)
     End Sub
 
+    Private Sub OpenKeybinds(sender As Object, e As EventArgs) Handles KeybindB.Click
+        KeybindEditor.ShowDialog()
+    End Sub
 End Class

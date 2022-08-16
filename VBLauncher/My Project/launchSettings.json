@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "VBLauncher": {
+      "commandName": "Project",
+      "workingDirectory": "C:\\Games\\F3"
+    }
+  }
+}

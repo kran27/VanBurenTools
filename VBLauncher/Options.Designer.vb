@@ -28,6 +28,7 @@ Partial Class Options
     <DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Options))
         Me.ApplyB = New AltUI.Controls.DarkButton()
         Me.IntrosCB = New AltUI.Controls.DarkCheckBox()
         Me.TweaksGB = New AltUI.Controls.DarkGroupBox()
@@ -70,6 +71,7 @@ Partial Class Options
         Me.IntrosCB.Location = New System.Drawing.Point(9, 18)
         Me.IntrosCB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.IntrosCB.Name = "IntrosCB"
+        Me.IntrosCB.Offset = 1
         Me.IntrosCB.Size = New System.Drawing.Size(127, 19)
         Me.IntrosCB.TabIndex = 1
         Me.IntrosCB.Text = "Enable Intro Videos"
@@ -95,6 +97,7 @@ Partial Class Options
         Me.CameraCB.Location = New System.Drawing.Point(9, 81)
         Me.CameraCB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.CameraCB.Name = "CameraCB"
+        Me.CameraCB.Offset = 1
         Me.CameraCB.Size = New System.Drawing.Size(139, 19)
         Me.CameraCB.TabIndex = 4
         Me.CameraCB.Text = "Uncap Camera Zoom"
@@ -105,6 +108,7 @@ Partial Class Options
         Me.AltCamCB.Location = New System.Drawing.Point(9, 60)
         Me.AltCamCB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.AltCamCB.Name = "AltCamCB"
+        Me.AltCamCB.Offset = 1
         Me.AltCamCB.Size = New System.Drawing.Size(157, 19)
         Me.AltCamCB.TabIndex = 3
         Me.AltCamCB.Text = "Alternate Camera Angles"
@@ -115,6 +119,7 @@ Partial Class Options
         Me.ButtonsCB.Location = New System.Drawing.Point(9, 39)
         Me.ButtonsCB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.ButtonsCB.Name = "ButtonsCB"
+        Me.ButtonsCB.Offset = 1
         Me.ButtonsCB.Size = New System.Drawing.Size(188, 19)
         Me.ButtonsCB.TabIndex = 2
         Me.ButtonsCB.Text = "Remove Useless Menu Buttons"
@@ -260,6 +265,7 @@ Partial Class Options
         Me.Controls.Add(Me.ApplyB)
         Me.CustomBorder = True
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
+        Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.MaximizeBox = False
         Me.MinimizeBox = False

@@ -28,6 +28,7 @@ Partial Class VideoOptions
     <DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(VideoOptions))
         Me.OptionsGB = New AltUI.Controls.DarkGroupBox()
         Me.SSFL = New AltUI.Controls.DarkLabel()
         Me.SSFCB = New AltUI.Controls.DarkComboBox()
@@ -119,6 +120,7 @@ Partial Class VideoOptions
         Me.MipmapCB.Location = New System.Drawing.Point(9, 171)
         Me.MipmapCB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.MipmapCB.Name = "MipmapCB"
+        Me.MipmapCB.Offset = 1
         Me.MipmapCB.Size = New System.Drawing.Size(95, 19)
         Me.MipmapCB.TabIndex = 6
         Me.MipmapCB.Text = "Mipmapping"
@@ -130,6 +132,7 @@ Partial Class VideoOptions
         Me.PhongCB.Location = New System.Drawing.Point(9, 188)
         Me.PhongCB.Margin = New System.Windows.Forms.Padding(2)
         Me.PhongCB.Name = "PhongCB"
+        Me.PhongCB.Offset = 1
         Me.PhongCB.Size = New System.Drawing.Size(107, 19)
         Me.PhongCB.TabIndex = 7
         Me.PhongCB.Text = "Phong Shading"
@@ -207,6 +210,7 @@ Partial Class VideoOptions
         Me.FullscreenCB.Location = New System.Drawing.Point(9, 153)
         Me.FullscreenCB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.FullscreenCB.Name = "FullscreenCB"
+        Me.FullscreenCB.Offset = 1
         Me.FullscreenCB.Size = New System.Drawing.Size(79, 19)
         Me.FullscreenCB.TabIndex = 5
         Me.FullscreenCB.Text = "Fullscreen"
@@ -248,6 +252,7 @@ Partial Class VideoOptions
         Me.Controls.Add(Me.OptionsGB)
         Me.CustomBorder = True
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
+        Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.MaximizeBox = False
         Me.MinimizeBox = False
