@@ -41,7 +41,7 @@ Partial Class KeybindEditor
         Me.Button1.FlatBottom = False
         Me.Button1.FlatTop = False
         Me.Button1.HoldColour = False
-        Me.Button1.Location = New System.Drawing.Point(283, 389)
+        Me.Button1.Location = New System.Drawing.Point(283, 385)
         Me.Button1.Name = "Button1"
         Me.Button1.Padding = New System.Windows.Forms.Padding(5)
         Me.Button1.Size = New System.Drawing.Size(115, 24)
@@ -64,7 +64,7 @@ Partial Class KeybindEditor
         Me.DataGridView1.RowHeadersVisible = False
         Me.DataGridView1.RowTemplate.Height = 25
         Me.DataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.DataGridView1.Size = New System.Drawing.Size(374, 343)
+        Me.DataGridView1.Size = New System.Drawing.Size(374, 339)
         Me.DataGridView1.TabIndex = 2
         '
         'DarkScrollBar1
@@ -72,7 +72,7 @@ Partial Class KeybindEditor
         Me.DarkScrollBar1.Location = New System.Drawing.Point(363, 22)
         Me.DarkScrollBar1.Maximum = 500
         Me.DarkScrollBar1.Name = "DarkScrollBar1"
-        Me.DarkScrollBar1.Size = New System.Drawing.Size(22, 343)
+        Me.DarkScrollBar1.Size = New System.Drawing.Size(22, 339)
         Me.DarkScrollBar1.TabIndex = 4
         Me.DarkScrollBar1.Text = "DarkScrollBar1"
         '
@@ -86,7 +86,7 @@ Partial Class KeybindEditor
         Me.DarkGroupBox1.Controls.Add(Me.DarkScrollBar1)
         Me.DarkGroupBox1.Location = New System.Drawing.Point(12, 12)
         Me.DarkGroupBox1.Name = "DarkGroupBox1"
-        Me.DarkGroupBox1.Size = New System.Drawing.Size(386, 371)
+        Me.DarkGroupBox1.Size = New System.Drawing.Size(386, 367)
         Me.DarkGroupBox1.TabIndex = 5
         Me.DarkGroupBox1.TabStop = False
         Me.DarkGroupBox1.Text = "Keybinds"
@@ -98,7 +98,7 @@ Partial Class KeybindEditor
         'DarkLabel1
         '
         Me.DarkLabel1.AutoSize = True
-        Me.DarkLabel1.Location = New System.Drawing.Point(12, 394)
+        Me.DarkLabel1.Location = New System.Drawing.Point(12, 390)
         Me.DarkLabel1.Name = "DarkLabel1"
         Me.DarkLabel1.Size = New System.Drawing.Size(145, 15)
         Me.DarkLabel1.TabIndex = 6
@@ -109,7 +109,7 @@ Partial Class KeybindEditor
         Me.DarkButton1.FlatBottom = False
         Me.DarkButton1.FlatTop = False
         Me.DarkButton1.HoldColour = False
-        Me.DarkButton1.Location = New System.Drawing.Point(216, 389)
+        Me.DarkButton1.Location = New System.Drawing.Point(216, 385)
         Me.DarkButton1.Name = "DarkButton1"
         Me.DarkButton1.Padding = New System.Windows.Forms.Padding(5)
         Me.DarkButton1.Size = New System.Drawing.Size(61, 24)
@@ -120,7 +120,7 @@ Partial Class KeybindEditor
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(410, 425)
+        Me.ClientSize = New System.Drawing.Size(410, 421)
         Me.Controls.Add(Me.DarkButton1)
         Me.Controls.Add(Me.DarkLabel1)
         Me.Controls.Add(Me.DarkGroupBox1)

@@ -42,12 +42,13 @@ Public Class KeybindEditor
             dt.Rows.Add(bind.Modifier, bind.Key, bind.Action, If(bind.OnPress, "Down", "Up"))
             i += 1
         Next
-        Dim theme = New DataGridViewCellStyle With {.BackColor = AltUI.Config.ThemeProvider.BackgroundColour, .ForeColor = AltUI.Config.ThemeProvider.Theme.Colors.LightText, .SelectionBackColor = AltUI.Config.ThemeProvider.Theme.Colors.BlueSelection, .SelectionForeColor = AltUI.Config.ThemeProvider.Theme.Colors.LightText}
         DataGridView1.GridColor = AltUI.Config.ThemeProvider.Theme.Colors.GreySelection
         DataGridView1.BackgroundColor = AltUI.Config.ThemeProvider.BackgroundColour
         DataGridView1.DefaultCellStyle.WrapMode = DataGridViewTriState.True
-        DataGridView1.DefaultCellStyle = theme
-        DataGridView1.ColumnHeadersDefaultCellStyle.ApplyStyle(theme)
+        DataGridView1.DefaultCellStyle = New DataGridViewCellStyle With {.BackColor = AltUI.Config.ThemeProvider.BackgroundColour, .ForeColor = AltUI.Config.ThemeProvider.Theme.Colors.LightText, .SelectionBackColor = AltUI.Config.ThemeProvider.Theme.Colors.BlueSelection, .SelectionForeColor = AltUI.Config.ThemeProvider.Theme.Colors.LightText}
+        DataGridView1.ColumnHeadersDefaultCellStyle = New DataGridViewCellStyle With {.BackColor = AltUI.Config.ThemeProvider.BackgroundColour, .ForeColor = AltUI.Config.ThemeProvider.Theme.Colors.LightText, .SelectionBackColor = AltUI.Config.ThemeProvider.BackgroundColour, .SelectionForeColor = AltUI.Config.ThemeProvider.Theme.Colors.LightText}
+        DataGridView1.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single
+        DataGridView1.EnableHeadersVisualStyles = False
         DataGridView1.DataSource = dt
         DataGridView1.Columns(0).ReadOnly = True
         DataGridView1.Columns(1).ReadOnly = True
@@ -143,54 +144,30 @@ Public Class KeybindEditor
     End Sub
     Private Function ProperName(key As String) As String
         Select Case key
-            Case "D1"
-                Return "1"
-            Case "D2"
-                Return "2"
-            Case "D3"
-                Return "3"
-            Case "D4"
-                Return "4"
-            Case "D5"
-                Return "5"
-            Case "D6"
-                Return "6"
-            Case "D7"
-                Return "7"
-            Case "D8"
-                Return "8"
-            Case "D9"
-                Return "9"
-            Case "D0"
-                Return "0"
-            Case "Control"
-                Return "Ctrl"
-            Case "None"
-                Return ""
-            Case "Oemtilde"
-                Return "`"
-            Case "Oemminus"
-                Return "-"
-            Case "Oemplus"
-                Return "+"
-            Case "OemOpenBrackets"
-                Return "["
-            Case "Oem6"
-                Return "]"
-            Case "Oem5"
-                Return "\"
-            Case "Oem1"
-                Return ";"
-            Case "Oem7"
-                Return """"
-            Case "Oemcomma"
-                Return ","
-            Case "Oemperiod"
-                Return "."
-            Case "OemQuestion"
-                Return "/"
-            Case Else
-                Return key
+            Case "D1" : Return "1"
+            Case "D2" : Return "2"
+            Case "D3" : Return "3"
+            Case "D4" : Return "4"
+            Case "D5" : Return "5"
+            Case "D6" : Return "6"
+            Case "D7" : Return "7"
+            Case "D8" : Return "8"
+            Case "D9" : Return "9"
+            Case "D0" : Return "0"
+            Case "Control" : Return "Ctrl"
+            Case "None" : Return ""
+            Case "Oemtilde" : Return "`"
+            Case "Oemminus" : Return "-"
+            Case "Oemplus" : Return "+"
+            Case "OemOpenBrackets" : Return "["
+            Case "Oem6" : Return "]"
+            Case "Oem5" : Return "\"
+            Case "Oem1" : Return ";"
+            Case "Oem7" : Return """"
+            Case "Oemcomma" : Return ","
+            Case "Oemperiod" : Return "."
+            Case "OemQuestion" : Return "/"
+            Case Else : Return key
         End Select
     End Function
 End Class
