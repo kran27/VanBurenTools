@@ -1,8 +1,13 @@
 ﻿Imports System.Data
 Imports VBLauncher.General
 Public Class KeybindEditor
-    Private Sub Check(sender As Object, e As EventArgs) Handles MyBase.Load
-        DataGridView1.Dock = DockStyle.Fill
+    Private Row As Integer
+    Private Pressed As Boolean
+    Private Key As String
+    Private Modifier As String
+    Private Sub Check(sender As Object, e As EventArgs) Handles MyBase.Load, DarkButton1.Click
+        DarkLabel1.Hide()
+        DarkScrollBar1.BringToFront()
         Dim modifiers As String() = {"Ctrl", "Shift", "Alt"}
         Dim BindString = F3Ini.GetSection("HotKeys")
         Dim Binds As New List(Of Keybind)
@@ -32,21 +37,21 @@ Public Class KeybindEditor
         dt.Columns.Add("Modifier", GetType(String))
         dt.Columns.Add("Key", GetType(String))
         dt.Columns.Add("Action", GetType(String))
-        dt.Columns.Add("Key Up/Down", GetType(String))
-
+        dt.Columns.Add("On Key", GetType(String))
         For Each bind In Binds
             dt.Rows.Add(bind.Modifier, bind.Key, bind.Action, If(bind.OnPress, "Down", "Up"))
             i += 1
         Next
+        Dim theme = New DataGridViewCellStyle With {.BackColor = AltUI.Config.ThemeProvider.BackgroundColour, .ForeColor = AltUI.Config.ThemeProvider.Theme.Colors.LightText, .SelectionBackColor = AltUI.Config.ThemeProvider.Theme.Colors.BlueSelection, .SelectionForeColor = AltUI.Config.ThemeProvider.Theme.Colors.LightText}
+        DataGridView1.GridColor = AltUI.Config.ThemeProvider.Theme.Colors.GreySelection
         DataGridView1.BackgroundColor = AltUI.Config.ThemeProvider.BackgroundColour
         DataGridView1.DefaultCellStyle.WrapMode = DataGridViewTriState.True
-        DataGridView1.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells
-        DataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells
-        DataGridView1.AllowUserToResizeColumns = False
-        DataGridView1.AllowUserToResizeRows = False
-        DataGridView1.DefaultCellStyle = New DataGridViewCellStyle With {.BackColor = AltUI.Config.ThemeProvider.BackgroundColour, .ForeColor = AltUI.Config.ThemeProvider.Theme.Colors.LightText, .SelectionBackColor = AltUI.Config.ThemeProvider.Theme.Colors.BlueSelection, .SelectionForeColor = AltUI.Config.ThemeProvider.Theme.Colors.LightText}
-        DataGridView1.RowHeadersVisible = False
+        DataGridView1.DefaultCellStyle = theme
+        DataGridView1.ColumnHeadersDefaultCellStyle.ApplyStyle(theme)
         DataGridView1.DataSource = dt
+        DataGridView1.Columns(0).ReadOnly = True
+        DataGridView1.Columns(1).ReadOnly = True
+        DataGridView1.Columns(3).ReadOnly = True
     End Sub
     Private Sub Apply(sender As Object, e As EventArgs) Handles Button1.Click
         Dim NewBinds = New List(Of String)
@@ -86,6 +91,107 @@ Public Class KeybindEditor
         Else
             Return $"{ch}{kb.Modifier}{ch}{kb.Key} = {kb.Action}"
         End If
+    End Function
+
+    Private Sub DataGridView1_CellContentClick(sender As Object, e As DataGridViewCellEventArgs) Handles DataGridView1.CellClick
+        If e.RowIndex < 0 Then Exit Sub
+        Select Case e.ColumnIndex
+            Case 0, 1
+                Row = e.RowIndex
+                Pressed = False
+                DarkLabel1.Show()
+                Timer2.Start()
+            Case 2
+                DarkLabel1.Hide()
+                Timer2.Stop()
+            Case 3
+                If DataGridView1.Rows(e.RowIndex).Cells(e.ColumnIndex).Value Is DBNull.Value Then DataGridView1.Rows(e.RowIndex).Cells(e.ColumnIndex).Value = "Up"
+                DataGridView1.Rows(e.RowIndex).Cells(e.ColumnIndex).Value = If(DataGridView1.Rows(e.RowIndex).Cells(e.ColumnIndex).Value = "Up", "Down", "Up")
+                DarkLabel1.Hide()
+                Timer2.Stop()
+        End Select
+    End Sub
+    Private Sub DataGridView1_ScrollChanged() Handles DataGridView1.Scroll
+        DarkScrollBar1.ScrollTo((DataGridView1.FirstDisplayedScrollingRowIndex / (DataGridView1.Rows.Count - DataGridView1.DisplayedRowCount(False))) * DarkScrollBar1.Maximum)
+    End Sub
+    Private Sub DarkScrollBar1_Click(sender As Object, e As EventArgs) Handles DarkScrollBar1.MouseDown
+        Timer1.Start()
+    End Sub
+    Private Sub DarkScrollBar1_MouseUp(sender As Object, e As EventArgs) Handles DarkScrollBar1.MouseUp
+        Timer1.Stop()
+    End Sub
+    Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
+        DataGridView1.FirstDisplayedScrollingRowIndex = (DarkScrollBar1.Value / (DarkScrollBar1.Maximum)) * (DataGridView1.Rows.Count - DataGridView1.DisplayedRowCount(False))
+    End Sub
+
+    Private Sub Timer2_Tick(sender As Object, e As EventArgs) Handles Timer2.Tick
+        If Pressed Then
+            DataGridView1.Rows(Row).Cells(0).Value = ProperName(Modifier)
+            DataGridView1.Rows(Row).Cells(1).Value = ProperName(Key)
+            Timer2.Stop()
+            DarkLabel1.Hide()
+        End If
+    End Sub
+    Private Sub DataGridView1_KeyDown(sender As Object, e As KeyEventArgs) Handles DataGridView1.KeyDown
+        Select Case e.KeyCode
+            Case Keys.ControlKey, Keys.Menu, Keys.ShiftKey
+            Case Else
+                Modifier = e.Modifiers.ToString
+                Key = e.KeyCode.ToString
+                Pressed = True
+        End Select
+    End Sub
+    Private Function ProperName(key As String) As String
+        Select Case key
+            Case "D1"
+                Return "1"
+            Case "D2"
+                Return "2"
+            Case "D3"
+                Return "3"
+            Case "D4"
+                Return "4"
+            Case "D5"
+                Return "5"
+            Case "D6"
+                Return "6"
+            Case "D7"
+                Return "7"
+            Case "D8"
+                Return "8"
+            Case "D9"
+                Return "9"
+            Case "D0"
+                Return "0"
+            Case "Control"
+                Return "Ctrl"
+            Case "None"
+                Return ""
+            Case "Oemtilde"
+                Return "`"
+            Case "Oemminus"
+                Return "-"
+            Case "Oemplus"
+                Return "+"
+            Case "OemOpenBrackets"
+                Return "["
+            Case "Oem6"
+                Return "]"
+            Case "Oem5"
+                Return "\"
+            Case "Oem1"
+                Return ";"
+            Case "Oem7"
+                Return """"
+            Case "Oemcomma"
+                Return ","
+            Case "Oemperiod"
+                Return "."
+            Case "OemQuestion"
+                Return "/"
+            Case Else
+                Return key
+        End Select
     End Function
 End Class
 
