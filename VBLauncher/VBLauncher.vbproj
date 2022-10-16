@@ -48,7 +48,7 @@
     <Import Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\DarkUI\AltUI\AltUI.csproj" />
+    <ProjectReference Include="..\..\AltUI\AltUI\AltUI.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Options.Designer.vb">
