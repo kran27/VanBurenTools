@@ -40,7 +40,7 @@ Partial Class KeybindEditor
         '
         Me.Button1.FlatBottom = False
         Me.Button1.FlatTop = False
-        Me.Button1.HoldColour = False
+        Me.Button1.CustomColour = False
         Me.Button1.Location = New System.Drawing.Point(283, 385)
         Me.Button1.Name = "Button1"
         Me.Button1.Padding = New System.Windows.Forms.Padding(5)
@@ -108,7 +108,7 @@ Partial Class KeybindEditor
         '
         Me.DarkButton1.FlatBottom = False
         Me.DarkButton1.FlatTop = False
-        Me.DarkButton1.HoldColour = False
+        Me.DarkButton1.CustomColour = False
         Me.DarkButton1.Location = New System.Drawing.Point(216, 385)
         Me.DarkButton1.Name = "DarkButton1"
         Me.DarkButton1.Padding = New System.Windows.Forms.Padding(5)

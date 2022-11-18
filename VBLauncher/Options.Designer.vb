@@ -56,7 +56,7 @@ Partial Class Options
         '
         Me.ApplyB.FlatBottom = False
         Me.ApplyB.FlatTop = False
-        Me.ApplyB.HoldColour = False
+        Me.ApplyB.CustomColour = False
         Me.ApplyB.Location = New System.Drawing.Point(209, 262)
         Me.ApplyB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.ApplyB.Name = "ApplyB"
@@ -230,7 +230,7 @@ Partial Class Options
         '
         Me.VideoB.FlatBottom = False
         Me.VideoB.FlatTop = False
-        Me.VideoB.HoldColour = False
+        Me.VideoB.CustomColour = False
         Me.VideoB.Location = New System.Drawing.Point(13, 262)
         Me.VideoB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.VideoB.Name = "VideoB"
@@ -244,7 +244,7 @@ Partial Class Options
         Me.CloseB.DialogResult = System.Windows.Forms.DialogResult.Cancel
         Me.CloseB.FlatBottom = False
         Me.CloseB.FlatTop = False
-        Me.CloseB.HoldColour = False
+        Me.CloseB.CustomColour = False
         Me.CloseB.Location = New System.Drawing.Point(140, 262)
         Me.CloseB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.CloseB.Name = "CloseB"

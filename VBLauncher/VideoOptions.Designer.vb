@@ -220,7 +220,7 @@ Partial Class VideoOptions
         Me.CloseB.DialogResult = System.Windows.Forms.DialogResult.Cancel
         Me.CloseB.FlatBottom = False
         Me.CloseB.FlatTop = False
-        Me.CloseB.HoldColour = False
+        Me.CloseB.CustomColour = False
         Me.CloseB.Location = New System.Drawing.Point(118, 229)
         Me.CloseB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.CloseB.Name = "CloseB"
@@ -233,7 +233,7 @@ Partial Class VideoOptions
         '
         Me.ApplyB.FlatBottom = False
         Me.ApplyB.FlatTop = False
-        Me.ApplyB.HoldColour = False
+        Me.ApplyB.CustomColour = False
         Me.ApplyB.Location = New System.Drawing.Point(187, 229)
         Me.ApplyB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.ApplyB.Name = "ApplyB"

@@ -42,8 +42,8 @@ Public Class VideoOptions
         AACB.SelectedIndex = AAModes.ToList.IndexOf(dgV2Conf.Ini("DirectX", "Antialiasing"))
         TextureCB.SelectedIndex = FModes.ToList.IndexOf(dgV2Conf.Ini("DirectX", "Filtering"))
         SSFCB.SelectedIndex = SSModes.ToList.IndexOf(dgV2Conf.Ini("DirectX", "Resolution"))
-        MipmapCB.Checked = Not Boolean.Parse(dgV2Conf.Ini("DirectX", "DisableMipmapping"))
-        PhongCB.Checked = Boolean.Parse(dgV2Conf.Ini("DirectX", "PhongShadingWhenPossible"))
+        Try : MipmapCB.Checked = Not Boolean.Parse(dgV2Conf.Ini("DirectX", "DisableMipmapping")) : Catch : End Try
+        Try : PhongCB.Checked = Boolean.Parse(dgV2Conf.Ini("DirectX", "PhongShadingWhenPossible")) : Catch : End Try
     End Sub
 
     Private Sub ApplyChanges() Handles ApplyB.Click
