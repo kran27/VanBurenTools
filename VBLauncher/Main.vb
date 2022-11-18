@@ -4,19 +4,22 @@ Imports System.Runtime.InteropServices
 Imports AltUI.Forms.DarkMessageBox
 Public Class Main
 #Region "Move Form"
-    Private MoveForm As Boolean
-    Private MoveFormMousePosition As Point
-    Private Sub MoveForm_MouseDown(Sender As Object, E As MouseEventArgs) Handles Background.MouseDown, Logo.MouseDown
-        If E.Button = MouseButtons.Left Then
-            MoveForm = 1
-            MoveFormMousePosition = E.Location
+    Public Const WM_NCLBUTTONDOWN As Integer = &HA1
+    Public Const HT_CAPTION As Integer = &H2
+
+    <DllImport("user32.dll")>
+    Public Shared Sub SendMessage(ByVal hWnd As IntPtr, ByVal Msg As Integer, ByVal wParam As Integer, ByVal lParam As Integer)
+    End Sub
+
+    <DllImport("user32.dll")>
+    Public Shared Sub ReleaseCapture()
+    End Sub
+
+    Private Sub Form1_MouseDown(ByVal sender As Object, ByVal e As Windows.Forms.MouseEventArgs) Handles Background.MouseDown, Logo.MouseDown
+        If e.Button = MouseButtons.Left Then
+            ReleaseCapture()
+            SendMessage(Handle, WM_NCLBUTTONDOWN, HT_CAPTION, 0)
         End If
-    End Sub
-    Private Sub MoveForm_MouseMove(Sender As Object, E As MouseEventArgs) Handles Background.MouseMove, Logo.MouseMove
-        If MoveForm Then Location = Location + (E.Location - MoveFormMousePosition)
-    End Sub
-    Private Sub MoveForm_MouseUp(Sender As Object, E As MouseEventArgs) Handles Background.MouseUp, Logo.MouseUp
-        If E.Button = MouseButtons.Left Then MoveForm = 0
     End Sub
 #End Region
     Private ReadOnly BGs As Bitmap() = {My.Resources.BG1, My.Resources.BG2, My.Resources.BG3, My.Resources.BG4, My.Resources.BG5, My.Resources.BG6, My.Resources.BG7, My.Resources.BG8, My.Resources.BG9, My.Resources.BG10, My.Resources.BG11, My.Resources.BG12}
@@ -77,4 +80,5 @@ Public Class Main
     Private Sub OpenKeybinds(sender As Object, e As EventArgs) Handles KeybindB.Click
         KeybindEditor.ShowDialog()
     End Sub
+
 End Class
