@@ -105,6 +105,16 @@ Namespace My.Resources
         End Property
 
         '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property Editor() As Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Editor", resourceCulture)
+                Return CType(obj, Bitmap)
+            End Get
+        End Property
+
+        '''<summary>
         '''  Looks up a localized resource of type System.Byte[].
         '''</summary>
         Friend ReadOnly Property American() As Byte()

@@ -37,6 +37,12 @@ Public Class Main
         Else
             ShowError("Please put the launcher in the same directory as the game so you can launch it!", "Game Executable Not Found!")
         End If
+        if file.Exists("VBEditor.exe")
+            EditorB.Show()
+            ExitB.Location = new Point(13, 161)
+            Else 
+            EditorB.Hide()
+        End If
         AllowTransparency = False
         Try : File.Delete($"{My.Computer.FileSystem.SpecialDirectories.MyDocuments}\F3\Characters\None.CRT")
         Catch : End Try
@@ -81,4 +87,7 @@ Public Class Main
         KeybindEditor.ShowDialog()
     End Sub
 
+    Private Sub EditorB_Click(sender As Object, e As EventArgs) Handles EditorB.Click
+        Process.Start("VBEditor.exe")
+    End Sub
 End Class
