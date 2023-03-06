@@ -1,9 +1,12 @@
+*.user
 .vs/
+Debug
+Release
 VBLauncher/bin/Debug
 VBLauncher/bin/Release/net6.0-windows
 VBLauncher/obj
 VBLauncher/bin/Release/Override
-/VBLauncher/bin/Release/Application Files
+VBLauncher/bin/Release/Application Files
 VBLauncher/bin/Release/d3d8.dll
 VBLauncher/bin/Release/dgVoodoo.conf
 VBLauncher/bin/Release/wined3d.dll
@@ -26,3 +29,7 @@ VBLauncher/bin/Release/setup.exe
 VBLauncher/bin/Release/sni.dll
 VBLauncher/bin/Release/VBLauncher.application
 VBLauncher/bin/Release/AltUI.pdb
+VBEditor/obj
+VBEditor/bin
+VBExtender/Release
+VBExtender/Debug

@@ -1,10 +1,14 @@
 ﻿Imports System.Data
-Imports VBLauncher.General
+Imports System.IO
+Imports AltUI.Config
+Imports AltUI.Forms
+
 Public Class KeybindEditor
     Private Row As Integer
-    Private Pressed As Boolean
     Private Key As String
     Private Modifier As String
+    Private WantKey As Boolean
+
     Private Sub Check(sender As Object, e As EventArgs) Handles MyBase.Load, DarkButton1.Click
         DarkLabel1.Hide()
         DarkScrollBar1.BringToFront()
@@ -34,19 +38,19 @@ Public Class KeybindEditor
 
         Dim dt As New DataTable
 
-        dt.Columns.Add("Modifier", GetType(String))
-        dt.Columns.Add("Key", GetType(String))
-        dt.Columns.Add("Action", GetType(String))
-        dt.Columns.Add("On Key", GetType(String))
+        dt.Columns.Add("Modifier")
+        dt.Columns.Add("Key")
+        dt.Columns.Add("Action")
+        dt.Columns.Add("On Key")
         For Each bind In Binds
             dt.Rows.Add(bind.Modifier, bind.Key, bind.Action, If(bind.OnPress, "Down", "Up"))
             i += 1
         Next
-        DataGridView1.GridColor = AltUI.Config.ThemeProvider.Theme.Colors.GreySelection
-        DataGridView1.BackgroundColor = AltUI.Config.ThemeProvider.BackgroundColour
+        DataGridView1.GridColor = ThemeProvider.Theme.Colors.GreySelection
+        DataGridView1.BackgroundColor = ThemeProvider.BackgroundColour
         DataGridView1.DefaultCellStyle.WrapMode = DataGridViewTriState.True
-        DataGridView1.DefaultCellStyle = New DataGridViewCellStyle With {.BackColor = AltUI.Config.ThemeProvider.BackgroundColour, .ForeColor = AltUI.Config.ThemeProvider.Theme.Colors.LightText, .SelectionBackColor = AltUI.Config.ThemeProvider.Theme.Colors.BlueSelection, .SelectionForeColor = AltUI.Config.ThemeProvider.Theme.Colors.LightText}
-        DataGridView1.ColumnHeadersDefaultCellStyle = New DataGridViewCellStyle With {.BackColor = AltUI.Config.ThemeProvider.BackgroundColour, .ForeColor = AltUI.Config.ThemeProvider.Theme.Colors.LightText, .SelectionBackColor = AltUI.Config.ThemeProvider.BackgroundColour, .SelectionForeColor = AltUI.Config.ThemeProvider.Theme.Colors.LightText}
+        DataGridView1.DefaultCellStyle = New DataGridViewCellStyle With {.BackColor = ThemeProvider.BackgroundColour, .ForeColor = ThemeProvider.Theme.Colors.LightText, .SelectionBackColor = ThemeProvider.Theme.Colors.BlueSelection, .SelectionForeColor = ThemeProvider.Theme.Colors.LightText}
+        DataGridView1.ColumnHeadersDefaultCellStyle = New DataGridViewCellStyle With {.BackColor = ThemeProvider.BackgroundColour, .ForeColor = ThemeProvider.Theme.Colors.LightText, .SelectionBackColor = ThemeProvider.BackgroundColour, .SelectionForeColor = ThemeProvider.Theme.Colors.LightText}
         DataGridView1.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single
         DataGridView1.EnableHeadersVisualStyles = False
         DataGridView1.DataSource = dt
@@ -54,11 +58,9 @@ Public Class KeybindEditor
         DataGridView1.Columns(1).ReadOnly = True
         DataGridView1.Columns(3).ReadOnly = True
     End Sub
+
     Private Sub Apply(sender As Object, e As EventArgs) Handles Button1.Click
-        Dim NewBinds = New List(Of String)
-        For Each row As DataGridViewRow In DataGridView1.Rows
-            NewBinds.Add(RowToStr(row))
-        Next
+        Dim NewBinds = (From r As DataGridViewRow In DataGridView1.Rows Select RowToStr(r)).ToList()
 
         Dim SectionStart = Array.FindIndex(F3Ini, Function(x) x.StartsWith($"[HotKeys]"))
         Dim SectionEnd = Array.FindIndex(F3Ini, SectionStart + 1, Function(x) x.StartsWith("[")) - 1
@@ -72,12 +74,13 @@ Public Class KeybindEditor
             F3Ini.InsertAt(SectionStart + i, NewBinds(i - 1))
         Next
 
-        IO.File.WriteAllLines(F3Dir, F3Ini)
+        File.WriteAllLines(F3Dir, F3Ini)
 
-        AltUI.Forms.DarkMessageBox.ShowMessage("Updated Keybinds", "Done")
+        DarkMessageBox.ShowMessage("Updated Keybinds", "Done")
         Close()
     End Sub
-    Private Function RowToStr(row As DataGridViewRow) As String
+
+    Private Shared Function RowToStr(row As DataGridViewRow) As String
         Dim ch As String = If(row.Cells.Item(3).Value = "Up", "-", "+")
         If row.Cells.Item(0).Value = "" Then
             Return $"{ch}{row.Cells.Item(1).Value} = {row.Cells.Item(2).Value}"
@@ -85,6 +88,7 @@ Public Class KeybindEditor
             Return $"{ch}{row.Cells.Item(0).Value}{ch}{row.Cells.Item(1).Value} = {row.Cells.Item(2).Value}"
         End If
     End Function
+
     Private Function KeybindToStr(kb As Keybind) As String
         Dim ch As String = If(kb.OnPress, "+", "-")
         If kb.Modifier = "" Then
@@ -99,50 +103,49 @@ Public Class KeybindEditor
         Select Case e.ColumnIndex
             Case 0, 1
                 Row = e.RowIndex
-                Pressed = False
                 DarkLabel1.Show()
-                Timer2.Start()
+                WantKey = True
             Case 2
                 DarkLabel1.Hide()
-                Timer2.Stop()
+                WantKey = False
             Case 3
                 If DataGridView1.Rows(e.RowIndex).Cells(e.ColumnIndex).Value Is DBNull.Value Then DataGridView1.Rows(e.RowIndex).Cells(e.ColumnIndex).Value = "Up"
                 DataGridView1.Rows(e.RowIndex).Cells(e.ColumnIndex).Value = If(DataGridView1.Rows(e.RowIndex).Cells(e.ColumnIndex).Value = "Up", "Down", "Up")
                 DarkLabel1.Hide()
-                Timer2.Stop()
+                WantKey = False
         End Select
     End Sub
+
     Private Sub DataGridView1_ScrollChanged() Handles DataGridView1.Scroll
         DarkScrollBar1.ScrollTo((DataGridView1.FirstDisplayedScrollingRowIndex / (DataGridView1.Rows.Count - DataGridView1.DisplayedRowCount(False))) * DarkScrollBar1.Maximum)
     End Sub
+
     Private Sub DarkScrollBar1_Click(sender As Object, e As EventArgs) Handles DarkScrollBar1.MouseDown
         Timer1.Start()
     End Sub
+
     Private Sub DarkScrollBar1_MouseUp(sender As Object, e As EventArgs) Handles DarkScrollBar1.MouseUp
         Timer1.Stop()
     End Sub
+
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
         DataGridView1.FirstDisplayedScrollingRowIndex = (DarkScrollBar1.Value / (DarkScrollBar1.Maximum)) * (DataGridView1.Rows.Count - DataGridView1.DisplayedRowCount(False))
     End Sub
 
-    Private Sub Timer2_Tick(sender As Object, e As EventArgs) Handles Timer2.Tick
-        If Pressed Then
-            DataGridView1.Rows(Row).Cells(0).Value = ProperName(Modifier)
-            DataGridView1.Rows(Row).Cells(1).Value = ProperName(Key)
-            Timer2.Stop()
-            DarkLabel1.Hide()
-        End If
-    End Sub
     Private Sub DataGridView1_KeyDown(sender As Object, e As KeyEventArgs) Handles DataGridView1.KeyDown
         Select Case e.KeyCode
             Case Keys.ControlKey, Keys.Menu, Keys.ShiftKey
             Case Else
-                Modifier = e.Modifiers.ToString
-                Key = e.KeyCode.ToString
-                Pressed = True
+                If WantKey Then
+                    Modifier = e.Modifiers.ToString
+                    Key = e.KeyCode.ToString
+                    DataGridView1.Rows(Row).Cells(0).Value = ProperName(Modifier)
+                    DataGridView1.Rows(Row).Cells(1).Value = ProperName(Key)
+                End If
         End Select
     End Sub
-    Private Function ProperName(key As String) As String
+
+    Private Shared Function ProperName(key As String) As String
         Select Case key
             Case "D1" : Return "1"
             Case "D2" : Return "2"
@@ -170,6 +173,7 @@ Public Class KeybindEditor
             Case Else : Return key
         End Select
     End Function
+
 End Class
 
 Public Class Keybind
@@ -177,10 +181,12 @@ Public Class Keybind
     Public Modifier As String
     Public Action As String
     Public OnPress As Boolean
+
     Public Sub New(Key As String, Modifier As String, Action As String, Optional OnPress As Boolean = True)
         Me.Key = Key
         Me.Modifier = Modifier
         Me.Action = Action
         Me.OnPress = OnPress
     End Sub
+
 End Class

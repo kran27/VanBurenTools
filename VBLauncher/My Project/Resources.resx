@@ -154,173 +154,11 @@
   <data name="F3" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\F3.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="f3_front_end_buttons" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\f3_front_end_buttons.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Launch" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Launcher\Launch.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Logo" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Launcher\Logo.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Options" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Launcher\Options.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="Fixes" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Fixes.zip;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="Exit" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Launcher\Exit.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="GLwined3d" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Wrappers\WineD3D\GLwined3d.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="DXd3d8" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Wrappers\dgVoodoo2\DXD3D8.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Mainmenu" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Mainmenu.int;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="8-Ball Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\8-Ball Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="American Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\American Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="AmericanI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\AmericanI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Black Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Black Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="BlackI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\BlackI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Blue Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Blue Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="BlueI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\BlueI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Default Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Default Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Eye Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Eye Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="EyeI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\EyeI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Flames Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Flames Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="FlamesI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\FlamesI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Full Skull Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Full Skull Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Full SkullI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Full SkullI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Green Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Green Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="GreenI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\GreenI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Grey Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Grey Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="GreyI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\GreyI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Police Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Police Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="PoliceI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\PoliceI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Red Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Red Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="RedI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\RedI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Shot Smiley Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Shot Smiley Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Shot SmileyI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Shot SmileyI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Skull Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Skull Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="SkullI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\SkullI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Yellow Icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Yellow Icon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="YellowI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\YellowI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="8-BallI" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\8-BallI.tga;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="8-Ball" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\8-Ball.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="American" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\American.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Black" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Black.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Blue" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Blue.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Eye" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Eye.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Flames" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Flames.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Full Skull" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Full Skull.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Green" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Green.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Grey" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Grey.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Police" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Police.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Red" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Red.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Shot Smiley" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Shot Smiley.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Skull" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Skull.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Yellow" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Helmets\Yellow.tex;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="BG12" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Launcher\BG12.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="GLd3d8" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Wrappers\WineD3D\GLd3d8.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="VKd3d11" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Wrappers\DXVK\VKd3d11.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="VKdxgi" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Wrappers\DXVK\VKdxgi.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="Default_F3" xml:space="preserve">
     <value>[Audio]
@@ -558,10 +396,37 @@ DeferredScreenModeSwitch = false
 PrimarySurfaceBatchedUpdate = false
 EnableSpecializedShaders = true</value>
   </data>
-  <data name="Keybinds" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Launcher\Keybinds.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="SUMM" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\SUMM.zip;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="Editor" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Launcher\Editor.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="f3_button_down_01" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\f3_button_down_01.wav;System.IO.MemoryStream, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="f3_button_up_01" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\f3_button_up_01.wav;System.IO.MemoryStream, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="conflict_clear" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ModLoader\conflict-clear.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="conflict_mixed" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ModLoader\conflict-mixed.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="conflict_overwrite" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ModLoader\conflict-overwrite.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="conflict_overwritten" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ModLoader\conflict-overwritten.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="conflict_redundant" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ModLoader\conflict-redundant.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="d3d11" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\wrappers\dxvk\d3d11.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="dxgi" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\wrappers\dxvk\dxgi.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="D3D8" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\wrappers\dgvoodoo2\d3d8.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
 </root>

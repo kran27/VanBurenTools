@@ -46,8 +46,8 @@ Partial Class VideoOptions
         Me.CloseB = New AltUI.Controls.DarkButton()
         Me.ApplyB = New AltUI.Controls.DarkButton()
         Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
-        Me.OptionsGB.SuspendLayout()
-        Me.SuspendLayout()
+        Me.OptionsGB.SuspendLayout
+        Me.SuspendLayout
         '
         'OptionsGB
         '
@@ -70,12 +70,12 @@ Partial Class VideoOptions
         Me.OptionsGB.Padding = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.OptionsGB.Size = New System.Drawing.Size(235, 212)
         Me.OptionsGB.TabIndex = 0
-        Me.OptionsGB.TabStop = False
+        Me.OptionsGB.TabStop = false
         Me.OptionsGB.Text = "Options"
         '
         'SSFL
         '
-        Me.SSFL.AutoSize = True
+        Me.SSFL.AutoSize = true
         Me.SSFL.Location = New System.Drawing.Point(8, 133)
         Me.SSFL.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.SSFL.Name = "SSFL"
@@ -86,18 +86,18 @@ Partial Class VideoOptions
         'SSFCB
         '
         Me.SSFCB.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable
-        Me.SSFCB.FormattingEnabled = True
+        Me.SSFCB.FormattingEnabled = true
         Me.SSFCB.Location = New System.Drawing.Point(113, 129)
         Me.SSFCB.Margin = New System.Windows.Forms.Padding(2)
         Me.SSFCB.Name = "SSFCB"
         Me.SSFCB.Size = New System.Drawing.Size(113, 24)
         Me.SSFCB.TabIndex = 4
-        Me.ToolTip1.SetToolTip(Me.SSFCB, "Increases visual quality by" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "rendering the scene above" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "your display resolution")
+        Me.ToolTip1.SetToolTip(Me.SSFCB, "Increases visual quality by"&Global.Microsoft.VisualBasic.ChrW(13)&Global.Microsoft.VisualBasic.ChrW(10)&"rendering the scene above"&Global.Microsoft.VisualBasic.ChrW(13)&Global.Microsoft.VisualBasic.ChrW(10)&"your display resolution")
         '
         'ResolutionCB
         '
         Me.ResolutionCB.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable
-        Me.ResolutionCB.FormattingEnabled = True
+        Me.ResolutionCB.FormattingEnabled = true
         Me.ResolutionCB.Location = New System.Drawing.Point(89, 101)
         Me.ResolutionCB.Margin = New System.Windows.Forms.Padding(2)
         Me.ResolutionCB.Name = "ResolutionCB"
@@ -106,7 +106,7 @@ Partial Class VideoOptions
         '
         'ResolutionL
         '
-        Me.ResolutionL.AutoSize = True
+        Me.ResolutionL.AutoSize = true
         Me.ResolutionL.Location = New System.Drawing.Point(8, 105)
         Me.ResolutionL.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.ResolutionL.Name = "ResolutionL"
@@ -116,7 +116,7 @@ Partial Class VideoOptions
         '
         'MipmapCB
         '
-        Me.MipmapCB.AutoSize = True
+        Me.MipmapCB.AutoSize = true
         Me.MipmapCB.Location = New System.Drawing.Point(9, 171)
         Me.MipmapCB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.MipmapCB.Name = "MipmapCB"
@@ -128,7 +128,7 @@ Partial Class VideoOptions
         '
         'PhongCB
         '
-        Me.PhongCB.AutoSize = True
+        Me.PhongCB.AutoSize = true
         Me.PhongCB.Location = New System.Drawing.Point(9, 188)
         Me.PhongCB.Margin = New System.Windows.Forms.Padding(2)
         Me.PhongCB.Name = "PhongCB"
@@ -136,11 +136,11 @@ Partial Class VideoOptions
         Me.PhongCB.Size = New System.Drawing.Size(107, 19)
         Me.PhongCB.TabIndex = 7
         Me.PhongCB.Text = "Phong Shading"
-        Me.ToolTip1.SetToolTip(Me.PhongCB, "Alternative shading," & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Slightly improves visuals")
+        Me.ToolTip1.SetToolTip(Me.PhongCB, "Alternative shading,"&Global.Microsoft.VisualBasic.ChrW(13)&Global.Microsoft.VisualBasic.ChrW(10)&"Slightly improves visuals")
         '
         'TextureL
         '
-        Me.TextureL.AutoSize = True
+        Me.TextureL.AutoSize = true
         Me.TextureL.Location = New System.Drawing.Point(8, 77)
         Me.TextureL.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.TextureL.Name = "TextureL"
@@ -151,7 +151,7 @@ Partial Class VideoOptions
         'TextureCB
         '
         Me.TextureCB.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable
-        Me.TextureCB.FormattingEnabled = True
+        Me.TextureCB.FormattingEnabled = true
         Me.TextureCB.Items.AddRange(New Object() {"Bilinear (Default)", "Point Sampled", "Linear", "Anisotropic 2x", "Anisotropic 4x", "Anisotropic 8x", "Anisotropic 16x"})
         Me.TextureCB.Location = New System.Drawing.Point(100, 73)
         Me.TextureCB.Margin = New System.Windows.Forms.Padding(2)
@@ -161,7 +161,7 @@ Partial Class VideoOptions
         '
         'AAL
         '
-        Me.AAL.AutoSize = True
+        Me.AAL.AutoSize = true
         Me.AAL.Location = New System.Drawing.Point(8, 49)
         Me.AAL.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.AAL.Name = "AAL"
@@ -172,7 +172,7 @@ Partial Class VideoOptions
         'AACB
         '
         Me.AACB.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable
-        Me.AACB.FormattingEnabled = True
+        Me.AACB.FormattingEnabled = true
         Me.AACB.Items.AddRange(New Object() {"Off", "2x MSAA", "4x MSAA", "8x MSAA"})
         Me.AACB.Location = New System.Drawing.Point(83, 45)
         Me.AACB.Margin = New System.Windows.Forms.Padding(2)
@@ -183,20 +183,19 @@ Partial Class VideoOptions
         'APICB
         '
         Me.APICB.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable
-        Me.APICB.FormattingEnabled = True
-        Me.APICB.Items.AddRange(New Object() {"DirectX 8 (Default)", "DirectX 11", "OpenGL", "Vulkan"})
+        Me.APICB.FormattingEnabled = true
+        Me.APICB.Items.AddRange(New Object() {"DirectX 11", "Vulkan"})
         Me.APICB.Location = New System.Drawing.Point(91, 17)
         Me.APICB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.APICB.Name = "APICB"
         Me.APICB.Size = New System.Drawing.Size(135, 24)
         Me.APICB.TabIndex = 0
-        Me.ToolTip1.SetToolTip(Me.APICB, "DX11 + Vulkan modes use dgVoodoo2" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "dege.fw.hu" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "OpenGL uses WineD3D (GNU LGPL V2+)" &
-        "" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "fdossena.com/?p=wined3d/index.frag" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Vulkan uses DXVK (zlib/libpng)" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "github.com" &
-        "/doitsujin/dxvk")
+        Me.ToolTip1.SetToolTip(Me.APICB, "Both modes use dgVoodoo2" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "dege.fw.hu" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Vulkan uses DXVK (zlib/libpng)" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "github.com/" &
+        "doitsujin/dxvk")
         '
         'APIL
         '
-        Me.APIL.AutoSize = True
+        Me.APIL.AutoSize = true
         Me.APIL.Location = New System.Drawing.Point(8, 21)
         Me.APIL.Margin = New System.Windows.Forms.Padding(4, 0, 4, 0)
         Me.APIL.Name = "APIL"
@@ -206,7 +205,7 @@ Partial Class VideoOptions
         '
         'FullscreenCB
         '
-        Me.FullscreenCB.AutoSize = True
+        Me.FullscreenCB.AutoSize = true
         Me.FullscreenCB.Location = New System.Drawing.Point(9, 153)
         Me.FullscreenCB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.FullscreenCB.Name = "FullscreenCB"
@@ -217,10 +216,11 @@ Partial Class VideoOptions
         '
         'CloseB
         '
+        Me.CloseB.BorderColour = System.Drawing.Color.Empty
+        Me.CloseB.CustomColour = false
         Me.CloseB.DialogResult = System.Windows.Forms.DialogResult.Cancel
-        Me.CloseB.FlatBottom = False
-        Me.CloseB.FlatTop = False
-        Me.CloseB.CustomColour = False
+        Me.CloseB.FlatBottom = false
+        Me.CloseB.FlatTop = false
         Me.CloseB.Location = New System.Drawing.Point(118, 229)
         Me.CloseB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.CloseB.Name = "CloseB"
@@ -231,9 +231,10 @@ Partial Class VideoOptions
         '
         'ApplyB
         '
-        Me.ApplyB.FlatBottom = False
-        Me.ApplyB.FlatTop = False
-        Me.ApplyB.CustomColour = False
+        Me.ApplyB.BorderColour = System.Drawing.Color.Empty
+        Me.ApplyB.CustomColour = false
+        Me.ApplyB.FlatBottom = false
+        Me.ApplyB.FlatTop = false
         Me.ApplyB.Location = New System.Drawing.Point(187, 229)
         Me.ApplyB.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
         Me.ApplyB.Name = "ApplyB"
@@ -250,22 +251,23 @@ Partial Class VideoOptions
         Me.Controls.Add(Me.CloseB)
         Me.Controls.Add(Me.ApplyB)
         Me.Controls.Add(Me.OptionsGB)
-        Me.CustomBorder = True
+        Me.CornerStyle = AltUI.Forms.DarkForm.CornerPreference.[Default]
+        Me.CustomBorder = true
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
-        Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
+        Me.Icon = CType(resources.GetObject("$this.Icon"),System.Drawing.Icon)
         Me.Margin = New System.Windows.Forms.Padding(4, 3, 4, 3)
-        Me.MaximizeBox = False
-        Me.MinimizeBox = False
+        Me.MaximizeBox = false
+        Me.MinimizeBox = false
         Me.Name = "VideoOptions"
-        Me.ShowInTaskbar = False
+        Me.ShowInTaskbar = false
         Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Video Options"
-        Me.TransparencyKey = System.Drawing.Color.FromArgb(CType(CType(31, Byte), Integer), CType(CType(31, Byte), Integer), CType(CType(32, Byte), Integer))
-        Me.OptionsGB.ResumeLayout(False)
-        Me.OptionsGB.PerformLayout()
-        Me.ResumeLayout(False)
+        Me.TransparencyKey = System.Drawing.Color.FromArgb(CType(CType(31,Byte),Integer), CType(CType(31,Byte),Integer), CType(CType(32,Byte),Integer))
+        Me.OptionsGB.ResumeLayout(false)
+        Me.OptionsGB.PerformLayout
+        Me.ResumeLayout(false)
 
-    End Sub
+End Sub
     Friend WithEvents ToolTip1 As ToolTip
     Friend WithEvents OptionsGB As DarkGroupBox
     Friend WithEvents CloseB As DarkButton

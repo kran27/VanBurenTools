@@ -1,9 +1,10 @@
 ﻿Imports System.ComponentModel
+Imports AltUI.Forms
 Imports Microsoft.VisualBasic.CompilerServices
 
 <DesignerGenerated()>
 Partial Class Main
-    Inherits AltUI.Forms.DarkForm
+    Inherits DarkForm
 
     'Form overrides dispose to clean up the component list.
     <DebuggerNonUserCode()>
@@ -31,15 +32,15 @@ Partial Class Main
         Me.ExitB = New System.Windows.Forms.PictureBox()
         Me.Logo = New System.Windows.Forms.PictureBox()
         Me.Background = New System.Windows.Forms.PictureBox()
-        Me.KeybindB = New System.Windows.Forms.PictureBox()
         Me.EditorB = New System.Windows.Forms.PictureBox()
+        Me.ModLoaderB = New System.Windows.Forms.PictureBox()
         CType(Me.LaunchB,System.ComponentModel.ISupportInitialize).BeginInit
         CType(Me.OptionsB,System.ComponentModel.ISupportInitialize).BeginInit
         CType(Me.ExitB,System.ComponentModel.ISupportInitialize).BeginInit
         CType(Me.Logo,System.ComponentModel.ISupportInitialize).BeginInit
         CType(Me.Background,System.ComponentModel.ISupportInitialize).BeginInit
-        CType(Me.KeybindB,System.ComponentModel.ISupportInitialize).BeginInit
         CType(Me.EditorB,System.ComponentModel.ISupportInitialize).BeginInit
+        CType(Me.ModLoaderB,System.ComponentModel.ISupportInitialize).BeginInit
         Me.SuspendLayout
         '
         'LaunchB
@@ -71,7 +72,7 @@ Partial Class Main
         Me.ExitB.BackColor = System.Drawing.Color.Transparent
         Me.ExitB.BackgroundImage = CType(resources.GetObject("ExitB.BackgroundImage"),System.Drawing.Image)
         Me.ExitB.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.ExitB.Location = New System.Drawing.Point(13, 124)
+        Me.ExitB.Location = New System.Drawing.Point(13, 161)
         Me.ExitB.Margin = New System.Windows.Forms.Padding(4)
         Me.ExitB.Name = "ExitB"
         Me.ExitB.Size = New System.Drawing.Size(192, 29)
@@ -99,18 +100,6 @@ Partial Class Main
         Me.Background.TabIndex = 4
         Me.Background.TabStop = false
         '
-        'KeybindB
-        '
-        Me.KeybindB.BackColor = System.Drawing.Color.Transparent
-        Me.KeybindB.BackgroundImage = CType(resources.GetObject("KeybindB.BackgroundImage"),System.Drawing.Image)
-        Me.KeybindB.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.KeybindB.Location = New System.Drawing.Point(13, 87)
-        Me.KeybindB.Margin = New System.Windows.Forms.Padding(4)
-        Me.KeybindB.Name = "KeybindB"
-        Me.KeybindB.Size = New System.Drawing.Size(192, 29)
-        Me.KeybindB.TabIndex = 5
-        Me.KeybindB.TabStop = false
-        '
         'EditorB
         '
         Me.EditorB.BackColor = System.Drawing.Color.Transparent
@@ -123,17 +112,29 @@ Partial Class Main
         Me.EditorB.TabIndex = 6
         Me.EditorB.TabStop = false
         '
+        'ModLoaderB
+        '
+        Me.ModLoaderB.BackColor = System.Drawing.Color.Transparent
+        Me.ModLoaderB.BackgroundImage = CType(resources.GetObject("ModLoaderB.BackgroundImage"),System.Drawing.Image)
+        Me.ModLoaderB.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.ModLoaderB.Location = New System.Drawing.Point(13, 87)
+        Me.ModLoaderB.Margin = New System.Windows.Forms.Padding(4)
+        Me.ModLoaderB.Name = "ModLoaderB"
+        Me.ModLoaderB.Size = New System.Drawing.Size(192, 29)
+        Me.ModLoaderB.TabIndex = 7
+        Me.ModLoaderB.TabStop = false
+        '
         'Main
         '
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None
         Me.BackColor = System.Drawing.Color.Black
         Me.ClientSize = New System.Drawing.Size(640, 480)
-        Me.Controls.Add(Me.KeybindB)
         Me.Controls.Add(Me.Logo)
         Me.Controls.Add(Me.OptionsB)
         Me.Controls.Add(Me.LaunchB)
         Me.Controls.Add(Me.ExitB)
         Me.Controls.Add(Me.EditorB)
+        Me.Controls.Add(Me.ModLoaderB)
         Me.Controls.Add(Me.Background)
         Me.CornerStyle = AltUI.Forms.DarkForm.CornerPreference.[Default]
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None
@@ -148,8 +149,8 @@ Partial Class Main
         CType(Me.ExitB,System.ComponentModel.ISupportInitialize).EndInit
         CType(Me.Logo,System.ComponentModel.ISupportInitialize).EndInit
         CType(Me.Background,System.ComponentModel.ISupportInitialize).EndInit
-        CType(Me.KeybindB,System.ComponentModel.ISupportInitialize).EndInit
         CType(Me.EditorB,System.ComponentModel.ISupportInitialize).EndInit
+        CType(Me.ModLoaderB,System.ComponentModel.ISupportInitialize).EndInit
         Me.ResumeLayout(false)
 
 End Sub
@@ -159,6 +160,6 @@ End Sub
     Friend WithEvents ExitB As PictureBox
     Friend WithEvents Logo As PictureBox
     Friend WithEvents Background As PictureBox
-    Friend WithEvents KeybindB As PictureBox
     Friend WithEvents EditorB As PictureBox
+    Friend WithEvents ModLoaderB As PictureBox
 End Class

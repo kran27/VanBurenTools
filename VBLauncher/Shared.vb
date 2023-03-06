@@ -1,4 +1,5 @@
 ﻿Imports System.IO
+Imports System.Runtime.CompilerServices
 Imports System.Runtime.InteropServices
 
 Public Module IniManager
@@ -7,31 +8,83 @@ Public Module IniManager
     Public F3Ini() As String
     Public SysIni() As String
 
-    <System.Runtime.CompilerServices.Extension>
-    Public Function Ini(ByRef IniArray As String(), IniSection As String, IniKey As String, Optional Value As String = Nothing)
+    Public Enum KeyType
+        Normal
+        Multiline
+    End Enum
+
+    <Extension>
+    Public Function Ini(ByRef IniArray As String(), IniSection As String, IniKey As String, Optional KeyType As KeyType = KeyType.Normal) As String
         ' Find bounds of section
         Dim SectionStart = Array.FindIndex(IniArray, Function(x) x.StartsWith($"[{IniSection}]"))
         Dim SectionEnd = Array.FindIndex(IniArray, SectionStart + 1, Function(x) x.StartsWith("[")) - 1
-        If SectionEnd < 0 Then SectionEnd = IniArray.Length - 1
-        ' Find key location and value
-        Dim KeyIndex = Array.FindIndex(IniArray, SectionStart + 1, Function(x) x.StartsWith(IniKey))
-        If KeyIndex > SectionEnd Then Return Nothing
-        Dim KeyLine = IniArray(KeyIndex)
-        Dim KeyValue = KeyLine.Substring(KeyLine.IndexOf("=") + 1).Trim
-        ' Find comment, if any
-        Dim Comment = Nothing
-        Try : Comment = KeyValue.Substring(KeyValue.IndexOf(";")) : Catch : End Try
-        If Comment IsNot Nothing Then KeyValue = KeyValue.Substring(0, KeyValue.LastIndexOf(";")).Trim
-        ' Either set or return value
-        If Value IsNot Nothing Then
-            IniArray(KeyIndex) = Trim($"{IniKey} = {Value} {Comment}")
-            Return Nothing
+        If SectionEnd = -1 Then SectionEnd = IniArray.Length - 1
+
+        If KeyType = KeyType.Normal Then
+            ' Find key location and value
+            Dim KeyIndex = Array.FindIndex(IniArray, SectionStart + 1, Function(x) x.StartsWith(IniKey))
+            If KeyIndex > SectionEnd Then Return Nothing
+            Dim KeyLine = IniArray(KeyIndex)
+            Dim KeyValue = KeyLine.Substring(KeyLine.IndexOf("=", StringComparison.Ordinal) + 1).Trim
+            ' Find comment, if any
+            Dim Comment = Nothing
+            Try : Comment = KeyValue.Substring(KeyValue.IndexOf(";", StringComparison.Ordinal)) : Catch : End Try
+            If Comment IsNot Nothing Then KeyValue = KeyValue.Substring(0, KeyValue.LastIndexOf(";", StringComparison.Ordinal)).Trim
+            ' Return read value
+            Return KeyValue
         Else
+            ' Multiline key
+            Dim KeyStart = Array.FindIndex(IniArray, SectionStart + 1, Function(x) x.StartsWith($"<{IniKey}>"))
+            Dim KeyEnd = Array.FindIndex(IniArray, KeyStart + 1, Function(x) x.StartsWith($"</{IniKey}>"))
+            If KeyEnd < 0 Then KeyEnd = IniArray.Length - 1
+            ' Get key value
+            Dim KeyValue = String.Join(Environment.NewLine, IniArray, KeyStart + 1, KeyEnd - KeyStart - 1)
+            ' Return read value
             Return KeyValue
         End If
     End Function
 
-    <System.Runtime.CompilerServices.Extension>
+    <Extension>
+    Public Sub Ini(ByRef IniArray As String(), IniSection As String, IniKey As String, Value As String, Optional KeyType As KeyType = KeyType.Normal)
+        ' Find bounds of section
+        Dim SectionStart = Array.FindIndex(IniArray, Function(x) x.StartsWith($"[{IniSection}]"))
+        Dim SectionEnd = Array.FindIndex(IniArray, SectionStart + 1, Function(x) x.StartsWith("[")) - 1
+        If SectionEnd < 0 Then SectionEnd = IniArray.Length - 1
+
+        If KeyType = KeyType.Normal Then
+            ' Find key location and value
+            Dim KeyIndex = Array.FindIndex(IniArray, SectionStart + 1, Function(x) x.StartsWith(IniKey))
+            If KeyIndex > SectionEnd Then Exit Sub
+            Dim KeyLine = IniArray(KeyIndex)
+            Dim KeyValue = KeyLine.Substring(KeyLine.IndexOf("=") + 1).Trim
+            ' Find comment, if any
+            Dim Comment = Nothing
+            Try : Comment = KeyValue.Substring(KeyValue.IndexOf(";")) : Catch : End Try
+            If Comment IsNot Nothing Then KeyValue = KeyValue.Substring(0, KeyValue.LastIndexOf(";")).Trim
+            'Set to new value
+            IniArray(KeyIndex) = Trim($"{IniKey} = {Value} {Comment}")
+        Else
+            Dim startIndex = Array.FindIndex(IniArray, SectionStart + 1, Function(x) x.StartsWith($"<{IniKey}>"))
+            Dim endIndex = Array.FindIndex(IniArray, startIndex + 1, Function(x) x.StartsWith($"</{IniKey}>"))
+
+            If startIndex < SectionEnd And endIndex > SectionEnd Then
+                Dim keyValueStart = startIndex + 1
+                Dim keyValueEnd = endIndex - 1
+
+                Dim newValues As String()
+                ReDim newValues(SectionEnd - SectionStart + 1 + keyValueEnd - keyValueStart + 2)
+                Array.Copy(IniArray, SectionStart, newValues, 0, SectionEnd - SectionStart + 1)
+                newValues(SectionEnd - SectionStart + 1) = $"<{IniKey}>"
+                Array.Copy(Value.Split(Environment.NewLine), 0, newValues, SectionEnd - SectionStart + 2,
+                           keyValueEnd - keyValueStart + 1)
+                newValues(newValues.Length - 1) = $"</{IniKey}>"
+                IniArray = newValues
+            End If
+        End If
+    End Sub
+
+
+    <Extension>
     Public Function GetSection(IniArray As String(), IniSection As String) As String()
         ' Find bounds of section
         Dim SectionStart = Array.FindIndex(IniArray, Function(x) x.StartsWith($"[{IniSection}]"))
@@ -44,6 +97,7 @@ Public Module IniManager
 End Module
 
 Public Module General
+
     Public Function SearchForFiles(RootFolder As String, FileFilter() As String) As List(Of String)
         Dim ReturnedData As New List(Of String)
         Dim FolderStack As New Stack(Of String)
@@ -62,7 +116,8 @@ Public Module General
         Loop
         Return ReturnedData
     End Function
-    <System.Runtime.CompilerServices.Extension()>
+
+    <Extension()>
     Public Sub RemoveAt(Of T)(ByRef arr As T(), ByVal index As Integer)
         'create an array 1 element less than the input array
         Dim outArr(arr.Length - 1) As T
@@ -73,7 +128,8 @@ Public Module General
 
         arr = outArr
     End Sub
-    <System.Runtime.CompilerServices.Extension()>
+
+    <Extension()>
     Public Sub InsertAt(Of T)(
           ByRef sourceArray() As T,
           ByVal insertIndex As Integer,
@@ -95,6 +151,28 @@ Public Module General
 
         sourceArray(newPosition) = newValue
     End Sub
+
+    <Extension>
+    Function RemoveExtension(fileName As String) As String
+        Dim lastDotIndex As Integer = fileName.LastIndexOf(".")
+        If lastDotIndex = -1 Then
+            Return fileName
+        Else
+            Return fileName.Substring(0, lastDotIndex)
+        End If
+    End Function
+
+    <Extension>
+    Function GetExtension(fileName As String) As String
+        Dim lastDotIndex As Integer = fileName.LastIndexOf(".")
+        If lastDotIndex = -1 Then
+            Return ""
+        Else
+            Return fileName.Substring(lastDotIndex + 1)
+        End If
+    End Function
+
+
 End Module
 
 Public Class VideoInfo
@@ -151,10 +229,8 @@ Public Class VideoInfo
     End Function
 
     Public Shared Function GetResAsStrings() As String()
-        Dim SizeList As New List(Of String)(From S In GetResolution() Select $"{S.Width}x{S.Height}@{S.Hz}")
-        Return SizeList.ToArray()
+        Return (From S In GetResolution() Select $"{S.Width}x{S.Height}@{S.Hz}").ToArray()
     End Function
-
 
     Public Shared Function GetResolution() As Resolution()
         Dim DM As New DevModeW
