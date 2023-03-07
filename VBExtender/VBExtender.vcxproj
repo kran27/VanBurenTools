@@ -95,11 +95,11 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ImGui\backends\imgui_impl_dx11.cpp" />
+    <ClCompile Include="ImGui\backends\imgui_impl_win32.cpp" />
     <ClCompile Include="ImGui\imgui.cpp" />
     <ClCompile Include="ImGui\imgui_demo.cpp" />
     <ClCompile Include="ImGui\imgui_draw.cpp" />
-    <ClCompile Include="ImGui\imgui_impl_dx11.cpp" />
-    <ClCompile Include="ImGui\imgui_impl_win32.cpp" />
     <ClCompile Include="ImGui\imgui_tables.cpp" />
     <ClCompile Include="ImGui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
@@ -110,7 +110,7 @@
     <ClInclude Include="functions.h" />
     <ClInclude Include="globals.h" />
     <ClInclude Include="hooks.h" />
-    <ClInclude Include="imgui.h" />
+    <ClInclude Include="imguimenu.h" />
     <ClInclude Include="includes.h" />
     <ClInclude Include="memory.h" />
     <ClInclude Include="proxy.h" />

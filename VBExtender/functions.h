@@ -1,4 +1,6 @@
 #pragma once
+#include "defs.h"
+#include "memory.h"
 #include "globals.h"
 #include <vector>
 

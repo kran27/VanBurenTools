@@ -43,13 +43,11 @@
     <PackageReference Include="SharpCompress" Version="0.32.2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\AltUI\AltUI\AltUI.csproj" />
+    <ProjectReference Include="..\AltUI\AltUI\AltUI.csproj" />
     <ProjectReference Include="..\VBEditor\VBEditor.vbproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Editor.vb">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="Editor.vb" />
     <Compile Update="My Project\Resources.Designer.vb">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
