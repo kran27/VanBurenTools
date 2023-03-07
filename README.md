@@ -39,6 +39,8 @@ A launcher, settings editor, mod loader, and enhancement collection for Fallout 
 ## How to use:
 Put the launcher in the game directory, and open the options menu(s) and apply your desired tweaks before launching.
 ## Uses:
-- [dgVoodoo2](http://dege.fw.hu/)
+- [ImGui](https://github.com/kran27/imgui)
+- [dgVoodoo2](http://dege.fw.hu)
 - [DXVK](https://github.com/doitsujin/dxvk)
 - [AltUI](https://github.com/kran27/AltUI)
+- [DXSDK](https://www.microsoft.com/en-ca/download/details.aspx?id=6812)
