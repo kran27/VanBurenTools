@@ -91,6 +91,29 @@ Public Class ITM
 
 End Class
 
+Public Class ARM
+    Property EEN2 As EEN2c
+    Property GENT As GENTc
+    Property GITM As GITMc
+    Property GIAR As GIARc
+
+    Sub New()
+        EEN2 = New EEN2c()
+        GENT = New GENTc()
+        GITM = New GITMc()
+        GIAR = New GIARc()
+    End Sub
+
+    Function ToByte() As IEnumerable(Of Byte)
+        Dim b = New List(Of Byte)
+        b.AddRange(EEN2.ToByte())
+        b.AddRange(GENT.ToByte())
+        b.AddRange(GITM.ToByte())
+        b.AddRange(GIAR.ToByte())
+        Return b
+    End Function
+
+End Class
 #End Region
 
 #Region "Header Classes"
@@ -752,6 +775,38 @@ Public Class GITMc            '"Missing" Sockets:
         out.Write(87 + Hea.Length + Eye.Length + Bod.Length + Bac.Length + Han.Length + Fee.Length + Sho.Length + Van.Length, 1)
         out.Write(88 + Hea.Length + Eye.Length + Bod.Length + Bac.Length + Han.Length + Fee.Length + Sho.Length + Van.Length, IHS.ToByte())
         out.Write(92 + Hea.Length + Eye.Length + Bod.Length + Bac.Length + Han.Length + Fee.Length + Sho.Length + Van.Length + IHS.Length, reload)
+        Return out
+    End Function
+
+End Class
+
+Public Class GIARc
+    Property BallR As Integer
+    Property BioR As Integer
+    Property ElecR As Integer
+    Property EMPR As Integer
+    Property NormR As Integer
+    Property HeatR As Integer
+
+    Sub New()
+        BallR = 0
+        BioR = 0
+        ElecR = 0
+        EMPR = 0
+        NormR = 0
+        HeatR = 0
+    End Sub
+
+    Function ToByte() As IEnumerable(Of Byte)
+        Dim out = New Byte(39) {}
+        out.Write(0, "GIAR")
+        out.Write(8, 40)
+        out.Write(12, BallR)
+        out.Write(16, BioR)
+        out.Write(20, ElecR)
+        out.Write(24, EMPR)
+        out.Write(28, NormR)
+        out.Write(32, HeatR)
         Return out
     End Function
 

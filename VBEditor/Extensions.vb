@@ -340,7 +340,8 @@ Public Module Extensions
         Dim Sho = b.ReadSocket(75 + a + Hea.Length + Eye.Length + Bod.Length + Bac.Length + Han.Length + Fee.Length)
         Dim Van = b.ReadSocket(79 + a + Hea.Length + Eye.Length + Bod.Length + Bac.Length + Han.Length + Fee.Length + Sho.Length)
         Dim IHS = b.ReadSocket(84 + a + Hea.Length + Eye.Length + Bod.Length + Bac.Length + Han.Length + Fee.Length + Sho.Length + Van.Length)
-        Return New GITMc() With {
+        Return New GITMc() With
+        {
             .type = b(8 + a),
             .equip = b(16 + a) <> 0,
             .eqslot = b(20 + a),
@@ -360,7 +361,20 @@ Public Module Extensions
             .Van = Van,
             .IHS = IHS,
             .reload = BitConverter.ToInt32(b, BitConverter.ToInt32(b, 8) - 5)
-            }
+        }
+    End Function
+
+    <Extension>
+    Public Function ToGIARc(b As Byte()) As GIARc
+        Return New GIARc() With
+        {
+            .BallR = BitConverter.ToInt32(b, 12),
+            .BioR = BitConverter.ToInt32(b, 16),
+            .ElecR = BitConverter.ToInt32(b, 20),
+            .EMPR = BitConverter.ToInt32(b, 24),
+            .NormR = BitConverter.ToInt32(b, 28),
+            .HeatR = BitConverter.ToInt32(b, 32)
+        }
     End Function
 
     <Extension>

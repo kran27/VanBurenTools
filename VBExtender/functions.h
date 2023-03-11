@@ -1,6 +1,4 @@
 #pragma once
-#include "defs.h"
-#include "memory.h"
 #include "globals.h"
 #include <vector>
 
@@ -14,7 +12,7 @@ auto RegisterConsoleCommand = reinterpret_cast<RegisterConsoleCommandFunc>(F3 + 
 typedef void(*SendDebugStringFunc)(const char* Format, ...);
 auto SendDebugString = reinterpret_cast<SendDebugStringFunc>(F3 + 0x00097120);
 
-typedef _BYTE* (*__cdecl RTDynamicCastFunc)(PVOID inptr, LONG VfDelta, PVOID SrcType, PVOID TargetType, BOOL isReference);
+typedef uintptr_t (*__cdecl RTDynamicCastFunc)(PVOID inptr, LONG VfDelta, PVOID SrcType, PVOID TargetType, BOOL isReference);
 auto RTDynamicCast = reinterpret_cast<RTDynamicCastFunc>(F3 + 0x002165E0);
 #pragma region Game Types
 auto Action = reinterpret_cast<PVOID>(0x6F1E60);
@@ -219,7 +217,7 @@ inline uintptr_t getPlayerptr()
 }
 
 //to be used in a custom console command, a1 as the value given to the function, count as the number of params needed.
-auto getParams(unsigned a1, unsigned count) {
+inline auto getParams(unsigned a1, unsigned count) {
 	std::vector<char const*> values;
 	auto v1 = *(int*)(a1 + 4);
 	for (int i = 1; i <= count; ++i) {
@@ -271,6 +269,66 @@ inline const char* GetMouseOverText()
 	return text;
 }
 
+int GetDerivedAttribute(_DWORD *entity, int attribute)
+{
+  unsigned __int64 v2; // rax
+  double v3; // st7
+
+  switch ( attribute )
+  {
+    case 0:
+      v2 = entity[477] + 20;
+      break;
+    case 1:
+      v2 = 25 * (entity[472] + 1);
+      break;
+    case 2:
+      v2 = 2 * entity[473];
+      break;
+    case 3:
+      v2 = entity[478];
+      break;
+    case 4:
+      v2 = entity[511];
+      break;
+    case 5:
+      v2 = entity[474];
+      break;
+    case 6:
+      v2 = entity[472];
+      break;
+    case 7:
+      v2 = 3 * entity[473] + 40;
+      break;
+    case 8:
+      v2 = 3;
+      break;
+    case 9:
+    case 10:
+    case 11:
+      goto LABEL_17;
+    case 12:
+      v2 = 2 * entity[476] + 5;
+      break;
+    case 13:
+      v2 = 3 * entity[472];
+      break;
+    case 14:
+      v3 = (double)GetDerivedAttribute(entity, 0) * 0.0001666666666666667;
+      if ( v3 == 0.0 )
+        v2 = 1000;
+      else
+        v2 = (unsigned __int64)(1.0 / v3);
+      break;
+    default:
+      SendDebugString("GameCreature::GetDerivedAttribute() - Unknown attribute requested: %d", attribute);
+LABEL_17:
+      v2 = 0;
+      break;
+  }
+  return v2;
+}
+
 //Injected Functions
 
 inline void HealthTest(const int a1)
@@ -282,7 +340,7 @@ inline void HealthTest(const int a1)
 	Write<int>(ent + 0x24, health);
 }
 
-inline auto TestFunction()
+inline auto EntityInfo()
 {
 	const char* entPtr; // edi
 	const char* name; // eax
@@ -293,7 +351,7 @@ inline auto TestFunction()
 	int hp; // edi
 	int maxhp; // eax
 	int gentPtr; // [esp+28h] [ebp-134h]
-	
+
 	entPtr = (const char*)getCurrentEntityPtr();
 	gentPtr = (int)RTDynamicCast((PVOID)entPtr, 0, Entity, GameEntity, 0);
 	if (!entPtr)
@@ -354,4 +412,28 @@ inline void ToggleConsole()
 {
 	showConsole = !showConsole;
 	ShowWindow(GetConsoleWindow(), showConsole ? SW_SHOW : SW_HIDE);
+}
+
+inline void TestFunction(int a1)
+{
+	auto params = getParams(a1, 1);
+	auto param = atoi(params[0]);
+
+	auto cur = getCurrentEntityPtr();
+	auto ent = (_DWORD *)RTDynamicCast((uint32*)cur, NULL, Entity, GameEntity, NULL); //Should be GameCreature, but this is for testing purposes
+
+	if (cur)
+		if (ent)
+		{
+			auto attr = GetDerivedAttribute(ent, param);
+			WriteToConsole(consolePtr(), "Attribute %d is %d", param, attr);
+		}
+		else
+		{
+			WriteToConsole(consolePtr(), "Entity is not a GameCreature");
+		}
+	else
+	{
+		WriteToConsole(consolePtr(), "No entity selected");
+	}
 }

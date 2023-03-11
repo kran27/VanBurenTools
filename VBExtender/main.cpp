@@ -41,7 +41,7 @@ int WINAPI main()
 			RegisterConsoleCommand("GetVBEVersion", GetVBEVersion);
 			RegisterConsoleCommand("ToggleConsole", ToggleConsole);
 			RegisterConsoleCommand("SetHealth", HealthTest);
-			RegisterConsoleCommand("EntityInfo", (PVOID)(F3 + 0x37030));
+			RegisterConsoleCommand("EntityInfo", EntityInfo);
 
 			WritePtr<int>(F3 + 0x307EF8, { 0x4 }, 0);
 
