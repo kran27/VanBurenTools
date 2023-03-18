@@ -11,11 +11,11 @@ Public Class Main
     Public Const HT_CAPTION As Integer = &H2
 
     <DllImport("user32.dll")>
-    Public Shared Sub SendMessage(ByVal hWnd As IntPtr, ByVal Msg As Integer, ByVal wParam As Integer, ByVal lParam As Integer)
+    Private Shared Sub SendMessage(ByVal hWnd As IntPtr, ByVal msg As Integer, ByVal wParam As Integer, ByVal lParam As Integer)
     End Sub
 
     <DllImport("user32.dll")>
-    Public Shared Sub ReleaseCapture()
+    Private Shared Sub ReleaseCapture()
     End Sub
 
     Private Sub Form1_MouseDown(ByVal sender As Object, ByVal e As MouseEventArgs) Handles Background.MouseDown, Logo.MouseDown

@@ -538,11 +538,11 @@ Public Module Extensions
 
     ' Finds all triggers for .map files, and the subsequent trigger info chunk
     <Extension>
-    Public Function GetTriggers(b As Byte()) As IEnumerable(Of Trigger)
+    Public Function GetTriggers(b As Byte()) As List(Of Trigger)
         Dim hc = b.Locate(Encoding.ASCII.GetBytes("EMTR"))
-        Return From l In hc Let tl = BitConverter.ToInt32(b, l + 8) Let h1 = b.Skip(l).Take(tl).ToArray()
+        Return (From l In hc Let tl = BitConverter.ToInt32(b, l + 8) Let h1 = b.Skip(l).Take(tl).ToArray()
                Let h2 = b.Skip(l + tl).Take(b(l + tl + 8)).ToArray()
-               Select New Trigger With {.EMTR = h1.ToEMTRc, .ExTR = h2.ToExTRc}
+               Select New Trigger With {.EMTR = h1.ToEMTRc, .ExTR = h2.ToExTRc}).ToList()
     End Function
 
     ''' <summary>

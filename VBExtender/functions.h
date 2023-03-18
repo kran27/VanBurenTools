@@ -97,7 +97,6 @@ inline auto getClient() { return *reinterpret_cast<int**>(GetAddr(HudBase, { 0x2
 inline auto getServer() { return *reinterpret_cast<int**>(GetAddr(HudBase, { 0x18 })); }
 inline uintptr_t consolePtr() { return GetAddr(HudBase, { 0x2C, 0x88, 0x0 }); }
 inline uintptr_t cursorPtr() { return GetAddr(HudBase, { 0x2C, 0xA4, 0x0 }); }
-inline auto mapName() { return reinterpret_cast<char const*>(GetAddr(SettingsBase, { 0xFC, 0x0 })); }
 
 inline int isValid(const char* str) {
 	if (!str) return 0;
@@ -160,6 +159,8 @@ inline auto ReadString(uintptr_t base, std::vector<uintptr_t> offsets)
 	}
 	return result;
 }
+
+inline auto mapName() { return ReadString(SettingsBase, { 0xFC }); }
 
 inline float* getCamPtr()
 {
