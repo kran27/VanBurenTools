@@ -4,22 +4,49 @@ bool init = false;
 FILE* fp;
 bool close = false;
 
+void LoadASIModules(const std::wstring& directory)
+{
+	std::vector<std::wstring> asifiles;
+	WIN32_FIND_DATA findFileData;
+	HANDLE hFind;
+	std::wstring searchPath = directory + L"\\*.asi";
+	hFind = FindFirstFile(searchPath.c_str(), &findFileData);
+	if (hFind != INVALID_HANDLE_VALUE)
+	{
+		do
+		{
+			std::wstring asiPath = directory + L"\\" + findFileData.cFileName;
+			asifiles.push_back(asiPath);
+		} while (FindNextFile(hFind, &findFileData) != 0);
+		FindClose(hFind);
+	}
+
+	for (const auto& asiPath : asifiles)
+	{
+		HMODULE module = LoadLibrary(asiPath.c_str());
+		if (module)
+		{
+			std::wcout << "Loaded .asi module: " << asiPath << std::endl;
+		}
+		else
+		{
+			std::wcerr << "Failed to load .asi module: " << asiPath << std::endl;
+		}
+	}
+}
+
 int WINAPI main()
 {
+	GetAddresses();
 	// Allocate and hide a console
-	AllocConsole();
-	ToggleConsole();
-	SetConsoleTitleA("F3 Debug Log");
-	// Redirect output to the console
-	freopen_s(&fp, "CONOUT$", "w", stdout);
-	freopen_s(&fp, "CONOUT$", "w", stderr);
+	//AllocConsole();
+	//ToggleConsole();
+	//SetConsoleTitleA("F3 Debug Log");
+	//// Redirect output to the console
+	//freopen_s(&fp, "CONOUT$", "w", stdout);
+	//freopen_s(&fp, "CONOUT$", "w", stderr);
 
 	InitHooks();
-
-	for (auto& str : entities)
-	{
-		str = "";
-	}
 
 	while (true)
 	{
@@ -35,6 +62,10 @@ int WINAPI main()
 			DetourTransactionBegin();
 			DetourUpdateThread(GetCurrentThread());
 			DetourAttach(&reinterpret_cast<PVOID&>(p_present), detour_present);
+			//DetourAttach(&reinterpret_cast<PVOID&>(phookD3D11DrawIndexedInstancedIndirect), D3D11DrawIII);
+			//DetourAttach(&reinterpret_cast<PVOID&>(phookD3D11DrawIndexedInstanced), D3D11DrawII);
+			DetourAttach(&reinterpret_cast<PVOID&>(phookD3D11DrawIndexed), D3D11DrawI);
+			//DetourAttach(&reinterpret_cast<PVOID&>(phookD3D11Draw), D3D11Draw);
 			DetourTransactionCommit();
 
 			RegisterConsoleCommand("TestCommand", TestFunction);
@@ -53,6 +84,11 @@ int WINAPI main()
 			//int h = GetSystemMetrics(SM_CYSCREEN);
 			//SetWindowLongPtr(hwnd, GWL_STYLE, WS_VISIBLE | WS_POPUP);
 			//SetWindowPos(hwnd, HWND_TOP, 0, 0, w, h, SWP_FRAMECHANGED);
+
+			WCHAR dllPath[MAX_PATH];
+			GetModuleFileName(dll_handle, dllPath, MAX_PATH);
+			std::wstring directory = std::filesystem::path(dllPath).parent_path().wstring() + L"\\Plugins";
+			LoadASIModules(directory);
 
 			init = true;
 		}
@@ -88,6 +124,16 @@ int WINAPI main()
 				Special[5] = Read<int>(gent + 0xB4);
 				Special[6] = Read<int>(gent + 0xB8);
 				Age = Read<int>(gent + 0xCC);
+				Level = Read<int>(gent + 0xBC);
+				Locked = Read<char>(gent + 0xBD);
+				Race = Read<int>(gent + 0xC8);
+				Gender = Read<int>(gent + 0x34);
+				Ethnicity = Read<int>(gent + 0xD4);
+				SubRace = Read<int>(gent + 0xD8);
+				Type = Read<int>(gent + 0xA0);
+				LockDC = Read<int>(gent + 0xC0);
+				// ent + 0x168 is inventory, gent[38] is attack mode
+				Active = Read<char>(ent + 0x3A0);
 			}
 			if (close) break;
 		}
@@ -99,9 +145,11 @@ BOOL APIENTRY DllMain(HMODULE hModule, const DWORD dwReason, LPVOID lpReserved)
 	switch (dwReason)
 	{
 	case DLL_PROCESS_ATTACH:
+	{
 		dll_handle = hModule;
 		CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(main), nullptr, 0, nullptr);
-		break;
+	}
+	break;
 	case DLL_PROCESS_DETACH:
 		DetourTransactionBegin();
 		DetourUpdateThread(GetCurrentThread());
@@ -114,9 +162,12 @@ BOOL APIENTRY DllMain(HMODULE hModule, const DWORD dwReason, LPVOID lpReserved)
 
 		fclose(fp);
 		FreeConsole();
-		ImGui_ImplDX11_Shutdown();
-		ImGui_ImplWin32_Shutdown();
-		ImGui::DestroyContext();
+		if (ImGui::GetCurrentContext())
+		{
+			ImGui_ImplDX11_Shutdown();
+			ImGui_ImplWin32_Shutdown();
+			ImGui::DestroyContext();
+		}
 
 		if (mainRenderTargetView) { mainRenderTargetView->Release(); mainRenderTargetView = nullptr; }
 		if (p_context) { p_context->Release(); p_context = nullptr; }

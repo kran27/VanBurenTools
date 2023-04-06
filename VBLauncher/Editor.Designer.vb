@@ -1511,7 +1511,7 @@ Partial Class Editor
         MainMenuStrip.Text = "DarkMenuStrip1"' 
         ' FileToolStripMenuItem
         ' 
-        FileToolStripMenuItem.BackColor = Color.FromArgb(CByte(16), CByte(16), CByte(17))
+        FileToolStripMenuItem.BackColor = Color.FromArgb(CByte(31), CByte(31), CByte(32))
         FileToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {NewToolStripMenuItem, OpenToolStripMenuItem, SaveToolStripMenuItem})
         FileToolStripMenuItem.ForeColor = Color.FromArgb(CByte(213), CByte(213), CByte(213))
         FileToolStripMenuItem.Name = "FileToolStripMenuItem"
@@ -1613,7 +1613,7 @@ Partial Class Editor
         SaveToolStripMenuItem.Text = "Save"' 
         ' OptionsToolStripMenuItem
         ' 
-        OptionsToolStripMenuItem.BackColor = Color.FromArgb(CByte(16), CByte(16), CByte(17))
+        OptionsToolStripMenuItem.BackColor = Color.FromArgb(CByte(31), CByte(31), CByte(32))
         OptionsToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {SetEnglishstfLocationToolStripMenuItem, EnableSTFEdit})
         OptionsToolStripMenuItem.ForeColor = Color.FromArgb(CByte(213), CByte(213), CByte(213))
         OptionsToolStripMenuItem.Name = "OptionsToolStripMenuItem"
@@ -1636,7 +1636,7 @@ Partial Class Editor
         EnableSTFEdit.Text = "Enable English.stf Editing"' 
         ' ToolsToolStripMenuItem
         ' 
-        ToolsToolStripMenuItem.BackColor = Color.FromArgb(CByte(16), CByte(16), CByte(17))
+        ToolsToolStripMenuItem.BackColor = Color.FromArgb(CByte(31), CByte(31), CByte(32))
         ToolsToolStripMenuItem.DropDownItems.AddRange(New ToolStripItem() {StfToolStripMenuItem, TxtTostfToolStripMenuItem})
         ToolsToolStripMenuItem.ForeColor = Color.FromArgb(CByte(213), CByte(213), CByte(213))
         ToolsToolStripMenuItem.Name = "ToolsToolStripMenuItem"
@@ -2392,7 +2392,7 @@ Partial Class Editor
         ' GENTihp
         ' 
         GENTihp.Location = New Point(233, 139)
-        GENTihp.Maximum = New [Decimal](New Integer() {Integer.MaxValue, 0, 0, 0})
+        GENTihp.Maximum = New [Decimal](New Integer() {999999, 0, 0, 0})
         GENTihp.Name = "GENTihp"
         GENTihp.Size = New Size(61, 23)
         GENTihp.TabIndex = 53
@@ -2400,7 +2400,7 @@ Partial Class Editor
         ' GENTmhp
         ' 
         GENTmhp.Location = New Point(83, 139)
-        GENTmhp.Maximum = New [Decimal](New Integer() {Integer.MaxValue, 0, 0, 0})
+        GENTmhp.Maximum = New [Decimal](New Integer() {999999, 0, 0, 0})
         GENTmhp.Name = "GENTmhp"
         GENTmhp.Size = New Size(61, 23)
         GENTmhp.TabIndex = 52

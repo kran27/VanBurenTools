@@ -37,18 +37,10 @@ uintptr_t GetAddr(uintptr_t base, const std::vector<uintptr_t> offsets) {
 
 template<typename T>
 T ReadPtr(uintptr_t base, const std::vector<uintptr_t> offsets) {
-	for (unsigned int offset : offsets)
-	{
-		base = Read<uintptr_t>(base);
-		base += offset;
-	}
-	return Read<T>(base);
+	return Read<T>(GetAddr(base, offsets));
 }
 
 template<typename T>
-void WritePtr(uintptr_t base, const std::vector<uintptr_t> offsets, T data) {
-	base = GetAddr(base, offsets);
-	if (IsBadWritePtr((LPVOID)base, sizeof(T))) return;
-	if (IsBadReadPtr((void*)base, sizeof(T))) return;
-	(Write<T>(base, data));
+void WritePtr(uintptr_t base, const std::vector<uintptr_t> offsets, T data) {;
+	Write<T>(GetAddr(base, offsets), data);
 }

@@ -12,7 +12,7 @@ auto RegisterConsoleCommand = reinterpret_cast<RegisterConsoleCommandFunc>(F3 + 
 typedef void(*SendDebugStringFunc)(const char* Format, ...);
 auto SendDebugString = reinterpret_cast<SendDebugStringFunc>(F3 + 0x00097120);
 
-typedef uintptr_t (*__cdecl RTDynamicCastFunc)(PVOID inptr, LONG VfDelta, PVOID SrcType, PVOID TargetType, BOOL isReference);
+typedef uintptr_t(*__cdecl RTDynamicCastFunc)(PVOID inptr, LONG VfDelta, PVOID SrcType, PVOID TargetType, BOOL isReference);
 auto RTDynamicCast = reinterpret_cast<RTDynamicCastFunc>(F3 + 0x002165E0);
 #pragma region Game Types
 auto Action = reinterpret_cast<PVOID>(0x6F1E60);
@@ -66,6 +66,9 @@ auto GameParty = reinterpret_cast<PVOID>(0x6F3654);
 
 typedef uintptr_t(*__cdecl GetEntityPtrFunc)(int index);
 auto GetEntityPtr = reinterpret_cast<GetEntityPtrFunc>(F3 + 0x14BE10);
+
+typedef int (*__cdecl sub_5CCCC0Func)(int a1, int a2, _DWORD* a3);
+auto sub_5CCCC0 = reinterpret_cast<sub_5CCCC0Func>(F3 + 0x1CCCC0);
 
 typedef void(*NoParamFunc)();
 auto ToggleStatistics = reinterpret_cast<NoParamFunc>(F3 + 0x1882A0);
@@ -270,64 +273,64 @@ inline const char* GetMouseOverText()
 	return text;
 }
 
-int GetDerivedAttribute(_DWORD *entity, int attribute)
+int GetDerivedAttribute(_DWORD* entity, int attribute)
 {
-  unsigned __int64 v2; // rax
-  double v3; // st7
+	unsigned __int64 v2; // rax
+	double v3; // st7
 
-  switch ( attribute )
-  {
-    case 0:
-      v2 = entity[477] + 20;
-      break;
-    case 1:
-      v2 = 25 * (entity[472] + 1);
-      break;
-    case 2:
-      v2 = 2 * entity[473];
-      break;
-    case 3:
-      v2 = entity[478];
-      break;
-    case 4:
-      v2 = entity[511];
-      break;
-    case 5:
-      v2 = entity[474];
-      break;
-    case 6:
-      v2 = entity[472];
-      break;
-    case 7:
-      v2 = 3 * entity[473] + 40;
-      break;
-    case 8:
-      v2 = 3;
-      break;
-    case 9:
-    case 10:
-    case 11:
-      goto LABEL_17;
-    case 12:
-      v2 = 2 * entity[476] + 5;
-      break;
-    case 13:
-      v2 = 3 * entity[472];
-      break;
-    case 14:
-      v3 = (double)GetDerivedAttribute(entity, 0) * 0.0001666666666666667;
-      if ( v3 == 0.0 )
-        v2 = 1000;
-      else
-        v2 = (unsigned __int64)(1.0 / v3);
-      break;
-    default:
-      SendDebugString("GameCreature::GetDerivedAttribute() - Unknown attribute requested: %d", attribute);
-LABEL_17:
-      v2 = 0;
-      break;
-  }
-  return v2;
+	switch (attribute)
+	{
+	case 0:
+		v2 = entity[477] + 20;
+		break;
+	case 1:
+		v2 = 25 * (entity[472] + 1);
+		break;
+	case 2:
+		v2 = 2 * entity[473];
+		break;
+	case 3:
+		v2 = entity[478];
+		break;
+	case 4:
+		v2 = entity[511];
+		break;
+	case 5:
+		v2 = entity[474];
+		break;
+	case 6:
+		v2 = entity[472];
+		break;
+	case 7:
+		v2 = 3 * entity[473] + 40;
+		break;
+	case 8:
+		v2 = 3;
+		break;
+	case 9:
+	case 10:
+	case 11:
+		goto LABEL_17;
+	case 12:
+		v2 = 2 * entity[476] + 5;
+		break;
+	case 13:
+		v2 = 3 * entity[472];
+		break;
+	case 14:
+		v3 = (double)GetDerivedAttribute(entity, 0) * 0.0001666666666666667;
+		if (v3 == 0.0)
+			v2 = 1000;
+		else
+			v2 = (unsigned __int64)(1.0 / v3);
+		break;
+	default:
+		SendDebugString("GameCreature::GetDerivedAttribute() - Unknown attribute requested: %d", attribute);
+	LABEL_17:
+		v2 = 0;
+		break;
+	}
+	return v2;
 }
 
 //Injected Functions
@@ -408,33 +411,33 @@ inline void GetVBEVersion()
 	WriteToConsole(consolePtr(), "Van Buren Extender is %s", version);
 }
 
-static bool showConsole = true;
-inline void ToggleConsole()
-{
-	showConsole = !showConsole;
-	ShowWindow(GetConsoleWindow(), showConsole ? SW_SHOW : SW_HIDE);
-}
+static bool showConsole = false;
+inline void ToggleConsole() { showConsole = !showConsole; }
 
 inline void TestFunction(int a1)
 {
-	auto params = getParams(a1, 1);
-	auto param = atoi(params[0]);
+	//auto params = getParams(a1, 1);
+	//auto param = atoi(params[0]);
+	//
+	//auto cur = getCurrentEntityPtr();
+	//auto ent = (_DWORD *)RTDynamicCast((uint32*)cur, NULL, Entity, GameEntity, NULL); //Should be GameCreature, but this is for testing purposes
+	//
+	//if (cur)
+	//	if (ent)
+	//	{
+	//		auto attr = GetDerivedAttribute(ent, param);
+	//		WriteToConsole(consolePtr(), "Attribute %d is %d", param, attr);
+	//	}
+	//	else
+	//	{
+	//		WriteToConsole(consolePtr(), "Entity is not a GameCreature");
+	//	}
+	//else
+	//{
+	//	WriteToConsole(consolePtr(), "No entity selected");
+	//}
 
-	auto cur = getCurrentEntityPtr();
-	auto ent = (_DWORD *)RTDynamicCast((uint32*)cur, NULL, Entity, GameEntity, NULL); //Should be GameCreature, but this is for testing purposes
-
-	if (cur)
-		if (ent)
-		{
-			auto attr = GetDerivedAttribute(ent, param);
-			WriteToConsole(consolePtr(), "Attribute %d is %d", param, attr);
-		}
-		else
-		{
-			WriteToConsole(consolePtr(), "Entity is not a GameCreature");
-		}
-	else
-	{
-		WriteToConsole(consolePtr(), "No entity selected");
-	}
+	auto x = getPlayerptr();
+	auto y = getCurrentEntityPtr();
+	DebugAndConsole("Player: %p\nCurrent: %p", x, y);
 }

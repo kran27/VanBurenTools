@@ -4,6 +4,8 @@
 #include "speed.h"
 #include "Detours/detours.h"
 #include "functions.h"
+#include "globals.h"
+#include "imguiextensions.h"
 
 typedef void (WINAPI* OutputDebugStringAFunc)(LPCSTR lpOutputString);
 OutputDebugStringAFunc OriginalOutputDebugStringA;
@@ -13,9 +15,10 @@ bool initReady = false;
 inline void WINAPI HookedOutputDebugStringA(const LPCSTR lpOutputString)
 {
 	if (!initReady && strcmp(lpOutputString, "Client: connected to server.  My id is 1\n") == 0) initReady = true;
+	
+	logs.AddLog(lpOutputString);
 
 	OriginalOutputDebugStringA(lpOutputString);
-	std::cout << lpOutputString;
 }
 
 void InitHooks()

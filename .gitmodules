@@ -4,3 +4,6 @@
 [submodule "AltUI"]
 	path = AltUI
 	url = https://github.com/kran27/AltUI
+[submodule "VBExtender/MemoryModule"]
+	path = VBExtender/MemoryModule
+	url = https://github.com/fancycode/MemoryModule.git
