@@ -368,7 +368,7 @@ inline auto EntityInfo()
 	DebugAndConsole("Instance Name: %s", name);
 	DebugAndConsole("Entity ID #: %d", *((_DWORD*)entPtr + 0x77));
 	if (*((_DWORD*)entPtr + 0xAE) < 0x10u)
-		script = entPtr + 676;
+		script = entPtr + 0x2A4;
 	else
 		script = (const char*)*((_DWORD*)entPtr + 0xA9);
 	DebugAndConsole("Script File name: %s", script);
@@ -379,8 +379,8 @@ inline auto EntityInfo()
 	else
 		dialogue = (const char*)*((_DWORD*)entPtr + 0x80);
 	DebugAndConsole("Dialogue File Name: %s", dialogue);
-	if (*((_DWORD*)entPtr + 105) < 0x10u)
-		filename = entPtr + 400;
+	if (*((_DWORD*)entPtr + 0x69) < 0x10u)
+		filename = entPtr + 0x190;
 	else
 		filename = (const char*)*((_DWORD*)entPtr + 0x64);
 	DebugAndConsole("Entity File Name: %s", filename);
@@ -439,5 +439,5 @@ inline void TestFunction(int a1)
 
 	auto x = getPlayerptr();
 	auto y = getCurrentEntityPtr();
-	DebugAndConsole("Player: %p\nCurrent: %p", x, y);
+	DebugAndConsole("Player: %p Current: %p", x, y);
 }

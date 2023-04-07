@@ -154,12 +154,6 @@ void cycle_values()
 	}
 }
 
-void __stdcall D3D11DrawI(ID3D11DeviceContext* pContext, UINT IndexCount, UINT StartIndexLocation, INT BaseVertexLocation)
-{
-	if (!GetAsyncKeyState(VK_MENU) & 1)
-		return phookD3D11DrawIndexed(pContext, IndexCount, StartIndexLocation, BaseVertexLocation);
-}
-
 static long __stdcall detour_present(IDXGISwapChain* p_swap_chain, UINT sync_interval, UINT flags)
 {
 	if (!imguiinit)
@@ -288,6 +282,46 @@ static long __stdcall detour_present(IDXGISwapChain* p_swap_chain, UINT sync_int
 			ImGui::Text("Type: %d", Type);
 			ImGui::Text("LockDC: %d", LockDC);
 			ImGui::Text("Active: %d", Active);
+			auto entPtr = (const char*)GetAddr(EntityBase, { 0xE8, (uint)selEntity * 4, 0x2C, 0x0 });
+			const char* name; // eax
+			const char* script; // eax
+			const char* dialogue; // eax
+			const char* filename; // eax
+			const char* icon; // eax
+			if (*((_DWORD*)entPtr + 0x76) < 0x10u)
+				name = entPtr + 0x1C4;
+			else
+				name = (const char*)*((_DWORD*)entPtr + 0x71);
+			ImGui::Text("Instance Name: %s", name);
+			ImGui::Text("Entity ID #: %d", *((_DWORD*)entPtr + 0x77));
+			if (*((_DWORD*)entPtr + 0xAE) < 0x10u)
+				script = entPtr + 0x2A4;
+			else
+				script = (const char*)*((_DWORD*)entPtr + 0xA9);
+			ImGui::Text("Script File name: %s", script);
+			ImGui::Text("Team ID and Rank: %d and %d", *((_DWORD*)entPtr + 0xDA), *((_DWORD*)entPtr + 0xDB));
+			ImGui::Text("Squad ID and Rank: %d and %d", *((_DWORD*)entPtr + 0xDC), *((_DWORD*)entPtr + 0xDD));
+			if (*((_DWORD*)entPtr + 0x85) < 0x10u)
+				dialogue = entPtr + 0x200;
+			else
+				dialogue = (const char*)*((_DWORD*)entPtr + 0x80);
+			ImGui::Text("Dialogue File Name: %s", dialogue);
+			if (*((_DWORD*)entPtr + 0x69) < 0x10u)
+				filename = entPtr + 0x190;
+			else
+				filename = (const char*)*((_DWORD*)entPtr + 0x64);
+			ImGui::Text("Entity File Name: %s", filename);
+			if (*((_DWORD*)entPtr + 0x9A) < 0x10u)
+				icon = entPtr + 0x254;
+			else
+				icon = (const char*)*((_DWORD*)entPtr + 0x95);
+			ImGui::Text("Entity Icon File: %s", icon);
+			ImGui::Text("Current Map ID: %p", *((_DWORD*)entPtr + 0x7B));
+			ImGui::Text("Owner's ID: %d", *((_DWORD*)entPtr + 0xB7));
+			if (*((_DWORD*)entPtr + 0x79))
+				ImGui::Text("This entity is client controlled.");
+			else
+				ImGui::Text("This entity is not client controlled.");
 
 			break;
 		}

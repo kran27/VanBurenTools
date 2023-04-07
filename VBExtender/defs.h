@@ -4,7 +4,7 @@
    It has type definitions and convenience macros to make the
    output more readable.
 
-   Copyright (c) 2007-2020 Hex-Rays
+   Copyright (c) 2007-2022 Hex-Rays
 
 */
 
@@ -250,29 +250,14 @@ template<class T> T __ROL__(T value, int count)
   return value;
 }
 
-inline uint8  __ROL1__(const uint8  value, const int count) { return __ROL__((uint8)value, count); }
-inline uint16 __ROL2__(const uint16 value, const int count) { return __ROL__((uint16)value, count); }
-inline uint32 __ROL4__(const uint32 value, const int count) { return __ROL__((uint32)value, count); }
-inline uint64 __ROL8__(const uint64 value, const int count) { return __ROL__((uint64)value, count); }
-inline uint8  __ROR1__(const uint8  value, const int count) { return __ROL__((uint8)value, -count); }
-inline uint16 __ROR2__(const uint16 value, const int count) { return __ROL__((uint16)value, -count); }
-inline uint32 __ROR4__(const uint32 value, const int count) { return __ROL__((uint32)value, -count); }
-inline uint64 __ROR8__(const uint64 value, const int count) { return __ROL__((uint64)value, -count); }
-
-// the carry flag of a left shift
-template<class T> int8 __MKCSHL__(T value, uint count)
-{
-  const uint nbits = sizeof(T) * 8;
-  count %= nbits;
-
-  return (value >> (nbits-count)) & 1;
-}
-
-// the carry flag of a right shift
-template<class T> int8 __MKCSHR__(T value, const uint count)
-{
-  return (value >> (count-1)) & 1;
-}
+inline uint8  __ROL1__(uint8  value, int count) { return __ROL__((uint8)value, count); }
+inline uint16 __ROL2__(uint16 value, int count) { return __ROL__((uint16)value, count); }
+inline uint32 __ROL4__(uint32 value, int count) { return __ROL__((uint32)value, count); }
+inline uint64 __ROL8__(uint64 value, int count) { return __ROL__((uint64)value, count); }
+inline uint8  __ROR1__(uint8  value, int count) { return __ROL__((uint8)value, -count); }
+inline uint16 __ROR2__(uint16 value, int count) { return __ROL__((uint16)value, -count); }
+inline uint32 __ROR4__(uint32 value, int count) { return __ROL__((uint32)value, -count); }
+inline uint64 __ROR8__(uint64 value, int count) { return __ROL__((uint64)value, -count); }
 
 // sign flag
 template<class T> int8 __SETS__(T x)
@@ -377,10 +362,10 @@ template<class T, class U> int8 __OFSUB__(T x, U y, int8 cf)
   return __OFADD__(y, cf) ^ __OFSUB(x, y + cf);
 }
 
-inline uint8   abs8(const int8     x) { return x >= 0 ? x : -x; }
-inline uint16  abs16(const int16   x) { return x >= 0 ? x : -x; }
-inline uint32  abs32(const int32   x) { return x >= 0 ? x : -x; }
-inline uint64  abs64(const int64   x) { return x >= 0 ? x : -x; }
+inline uint8   abs8(int8     x) { return x >= 0 ? x : -x; }
+inline uint16  abs16(int16   x) { return x >= 0 ? x : -x; }
+inline uint32  abs32(int32   x) { return x >= 0 ? x : -x; }
+inline uint64  abs64(int64   x) { return x >= 0 ? x : -x; }
 //inline uint128 abs128(int128 x) { return x >= 0 ? x : -x; }
 
 #include <string.h>     // for memcpy
@@ -426,11 +411,6 @@ void __noreturn __trap(uint16 trapcode); // SIGTRAP
 void __noreturn __break(uint16 code, uint16 subcode);
 #endif
 
-// No definition for rcl/rcr because the carry flag is unknown
-#define __RCL__(x, y)    invalid_operation // Rotate left thru carry
-#define __RCR__(x, y)    invalid_operation // Rotate right thru carry
-#define __MKCRCL__(x, y) invalid_operation // Generate carry flag for a RCL
-#define __MKCRCR__(x, y) invalid_operation // Generate carry flag for a RCR
 #define __SETP__(x, y)   invalid_operation // Generate parity flag for (x-y)
 
 // In the decompilation listing there are some objects declared as _UNKNOWN
@@ -439,6 +419,11 @@ void __noreturn __break(uint16 code, uint16 subcode);
 // for example a char:
 
 #define _UNKNOWN char
+
+#ifdef _MSC_VER
+#define snprintf _snprintf
+#define vsnprintf _vsnprintf
+#endif
 
 // The ADJ() macro is used for shifted pointers.
 // While compilers do not understand it, it makes the code more readable.

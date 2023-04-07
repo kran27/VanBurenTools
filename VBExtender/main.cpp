@@ -62,10 +62,6 @@ int WINAPI main()
 			DetourTransactionBegin();
 			DetourUpdateThread(GetCurrentThread());
 			DetourAttach(&reinterpret_cast<PVOID&>(p_present), detour_present);
-			//DetourAttach(&reinterpret_cast<PVOID&>(phookD3D11DrawIndexedInstancedIndirect), D3D11DrawIII);
-			//DetourAttach(&reinterpret_cast<PVOID&>(phookD3D11DrawIndexedInstanced), D3D11DrawII);
-			DetourAttach(&reinterpret_cast<PVOID&>(phookD3D11DrawIndexed), D3D11DrawI);
-			//DetourAttach(&reinterpret_cast<PVOID&>(phookD3D11Draw), D3D11Draw);
 			DetourTransactionCommit();
 
 			RegisterConsoleCommand("TestCommand", TestFunction);
