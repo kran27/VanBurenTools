@@ -112,6 +112,17 @@ inline int isValid(const char* str) {
 	return 1;
 }
 
+const char* formatString(const char* format, ...) {
+    static char buffer[256]; // Adjust the size as per your requirements
+    
+    va_list args;
+    va_start(args, format);
+    vsnprintf(buffer, sizeof(buffer), format, args);
+    va_end(args);
+    
+    return buffer;
+}
+
 inline auto getCurrentEntityPtr() {
 	auto client = getClient();
 	auto curEntity = client[0x37];

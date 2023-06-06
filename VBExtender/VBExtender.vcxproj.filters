@@ -42,6 +42,21 @@
     <ClCompile Include="MemoryModule\MemoryModule.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DiscordRPC\connection_win.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DiscordRPC\discord_register_win.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DiscordRPC\discord_rpc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DiscordRPC\rpc_connection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DiscordRPC\serialization.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="defs.h">
@@ -75,6 +90,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="imguiextensions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DiscordRPC\discord_register.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DiscordRPC\discord_rpc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

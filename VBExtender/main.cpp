@@ -1,4 +1,5 @@
 #include "includes.h"
+#include "proxy.h"
 
 bool init = false;
 FILE* fp;
@@ -32,6 +33,51 @@ void LoadASIModules(const std::wstring& directory)
 		{
 			std::wcerr << "Failed to load .asi module: " << asiPath << std::endl;
 		}
+	}
+}
+
+void RPCInit()
+{
+	DiscordEventHandlers Handler;
+	memset(&Handler, 0, sizeof(Handler));
+	Discord_Initialize("1115529208584732714", &Handler, 1, NULL);
+}
+
+void WINAPI RPCUpdate()
+{
+	DiscordRichPresence discordPresence;
+	memset(&discordPresence, 0, sizeof(discordPresence));
+	discordPresence.startTimestamp = time(nullptr);
+	discordPresence.largeImageKey = "f3logo";
+	while (true)
+	{
+		auto map = mapName();
+		if (map[0] != '\0') {
+			auto plyr = getPlayerptr();
+			if (*((_DWORD*)plyr + 0x79))
+			{
+				discordPresence.details = map;
+				const char* fileName = ReadString(plyr + 0x190);
+				std::string charName(fileName, strlen(fileName) - 4);
+
+				auto ap = Read<int>(plyr + 0x174);
+				auto ent = (int)RTDynamicCast((uint32*)plyr, NULL, Entity, GameEntity, NULL);
+				auto mhp = Read<int>(ent + 0x20);
+				auto hp = Read<int>(ent + 0x24);
+
+				discordPresence.state = formatString("%s | HP: %d/%d | AP: %d", charName.c_str(), hp, mhp, ap);
+
+				goto notmm;
+			}
+		}
+		discordPresence.details = "At Main Menu";
+		discordPresence.state = "";
+
+	notmm:
+
+		Discord_UpdatePresence(&discordPresence);
+		Sleep(250);
+		if (close) break;
 	}
 }
 
@@ -73,6 +119,8 @@ int WINAPI main()
 			WritePtr<int>(F3 + 0x307EF8, { 0x4 }, 0);
 
 			DebugAndConsole("Van Buren Extender %s Loaded and Initialized", version);
+
+			DebugAndConsole("Original Bink Base Address: %p", binkHMM);
 
 			//TODO: Add config for borderless fullscreen somehow
 			//auto hwnd = GetForegroundWindow();
@@ -144,6 +192,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, const DWORD dwReason, LPVOID lpReserved)
 	{
 		dll_handle = hModule;
 		CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(main), nullptr, 0, nullptr);
+		RPCInit();
+		CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(RPCUpdate), nullptr, 0, nullptr);
 	}
 	break;
 	case DLL_PROCESS_DETACH:
@@ -171,7 +221,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, const DWORD dwReason, LPVOID lpReserved)
 		SetWindowLongPtr(window, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(oWndProc));
 
 		close = true;
-		Sleep(150);
+		Sleep(255);
 
 		FreeLibraryAndExitThread(dll_handle, 0);
 		break;

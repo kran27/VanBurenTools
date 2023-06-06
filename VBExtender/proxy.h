@@ -3,21 +3,22 @@
 #include "MemoryModule/MemoryModule.h"
 
 FARPROC p[9] = { nullptr };
+HMEMORYMODULE binkHMM;
 
 // loads the .dll from an array and obtains addresses from there, instead of loading the .dll from disk.
 void GetAddresses()
 {
-	const HMEMORYMODULE bink = MemoryLoadLibrary(binkw32, sizeof binkw32);
-
-	p[0] = MemoryGetProcAddress(bink, "_BinkWait@4");
-	p[1] = MemoryGetProcAddress(bink, "_BinkDoFrame@4");
-	p[2] = MemoryGetProcAddress(bink, "_BinkCopyToBuffer@28");
-	p[3] = MemoryGetProcAddress(bink, "_BinkNextFrame@4");
-	p[4] = MemoryGetProcAddress(bink, "_BinkOpen@8");
-	p[5] = MemoryGetProcAddress(bink, "_BinkGetError@0");
-	p[6] = MemoryGetProcAddress(bink, "_BinkOpenDirectSound@4");
-	p[7] = MemoryGetProcAddress(bink, "_BinkSetSoundSystem@8");
-	p[8] = MemoryGetProcAddress(bink, "_BinkClose@4");
+	binkHMM = MemoryLoadLibrary(binkw32, sizeof binkw32);
+	
+	p[0] = MemoryGetProcAddress(binkHMM, "_BinkWait@4");
+	p[1] = MemoryGetProcAddress(binkHMM, "_BinkDoFrame@4");
+	p[2] = MemoryGetProcAddress(binkHMM, "_BinkCopyToBuffer@28");
+	p[3] = MemoryGetProcAddress(binkHMM, "_BinkNextFrame@4");
+	p[4] = MemoryGetProcAddress(binkHMM, "_BinkOpen@8");
+	p[5] = MemoryGetProcAddress(binkHMM, "_BinkGetError@0");
+	p[6] = MemoryGetProcAddress(binkHMM, "_BinkOpenDirectSound@4");
+	p[7] = MemoryGetProcAddress(binkHMM, "_BinkSetSoundSystem@8");
+	p[8] = MemoryGetProcAddress(binkHMM, "_BinkClose@4");
 }
 
 // _BinkWait@4

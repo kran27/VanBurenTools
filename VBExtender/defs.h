@@ -4,7 +4,7 @@
    It has type definitions and convenience macros to make the
    output more readable.
 
-   Copyright (c) 2007-2022 Hex-Rays
+   Copyright (c) 2007-2020 Hex-Rays
 
 */
 
@@ -259,6 +259,21 @@ inline uint16 __ROR2__(uint16 value, int count) { return __ROL__((uint16)value, 
 inline uint32 __ROR4__(uint32 value, int count) { return __ROL__((uint32)value, -count); }
 inline uint64 __ROR8__(uint64 value, int count) { return __ROL__((uint64)value, -count); }
 
+// the carry flag of a left shift
+template<class T> int8 __MKCSHL__(T value, uint count)
+{
+  const uint nbits = sizeof(T) * 8;
+  count %= nbits;
+
+  return (value >> (nbits-count)) & 1;
+}
+
+// the carry flag of a right shift
+template<class T> int8 __MKCSHR__(T value, uint count)
+{
+  return (value >> (count-1)) & 1;
+}
+
 // sign flag
 template<class T> int8 __SETS__(T x)
 {
@@ -411,6 +426,11 @@ void __noreturn __trap(uint16 trapcode); // SIGTRAP
 void __noreturn __break(uint16 code, uint16 subcode);
 #endif
 
+// No definition for rcl/rcr because the carry flag is unknown
+#define __RCL__(x, y)    invalid_operation // Rotate left thru carry
+#define __RCR__(x, y)    invalid_operation // Rotate right thru carry
+#define __MKCRCL__(x, y) invalid_operation // Generate carry flag for a RCL
+#define __MKCRCR__(x, y) invalid_operation // Generate carry flag for a RCR
 #define __SETP__(x, y)   invalid_operation // Generate parity flag for (x-y)
 
 // In the decompilation listing there are some objects declared as _UNKNOWN
@@ -421,8 +441,6 @@ void __noreturn __break(uint16 code, uint16 subcode);
 #define _UNKNOWN char
 
 #ifdef _MSC_VER
-#define snprintf _snprintf
-#define vsnprintf _vsnprintf
 #endif
 
 // The ADJ() macro is used for shifted pointers.
