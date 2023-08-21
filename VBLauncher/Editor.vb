@@ -931,7 +931,8 @@ Public Class Editor
 
     Private Sub GCREskcb_SelectedIndexChanged(sender As Object, e As EventArgs)
         If sender.Enabled Then
-            Dim existingSkill = (From sk In CType(cf, CRT).GCRE.Skills Where sk.Index = GCREskcb.SelectedIndex Select sk)(0) ' Determine whether or not the list of skills
+            Dim avoidError As CRT = cf ' this avoids a compiler error caused by the ambiguous type of cf, even though the code *should* still work, thanks MS
+            Dim existingSkill = (From sk In avoidError.GCRE.Skills Where sk.Index = GCREskcb.SelectedIndex Select sk)(0) ' Determine whether or not the list of skills
             Dim skillIndex = cf.GCRE.Skills.IndexOf(existingSkill)                                               ' contains a skill with the current index
             If skillIndex <> -1 Then                                                                             '
                 GCREskv.Value = cf.GCRE.Skills(skillIndex).Value
