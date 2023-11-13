@@ -1,4 +1,6 @@
 #pragma once
+#include <DirectXMath.h>
+
 #include "globals.h"
 #include <vector>
 
@@ -70,6 +72,9 @@ auto GetEntityPtr = reinterpret_cast<GetEntityPtrFunc>(F3 + 0x14BE10);
 typedef int (*__cdecl sub_5CCCC0Func)(int a1, int a2, _DWORD* a3);
 auto sub_5CCCC0 = reinterpret_cast<sub_5CCCC0Func>(F3 + 0x1CCCC0);
 
+typedef void (*__cdecl sub_59F030Func)(const char *a1);
+auto sub_59F030 = reinterpret_cast<sub_59F030Func>(F3 + 0x1F030);
+
 typedef void(*NoParamFunc)();
 auto ToggleStatistics = reinterpret_cast<NoParamFunc>(F3 + 0x1882A0);
 auto ToggleLighting = reinterpret_cast<NoParamFunc>(F3 + 0x1882C0);
@@ -113,14 +118,14 @@ inline int isValid(const char* str) {
 }
 
 const char* formatString(const char* format, ...) {
-    static char buffer[256]; // Adjust the size as per your requirements
-    
-    va_list args;
-    va_start(args, format);
-    vsnprintf(buffer, sizeof(buffer), format, args);
-    va_end(args);
-    
-    return buffer;
+	static char buffer[256]; // Adjust the size as per your requirements
+
+	va_list args;
+	va_start(args, format);
+	vsnprintf(buffer, sizeof(buffer), format, args);
+	va_end(args);
+
+	return buffer;
 }
 
 inline auto getCurrentEntityPtr() {
@@ -242,7 +247,7 @@ inline auto getParams(unsigned a1, unsigned count) {
 	return values;
 }
 
-//sends a given string to the in-game console, debug console, and debug log.*/
+//sends a given string to the in-game console, debug console, and debug log.
 inline void DebugAndConsole(const char* format, ...)
 {
 	va_list args;
@@ -417,6 +422,36 @@ inline auto EntityInfo()
 	return 1;
 }
 
+std::vector<float> worldToScreen(const float x, const float y, const float z)
+{
+	const auto camPtr = getCamPtr();
+	const auto camPtr2 = getCamPtr2();
+	
+	DirectX::XMFLOAT3 cameraPos = DirectX::XMFLOAT3(Read<float>(SettingsBase + 0xFC), Read<float>(SettingsBase + 0x100), Read<float>(SettingsBase + 0x104));
+	DirectX::XMFLOAT3 cameraTarget = DirectX::XMFLOAT3(camPtr2[36], camPtr2[37], camPtr2[38]);
+	float fov = camPtr[68];
+	float aspectRatio = static_cast<float>(Read<int>(F3 + 0x307EA8)) / Read<int>(F3 + 0x307EAC);
+
+	DirectX::XMFLOAT3 cameraUp = DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f);
+	float nearPlane = 1.0f;
+	float farPlane = 10000.0f;
+	
+	DirectX::XMMATRIX viewMatrix = DirectX::XMMatrixLookAtLH(DirectX::XMLoadFloat3(&cameraPos), XMLoadFloat3(&cameraTarget), XMLoadFloat3(&cameraUp));
+	DirectX::XMMATRIX projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(fov, aspectRatio, nearPlane, farPlane);
+	DirectX::XMMATRIX viewProjectionMatrix = viewMatrix * projectionMatrix;
+	DirectX::XMFLOAT3 worldPos = DirectX::XMFLOAT3(x, z, y);
+
+	DirectX::XMVECTOR clipSpacePos = XMVector3TransformCoord(XMLoadFloat3(&worldPos), viewProjectionMatrix);
+	DirectX::XMVECTOR ndcPos = DirectX::XMVectorSetW(clipSpacePos, 1.0f / DirectX::XMVectorGetW(clipSpacePos));
+	D3D11_VIEWPORT viewport = { 0.0f, 0.0f, Read<int>(F3 + 0x307EA8), Read<int>(F3 + 0x307EAC), 0.0f, 1.0f };
+	DirectX::XMMATRIX viewportMatrix = DirectX::XMMatrixScaling(viewport.Width / 2.0f, -viewport.Height / 2.0f, 1.0f) * DirectX::XMMatrixTranslation(viewport.Width / 2.0f + viewport.TopLeftX, viewport.Height / 2.0f + viewport.TopLeftY, 0.0f);
+	
+	DirectX::XMVECTOR screenPos = XMVector3TransformCoord(ndcPos, viewportMatrix);
+
+	std::vector a = {DirectX::XMVectorGetX(screenPos), DirectX::XMVectorGetY(screenPos)};
+	return a;
+}
+
 inline void GetVBEVersion()
 {
 	WriteToConsole(consolePtr(), "Van Buren Extender is %s", version);
@@ -448,7 +483,9 @@ inline void TestFunction(int a1)
 	//	WriteToConsole(consolePtr(), "No entity selected");
 	//}
 
-	auto x = getPlayerptr();
-	auto y = getCurrentEntityPtr();
-	DebugAndConsole("Player: %p Current: %p", x, y);
+	//auto x = getPlayerptr();
+	//auto y = getCurrentEntityPtr();
+	//DebugAndConsole("Player: %p Current: %p", x, y);
+
+	sub_59F030("GetVBEVersion");
 }

@@ -30,7 +30,7 @@ Public Class Main
     Private _mouseDown As Boolean
     Private sound As SoundPlayer = New SoundPlayer()
 
-    Private Sub Startup() Handles MyBase.Load
+    Private Sub Startup(sender As Object, e As EventArgs) Handles MyBase.Load
         Logo.Parent = Background
         Background.BackgroundImage = My.Resources.ResourceManager.GetObject($"BG{New Random().Next(1, 13)}")
         If File.Exists("F3.exe") Then
@@ -61,8 +61,8 @@ Public Class Main
         End Try
     End Sub
 
-    Private Sub LaunchGame() Handles LaunchB.Click
-        PlayButtonUp()
+    Private Sub LaunchGame(sender As Object, e As EventArgs) Handles LaunchB.Click
+        PlayButtonUp(sender, e)
         Try
             Process.Start("F3.exe")
             Close()
@@ -71,22 +71,22 @@ Public Class Main
         End Try
     End Sub
 
-    Private Sub OpenOptions() Handles OptionsB.Click
-        PlayButtonUp()
+    Private Sub OpenOptions(sender As Object, e As EventArgs) Handles OptionsB.Click
+        PlayButtonUp(sender, e)
         Options.ShowDialog()
     End Sub
 
-    Private Sub ExitLauncher() Handles ExitB.Click
-        PlayButtonUp()
+    Private Sub ExitLauncher(sender As Object, e As EventArgs) Handles ExitB.Click
+        PlayButtonUp(sender, e)
         Close()
     End Sub
 
     Private Sub EditorB_Click(sender As Object, e As EventArgs) Handles EditorB.Click
-        PlayButtonUp()
+        PlayButtonUp(sender, e)
         Editor.Show()
     End Sub
 
-    Private Sub PlayButtonDown() Handles LaunchB.MouseDown, OptionsB.MouseDown, ExitB.MouseDown, EditorB.MouseDown, ModLoaderB.MouseDown
+    Private Sub PlayButtonDown(sender As Object, e As EventArgs) Handles LaunchB.MouseDown, OptionsB.MouseDown, ExitB.MouseDown, EditorB.MouseDown, ModLoaderB.MouseDown
         If Not _mouseDown Then
             _mouseDown = True
             sound.Stream = My.Resources.f3_button_down_01
@@ -94,7 +94,7 @@ Public Class Main
         End If
     End Sub
 
-    Private Sub PlayButtonUp() Handles LaunchB.MouseUp, OptionsB.MouseUp, ExitB.MouseUp, EditorB.MouseUp, ModLoaderB.MouseUp
+    Private Sub PlayButtonUp(sender As Object, e As EventArgs) Handles LaunchB.MouseUp, OptionsB.MouseUp, ExitB.MouseUp, EditorB.MouseUp, ModLoaderB.MouseUp
         If _mouseDown Then
             _mouseDown = False
             sound.Stream = My.Resources.f3_button_up_01
@@ -107,7 +107,7 @@ Public Class Main
     End Sub
 
     Private Sub ModLoaderB_Click(sender As Object, e As EventArgs) Handles ModLoaderB.Click
-        PlayButtonUp()
+        PlayButtonUp(sender, e)
         ModLoader.ShowDialog()
     End Sub
 

@@ -14,6 +14,7 @@ bool initReady = false;
 
 inline void WINAPI HookedOutputDebugStringA(const LPCSTR lpOutputString)
 {
+	//Only initialize after Client is connected (probably should do this smarter than checking debug strings.)
 	if (!initReady && strcmp(lpOutputString, "Client: connected to server.  My id is 1\n") == 0) initReady = true;
 	
 	logs.AddLog(lpOutputString);

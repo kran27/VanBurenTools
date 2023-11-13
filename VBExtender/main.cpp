@@ -84,13 +84,6 @@ void WINAPI RPCUpdate()
 int WINAPI main()
 {
 	GetAddresses();
-	// Allocate and hide a console
-	//AllocConsole();
-	//ToggleConsole();
-	//SetConsoleTitleA("F3 Debug Log");
-	//// Redirect output to the console
-	//freopen_s(&fp, "CONOUT$", "w", stdout);
-	//freopen_s(&fp, "CONOUT$", "w", stderr);
 
 	InitHooks();
 
@@ -120,10 +113,10 @@ int WINAPI main()
 
 			DebugAndConsole("Van Buren Extender %s Loaded and Initialized", version);
 
-			DebugAndConsole("Original Bink Base Address: %p", binkHMM);
+			//DebugAndConsole("Original Bink Base Address: %p", binkHMM);
 
 			//TODO: Add config for borderless fullscreen somehow
-			//auto hwnd = GetForegroundWindow();
+			//auto hwnd = FindWindowA();
 			//int w = GetSystemMetrics(SM_CXSCREEN);
 			//int h = GetSystemMetrics(SM_CYSCREEN);
 			//SetWindowLongPtr(hwnd, GWL_STYLE, WS_VISIBLE | WS_POPUP);
@@ -141,8 +134,6 @@ int WINAPI main()
 
 		if (init)
 		{
-			if (GetAsyncKeyState(VK_END) & 1);
-
 			auto ent = GetAddr(EntityBase, { 0xE8, (uint)selEntity * 4, 0x2C, 0x0 });
 
 			if (ent) {

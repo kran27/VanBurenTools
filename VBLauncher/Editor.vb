@@ -20,7 +20,7 @@ Public Class Editor
 
 #End Region
 
-    Private Sub InitialSetup()
+    Private Sub InitialSetup() Handles MyBase.Load
         Size = New Size(640, 480)
         EnableSTFEdit.Checked = My.Settings.STFEditEnabled
         Mapgb.Hide()
@@ -45,16 +45,16 @@ Public Class Editor
 
 #Region "New Files"
 
-    Private Sub NewAmo()
+    Private Sub NewAmo() Handles AmoToolStripMenuItem.Click
     End Sub
 
-    Private Sub NewArm()
+    Private Sub NewArm() Handles ArmToolStripMenuItem.Click
     End Sub
 
-    Private Sub NewCon()
+    Private Sub NewCon() Handles ConToolStripMenuItem.Click
     End Sub
 
-    Private Sub NewCrt()
+    Private Sub NewCrt() Handles CrtToolStripMenuItem.Click
         If CheckAndLoadStf() Then
             ext = ".crt"
             cf = New CRT()
@@ -64,13 +64,13 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub NewDor()
+    Private Sub NewDor() Handles DorToolStripMenuItem.Click
     End Sub
 
-    Private Sub NewInt()
+    Private Sub NewInt() Handles IntToolStripMenuItem.Click
     End Sub
 
-    Private Sub NewItm()
+    Private Sub NewItm() Handles ItmToolStripMenuItem.Click
         If CheckAndLoadStf() Then
             ext = ".itm"
             cf = New ITM()
@@ -80,70 +80,82 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub NewMap()
+    Private Sub NewMap() Handles MapToolStripMenuItem.Click
         ext = ".map"
         cf = New Map()
         MapSetupUI(cf)
     End Sub
 
-    Private Sub NewUse()
+    Private Sub NewUse() Handles UseToolStripMenuItem.Click
     End Sub
 
-    Private Sub NewWea()
+    Private Sub NewWea() Handles WeaToolStripMenuItem.Click
     End Sub
 
 #End Region
 
-    Private Sub OpenFile()
+    Private Sub OpenFile() Handles OpenToolStripMenuItem.Click
         ' Loads all regions of a given file into their respective classes, and from there into the UI
         Dim ofd As New OpenFileDialog With {.Filter = "Van Buren Data File|*.amo;*.arm;*.con;*.crt;*.dor;*.int;*.itm;*.map;*.use;*.wea", .Multiselect = False, .ValidateNames = True}
         If ofd.ShowDialog = DialogResult.OK Then
             f = ofd.FileName
             ext = f.Substring(f.LastIndexOf("."), 4).ToLower()
             Dim fb = File.ReadAllBytes(f)
-            Select Case ext
-                Case ".amo"
-                    MsgBox("Not yet implemented")
-                Case ".arm"
-                    MsgBox("Not yet implemented")
-                Case ".con"
-                    MsgBox("Not yet implemented")
-                Case ".crt"
-                    If CheckAndLoadStf() Then
-                        Mapgb.Hide()
-                        cf = fb.ReadCRT()
-                        CRTgb.Text = $".CRT Editor ({f.Substring(f.LastIndexOf("\") + 1)})"
-                        CRTSetupUI(cf)
-                    Else
-                        DarkMessageBox.ShowError($".STF Not selected, loading of {f} aborted", ".STF Not Selected")
-                    End If
-                Case ".dor"
-                    MsgBox("Not yet implemented")
-                Case ".int"
-                    MsgBox("Not yet implemented")
-                Case ".itm"
-                    If CheckAndLoadStf() Then
-                        Mapgb.Hide()
-                        cf = fb.ReadITM()
-                        ITMgb.Text = $".ITM Editor ({f.Substring(f.LastIndexOf("\") + 1)})"
-                        ITMSetupUI(cf)
-                    Else
-                        DarkMessageBox.ShowError($".STF Not selected, loading of {f} aborted", ".STF Not Selected")
-                    End If
-                Case ".map"
-                    CRTgb.Hide()
-                    cf = fb.ReadMap()
-                    Mapgb.Text = $".MAP Editor ({f.Substring(f.LastIndexOf("\") + 1)})"
-                    MapSetupUI(cf)
-                Case ".use"
-                    MsgBox("Not yet implemented")
-                Case ".wea"
-                    MsgBox("Not yet implemented")
-            End Select
+            LoadFile(fb, ext)
         End If
     End Sub
 
-    Private Sub SaveFile()
+    Private Sub LoadFile(fb As Byte(), ext As string)
+        Select Case ext
+            Case ".amo"
+                MsgBox("Not yet implemented")
+            Case ".arm"
+                MsgBox("Not yet implemented")
+            Case ".con"
+                MsgBox("Not yet implemented")
+            Case ".crt"
+                If CheckAndLoadStf() Then
+                    Mapgb.Hide()
+                    cf = fb.ReadCRT()
+                    CRTgb.Text = $".CRT Editor ({f.Substring(f.LastIndexOf("\") + 1)})"
+                    CRTSetupUI(cf)
+                Else
+                    DarkMessageBox.ShowError($".STF Not selected, loading of {f} aborted", ".STF Not Selected")
+                End If
+            Case ".dor"
+                MsgBox("Not yet implemented")
+            Case ".int"
+                MsgBox("Not yet implemented")
+            Case ".itm"
+                If CheckAndLoadStf() Then
+                    Mapgb.Hide()
+                    cf = fb.ReadITM()
+                    ITMgb.Text = $".ITM Editor ({f.Substring(f.LastIndexOf("\") + 1)})"
+                    ITMSetupUI(cf)
+                Else
+                DarkMessageBox.ShowError($".STF Not selected, loading of {f} aborted", ".STF Not Selected")
+            End If
+            Case ".map"
+                CRTgb.Hide()
+                cf = fb.ReadMap()
+                Mapgb.Text = $".MAP Editor ({f.Substring(f.LastIndexOf("\") + 1)})"
+                MapSetupUI(cf)
+            Case ".use"
+                MsgBox("Not yet implemented")
+            Case ".wea"
+                MsgBox("Not yet implemented")
+        End Select
+    End Sub
+
+    Private Sub OpenFromgrpToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles OpenFromgrpToolStripMenuItem.Click
+        Using grpb As New GrpBrowser(New String() {"amo", "arm", "con", "crt", "dor", "int", "itm", "map", "use", "wea"})
+            grpb.ShowDialog()
+            f = grpb.FileName
+            LoadFile(grpb.FileBytes, "." & grpb.Extension)
+        End Using
+    End Sub
+
+    Private Sub SaveFile() Handles SaveToolStripMenuItem.Click
         Dim sfd As New SaveFileDialog With {.Filter = $"Van Buren Data File|*{ext}", .ValidateNames = True, .DefaultExt = ext}
         If sfd.ShowDialog = DialogResult.OK Then
             If My.Settings.STFEditEnabled AndAlso stf IsNot Nothing Then File.WriteAllBytes(My.Settings.STFDir, TXTToSTF(stf.ToArray()))
@@ -381,7 +393,7 @@ Public Class Editor
         EMAPilcb.Checked = cf.EMAP.il
     End Sub
 
-    Private Sub EME2ToUI()
+    Private Sub EME2ToUI() Handles EME2cb.SelectedIndexChanged
         EME2n.Text = cf.EME2(EME2cb.SelectedIndex).name
         EME2s1.Text = cf.EME2(EME2cb.SelectedIndex).EEOV.s1
         EME2s2.Text = cf.EME2(EME2cb.SelectedIndex).EEOV.s2
@@ -404,7 +416,7 @@ Public Class Editor
         Next
     End Sub
 
-    Private Sub EMEPToUI()
+    Private Sub EMEPToUI() Handles EMEPcb.SelectedIndexChanged
         EMEPnud.Value = cf.EMEP(EMEPcb.SelectedIndex).index
         EMEPx.Text = cf.EMEP(EMEPcb.SelectedIndex).p.x
         EMEPy.Text = cf.EMEP(EMEPcb.SelectedIndex).p.y
@@ -419,7 +431,7 @@ Public Class Editor
         ECAMr.Text = cf.ECAM.p.r
     End Sub
 
-    Private Sub TriggerToUI()
+    Private Sub TriggerToUI() Handles Triggercb.SelectedIndexChanged
         Triggernud.Value = 1
         Triggertcb.SelectedItem = cf.Triggers(Triggercb.SelectedIndex).ExTR.type
         Triggern.Enabled = True
@@ -427,7 +439,7 @@ Public Class Editor
         Triggernud_ValueChanged()
     End Sub
 
-    Private Sub Triggernud_ValueChanged()
+    Private Sub Triggernud_ValueChanged() Handles Triggernud.ValueChanged
         If Triggernud.Enabled Then
             If Triggernud.Value > cf.Triggers(Triggercb.SelectedIndex).EMTR.r.Count Then
                 cf.Triggers(Triggercb.SelectedIndex).EMTR.r.Add(New Point3(0, 0, 0))
@@ -438,13 +450,13 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub EPTHToUI()
+    Private Sub EPTHToUI() Handles EPTHcb.SelectedIndexChanged
         EPTHnud.Value = 1
         EPTHn.Text = cf.EPTH(EPTHcb.SelectedIndex).name
         EPTHnud_ValueChanged()
     End Sub
 
-    Private Sub EPTHnud_ValueChanged()
+    Private Sub EPTHnud_ValueChanged() Handles EPTHnud.ValueChanged
         If EPTHnud.Enabled Then
             If EPTHnud.Value > cf.EPTH(EPTHcb.SelectedIndex).p.Count Then
                 cf.EPTH(EPTHcb.SelectedIndex).p.Add(New Point4(0, 0, 0, 0))
@@ -456,7 +468,7 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub Triggerpm_Click()
+    Private Sub Triggerpm_Click() Handles Triggerpm.Click
         Dim i = Triggernud.Value - 1
         If cf.Triggers(Triggercb.SelectedIndex).EMTR.r.Count <> 1 Then
             cf.Triggers(Triggercb.SelectedIndex).EMTR.r.RemoveAt(i)
@@ -464,7 +476,7 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub EPTHpm_Click()
+    Private Sub EPTHpm_Click() Handles EPTHpm.Click
         Dim i = EPTHnud.Value - 1
         If cf.EPTH(EPTHcb.SelectedIndex).p.Count <> 1 Then
             cf.EPTH(EPTHcb.SelectedIndex).p.RemoveAt(i)
@@ -472,7 +484,7 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub EMSDToUI()
+    Private Sub EMSDToUI() Handles EMSDcb.SelectedIndexChanged
         EMSDs1.Text = cf.EMSD(EMSDcb.SelectedIndex).s1
         EMSDs2.Text = cf.EMSD(EMSDcb.SelectedIndex).s2.Replace(".psf", "")
         EMSDx.Text = cf.EMSD(EMSDcb.SelectedIndex).l.x
@@ -480,7 +492,7 @@ Public Class Editor
         EMSDz.Text = cf.EMSD(EMSDcb.SelectedIndex).l.z
     End Sub
 
-    Private Sub EMEFToUI()
+    Private Sub EMEFToUI() Handles EMEFcb.SelectedIndexChanged
         EMEFs1.Text = cf.EMEF(EMEFcb.SelectedIndex).s1
         EMEFs2.Text = cf.EMEF(EMEFcb.SelectedIndex).s2.Replace(".veg", "")
         EMEFx.Text = cf.EMEF(EMEFcb.SelectedIndex).l.x
@@ -593,7 +605,7 @@ Public Class Editor
 
 #Region "Load UI into classes"
 
-    Private Sub PickLightingColour(sender As Object, e As EventArgs)
+    Private Sub PickLightingColour(sender As Object, e As EventArgs) Handles EMAPslb.Click
         Dim cd As New ColorDialog With {.Color = cf.EMAP.col, .FullOpen = True}
         If cd.ShowDialog() = DialogResult.OK Then
             EMAPslb.BorderColour = cd.Color
@@ -601,199 +613,199 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub EMAPilcb_CheckedChanged(sender As Object, e As EventArgs)
+    Private Sub EMAPilcb_CheckedChanged(sender As Object, e As EventArgs) Handles EMAPilcb.CheckedChanged
         If sender.Enabled Then cf.EMAP.il = EMAPilcb.Checked
     End Sub
 
-    Private Sub EMAPs1_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EMAPs1_TextChanged(sender As Object, e As EventArgs) Handles EMAPs1.TextChanged
         If sender.Enabled Then cf.EMAP.s1 = EMAPs1.Text & If(String.IsNullOrWhiteSpace(EMAPs1.Text), "", ".8")
     End Sub
 
-    Private Sub EMAPs2_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EMAPs2_TextChanged(sender As Object, e As EventArgs) Handles EMAPs2.TextChanged
         If sender.Enabled Then cf.EMAP.s2 = EMAPs2.Text & If(String.IsNullOrWhiteSpace(EMAPs2.Text), "", ".rle")
     End Sub
 
-    Private Sub EMAPs3_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EMAPs3_TextChanged(sender As Object, e As EventArgs) Handles EMAPs3.TextChanged
         If sender.Enabled Then cf.EMAP.s3 = EMAPs3.Text & If(String.IsNullOrWhiteSpace(EMAPs3.Text), "", ".dds")
     End Sub
 
-    Private Sub ECAMx_TextChanged(sender As Object, e As EventArgs)
+    Private Sub ECAMx_TextChanged(sender As Object, e As EventArgs) Handles ECAMx.TextChanged
         If sender.Enabled Then
             If cf.ECAM Is Nothing Then cf.ECAM = New ECAMc()
             cf.ECAM.p.x = ECAMx.Text
         End If
     End Sub
 
-    Private Sub ECAMy_TextChanged(sender As Object, e As EventArgs)
+    Private Sub ECAMy_TextChanged(sender As Object, e As EventArgs) Handles ECAMy.TextChanged
         If sender.Enabled Then
             If cf.ECAM Is Nothing Then cf.ECAM = New ECAMc()
             cf.ECAM.p.y = ECAMy.Text
         End If
     End Sub
 
-    Private Sub ECAMz_TextChanged(sender As Object, e As EventArgs)
+    Private Sub ECAMz_TextChanged(sender As Object, e As EventArgs) Handles ECAMz.TextChanged
         If sender.Enabled Then
             If cf.ECAM Is Nothing Then cf.ECAM = New ECAMc()
             cf.ECAM.p.z = ECAMz.Text
         End If
     End Sub
 
-    Private Sub ECAMr_TextChanged(sender As Object, e As EventArgs)
+    Private Sub ECAMr_TextChanged(sender As Object, e As EventArgs) Handles ECAMr.TextChanged
         If sender.Enabled Then
             If cf.ECAM Is Nothing Then cf.ECAM = New ECAMc()
             cf.ECAM.p.r = ECAMr.Text
         End If
     End Sub
 
-    Private Sub EMEFs1_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EMEFs1_TextChanged(sender As Object, e As EventArgs) Handles EMEFs1.TextChanged
         If sender.Enabled Then cf.EMEF(EMEFcb.SelectedIndex).s1 = EMEFs1.Text
     End Sub
 
-    Private Sub EMEFs2_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EMEFs2_TextChanged(sender As Object, e As EventArgs) Handles EMEFs2.TextChanged
         If sender.Enabled Then cf.EMEF(EMEFcb.SelectedIndex).s2 = EMEFs2.Text & If(String.IsNullOrWhiteSpace(EMEFs2.Text), "", ".veg")
     End Sub
 
-    Private Sub EMEFx_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EMEFx_TextChanged(sender As Object, e As EventArgs) Handles EMEFx.TextChanged
         If sender.Enabled Then cf.EMEF(EMEFcb.SelectedIndex).l.x = EMEFx.Text
     End Sub
 
-    Private Sub EMEFy_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EMEFy_TextChanged(sender As Object, e As EventArgs) Handles EMEFy.TextChanged
         If sender.Enabled Then cf.EMEF(EMEFcb.SelectedIndex).l.y = EMEFy.Text
     End Sub
 
-    Private Sub EMEFz_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EMEFz_TextChanged(sender As Object, e As EventArgs) Handles EMEFz.TextChanged
         If sender.Enabled Then cf.EMEF(EMEFcb.SelectedIndex).l.z = EMEFz.Text
     End Sub
 
-    Private Sub EMEFr_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EMEFr_TextChanged(sender As Object, e As EventArgs) Handles EMEFr.TextChanged
         If sender.Enabled Then cf.EMEF(EMEFcb.SelectedIndex).l.r = EMEFr.Text
     End Sub
 
-    Private Sub EMEPnud_ValueChanged(sender As Object, e As EventArgs)
+    Private Sub EMEPnud_ValueChanged(sender As Object, e As EventArgs) Handles EMEPnud.ValueChanged
         If sender.Enabled Then cf.EMEP(EMEPcb.SelectedIndex).index = EMEPnud.Value
     End Sub
 
-    Private Sub EMEPx_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EMEPx_TextChanged(sender As Object, e As EventArgs) Handles EMEPx.TextChanged
         If sender.Enabled Then cf.EMEP(EMEPcb.SelectedIndex).p.x = EMEPx.Text
     End Sub
 
-    Private Sub EMEPy_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EMEPy_TextChanged(sender As Object, e As EventArgs) Handles EMEPy.TextChanged
         If sender.Enabled Then cf.EMEP(EMEPcb.SelectedIndex).p.y = EMEPy.Text
     End Sub
 
-    Private Sub EMEPz_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EMEPz_TextChanged(sender As Object, e As EventArgs) Handles EMEPz.TextChanged
         If sender.Enabled Then cf.EMEP(EMEPcb.SelectedIndex).p.z = EMEPz.Text
     End Sub
 
-    Private Sub EMEPr_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EMEPr_TextChanged(sender As Object, e As EventArgs) Handles EMEPr.TextChanged
         If sender.Enabled Then cf.EMEP(EMEPcb.SelectedIndex).r = EMEPr.Text
     End Sub
 
-    Private Sub EME2dgv_CellEndEdit(sender As Object, e As DataGridViewCellEventArgs)
+    Private Sub EME2dgv_CellEndEdit(sender As Object, e As DataGridViewCellEventArgs) Handles EME2dgv.CellEndEdit
         If sender.Enabled Then cf.EME2(EME2cb.SelectedIndex).EEOV.inv = EME2dgv.GetStringArray()
     End Sub
 
-    Private Sub EME2n_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EME2n_TextChanged(sender As Object, e As EventArgs) Handles EME2n.TextChanged
         If sender.Enabled Then cf.EME2(EME2cb.SelectedIndex).name = EME2n.Text
     End Sub
 
-    Private Sub EME2s1_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EME2s1_TextChanged(sender As Object, e As EventArgs) Handles EME2s1.TextChanged
         If sender.Enabled Then cf.EME2(EME2cb.SelectedIndex).EEOV.s1 = EME2s1.Text
     End Sub
 
-    Private Sub EME2s2_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EME2s2_TextChanged(sender As Object, e As EventArgs) Handles EME2s2.TextChanged
         If sender.Enabled Then cf.EME2(EME2cb.SelectedIndex).EEOV.s2 = EME2s2.Text
     End Sub
 
-    Private Sub EME2s3_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EME2s3_TextChanged(sender As Object, e As EventArgs) Handles EME2s3.TextChanged
         If sender.Enabled Then cf.EME2(EME2cb.SelectedIndex).EEOV.s3 = EME2s3.Text & If(String.IsNullOrWhiteSpace(EME2s3.Text), "", ".amx")
     End Sub
 
-    Private Sub EME2s4_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EME2s4_TextChanged(sender As Object, e As EventArgs) Handles EME2s4.TextChanged
         If sender.Enabled Then cf.EME2(EME2cb.SelectedIndex).EEOV.s4 = EME2s4.Text & If(String.IsNullOrWhiteSpace(EME2s4.Text), "", ".dds")
     End Sub
 
-    Private Sub EME2s5_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EME2s5_TextChanged(sender As Object, e As EventArgs) Handles EME2s5.TextChanged
         If sender.Enabled Then cf.EME2(EME2cb.SelectedIndex).EEOV.s5 = EME2s5.Text & If(String.IsNullOrWhiteSpace(EME2s5.Text), "", ".veg")
     End Sub
 
-    Private Sub EME2x_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EME2x_TextChanged(sender As Object, e As EventArgs) Handles EME2x.TextChanged
         If sender.Enabled Then cf.EME2(EME2cb.SelectedIndex).l.x = EME2x.Text
     End Sub
 
-    Private Sub EME2y_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EME2y_TextChanged(sender As Object, e As EventArgs) Handles EME2y.TextChanged
         If sender.Enabled Then cf.EME2(EME2cb.SelectedIndex).l.y = EME2y.Text
     End Sub
 
-    Private Sub EME2z_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EME2z_TextChanged(sender As Object, e As EventArgs) Handles EME2z.TextChanged
         If sender.Enabled Then cf.EME2(EME2cb.SelectedIndex).l.z = EME2z.Text
     End Sub
 
-    Private Sub EME2r_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EME2r_TextChanged(sender As Object, e As EventArgs) Handles EME2r.TextChanged
         If sender.Enabled Then cf.EME2(EME2cb.SelectedIndex).l.r = EME2r.Text
     End Sub
 
-    Private Sub EMSDs1_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EMSDs1_TextChanged(sender As Object, e As EventArgs) Handles EMSDs1.TextChanged
         If sender.Enabled Then cf.EMSD(EMSDcb.SelectedIndex).s1 = EMSDs1.Text
     End Sub
 
-    Private Sub EMSDs2_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EMSDs2_TextChanged(sender As Object, e As EventArgs) Handles EMSDs2.TextChanged
         If sender.Enabled Then cf.EMSD(EMSDcb.SelectedIndex).s2 = EMSDs2.Text & If(String.IsNullOrWhiteSpace(EMSDs2.Text), "", ".psf")
     End Sub
 
-    Private Sub EMSDx_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EMSDx_TextChanged(sender As Object, e As EventArgs) Handles EMSDx.TextChanged
         If sender.Enabled Then cf.EMSD(EMSDcb.SelectedIndex).l.x = EMSDx.Text
     End Sub
 
-    Private Sub EMSDy_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EMSDy_TextChanged(sender As Object, e As EventArgs) Handles EMSDy.TextChanged
         If sender.Enabled Then cf.EMSD(EMSDcb.SelectedIndex).l.y = EMSDy.Text
     End Sub
 
-    Private Sub EMSDz_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EMSDz_TextChanged(sender As Object, e As EventArgs) Handles EMSDz.TextChanged
         If sender.Enabled Then cf.EMSD(EMSDcb.SelectedIndex).l.z = EMSDz.Text
     End Sub
 
-    Private Sub EPTHn_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EPTHn_TextChanged(sender As Object, e As EventArgs) Handles EPTHn.TextChanged
         If sender.Enabled Then cf.EPTH(EPTHcb.SelectedIndex).name = EPTHn.Text
     End Sub
 
-    Private Sub EPTHx_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EPTHx_TextChanged(sender As Object, e As EventArgs) Handles EPTHx.TextChanged
         If sender.Enabled Then cf.EPTH(EPTHcb.SelectedIndex).p(EPTHnud.Value - 1).x = EPTHx.Text
     End Sub
 
-    Private Sub EPTHy_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EPTHy_TextChanged(sender As Object, e As EventArgs) Handles EPTHy.TextChanged
         If sender.Enabled Then cf.EPTH(EPTHcb.SelectedIndex).p(EPTHnud.Value - 1).y = EPTHy.Text
     End Sub
 
-    Private Sub EPTHz_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EPTHz_TextChanged(sender As Object, e As EventArgs) Handles EPTHz.TextChanged
         If sender.Enabled Then cf.EPTH(EPTHcb.SelectedIndex).p(EPTHnud.Value - 1).z = EPTHz.Text
     End Sub
 
-    Private Sub EPTHr_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EPTHr_TextChanged(sender As Object, e As EventArgs) Handles EPTHr.TextChanged
         If sender.Enabled Then cf.EPTH(EPTHcb.SelectedIndex).p(EPTHnud.Value - 1).r = EPTHr.Text
     End Sub
 
-    Private Sub Triggern_TextChanged(sender As Object, e As EventArgs)
+    Private Sub Triggern_TextChanged(sender As Object, e As EventArgs) Handles Triggern.TextChanged
         If sender.Enabled Then cf.Triggers(Triggercb.SelectedIndex).ExTR.s = Triggern.Text
     End Sub
 
-    Private Sub Triggertcb_SelectedIndexChanged(sender As Object, e As EventArgs)
+    Private Sub Triggertcb_SelectedIndexChanged(sender As Object, e As EventArgs) Handles Triggertcb.SelectedIndexChanged
         If sender.Enabled Then cf.Triggers(Triggercb.SelectedIndex).ExTR.type = Triggertcb.SelectedItem
     End Sub
 
-    Private Sub Triggerx_TextChanged(sender As Object, e As EventArgs)
+    Private Sub Triggerx_TextChanged(sender As Object, e As EventArgs) Handles Triggerx.TextChanged
         If sender.Enabled Then cf.Triggers(Triggercb.SelectedIndex).EMTR.r(Triggernud.Value - 1).x = Triggerx.Text
     End Sub
 
-    Private Sub Triggery_TextChanged(sender As Object, e As EventArgs)
+    Private Sub Triggery_TextChanged(sender As Object, e As EventArgs) Handles Triggery.TextChanged
         If sender.Enabled Then cf.Triggers(Triggercb.SelectedIndex).EMTR.r(Triggernud.Value - 1).y = Triggery.Text
     End Sub
 
-    Private Sub Triggerz_TextChanged(sender As Object, e As EventArgs)
+    Private Sub Triggerz_TextChanged(sender As Object, e As EventArgs) Handles Triggerz.TextChanged
         If sender.Enabled Then cf.Triggers(Triggercb.SelectedIndex).EMTR.r(Triggernud.Value - 1).z = Triggerz.Text
     End Sub
 
-    Private Sub GENThSR_ValueChanged(sender As Object, e As EventArgs)
+    Private Sub GENThSR_ValueChanged(sender As Object, e As EventArgs) Handles GENThSR.ValueChanged
         If sender.Enabled Then cf.GENT.HoverSR = GENThSR.Value
         If GENThSR.Value = 0 Then
             GENTh.Enabled = False
@@ -805,7 +817,7 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub GENTlSR_ValueChanged(sender As Object, e As EventArgs)
+    Private Sub GENTlSR_ValueChanged(sender As Object, e As EventArgs) Handles GENTlSR.ValueChanged
         If sender.Enabled Then cf.GENT.LookSR = GENTlSR.Value
         If GENTlSR.Value = 0 Then
             GENTl.Enabled = False
@@ -817,7 +829,7 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub GENTnSR_ValueChanged(sender As Object, e As EventArgs)
+    Private Sub GENTnSR_ValueChanged(sender As Object, e As EventArgs) Handles GENTnSR.ValueChanged
         If sender.Enabled Then cf.GENT.NameSR = GENTnSR.Value
         If GENTnSR.Value = 0 Then
             GENTn.Enabled = False
@@ -829,7 +841,7 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub GENTuSR_ValueChanged(sender As Object, e As EventArgs)
+    Private Sub GENTuSR_ValueChanged(sender As Object, e As EventArgs) Handles GENTuSR.ValueChanged
         If sender.Enabled Then cf.GENT.UnkwnSR = GENTuSR.Value
         If GENTuSR.Value = 0 Then
             GENTu.Enabled = False
@@ -841,7 +853,7 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub GWAManSR_ValueChanged(sender As Object, e As EventArgs)
+    Private Sub GWAManSR_ValueChanged(sender As Object, e As EventArgs) Handles GWAManSR.ValueChanged
         If sender.Enabled Then cf.GCRE.GWAM(GWAMcb.SelectedIndex).NameSR = GWAManSR.Value
         If GWAManSR.Value = 0 Then
             GWAMan.Enabled = False
@@ -853,83 +865,83 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub EEN2skl_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EEN2skl_TextChanged(sender As Object, e As EventArgs) Handles EEN2skl.TextChanged
         If sender.Enabled Then cf.EEN2.skl = EEN2skl.Text
     End Sub
 
-    Private Sub EEN2invt_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EEN2invt_TextChanged(sender As Object, e As EventArgs) Handles EEN2invt.TextChanged
         If sender.Enabled Then cf.EEN2.invtex = EEN2invt.Text & If(String.IsNullOrWhiteSpace(EEN2invt.Text), "", ".dds")
     End Sub
 
-    Private Sub EEN2actt_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EEN2actt_TextChanged(sender As Object, e As EventArgs) Handles EEN2actt.TextChanged
         If sender.Enabled Then cf.EEN2.acttex = EEN2actt.Text & If(String.IsNullOrWhiteSpace(EEN2actt.Text), "", ".dds")
     End Sub
 
-    Private Sub EEN2s1_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EEN2s1_TextChanged(sender As Object, e As EventArgs) Handles EEN2s1.TextChanged
         If sender.Enabled Then cf.EEN2.EEOV.s1 = EEN2s1.Text
     End Sub
 
-    Private Sub EEN2s2_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EEN2s2_TextChanged(sender As Object, e As EventArgs) Handles EEN2s2.TextChanged
         If sender.Enabled Then cf.EEN2.EEOV.s2 = EEN2s2.Text
     End Sub
 
-    Private Sub EEN2s3_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EEN2s3_TextChanged(sender As Object, e As EventArgs) Handles EEN2s3.TextChanged
         If sender.Enabled Then cf.EEN2.EEOV.s3 = EEN2s3.Text & If(String.IsNullOrWhiteSpace(EEN2s3.Text), "", ".amx")
     End Sub
 
-    Private Sub EEN2s4_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EEN2s4_TextChanged(sender As Object, e As EventArgs) Handles EEN2s4.TextChanged
         If sender.Enabled Then cf.EEN2.EEOV.s4 = EEN2s4.Text & If(String.IsNullOrWhiteSpace(EEN2s4.Text), "", ".dds")
     End Sub
 
-    Private Sub EEN2s5_TextChanged(sender As Object, e As EventArgs)
+    Private Sub EEN2s5_TextChanged(sender As Object, e As EventArgs) Handles EEN2s5.TextChanged
         If sender.Enabled Then cf.EEN2.EEOV.s5 = EEN2s5.Text & If(String.IsNullOrWhiteSpace(EEN2s5.Text), "", ".veg")
     End Sub
 
-    Private Sub EEN2sel_CheckedChanged(sender As Object, e As EventArgs)
+    Private Sub EEN2sel_CheckedChanged(sender As Object, e As EventArgs) Handles EEN2sel.CheckedChanged
         If sender.Enabled Then cf.EEN2.sel = EEN2sel.Checked
     End Sub
 
-    Private Sub EEN2dgv_CellEndEdit(sender As Object, e As DataGridViewCellEventArgs)
+    Private Sub EEN2dgv_CellEndEdit(sender As Object, e As DataGridViewCellEventArgs) Handles EEN2dgv.CellEndEdit
         If sender.Enabled Then cf.EEN2.EEOV.inv = EEN2dgv.GetStringArray()
     End Sub
 
-    Private Sub GENTmhp_ValueChanged(sender As Object, e As EventArgs)
+    Private Sub GENTmhp_ValueChanged(sender As Object, e As EventArgs) Handles GENTmhp.ValueChanged
         If sender.Enabled Then cf.GENT.MaxHealth = GENTmhp.Value
     End Sub
 
-    Private Sub GENTihp_ValueChanged(sender As Object, e As EventArgs)
+    Private Sub GENTihp_ValueChanged(sender As Object, e As EventArgs) Handles GENTihp.ValueChanged
         If sender.Enabled Then cf.GENT.StartHealth = GENTihp.Value
     End Sub
 
-    Private Sub GENTh_TextChanged(sender As Object, e As EventArgs)
+    Private Sub GENTh_TextChanged(sender As Object, e As EventArgs) Handles GENTh.TextChanged
         If sender.Enabled Then stf(GENThSR.Value - 1) = GENTh.Text
     End Sub
 
-    Private Sub GENTl_TextChanged(sender As Object, e As EventArgs)
+    Private Sub GENTl_TextChanged(sender As Object, e As EventArgs) Handles GENTl.TextChanged
         If sender.Enabled Then stf(GENTlSR.Value - 1) = GENTl.Text
     End Sub
 
-    Private Sub GENTn_TextChanged(sender As Object, e As EventArgs)
+    Private Sub GENTn_TextChanged(sender As Object, e As EventArgs) Handles GENTn.TextChanged
         If sender.Enabled Then stf(GENTnSR.Value - 1) = GENTn.Text
     End Sub
 
-    Private Sub GENTu_TextChanged(sender As Object, e As EventArgs)
+    Private Sub GENTu_TextChanged(sender As Object, e As EventArgs) Handles GENTu.TextChanged
         If sender.Enabled Then stf(GENTuSR.Value - 1) = GENTu.Text
     End Sub
 
-    Private Sub GWAMan_TextChanged(sender As Object, e As EventArgs)
+    Private Sub GWAMan_TextChanged(sender As Object, e As EventArgs) Handles GWAMan.TextChanged
         If sender.Enabled Then stf(GWAManSR.Value - 1) = GWAMan.Text
     End Sub
 
-    Private Sub GCREspcb_SelectedIndexChanged(sender As Object, e As EventArgs)
+    Private Sub GCREspcb_SelectedIndexChanged(sender As Object, e As EventArgs) Handles GCREspcb.SelectedIndexChanged
         If sender.Enabled Then GCREspv.Value = cf.GCRE.Special(GCREspcb.SelectedIndex)
     End Sub
 
-    Private Sub GCREspv_ValueChanged(sender As Object, e As EventArgs)
+    Private Sub GCREspv_ValueChanged(sender As Object, e As EventArgs) Handles GCREspv.ValueChanged
         If sender.Enabled Then cf.GCRE.Special(GCREspcb.SelectedIndex) = GCREspv.Value
     End Sub
 
-    Private Sub GCREskcb_SelectedIndexChanged(sender As Object, e As EventArgs)
+    Private Sub GCREskcb_SelectedIndexChanged(sender As Object, e As EventArgs) Handles GCREskcb.SelectedIndexChanged
         If sender.Enabled Then
             Dim avoidError As CRT = cf ' this avoids a compiler error caused by the ambiguous type of cf, even though the code *should* still work, thanks MS
             Dim existingSkill = (From sk In avoidError.GCRE.Skills Where sk.Index = GCREskcb.SelectedIndex Select sk)(0) ' Determine whether or not the list of skills
@@ -942,7 +954,7 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub GCREskv_ValueChanged(sender As Object, e As EventArgs)
+    Private Sub GCREskv_ValueChanged(sender As Object, e As EventArgs) Handles GCREskv.ValueChanged
         If sender.Enabled Then
             Dim avoidError As CRT = cf ' this avoids a compiler error caused by the ambiguous type of cf, even though the code *should* still work, thanks MS
             Dim existingSkill = (From sk In avoidError.GCRE.Skills Where sk.Index = GCREskcb.SelectedIndex Select sk)(0) ' Determine whether or not the list of skills
@@ -959,11 +971,11 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub GCREtrcb_SelectedIndexChanged(sender As Object, e As EventArgs)
+    Private Sub GCREtrcb_SelectedIndexChanged(sender As Object, e As EventArgs) Handles GCREtrcb.SelectedIndexChanged
         If sender.Enabled Then GCREtrv.Checked = cf.GCRE.Traits.Contains(GCREtrcb.SelectedIndex)
     End Sub
 
-    Private Sub GCREtrv_CheckedChanged(sender As Object, e As EventArgs)
+    Private Sub GCREtrv_CheckedChanged(sender As Object, e As EventArgs) Handles GCREtrv.CheckedChanged
         If sender.Enabled Then
             If GCREtrv.Checked Then
                 If Not cf.GCRE.Traits.Contains(GCREtrcb.SelectedIndex) Then cf.GCRE.Traits.Add(GCREtrcb.SelectedIndex)
@@ -973,11 +985,11 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub GCREtscb_SelectedIndexChanged(sender As Object, e As EventArgs)
+    Private Sub GCREtscb_SelectedIndexChanged(sender As Object, e As EventArgs) Handles GCREtscb.SelectedIndexChanged
         If sender.Enabled Then GCREtsv.Checked = cf.GCRE.TagSkills.Contains(GCREtscb.SelectedIndex)
     End Sub
 
-    Private Sub GCREtsv_CheckedChanged(sender As Object, e As EventArgs)
+    Private Sub GCREtsv_CheckedChanged(sender As Object, e As EventArgs) Handles GCREtsv.CheckedChanged
         If sender.Enabled Then
             If GCREtsv.Checked Then
                 If Not cf.GCRE.TagSkills.Contains(GCREtscb.SelectedIndex) Then cf.GCRE.TagSkills.Add(GCREtscb.SelectedIndex)
@@ -987,11 +999,11 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub GCREp_TextChanged(sender As Object, e As EventArgs)
+    Private Sub GCREp_TextChanged(sender As Object, e As EventArgs) Handles GCREp.TextChanged
         If sender.Enabled Then cf.GCRE.PortStr = GCREp.Text & If(String.IsNullOrWhiteSpace(GCREp.Text), "", ".dds")
     End Sub
 
-    Private Sub GCREsoccb_SelectedIndexChanged(sender As Object, e As EventArgs)
+    Private Sub GCREsoccb_SelectedIndexChanged(sender As Object, e As EventArgs) Handles GCREsoccb.SelectedIndexChanged
         If sender.Enabled Then
             Select Case GCREsoccb.SelectedItem
                 Case "Head"
@@ -1034,7 +1046,7 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub GCREsocm_TextChanged(sender As Object, e As EventArgs)
+    Private Sub GCREsocm_TextChanged(sender As Object, e As EventArgs) Handles GCREsocm.TextChanged
         If sender.Enabled Then
             Select Case GCREsoccb.SelectedItem
                 Case "Head"
@@ -1065,7 +1077,7 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub GCREsoct_TextChanged(sender As Object, e As EventArgs)
+    Private Sub GCREsoct_TextChanged(sender As Object, e As EventArgs) Handles GCREsoct.TextChanged
         If sender.Enabled Then
             Dim s = GCREsoct.Text & If(String.IsNullOrWhiteSpace(GCREsoct.Text), "", ".dds")
             Select Case GCREsoccb.SelectedItem
@@ -1097,51 +1109,51 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub GCREdgv_CellEndEdit(sender As Object, e As DataGridViewCellEventArgs)
+    Private Sub GCREdgv_CellEndEdit(sender As Object, e As DataGridViewCellEventArgs) Handles GCREdgv.CellEndEdit
         If sender.Enabled Then cf.GCRE.Inventory = GCREdgv.GetStringArray()
     End Sub
 
-    Private Sub GCHRn_TextChanged(sender As Object, e As EventArgs)
+    Private Sub GCHRn_TextChanged(sender As Object, e As EventArgs) Handles GCHRn.TextChanged
         If sender.enabled Then cf.GCHR.name = GCHRn.Text
     End Sub
 
-    Private Sub GWAMani_ValueChanged(sender As Object, e As EventArgs)
+    Private Sub GWAMani_ValueChanged(sender As Object, e As EventArgs) Handles GWAMani.ValueChanged
         If sender.enabled Then cf.GCRE.GWAM(GWAMcb.SelectedIndex).Anim = GWAMani.Value
     End Sub
 
-    Private Sub GWAMdt_SelectedIndexChanged(sender As Object, e As EventArgs)
+    Private Sub GWAMdt_SelectedIndexChanged(sender As Object, e As EventArgs) Handles GWAMdt.SelectedIndexChanged
         If sender.enabled Then cf.GCRE.GWAM(GWAMcb.SelectedIndex).DmgType = GWAMdt.SelectedIndex
     End Sub
 
-    Private Sub GWAMsf_ValueChanged(sender As Object, e As EventArgs)
+    Private Sub GWAMsf_ValueChanged(sender As Object, e As EventArgs) Handles GWAMsf.ValueChanged
         If sender.enabled Then cf.GCRE.GWAM(GWAMcb.SelectedIndex).ShotsFired = GWAMsf.Value
     End Sub
 
-    Private Sub GWAMr_ValueChanged(sender As Object, e As EventArgs)
+    Private Sub GWAMr_ValueChanged(sender As Object, e As EventArgs) Handles GWAMr.ValueChanged
         If sender.enabled Then cf.GCRE.GWAM(GWAMcb.SelectedIndex).Range = GWAMr.Value
     End Sub
 
-    Private Sub GWAMmin_ValueChanged(sender As Object, e As EventArgs)
+    Private Sub GWAMmin_ValueChanged(sender As Object, e As EventArgs) Handles GWAMmin.ValueChanged
         If sender.enabled Then cf.GCRE.GWAM(GWAMcb.SelectedIndex).MinDmg = GWAMmin.Value
     End Sub
 
-    Private Sub GWAMmax_ValueChanged(sender As Object, e As EventArgs)
+    Private Sub GWAMmax_ValueChanged(sender As Object, e As EventArgs) Handles GWAMmax.ValueChanged
         If sender.enabled Then cf.GCRE.GWAM(GWAMcb.SelectedIndex).MaxDmg = GWAMmax.Value
     End Sub
 
-    Private Sub GWAMap_ValueChanged(sender As Object, e As EventArgs)
+    Private Sub GWAMap_ValueChanged(sender As Object, e As EventArgs) Handles GWAMap.ValueChanged
         If sender.enabled Then cf.GCRE.GWAM(GWAMcb.SelectedIndex).AP = GWAMap.Value
     End Sub
 
-    Private Sub GWAMef_TextChanged(sender As Object, e As EventArgs)
+    Private Sub GWAMef_TextChanged(sender As Object, e As EventArgs) Handles GWAMef.TextChanged
         If sender.enabled Then cf.GCRE.GWAM(GWAMcb.SelectedIndex).VegName = GWAMef.Text
     End Sub
 
-    Private Sub GCREage_ValueChanged(sender As Object, e As EventArgs)
+    Private Sub GCREage_ValueChanged(sender As Object, e As EventArgs) Handles GCREage.ValueChanged
         If sender.Enabled Then cf.GCRE.Age = GCREage.Value
     End Sub
 
-    Private Sub _2MWTcb_SelectedIndexChanged(sender As Object, e As EventArgs)
+    Private Sub _2MWTcb_SelectedIndexChanged(sender As Object, e As EventArgs) Handles _2MWTcb.SelectedIndexChanged
         _2MWTx.Text = cf._2MWT.chunks(_2MWTcb.SelectedIndex).loc.x
         _2MWTy.Text = cf._2MWT.chunks(_2MWTcb.SelectedIndex).loc.y
         _2MWTz.Text = cf._2MWT.chunks(_2MWTcb.SelectedIndex).loc.z
@@ -1153,44 +1165,50 @@ Public Class Editor
         _2MWTlmy.Text = cf._2MWT.chunks(_2MWTcb.SelectedIndex).texloc.y
     End Sub
 
-    Private Sub _2MWTmpf_TextChanged(sender As Object, e As EventArgs)
+    Private Sub _2MWTmpf_TextChanged(sender As Object, e As EventArgs) Handles _2MWTmpf.TextChanged
         If sender.Enabled Then cf._2MWT.mpf = _2MWTmpf.Text
     End Sub
 
-    Private Sub _2MWTfr_CheckedChanged(sender As Object, e As EventArgs)
+    Private Sub _2MWTfr_CheckedChanged(sender As Object, e As EventArgs) Handles _2MWTfr.CheckedChanged
         If sender.enabled Then cf._2MWT.frozen = sender.checked
     End Sub
 
-    Private Sub _2MWTdw_CheckedChanged(sender As Object, e As EventArgs)
+    Private Sub _2MWTdw_CheckedChanged(sender As Object, e As EventArgs) Handles _2MWTdw.CheckedChanged
         If sender.enabled Then cf._2MWT.dark = sender.checked
     End Sub
 
-    Private Sub _2MWTtex_TextChanged(sender As Object, e As EventArgs)
+    Private Sub _2MWTtex_TextChanged(sender As Object, e As EventArgs) Handles _2MWTtex.TextChanged
         If sender.Enabled Then cf._2MWT.chunks(_2MWTcb.SelectedIndex).tex = _2MWTtex.Text & ".dds"
     End Sub
 
-    Private Sub _2MWTx_TextChanged(sender As Object, e As EventArgs)
+    Private Sub _2MWTx_TextChanged(sender As Object, e As EventArgs) Handles _2MWTx.TextChanged
         If sender.Enabled Then cf._2MWT.chunks(_2MWTcb.SelectedIndex).loc.x = _2MWTx.Text
     End Sub
 
-    Private Sub _2MWTy_TextChanged(sender As Object, e As EventArgs)
+    Private Sub _2MWTy_TextChanged(sender As Object, e As EventArgs) Handles _2MWTy.TextChanged
         If sender.Enabled Then cf._2MWT.chunks(_2MWTcb.SelectedIndex).loc.y = _2MWTy.Text
     End Sub
 
-    Private Sub _2MWTz_TextChanged(sender As Object, e As EventArgs)
+    Private Sub _2MWTz_TextChanged(sender As Object, e As EventArgs) Handles _2MWTz.TextChanged
         If sender.Enabled Then cf._2MWT.chunks(_2MWTcb.SelectedIndex).loc.z = _2MWTz.Text
     End Sub
 
-    Private Sub _2MWTlmx_TextChanged(sender As Object, e As EventArgs)
+    Private Sub _2MWTlmx_TextChanged(sender As Object, e As EventArgs) Handles _2MWTlmx.TextChanged
         If sender.Enabled Then cf._2MWT.chunks(_2MWTcb.SelectedIndex).texloc.x = _2MWTlmx.Text
     End Sub
 
-    Private Sub _2MWTlmy_TextChanged(sender As Object, e As EventArgs)
+    Private Sub _2MWTlmy_TextChanged(sender As Object, e As EventArgs) Handles _2MWTlmy.TextChanged
         If sender.Enabled Then cf._2MWT.chunks(_2MWTcb.SelectedIndex).texloc.y = _2MWTlmy.Text
     End Sub
 
     ' Prevent invalid floats from being entered into text boxes (Add any float textboxes to the "Handles" section)
-    Private Shared Sub FloatsOnly(sender As TextBox, e As KeyPressEventArgs)
+    Private Shared Sub FloatsOnly(sender As TextBox, e As KeyPressEventArgs) _
+        Handles ECAMx.KeyPress, ECAMy.KeyPress, ECAMz.KeyPress, ECAMr.KeyPress, EMEPx.KeyPress, EMEPy.KeyPress,
+                EMEPz.KeyPress, EMEPr.KeyPress, EMEFx.KeyPress, EMEFy.KeyPress, EMEFz.KeyPress, EMEFr.KeyPress,
+                EMSDx.KeyPress, EMSDy.KeyPress, EMSDz.KeyPress, EME2x.KeyPress, EME2y.KeyPress, EME2z.KeyPress,
+                EME2r.KeyPress, EPTHx.KeyPress, EPTHy.KeyPress, EPTHz.KeyPress, EPTHr.KeyPress, Triggerx.KeyPress,
+                Triggery.KeyPress, Triggerz.KeyPress, _2MWTx.KeyPress, _2MWTy.KeyPress, _2MWTz.KeyPress,
+                _2MWTlmx.KeyPress, _2MWTlmy.KeyPress
         If Char.IsDigit(e.KeyChar) Or e.KeyChar = "." Or e.KeyChar = "-" Or e.KeyChar = Chr(8) Then
             Dim text As String = sender.Text
             If e.KeyChar = "." Then
@@ -1214,51 +1232,51 @@ Public Class Editor
 
 #Region "Scroll Bars"
 
-    Private Sub EME2dgv_ScrollChanged()
+    Private Sub EME2dgv_ScrollChanged() Handles EME2dgv.Scroll
         EME2dsb.ScrollTo(EME2dgv.FirstDisplayedScrollingRowIndex / (EME2dgv.Rows.Count - EME2dgv.DisplayedRowCount(False)) * EME2dsb.Maximum)
     End Sub
 
-    Private Sub EME2dsb_Click(sender As Object, e As EventArgs)
+    Private Sub EME2dsb_Click(sender As Object, e As EventArgs) Handles EME2dsb.MouseDown
         EME2tmr.Start()
     End Sub
 
-    Private Sub EME2dsb_MouseUp(sender As Object, e As EventArgs)
+    Private Sub EME2dsb_MouseUp(sender As Object, e As EventArgs) Handles EME2dsb.MouseUp
         EME2tmr.Stop()
     End Sub
 
-    Private Sub EME2tmr_Tick(sender As Object, e As EventArgs)
+    Private Sub EME2tmr_Tick(sender As Object, e As EventArgs) Handles EME2tmr.Tick
         EME2dgv.FirstDisplayedScrollingRowIndex = EME2dsb.Value / EME2dsb.Maximum * (EME2dgv.Rows.Count - EME2dgv.DisplayedRowCount(False))
     End Sub
 
-    Private Sub EEN2dgv_ScrollChanged()
+    Private Sub EEN2dgv_ScrollChanged() Handles EEN2dgv.Scroll
         EEN2dsb.ScrollTo(EEN2dgv.FirstDisplayedScrollingRowIndex / (EEN2dgv.Rows.Count - EEN2dgv.DisplayedRowCount(False)) * EEN2dsb.Maximum)
     End Sub
 
-    Private Sub EEN2dsb_Click(sender As Object, e As EventArgs)
+    Private Sub EEN2dsb_Click(sender As Object, e As EventArgs) Handles EEN2dsb.MouseDown
         EEN2tmr.Start()
     End Sub
 
-    Private Sub EEN2dsb_MouseUp(sender As Object, e As EventArgs)
+    Private Sub EEN2dsb_MouseUp(sender As Object, e As EventArgs) Handles EEN2dsb.MouseUp
         EEN2tmr.Stop()
     End Sub
 
-    Private Sub EEN2tmr_Tick(sender As Object, e As EventArgs)
+    Private Sub EEN2tmr_Tick(sender As Object, e As EventArgs) Handles EEN2tmr.Tick
         EEN2dgv.FirstDisplayedScrollingRowIndex = EEN2dsb.Value / EEN2dsb.Maximum * (EEN2dgv.Rows.Count - EEN2dgv.DisplayedRowCount(False))
     End Sub
 
-    Private Sub GCREdgv_ScrollChanged()
+    Private Sub GCREdgv_ScrollChanged() Handles GCREdgv.Scroll
         GCREdsb.ScrollTo(GCREdgv.FirstDisplayedScrollingRowIndex / (GCREdgv.Rows.Count - GCREdgv.DisplayedRowCount(False)) * GCREdsb.Maximum)
     End Sub
 
-    Private Sub GCREdsb_Click(sender As Object, e As EventArgs)
+    Private Sub GCREdsb_Click(sender As Object, e As EventArgs) Handles GCREdsb.MouseDown
         GCREtmr.Start()
     End Sub
 
-    Private Sub GCREdsb_MouseUp(sender As Object, e As EventArgs)
+    Private Sub GCREdsb_MouseUp(sender As Object, e As EventArgs) Handles GCREdsb.MouseUp
         GCREtmr.Stop()
     End Sub
 
-    Private Sub GCREtmr_Tick(sender As Object, e As EventArgs)
+    Private Sub GCREtmr_Tick(sender As Object, e As EventArgs) Handles GCREtmr.Tick
         GCREdgv.FirstDisplayedScrollingRowIndex = GCREdsb.Value / GCREdsb.Maximum * (GCREdgv.Rows.Count - GCREdgv.DisplayedRowCount(False))
     End Sub
 
@@ -1266,7 +1284,7 @@ Public Class Editor
 
 #Region "Remove/Add Chunks"
 
-    Private Sub EMEPp_Click(sender As Object, e As EventArgs)
+    Private Sub EMEPp_Click(sender As Object, e As EventArgs) Handles EMEPp.Click
         For Each c As Control In EMEPgb.Controls
             c.Enabled = True
         Next
@@ -1275,7 +1293,7 @@ Public Class Editor
         EMEPcb.SelectedIndex = EMEPcb.Items.Count - 1
     End Sub
 
-    Private Sub EMEPm_Click(sender As Object, e As EventArgs)
+    Private Sub EMEPm_Click(sender As Object, e As EventArgs) Handles EMEPm.Click
         Dim i = EMEPcb.SelectedIndex
         If cf.EMEP.Count = 1 Then
             cf.EMEP = New List(Of EMEPc)
@@ -1291,7 +1309,7 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub EME2p_Click(sender As Object, e As EventArgs)
+    Private Sub EME2p_Click(sender As Object, e As EventArgs) Handles EME2p.Click
         For Each c As Control In EME2gb.Controls
             c.Enabled = True
         Next
@@ -1300,7 +1318,7 @@ Public Class Editor
         EME2cb.SelectedIndex = EME2cb.Items.Count - 1
     End Sub
 
-    Private Sub EME2m_Click(sender As Object, e As EventArgs)
+    Private Sub EME2m_Click(sender As Object, e As EventArgs) Handles EME2m.Click
         Dim i = EME2cb.SelectedIndex
         If cf.EME2.Count = 1 Then
             cf.EME2 = New List(Of EME2c)
@@ -1316,7 +1334,7 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub EMEFm_Click(sender As Object, e As EventArgs)
+    Private Sub EMEFm_Click(sender As Object, e As EventArgs) Handles EMEFm.Click
         Dim i = EMEFcb.SelectedIndex
         If cf.EMEF.Count = 1 Then
             cf.EMEF = New List(Of EMEFc)
@@ -1332,7 +1350,7 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub EMEFp_Click(sender As Object, e As EventArgs)
+    Private Sub EMEFp_Click(sender As Object, e As EventArgs) Handles EMEFp.Click
         For Each c As Control In EMEFgb.Controls
             c.Enabled = True
         Next
@@ -1341,7 +1359,7 @@ Public Class Editor
         EMEFcb.SelectedIndex = EMEFcb.Items.Count - 1
     End Sub
 
-    Private Sub EMSDm_Click(sender As Object, e As EventArgs)
+    Private Sub EMSDm_Click(sender As Object, e As EventArgs) Handles EMSDm.Click
         Dim i = EMSDcb.SelectedIndex
         If cf.EMSD.Count = 1 Then
             cf.EMSD = New List(Of EMSDc)
@@ -1357,7 +1375,7 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub EMSDp_Click(sender As Object, e As EventArgs)
+    Private Sub EMSDp_Click(sender As Object, e As EventArgs) Handles EMSDp.Click
         For Each c As Control In EMSDgb.Controls
             c.Enabled = True
         Next
@@ -1366,7 +1384,7 @@ Public Class Editor
         EMSDcb.SelectedIndex = EMSDcb.Items.Count - 1
     End Sub
 
-    Private Sub EPTHm_Click(sender As Object, e As EventArgs)
+    Private Sub EPTHm_Click(sender As Object, e As EventArgs) Handles EPTHm.Click
         Dim i = EPTHcb.SelectedIndex
         If cf.EPTH.Count = 1 Then
             cf.EPTH = New List(Of EPTHc)
@@ -1382,7 +1400,7 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub EPTHp_Click(sender As Object, e As EventArgs)
+    Private Sub EPTHp_Click(sender As Object, e As EventArgs) Handles EPTHp.Click
         For Each c As Control In EPTHGB.Controls
             c.Enabled = True
         Next
@@ -1391,7 +1409,7 @@ Public Class Editor
         EPTHcb.SelectedIndex = EPTHcb.Items.Count - 1
     End Sub
 
-    Private Sub Triggerm_Click(sender As Object, e As EventArgs)
+    Private Sub Triggerm_Click(sender As Object, e As EventArgs) Handles Triggerm.Click
         Dim i = Triggercb.SelectedIndex
         If cf.Triggers.Count = 1 Then
             cf.Triggers = New List(Of Trigger)
@@ -1407,7 +1425,7 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub Triggerp_Click(sender As Object, e As EventArgs)
+    Private Sub Triggerp_Click(sender As Object, e As EventArgs) Handles Triggerp.Click
         For Each c As Control In Triggergb.Controls
             c.Enabled = True
         Next
@@ -1416,7 +1434,7 @@ Public Class Editor
         Triggercb.SelectedIndex = Triggercb.Items.Count - 1
     End Sub
 
-    Private Sub GWAMm_Click(sender As Object, e As EventArgs)
+    Private Sub GWAMm_Click(sender As Object, e As EventArgs) Handles GWAMm.Click
         Dim i = GWAMcb.SelectedIndex
         If cf.GCRE.GWAM.Count = 1 Then
             cf.GCRE.GWAM = New List(Of GWAMc)
@@ -1432,7 +1450,7 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub GWAMp_Click(sender As Object, e As EventArgs)
+    Private Sub GWAMp_Click(sender As Object, e As EventArgs) Handles GWAMp.Click
         For Each c As Control In GWAMgb.Controls
             c.Enabled = True
         Next
@@ -1442,7 +1460,7 @@ Public Class Editor
         GWAMToUI()
     End Sub
 
-    Private Sub _2MWTp_Click(sender As Object, e As EventArgs)
+    Private Sub _2MWTp_Click(sender As Object, e As EventArgs) Handles _2MWTp.Click
         If cf._2MWT Is Nothing Then cf._2MWT = New _2MWTc
         For Each c As Control In _2MWTgb.Controls
             c.Enabled = True
@@ -1452,7 +1470,7 @@ Public Class Editor
         _2MWTcb.SelectedIndex = _2MWTcb.Items.Count - 1
     End Sub
 
-    Private Sub _2MWTm_Click(sender As Object, e As EventArgs)
+    Private Sub _2MWTm_Click(sender As Object, e As EventArgs) Handles _2MWTm.Click
         Dim i = _2MWTcb.SelectedIndex
         Dim co As Integer = cf._2MWT.chunks.Count
         If co = 1 Then
@@ -1473,7 +1491,7 @@ Public Class Editor
 
 #Region ".stf Stuff"
 
-    Private Sub FullSTFToText()
+    Private Sub FullSTFToText() Handles StfToolStripMenuItem.Click
         Dim ofd As New OpenFileDialog With {.Filter = "String Table File|*.stf", .Multiselect = False}
         If ofd.ShowDialog() = DialogResult.OK Then
             Dim sfd As New SaveFileDialog With {.Filter = "Text File|*.txt"}
@@ -1483,7 +1501,7 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub FullTextToSTF()
+    Private Sub FullTextToSTF() Handles TxtTostfToolStripMenuItem.Click
         Dim ofd As New OpenFileDialog With {.Filter = "Text File|*.txt", .Multiselect = False}
         If ofd.ShowDialog() = DialogResult.OK Then
             Dim sfd As New SaveFileDialog With {.Filter = "String Table File|*.stf"}
@@ -1514,7 +1532,7 @@ Public Class Editor
         End If
     End Function
 
-    Private Sub SetEngStfLocation()
+    Private Sub SetEngStfLocation() Handles SetEnglishstfLocationToolStripMenuItem.Click
         Dim ofd As New OpenFileDialog With {.Multiselect = False, .CheckFileExists = True, .Filter = "English.stf|*.stf"}
         If ofd.ShowDialog() = DialogResult.OK Then
             My.Settings.STFDir = ofd.FileName
@@ -1522,7 +1540,7 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub EnableEnglishstfEditingToolStripMenuItem_Click(sender As Object, e As EventArgs)
+    Private Sub EnableEnglishstfEditingToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles EnableSTFEdit.CheckedChanged
         My.Settings.STFEditEnabled = EnableSTFEdit.Checked
     End Sub
 
@@ -1613,51 +1631,51 @@ Public Class Editor
         MyBase.OnKeyUp(e)
     End Sub
 
-    Private Sub GITMtype_SelectedIndexChanged(sender As Object, e As EventArgs)
+    Private Sub GITMtype_SelectedIndexChanged(sender As Object, e As EventArgs) Handles GITMtype.SelectedIndexChanged
         If sender.enabled Then cf.GITM.type = sender.selectedindex
     End Sub
 
-    Private Sub GITMeq_CheckedChanged(sender As Object, e As EventArgs)
+    Private Sub GITMeq_CheckedChanged(sender As Object, e As EventArgs) Handles GITMeq.CheckedChanged
         If sender.enabled Then cf.gitm.equip = sender.checked
     End Sub
 
-    Private Sub GITMslot_SelectedIndexChanged(sender As Object, e As EventArgs)
+    Private Sub GITMslot_SelectedIndexChanged(sender As Object, e As EventArgs) Handles GITMslot.SelectedIndexChanged
         If sender.enabled Then cf.GITM.eqslot = sender.selectedindex
     End Sub
 
-    Private Sub GITMrl_TextChanged(sender As Object, e As EventArgs)
+    Private Sub GITMrl_TextChanged(sender As Object, e As EventArgs) Handles GITMrl.TextChanged
         If sender.enabled Then cf.GITM.reload = sender.text
     End Sub
 
-    Private Sub GITMml_CheckedChanged(sender As Object, e As EventArgs)
+    Private Sub GITMml_CheckedChanged(sender As Object, e As EventArgs) Handles GITMml.CheckedChanged
         ' TODO: Figure out Melee
     End Sub
 
-    Private Sub GITMhhai_CheckedChanged(sender As Object, e As EventArgs)
+    Private Sub GITMhhai_CheckedChanged(sender As Object, e As EventArgs) Handles GITMhhai.CheckedChanged
         If sender.enabled Then cf.GITM.hHai = sender.checked
     End Sub
 
-    Private Sub GITMhbea_CheckedChanged(sender As Object, e As EventArgs)
+    Private Sub GITMhbea_CheckedChanged(sender As Object, e As EventArgs) Handles GITMhbea.CheckedChanged
         If sender.enabled Then cf.GITM.hBea = sender.checked
     End Sub
 
-    Private Sub GITMhmus_CheckedChanged(sender As Object, e As EventArgs)
+    Private Sub GITMhmus_CheckedChanged(sender As Object, e As EventArgs) Handles GITMhmus.CheckedChanged
         If sender.enabled Then cf.GITM.hMus = sender.checked
     End Sub
 
-    Private Sub GITMheye_CheckedChanged(sender As Object, e As EventArgs)
+    Private Sub GITMheye_CheckedChanged(sender As Object, e As EventArgs) Handles GITMheye.CheckedChanged
         If sender.enabled Then cf.GITM.hEye = sender.checked
     End Sub
 
-    Private Sub GITMhpon_CheckedChanged(sender As Object, e As EventArgs)
+    Private Sub GITMhpon_CheckedChanged(sender As Object, e As EventArgs) Handles GITMhpon.CheckedChanged
         If sender.enabled Then cf.GITM.hPon = sender.checked
     End Sub
 
-    Private Sub GITMhvan_CheckedChanged(sender As Object, e As EventArgs)
+    Private Sub GITMhvan_CheckedChanged(sender As Object, e As EventArgs) Handles GITMhvan.CheckedChanged
         If sender.enabled Then cf.GITM.hVan = sender.checked
     End Sub
 
-    Private Sub GITMsocgb_SelectedIndexChanged(sender As Object, e As EventArgs)
+    Private Sub GITMsocgb_SelectedIndexChanged(sender As Object, e As EventArgs) Handles GITMsoccb.SelectedIndexChanged
         If sender.enabled Then
             Select Case sender.selecteditem
                 Case "Head"
@@ -1691,7 +1709,7 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub GITMsocm_TextChanged(sender As Object, e As EventArgs)
+    Private Sub GITMsocm_TextChanged(sender As Object, e As EventArgs) Handles GITMsocm.TextChanged
         If sender.enabled Then
             Select Case GITMsoccb.SelectedItem
                 Case "Head"
@@ -1716,7 +1734,7 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub GITMsoct_TextChanged(sender As Object, e As EventArgs)
+    Private Sub GITMsoct_TextChanged(sender As Object, e As EventArgs) Handles GITMsoct.TextChanged
         If sender.enabled Then
             Select Case GITMsoccb.SelectedItem
                 Case "Head"
@@ -1740,6 +1758,16 @@ Public Class Editor
             End Select
         End If
     End Sub
+
+    
+
 #End Region
 
+    Private Sub ExtractgrpFilesToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ExtractgrpFilesToolStripMenuItem.Click
+        Using grpb As New GrpBrowser(Nothing)
+            grpb.ReadRHT()
+            grpb.extractFile(-1)
+            MsgBox("Done Extracting")
+        End Using
+    End Sub
 End Class

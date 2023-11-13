@@ -9,6 +9,7 @@
 #pragma region init/setup
 struct ImGui_ImplDX11_Data;
 HINSTANCE dll_handle;
+static UINT g_ResizeWidth = 0, g_ResizeHeight = 0;
 
 typedef long(__stdcall* present)(IDXGISwapChain*, UINT, UINT);
 present p_present;
@@ -74,6 +75,16 @@ extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam
 
 LRESULT __stdcall WndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	switch (uMsg)
+	{
+	case WM_SIZE:
+		if (wParam == SIZE_MINIMIZED)
+			return 0;
+		g_ResizeWidth = (UINT)LOWORD(lParam); // Queue resize
+		g_ResizeHeight = (UINT)HIWORD(lParam);
+		return 0;
+	}
+
 	if (ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam))
 		return true;
 
@@ -99,6 +110,11 @@ ID3D11ShaderResourceView* textCursor = nullptr;
 bool usePickupCursor = false;
 bool showMouseOver = false;
 float speed = 1.0f;
+
+float objX = 0.0f;
+float objY = 0.0f;
+float objZ = 0.0f;
+
 bool renderStats = false;
 bool altStats = false;
 
@@ -224,6 +240,14 @@ static long __stdcall detour_present(IDXGISwapChain* p_swap_chain, UINT sync_int
 	lsiWireframe = ignoreWireframe;
 	lsWireframe = wireframe();
 
+	if (g_ResizeWidth != 0 && g_ResizeHeight != 0)
+	{
+		if (mainRenderTargetView) { mainRenderTargetView->Release(); mainRenderTargetView = nullptr; }
+		p_swap_chain->ResizeBuffers(0, g_ResizeWidth, g_ResizeHeight, DXGI_FORMAT_UNKNOWN, 0);
+		g_ResizeWidth = g_ResizeHeight = 0;
+		imguiinit = false;
+	}
+
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 
@@ -329,6 +353,12 @@ static long __stdcall detour_present(IDXGISwapChain* p_swap_chain, UINT sync_int
 		{
 			setuptext"Game Speed" setupcontrol
 				if (ImGui::SliderFloat("", &speed, 0.5f, 10.0f, "%.1f")) setAllToSpeed(speed);
+			setuptext"Object X" setupcontrol
+				ImGui::SliderFloat("\u200B", &objX, 0.0f, 500.0f, "%.1f");
+			setuptext"Object Y" setupcontrol
+				ImGui::SliderFloat("\u200B\u200B", &objY, 0.0f, 500.0f, "%.1f");
+			setuptext"Object Z" setupcontrol
+				ImGui::SliderFloat("\u200B\u200B\u200B", &objZ, 0.0f, 500.0f, "%.1f");
 			break;
 		}
 		case 3:
@@ -539,46 +569,13 @@ skipcursor:
 			OutlinedText(bdl, hrFont, 20.0f, ImVec2(2, 78), "Target: (%.1f, %.1f, %.1f)", TargetX, TargetZ, TargetY);
 			OutlinedText(bdl, hrFont, 20.0f, ImVec2(2, 98), "Azi: %.1f Elev: %.1f Dist: %.1f FOVy: %.1f", Azi, Elev,
 				Dist, FOVy);
-
-			// Set up camera transform
-			DirectX::XMFLOAT3 cameraPos(CamX, CamY, CamZ);
-			DirectX::XMFLOAT3 cameraTarget(TargetX, TargetY, TargetZ);
-			DirectX::XMFLOAT3 cameraUp(0.0f, 0.0f, 1.0f);
-			DirectX::XMMATRIX viewMatrix = DirectX::XMMatrixLookAtLH(DirectX::XMLoadFloat3(&cameraPos), DirectX::XMLoadFloat3(&cameraTarget), DirectX::XMLoadFloat3(&cameraUp));
-
-			// Set up projection transform
-			float aspectRatio = ImGui::GetIO().DisplaySize.x / ImGui::GetIO().DisplaySize.y;
-			float nearZ = 1.0f;
-			float farZ = 10000.0f;
-			float fovY = camPtr[68];
-			float height = 2.0f * nearZ * tanf(fovY / 2.0f);
-			float width = height * aspectRatio;
-			DirectX::XMMATRIX projMatrix = DirectX::XMMatrixPerspectiveLH(width, height, nearZ, farZ);
-
-			// Combine view and projection matrices
-			DirectX::XMMATRIX viewProjMatrix = viewMatrix * projMatrix;
-
-			// Apply camera rotations
-			DirectX::XMMATRIX rotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(camPtr2[40], camPtr2[39], 0.0f);
-			viewProjMatrix = viewProjMatrix * rotationMatrix;
-
-			// Set up world-space coordinates
-			float worldX = 10.0f;
-			float worldY = 0.0f;
-			float worldZ = 10.0f;
-
-			// Transform world-space coordinates to screen-space coordinates
-			DirectX::XMVECTOR worldPos = DirectX::XMVectorSet(worldX, worldY, worldZ, 1.0f);
-			DirectX::XMVECTOR screenPos = DirectX::XMVector4Transform(worldPos, viewProjMatrix);
-
-			// Extract screen-space coordinates
-			float screenX = DirectX::XMVectorGetX(screenPos) / DirectX::XMVectorGetW(screenPos);
-			float screenY = DirectX::XMVectorGetY(screenPos) / DirectX::XMVectorGetW(screenPos);
-
-			bdl->AddImage(targetCursor, ImVec2(screenX - 14, screenY - 14),
-				ImVec2(screenX + 15, screenY + 15), ImVec2(0, 0), ImVec2(1, 1), 0xFFFFFFFF);
 		}
 	}
+
+	auto screenPos = worldToScreen(objX, objY, objZ);
+
+	bdl->AddImage(targetCursor, ImVec2(screenPos[0] - 14, screenPos[1] - 14),
+		ImVec2(screenPos[0] + 15, screenPos[1] + 15), ImVec2(0, 0), ImVec2(1, 1), 0xFFFFFFFF);
 
 	ImGui::Render();
 

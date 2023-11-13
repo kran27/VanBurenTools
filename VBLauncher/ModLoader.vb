@@ -133,7 +133,7 @@ Public Class ModLoader
         End If
         ListView1.Items.Insert(targetIndex, DirectCast(draggedItem.Clone(), ListViewItem))
         ListView1.Items.Remove(draggedItem)
-        UpdateStatus()
+        UpdateStatus(sender, e)
     End Sub
 
 #End Region
@@ -287,7 +287,7 @@ Public Class ModLoader
         DarkLabel3.Text = "Version: " & selectedMod.Version
     End Sub
 
-    Private Sub UpdateStatus() Handles ListView1.ItemChecked
+    Private Sub UpdateStatus(sender As Object, e As EventArgs) Handles ListView1.ItemChecked
         For Each i As Integer In ListView1.CheckedIndices
             Dim lpe As New List(Of String)
             Dim hpe As New List(Of String)

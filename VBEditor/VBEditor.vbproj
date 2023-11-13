@@ -4,6 +4,7 @@
     <OutputType>Library</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
+    <Configurations>Debug;Release;Main-Debug</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

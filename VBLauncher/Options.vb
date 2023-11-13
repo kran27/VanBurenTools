@@ -31,7 +31,7 @@ Public Class Options
         Return New MainMenuDef With {.MapName = MapName, .TargetX = TargetX, .TargetY = TargetY, .TargetZ = TargetZ, .Azimuth = Azimuth, .Elevation = Elevation, .FOV = FOV}
     End Function
 
-    Private Sub CheckOptions() Handles MyBase.Load
+    Private Sub CheckOptions(sender As Object, e As EventArgs) Handles MyBase.Load
         DarkTabControl1.Invalidate()
         IntrosCB.Checked = F3Ini.Ini("Graphics", "enable startup movies") = 1
         MainMenuCB.SelectedIndex = Array.IndexOf(Maps, SysIni.Ini("Mainmenu", "map name"))
@@ -62,7 +62,7 @@ Public Class Options
                 .Hz = F3Ini.Ini("Graphics", "refresh")
                 }
         ResolutionCB.SelectedItem = ResToStr(inires)
-        SetupSSCB()
+        SetupSSCB(sender, e)
         FullscreenCB.Checked = F3Ini.Ini("Graphics", "fullscreen") = 1
         If File.Exists("d3d11.dll") Then
             APICB.SelectedIndex = 1
@@ -74,10 +74,10 @@ Public Class Options
         SSFCB.SelectedIndex = SSModes.ToList.IndexOf(dgV2Conf.Ini("DirectX", "Resolution"))
         Try : MipmapCB.Checked = Not Boolean.Parse(dgV2Conf.Ini("DirectX", "DisableMipmapping")) : Catch : End Try
         Try : PhongCB.Checked = Boolean.Parse(dgV2Conf.Ini("DirectX", "PhongShadingWhenPossible")) : Catch : End Try
-        LoadKeybinds()
+        LoadKeybinds(sender, e)
     End Sub
 
-    Private Sub LoadKeybinds() Handles DarkButton2.Click
+    Private Sub LoadKeybinds(sender As Object, e As EventArgs) Handles DarkButton2.Click
         DarkLabel1.Hide()
         DarkScrollBar1.BringToFront()
         Dim modifiers As String() = {"Ctrl", "Shift", "Alt"}
@@ -129,7 +129,7 @@ Public Class Options
         DataGridView1.Columns(3).ReadOnly = True
     End Sub
 
-    Private Sub ApplyChanges() Handles ApplyB.Click
+    Private Sub ApplyChanges(sender As Object, e As EventArgs) Handles ApplyB.Click
         F3Ini.Ini("Graphics", "enable startup movies", If(IntrosCB.Checked, 1, 0), KeyType.Normal)
         SetMainMenu(MainMenus(MainMenuCB.SelectedIndex))
         SysIni.Ini("Camera", "Distance Max", If(AltCamCB.Checked, 70, 350), KeyType.Normal)
@@ -183,7 +183,7 @@ Public Class Options
         Hide()
     End Sub
 
-    Private Sub SetupSSCB() Handles ResolutionCB.SelectedIndexChanged
+    Private Sub SetupSSCB(sender As Object, e As EventArgs) Handles ResolutionCB.SelectedIndexChanged
         Dim index = SSFCB.SelectedIndex
         Dim res = StrToRes(ResolutionCB.Text)
         SSFCB.Items.Clear()
@@ -192,7 +192,7 @@ Public Class Options
         SSFCB.SelectedIndex = index
     End Sub
 
-    Private Sub NewGameToolTip() Handles NewGameCB.SelectedIndexChanged
+    Private Sub NewGameToolTip(sender As Object, e As EventArgs) Handles NewGameCB.SelectedIndexChanged
         ToolTip1.SetToolTip(NewGameCB, NewGameCB.Text)
     End Sub
 
@@ -232,7 +232,7 @@ Public Class Options
         End Select
     End Sub
 
-    Private Sub DataGridView1_ScrollChanged() Handles DataGridView1.Scroll
+    Private Sub DataGridView1_ScrollChanged(sender As Object, e As EventArgs) Handles DataGridView1.Scroll
         DarkScrollBar1.ScrollTo((DataGridView1.FirstDisplayedScrollingRowIndex / (DataGridView1.Rows.Count - DataGridView1.DisplayedRowCount(False))) * DarkScrollBar1.Maximum)
     End Sub
 

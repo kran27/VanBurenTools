@@ -330,31 +330,19 @@ Namespace My.Resources
         End Property
         
         '''<summary>
-        '''  Looks up a localized string similar to Version = 0x279
+        '''  Looks up a localized string similar to ;==========================================================================
+        '''; === Text based config file for dgVoodoo2
+        '''; === Use this file if you are a game modder/hacker or an experted user and
+        ''';     want to modify some advanced properties not available via the CPL.
+        ''';==========================================================================
+        '''
+        '''Version                              = 0x281
+        '''
+        ''';--------------------------------------------------------------------------
         '''
         '''[General]
-        '''OutputAPI = bestavailable
-        '''Adapters = all
-        '''FullScreenOutput = default
-        '''FullScreenMode = true
-        '''ScalingMode = unspecified
-        '''ProgressiveScanlineOrder = false
-        '''EnumerateRefreshRates = false
-        '''Brightness = 100
-        '''Color = 100
-        '''Contrast = 100
-        '''InheritColorProfileInFullScreenMode = true
-        '''KeepWindowAspectRatio = true
-        '''CaptureMouse = true
-        '''CenterAppWindow = false
         '''
-        '''[GeneralExt]
-        '''DesktopResolution = 
-        '''DesktopBitDepth = 
-        '''DeframerSize = 1
-        '''ImageScaleFactor = 1
-        '''CursorScaleFactor = 1
-        '''DisplayR [rest of string was truncated]&quot;;.
+        ''';       OutputAPI: &quot;d [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property dgV2conf() As String
             Get
