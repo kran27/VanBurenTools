@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net7.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
     <StartupObject>VBLauncher.My.MyApplication</StartupObject>
     <MyType>WindowsForms</MyType>
@@ -53,11 +53,28 @@
     <Import Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Be.Windows.Forms.HexBox.Net5" Version="1.8.0" />
+    <PackageReference Include="HelixToolkit.Wpf" Version="2.24.0" />
+    <PackageReference Include="Pfim" Version="0.11.2" />
     <PackageReference Include="SharpCompress" Version="0.32.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AltUI\AltUI\AltUI.csproj" />
-    <ProjectReference Include="..\VBEditor\VBEditor.vbproj" />
+    <ProjectReference Include="..\VB3DLib\VB3DLib.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="PresentationCore">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\dotnet\shared\Microsoft.WindowsDesktop.App\7.0.13\PresentationCore.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationFramework">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\dotnet\shared\Microsoft.WindowsDesktop.App\7.0.13\PresentationFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\dotnet\shared\Microsoft.WindowsDesktop.App\7.0.13\WindowsBase.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsFormsIntegration">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\dotnet\shared\Microsoft.WindowsDesktop.App\7.0.13\WindowsFormsIntegration.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Editor.vb" />

@@ -44,6 +44,7 @@ Public Class ModLoader
         Timer1.Start()
         ListView1.BackColor = BackgroundColour
         ListView1.ForeColor = Theme.Colors.LightText
+        ListView1.AllowColumnReorder = false
 
         Dim files As String() = Directory.GetFiles("Mods")
         Dim directories As String() = Directory.GetDirectories("Mods")
@@ -420,7 +421,7 @@ Public Class ModLoader
     End Sub
 
     Private Sub ToolStripLabel2_Click(sender As Object, e As EventArgs) Handles ToolStripLabel2.Click
-        bArray = VBEditor.Extensions.STFToTXT(IO.File.ReadAllBytes(My.Settings.STFDir))
+        bArray = STFToTXT(IO.File.ReadAllBytes(My.Settings.STFDir))
         Dim tmpArray = bArray
         For Each i In ListView1.CheckedIndices
             If modList(i).Entries.Any(Function(x) x.Equals("English.stf", StringComparison.OrdinalIgnoreCase)) Then
@@ -430,7 +431,7 @@ Public Class ModLoader
                         Using memoryStream As New MemoryStream()
                             entry.Open().CopyTo(memoryStream)
                             Dim stfData = memoryStream.ToArray()
-                            Dim stfArray = VBEditor.Extensions.STFToTXT(stfData)
+                            Dim stfArray = STFToTXT(stfData)
 
                             Dim tmp = MergeSTF(tmpArray, stfArray)
                             tmpArray = tmp.Item1

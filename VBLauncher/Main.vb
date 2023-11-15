@@ -14,6 +14,10 @@ Public Class Main
     Private Shared Sub SendMessage(ByVal hWnd As IntPtr, ByVal msg As Integer, ByVal wParam As Integer, ByVal lParam As Integer)
     End Sub
 
+    <DllImport("kernel32.dll", SetLastError:=True)>
+    Private Shared Function AllocConsole() As Boolean
+    End Function
+
     <DllImport("user32.dll")>
     Private Shared Sub ReleaseCapture()
     End Sub

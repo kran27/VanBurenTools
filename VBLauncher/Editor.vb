@@ -1766,8 +1766,24 @@ Public Class Editor
     Private Sub ExtractgrpFilesToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ExtractgrpFilesToolStripMenuItem.Click
         Using grpb As New GrpBrowser(Nothing)
             grpb.ReadRHT()
+            grpb.readExtensions()
             grpb.extractFile(-1)
-            MsgBox("Done Extracting")
+            DarkMessageBox.ShowInformation("Done Extracting", "Finished")
+        End Using
+    End Sub
+
+    Private Sub ExtractAndConvertToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ExtractAndConvertToolStripMenuItem.Click
+        Using grpb As New GrpBrowser(Nothing)
+            grpb.ReadRHT()
+            grpb.readExtensions()
+            grpb.extractFile(-1, true)
+            DarkMessageBox.ShowInformation("Done Extracting", "Finished")
+        End Using
+    End Sub
+
+    Private Sub GrpBrowserToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GrpBrowserToolStripMenuItem.Click
+        Using grpb As New GrpBrowser(Nothing, true)
+            grpb.ShowDialog()
         End Using
     End Sub
 End Class

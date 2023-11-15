@@ -163,7 +163,9 @@ Partial Class Editor
         Me.StfToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.TxtTostfToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ExtractgrpFilesToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.ToolTip = New System.Windows.Forms.ToolTip(Me.components)
+        Me.ExtractAndConvertToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.GrpBrowserToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolTip = New AltUI.Controls.DarkToolTip()
         Me.GWAMsf = New AltUI.Controls.DarkNumericUpDown()
         Me.EEN2dgv = New System.Windows.Forms.DataGridView()
         Me.CRTgb = New AltUI.Controls.DarkGroupBox()
@@ -1558,7 +1560,7 @@ Partial Class Editor
         Me.MainMenuStrip.Location = New System.Drawing.Point(0, 0)
         Me.MainMenuStrip.Name = "MainMenuStrip"
         Me.MainMenuStrip.Padding = New System.Windows.Forms.Padding(3, 2, 0, 2)
-        Me.MainMenuStrip.Size = New System.Drawing.Size(1924, 24)
+        Me.MainMenuStrip.Size = New System.Drawing.Size(624, 24)
         Me.MainMenuStrip.TabIndex = 14
         Me.MainMenuStrip.Text = "DarkMenuStrip1"
         '
@@ -1717,7 +1719,7 @@ Partial Class Editor
         'ToolsToolStripMenuItem
         '
         Me.ToolsToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(CType(CType(31,Byte),Integer), CType(CType(31,Byte),Integer), CType(CType(32,Byte),Integer))
-        Me.ToolsToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.StfToolStripMenuItem, Me.TxtTostfToolStripMenuItem, Me.ExtractgrpFilesToolStripMenuItem})
+        Me.ToolsToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.StfToolStripMenuItem, Me.TxtTostfToolStripMenuItem, Me.ExtractgrpFilesToolStripMenuItem, Me.ExtractAndConvertToolStripMenuItem, Me.GrpBrowserToolStripMenuItem})
         Me.ToolsToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(CType(CType(213,Byte),Integer), CType(CType(213,Byte),Integer), CType(CType(213,Byte),Integer))
         Me.ToolsToolStripMenuItem.Name = "ToolsToolStripMenuItem"
         Me.ToolsToolStripMenuItem.Size = New System.Drawing.Size(46, 20)
@@ -1728,7 +1730,7 @@ Partial Class Editor
         Me.StfToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(CType(CType(31,Byte),Integer), CType(CType(31,Byte),Integer), CType(CType(32,Byte),Integer))
         Me.StfToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(CType(CType(213,Byte),Integer), CType(CType(213,Byte),Integer), CType(CType(213,Byte),Integer))
         Me.StfToolStripMenuItem.Name = "StfToolStripMenuItem"
-        Me.StfToolStripMenuItem.Size = New System.Drawing.Size(180, 22)
+        Me.StfToolStripMenuItem.Size = New System.Drawing.Size(210, 22)
         Me.StfToolStripMenuItem.Text = ".stf to .txt"
         '
         'TxtTostfToolStripMenuItem
@@ -1736,7 +1738,7 @@ Partial Class Editor
         Me.TxtTostfToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(CType(CType(31,Byte),Integer), CType(CType(31,Byte),Integer), CType(CType(32,Byte),Integer))
         Me.TxtTostfToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(CType(CType(213,Byte),Integer), CType(CType(213,Byte),Integer), CType(CType(213,Byte),Integer))
         Me.TxtTostfToolStripMenuItem.Name = "TxtTostfToolStripMenuItem"
-        Me.TxtTostfToolStripMenuItem.Size = New System.Drawing.Size(180, 22)
+        Me.TxtTostfToolStripMenuItem.Size = New System.Drawing.Size(210, 22)
         Me.TxtTostfToolStripMenuItem.Text = ".txt to .stf"
         '
         'ExtractgrpFilesToolStripMenuItem
@@ -1744,8 +1746,28 @@ Partial Class Editor
         Me.ExtractgrpFilesToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(CType(CType(31,Byte),Integer), CType(CType(31,Byte),Integer), CType(CType(32,Byte),Integer))
         Me.ExtractgrpFilesToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(CType(CType(213,Byte),Integer), CType(CType(213,Byte),Integer), CType(CType(213,Byte),Integer))
         Me.ExtractgrpFilesToolStripMenuItem.Name = "ExtractgrpFilesToolStripMenuItem"
-        Me.ExtractgrpFilesToolStripMenuItem.Size = New System.Drawing.Size(180, 22)
-        Me.ExtractgrpFilesToolStripMenuItem.Text = "Extract .grp files"
+        Me.ExtractgrpFilesToolStripMenuItem.Size = New System.Drawing.Size(210, 22)
+        Me.ExtractgrpFilesToolStripMenuItem.Text = "Extract All Data"
+        '
+        'ExtractAndConvertToolStripMenuItem
+        '
+        Me.ExtractAndConvertToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(CType(CType(31,Byte),Integer), CType(CType(31,Byte),Integer), CType(CType(32,Byte),Integer))
+        Me.ExtractAndConvertToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(CType(CType(213,Byte),Integer), CType(CType(213,Byte),Integer), CType(CType(213,Byte),Integer))
+        Me.ExtractAndConvertToolStripMenuItem.Name = "ExtractAndConvertToolStripMenuItem"
+        Me.ExtractAndConvertToolStripMenuItem.Size = New System.Drawing.Size(210, 22)
+        Me.ExtractAndConvertToolStripMenuItem.Text = "Extract + Convert All Data"
+        '
+        'GrpBrowserToolStripMenuItem
+        '
+        Me.GrpBrowserToolStripMenuItem.BackColor = System.Drawing.Color.FromArgb(CType(CType(31,Byte),Integer), CType(CType(31,Byte),Integer), CType(CType(32,Byte),Integer))
+        Me.GrpBrowserToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(CType(CType(213,Byte),Integer), CType(CType(213,Byte),Integer), CType(CType(213,Byte),Integer))
+        Me.GrpBrowserToolStripMenuItem.Name = "GrpBrowserToolStripMenuItem"
+        Me.GrpBrowserToolStripMenuItem.Size = New System.Drawing.Size(210, 22)
+        Me.GrpBrowserToolStripMenuItem.Text = ".grp Browser"
+        '
+        'ToolTip
+        '
+        Me.ToolTip.OwnerDraw = true
         '
         'GWAMsf
         '
@@ -3040,7 +3062,7 @@ Partial Class Editor
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7!, 15!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1924, 1061)
+        Me.ClientSize = New System.Drawing.Size(624, 441)
         Me.Controls.Add(Me.ITMgb)
         Me.Controls.Add(Me.CRTgb)
         Me.Controls.Add(Me.Mapgb)
@@ -3231,7 +3253,7 @@ End Sub
     Friend WithEvents WeaToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents OptionsToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents SetEnglishstfLocationToolStripMenuItem As ToolStripMenuItem
-    Friend WithEvents ToolTip As ToolTip
+    Friend WithEvents ToolTip As DarkToolTip
     Friend WithEvents CRTgb As DarkGroupBox
     Friend WithEvents EEN2gb As DarkGroupBox
     Friend WithEvents GWAMgb As DarkGroupBox
@@ -3364,4 +3386,6 @@ End Sub
     Friend WithEvents GITMtype As DarkComboBox
     Friend WithEvents OpenFromgrpToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents ExtractgrpFilesToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents ExtractAndConvertToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents GrpBrowserToolStripMenuItem As ToolStripMenuItem
 End Class
