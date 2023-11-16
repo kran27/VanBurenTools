@@ -7,7 +7,6 @@ Imports System.Windows.Media
 Imports System.Windows.Media.Imaging
 Imports System.Windows.Media.Media3D
 Imports AltUI.Controls
-Imports AltUI.Forms
 Imports Be.Windows.Forms
 Imports HelixToolkit.Wpf
 Imports VB3DLib
@@ -430,14 +429,14 @@ Public Class GrpBrowser
                     viewport.Children.Add(model)
                     viewport.Children.Add(New DefaultLights())
                     TableLayoutPanel1.Controls.Add(host, 1, 0)
-                    Case "8"
-                        Dim _8 = New _8Model(b, MsgBox("FLGS Size?", MsgBoxStyle.YesNo, "Option") = DialogResult.Yes)
-                        Dim mesh = _8ModelToUsableMesh(_8)
-                        model = New ModelVisual3D() With {.Content = mesh}
-                        viewport.Children.Clear()
-                        viewport.Children.Add(model)
-                        viewport.Children.Add(New DefaultLights())
-                        TableLayoutPanel1.Controls.Add(host, 1, 0)
+                Case "8"
+                    Dim _8 = New _8Model(b, MsgBox("FLGS Size?", MsgBoxStyle.YesNo, "Option") = DialogResult.Yes)
+                    Dim mesh = _8ModelToUsableMesh(_8)
+                    model = New ModelVisual3D() With {.Content = mesh}
+                    viewport.Children.Clear()
+                    viewport.Children.Add(model)
+                    viewport.Children.Add(New DefaultLights())
+                    TableLayoutPanel1.Controls.Add(host, 1, 0)
                 Case Else
                     TableLayoutPanel1.Controls.Add(HexBox1, 1, 0)
                     HexBox1.ByteProvider = New DynamicByteProvider(b)
@@ -468,7 +467,8 @@ Public Class GrpBrowser
 
     ' crops texture to the UV bounds for previewing
     ' necessary due to a weird quirk of HelixToolkit
-    Public Function CropBitmapByUV(bitmapImage As BitmapImage, uvCoordinates As PointCollection) As BitmapImage
+    ' transparency also disabled by default due to rendering issue
+    Public Function CropBitmapByUV(bitmapImage As BitmapImage, uvCoordinates As PointCollection, Optional trans As Boolean = false) As BitmapImage
         Dim minX As Double = uvCoordinates.Min(Function(p) p.X)
         Dim minY As Double = uvCoordinates.Min(Function(p) p.Y)
         Dim maxX As Double = uvCoordinates.Max(Function(p) p.X)
@@ -482,7 +482,7 @@ Public Class GrpBrowser
 
         Dim croppedBitmap As New CroppedBitmap(bitmapImage, New Int32Rect(x, y, width, height))
 
-        Dim bitmap As New Bitmap(croppedBitmap.PixelWidth, croppedBitmap.PixelHeight, System.Drawing.Imaging.PixelFormat.Format32bppRgb)
+        Dim bitmap As New Bitmap(croppedBitmap.PixelWidth, croppedBitmap.PixelHeight, If(trans, System.Drawing.Imaging.PixelFormat.Format32bppArgb, System.Drawing.Imaging.PixelFormat.Format32bpprgb))
         Dim bitmapData As System.Drawing.Imaging.BitmapData = bitmap.LockBits(New System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height), System.Drawing.Imaging.ImageLockMode.[WriteOnly], bitmap.PixelFormat)
         croppedBitmap.CopyPixels(System.Windows.Int32Rect.Empty, bitmapData.Scan0, bitmapData.Height * bitmapData.Stride, bitmapData.Stride)
         bitmap.UnlockBits(bitmapData)
@@ -539,9 +539,9 @@ Public Class GrpBrowser
             Dim a = New Point3D(b3d.Model_Vertex_Position(face(0)).X, b3d.Model_Vertex_Position(face(0)).Y, b3d.Model_Vertex_Position(face(0)).Z)
             Dim b = New Point3D(b3d.Model_Vertex_Position(face(1)).X, b3d.Model_Vertex_Position(face(1)).Y, b3d.Model_Vertex_Position(face(1)).Z)
             Dim c = New Point3D(b3d.Model_Vertex_Position(face(2)).X, b3d.Model_Vertex_Position(face(2)).Y, b3d.Model_Vertex_Position(face(2)).Z)
-            Dim texA = New Point(b3d.Model_Vertex_Texcoords(face(0)).X, 1 - b3d.Model_Vertex_Texcoords(face(0)).Y)
-            Dim texB = New Point(b3d.Model_Vertex_Texcoords(face(1)).X, 1 - b3d.Model_Vertex_Texcoords(face(1)).Y)
-            Dim texC = New Point(b3d.Model_Vertex_Texcoords(face(2)).X, 1 - b3d.Model_Vertex_Texcoords(face(2)).Y)
+            Dim texA = New Point(b3d.Model_Vertex_Texcoords(face(0)).X, b3d.Model_Vertex_Texcoords(face(0)).Y)
+            Dim texB = New Point(b3d.Model_Vertex_Texcoords(face(1)).X, b3d.Model_Vertex_Texcoords(face(1)).Y)
+            Dim texC = New Point(b3d.Model_Vertex_Texcoords(face(2)).X, b3d.Model_Vertex_Texcoords(face(2)).Y)
             meshBuilder.AddTriangle(a, b, c, texA, texB, texC)
         Next
         Dim mesh = OptimizeMesh(meshBuilder)
@@ -572,87 +572,100 @@ Public Class GrpBrowser
     End Function
 
     Private Function _8ModelToUsableMesh(_8 As _8Model) As Model3DGroup
-        Dim meshBuilder = New MeshBuilder()
+        Dim mbldrs = New List(Of MeshBuilder)
+
+        For i = 0 To _8.MAT.Count - 1
+            mbldrs.Add(New MeshBuilder())
+        Next
+
         For i = 0 To _8.IDX.Count - 1
             Dim face = _8.IDX(i)
             Dim a = New Point3D(_8.GVP(face(0)).X, _8.GVP(face(0)).Y, _8.GVP(face(0)).Z)
             Dim b = New Point3D(_8.GVP(face(1)).X, _8.GVP(face(1)).Y, _8.GVP(face(1)).Z)
             Dim c = New Point3D(_8.GVP(face(2)).X, _8.GVP(face(2)).Y, _8.GVP(face(2)).Z)
-            Dim texA = New Point(_8.GVT(face(0)).X, 1 - _8.GVT(face(0)).Y)
-            Dim texB = New Point(_8.GVT(face(1)).X, 1 - _8.GVT(face(1)).Y)
-            Dim texC = New Point(_8.GVT(face(2)).X, 1 - _8.GVT(face(2)).Y)
-            meshBuilder.AddTriangle(a, b, c, texA, texB, texC)
+            Dim texA = New Point(_8.GVT(face(0)).X, _8.GVT(face(0)).Y)
+            Dim texB = New Point(_8.GVT(face(1)).X, _8.GVT(face(1)).Y)
+            Dim texC = New Point(_8.GVT(face(2)).X, _8.GVT(face(2)).Y)
+            mbldrs(Math.Clamp(_8.MDX(i) - 1, 0, Integer.MaxValue)).AddTriangle(a, b, c, texA, texB, texC)
         Next
-        Dim mesh = OptimizeMesh(meshBuilder)
-        Dim material As Material
-        If _8.MAT.Count > 0 andalso _8.MAT(0).FileName <> "" Then
+
+        Dim modelGroup As New Model3DGroup()
+
+        For i = 0 To mbldrs.Count - 1
+            Dim mesh = OptimizeMesh(mbldrs(i))
+            Dim material As Material
+
             Try
-                Dim cropped = CropBitmapByUV(GetImageFromName(_8.MAT(0).FileName), mesh.TextureCoordinates)
+                Dim cropped = CropBitmapByUV(GetImageFromName(_8.MAT(i).FileName), mesh.TextureCoordinates, True)
                 material = New DiffuseMaterial(New ImageBrush(cropped))
             Catch
                 material = New DiffuseMaterial(New SolidColorBrush(Colors.LightSlateGray))
             End Try
-        Else
-           material = New DiffuseMaterial(New SolidColorBrush(Colors.LightSlateGray))
-        End If
-        Dim model = New GeometryModel3D With {
-                .Geometry = mesh,
-                .Material = material,
-                .BackMaterial = material
-                }
 
-        'Dim rotateTransform = New RotateTransform3D(New AxisAngleRotation3D(New Vector3D(0, 0, 1), -90))
-        'model.Transform = rotateTransform
+            Dim model = New GeometryModel3D With {
+                    .Geometry = mesh,
+                    .Material = material,
+                    .BackMaterial = material
+                    }
 
-        Dim modelGroup As New Model3DGroup()
-        modelGroup.Children.Add(model)
+            'Dim rotateTransform = New RotateTransform3D(New AxisAngleRotation3D(New Vector3D(0, 0, 1), -90))
+            'model.Transform = rotateTransform
+
+            modelGroup.Children.Add(model)
+        Next
 
         Return modelGroup
     End Function
 
     ' removes exact duplicate vertices, while keeping texture coordinates and faces intact
+    Private Class Vertex
+        Public Property Position As Point3D
+        Public Property Texcoord As Point
+        Public Property Normal As Vector3D
+
+        Public Overrides Function Equals(obj As Object) As Boolean
+            Dim vertex = TryCast(obj, Vertex)
+            If vertex Is Nothing Then Return False
+            Return Position = vertex.Position AndAlso Texcoord = vertex.Texcoord AndAlso Normal = vertex.Normal
+        End Function
+
+        Public Overrides Function GetHashCode() As Integer
+            Return Position.GetHashCode() Xor Texcoord.GetHashCode() Xor Normal.GetHashCode()
+        End Function
+
+    End Class
+
     Private Function OptimizeMesh(mesh As MeshBuilder) As MeshGeometry3D
         Dim meshBuilder = New MeshBuilder()
         Dim positions = mesh.Positions
         Dim texcoords = mesh.TextureCoordinates
-        Dim indices = mesh.TriangleIndices
         Dim normals = mesh.Normals
         Dim newIndices = New List(Of Integer)()
         Dim newPositions = New List(Of Point3D)()
         Dim newTexcoords = New List(Of Point)()
         Dim newNormals = New List(Of Vector3D)()
+        Dim vertexIndexMap = New Dictionary(Of Vertex, Integer)()
         Dim index = 0
 
         For i = 0 To positions.Count - 1
-            Dim pos = positions(i)
-            Dim tex = texcoords(i)
-            Dim norm = normals(i)
-            Dim existingIndex = FindExistingVertexIndex(newPositions, newTexcoords, pos, tex)
-
-            If existingIndex = -1 Then
-                newPositions.Add(pos)
-                newTexcoords.Add(tex)
-                newNormals.Add(norm)
-                newIndices.Add(index)
-                index += 1
-            Else
+            Dim vertex = New Vertex With {.Position = positions(i), .Texcoord = texcoords(i), .Normal = normals(i)}
+            Dim existingIndex As Integer
+            If vertexIndexMap.TryGetValue(vertex, existingIndex) Then
                 newIndices.Add(existingIndex)
+            Else
+                newPositions.Add(vertex.Position)
+                newTexcoords.Add(vertex.Texcoord)
+                newNormals.Add(vertex.Normal)
+                newIndices.Add(index)
+                vertexIndexMap(vertex) = index
+                index += 1
             End If
         Next
 
         meshBuilder.Append(newPositions, newIndices, newNormals, newTexcoords)
         Dim newMesh = meshBuilder.ToMesh()
-        Console.WriteLine($"Old Positions: {positions.Count} New Positions: {newPositions.Count}{vbCrLf}Old Indices: {indices.Count} New Indices: {newIndices.Count}{vbCrLf}Old Texcoords: {texcoords.Count} New Texcoords: {newTexcoords.Count}{vbCrLf}Old Normals: {normals.Count} New Normals: {newNormals.Count}")
+        Console.WriteLine($"Old Positions: {positions.Count} New Positions: {newPositions.Count}{vbCrLf}Old Indices: {mesh.TriangleIndices.Count} New Indices: {newIndices.Count}{vbCrLf}Old Texcoords: {texcoords.Count} New Texcoords: {newTexcoords.Count}{vbCrLf}Old Normals: {normals.Count} New Normals: {newNormals.Count}")
         Return newMesh
-    End Function
-
-    Private Function FindExistingVertexIndex(positions As List(Of Point3D), texcoords As List(Of Point), pos As Point3D, tex As Point) As Integer
-        For i = 0 To positions.Count - 1
-            If positions(i) = pos AndAlso texcoords(i) = tex Then
-                Return i
-            End If
-        Next
-        Return -1
     End Function
 
     Private viewport As New HelixViewport3D() With {

@@ -3068,7 +3068,6 @@ Partial Class Editor
         Me.Controls.Add(Me.Mapgb)
         Me.Controls.Add(Me.MainMenuStrip)
         Me.CornerStyle = AltUI.Forms.DarkForm.CornerPreference.[Default]
-        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.Icon = CType(resources.GetObject("$this.Icon"),System.Drawing.Icon)
         Me.MaximizeBox = false
         Me.Name = "Editor"

@@ -3,8 +3,6 @@ Imports System.IO
 Imports AltUI.Config
 Imports AltUI.Controls
 Imports AltUI.Forms
-Imports VBEditor
-Imports VBEditor.Extensions
 
 Public Class Editor
 
@@ -105,7 +103,7 @@ Public Class Editor
         End If
     End Sub
 
-    Private Sub LoadFile(fb As Byte(), ext As string)
+    Private Sub LoadFile(fb As Byte(), ext As String)
         Select Case ext
             Case ".amo"
                 MsgBox("Not yet implemented")
@@ -133,8 +131,8 @@ Public Class Editor
                     ITMgb.Text = $".ITM Editor ({f.Substring(f.LastIndexOf("\") + 1)})"
                     ITMSetupUI(cf)
                 Else
-                DarkMessageBox.ShowError($".STF Not selected, loading of {f} aborted", ".STF Not Selected")
-            End If
+                    DarkMessageBox.ShowError($".STF Not selected, loading of {f} aborted", ".STF Not Selected")
+                End If
             Case ".map"
                 CRTgb.Hide()
                 cf = fb.ReadMap()
@@ -190,7 +188,7 @@ Public Class Editor
 
     Private Sub MapSetupUI(ByRef cf As Map) ' Only way I found to bypass the issue of functions like .Any() not being found
         Mapgb.Location = New Point(12, 27)
-        Size = New Size(964, 600)
+        Size = New Size(Mapgb.Width + Mapgb.Padding.Left * 13, Mapgb.Height + MainMenuStrip.Height + Mapgb.Padding.Top * 17)
         CRTgb.Hide()
         Mapgb.Show()
         ITMgb.Hide()
@@ -306,7 +304,7 @@ Public Class Editor
         CRTgb.Controls.Add(GENTgb)
         GENTgb.Location = New Point(618, 22)
         CRTgb.Location = New Point(12, 27)
-        Size = New Size(964, 610)
+        Size = New Size(crtgb.Width + crtgb.Padding.Left * 13, crtgb.Height + MainMenuStrip.Height + crtgb.Padding.Top * 17)
         CRTgb.Show()
         Mapgb.Hide()
         ITMgb.Hide()
@@ -341,11 +339,10 @@ Public Class Editor
         ITMgb.Controls.Add(GENTgb)
         GENTgb.Location = New Point(618, 66)
         ITMgb.Location = New Point(12, 27)
-        Size = New Size(964, 473)
+        Size = New Size(itmgb.Width + itmgb.Padding.Left * 13, itmgb.Height + MainMenuStrip.Height + itmgb.Padding.Top * 17)
         ITMgb.Show()
         CRTgb.Hide()
         Mapgb.Hide()
-        Size = New Size(964, 610)
         ResetUI()
 
         EEN2ToUI()
@@ -1759,8 +1756,6 @@ Public Class Editor
         End If
     End Sub
 
-    
-
 #End Region
 
     Private Sub ExtractgrpFilesToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ExtractgrpFilesToolStripMenuItem.Click
@@ -1776,14 +1771,15 @@ Public Class Editor
         Using grpb As New GrpBrowser(Nothing)
             grpb.ReadRHT()
             grpb.readExtensions()
-            grpb.extractFile(-1, true)
+            grpb.extractFile(-1, True)
             DarkMessageBox.ShowInformation("Done Extracting", "Finished")
         End Using
     End Sub
 
     Private Sub GrpBrowserToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GrpBrowserToolStripMenuItem.Click
-        Using grpb As New GrpBrowser(Nothing, true)
+        Using grpb As New GrpBrowser(Nothing, True)
             grpb.ShowDialog()
         End Using
     End Sub
+
 End Class
