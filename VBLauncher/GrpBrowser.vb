@@ -1,5 +1,4 @@
 ﻿Imports System.IO
-Imports System.Numerics
 Imports System.Runtime.InteropServices
 Imports System.Text
 Imports System.Windows
@@ -8,6 +7,7 @@ Imports System.Windows.Media
 Imports System.Windows.Media.Imaging
 Imports System.Windows.Media.Media3D
 Imports AltUI.Controls
+Imports AltUI.Forms
 Imports Be.Windows.Forms
 Imports HelixToolkit.Wpf
 Imports VB3DLib
@@ -17,6 +17,8 @@ Public Class GrpBrowser
     Public Property Extension As String
     Public Property FileName As String
     Private Property previewMode As Boolean
+
+#Region ".rht/.grp Reading"
 
     Private filter As String() =
                 {"psf", "int", "rle", "itm", "veg", "crt", "map", "wav", "amx", "rtd", "rlz", "ini", "skl", "gr2", "skn",
@@ -62,6 +64,7 @@ Public Class GrpBrowser
     Private globalIndexToPackOffset As New Dictionary(Of Integer, Integer)
     Private localIndexToGlobal As Dictionary(Of Integer, Integer)()
     Private globalIndexToLocal As Dictionary(Of Integer, Integer)
+    Private fullNameToGlobalIndex As New Dictionary(Of String, Integer)
     Private extensions As List(Of String)
 
     'TODO: Automate this for proper support instead of hardcoded to this rht
@@ -223,6 +226,7 @@ Public Class GrpBrowser
             Dim extname = $"{grpnames(packOffsetToIndex(packLoc))}\{filenames(i)}"
             readExtensions(grpname, entries(packOffsetToIndex(packLoc))(localIndex).number,
                            entries(packOffsetToIndex(packLoc))(localIndex).type, extname)
+            fullNameToGlobalIndex.Add(filenames(i) & "." & extensions(i), i)
         Next
     End Sub
 
@@ -317,6 +321,8 @@ Public Class GrpBrowser
         Next
     End Sub
 
+#End Region
+
     Private Function TargaToBitmap(b As Byte()) As Bitmap
         Dim ms = New MemoryStream(b)
         Dim image = Pfim.Pfimage.FromStream(ms)
@@ -381,7 +387,7 @@ Public Class GrpBrowser
 
     Private Sub DarkButton1_Click(sender As Object, e As EventArgs) Handles DarkTreeView1.DoubleClick, DarkButton1.Click
         For Each c As Control In TableLayoutPanel1.Controls
-            If c IsNot DarkTreeView1 AndAlso c IsNot DarkButton1 Then
+            If c IsNot DarkTreeView1 AndAlso c IsNot DarkButton1 AndAlso c IsNot DarkButton2 Then
                 TableLayoutPanel1.Controls.Remove(c)
             End If
         Next
@@ -395,7 +401,7 @@ Public Class GrpBrowser
         Dim packIndex = grpnames.IndexOf(parentName)
         If previewMode Then
             Dim b As Byte()
-            Dim g As Integer = localIndexToGlobal(packIndex)(selectedNode.ParentNode.Nodes.IndexOf(selectedNode))
+            Dim g As Integer = fullNameToGlobalIndex(selectedNode.Text)
             b = getFileBytes(g)
             Select Case ext
                 Case "bmp"
@@ -424,6 +430,14 @@ Public Class GrpBrowser
                     viewport.Children.Add(model)
                     viewport.Children.Add(New DefaultLights())
                     TableLayoutPanel1.Controls.Add(host, 1, 0)
+                    Case "8"
+                        Dim _8 = New _8Model(b, MsgBox("FLGS Size?", MsgBoxStyle.YesNo, "Option") = DialogResult.Yes)
+                        Dim mesh = _8ModelToUsableMesh(_8)
+                        model = New ModelVisual3D() With {.Content = mesh}
+                        viewport.Children.Clear()
+                        viewport.Children.Add(model)
+                        viewport.Children.Add(New DefaultLights())
+                        TableLayoutPanel1.Controls.Add(host, 1, 0)
                 Case Else
                     TableLayoutPanel1.Controls.Add(HexBox1, 1, 0)
                     HexBox1.ByteProvider = New DynamicByteProvider(b)
@@ -452,17 +466,21 @@ Public Class GrpBrowser
         Next
     End Function
 
-    ' i do NOT want to talk about how this was where i had to end up
-    Public Function CropBitmapByUV(bitmapImage As BitmapImage, uvCoordinates As List(Of Vector2)) As BitmapImage
+    ' crops texture to the UV bounds for previewing
+    ' necessary due to a weird quirk of HelixToolkit
+    Public Function CropBitmapByUV(bitmapImage As BitmapImage, uvCoordinates As PointCollection) As BitmapImage
         Dim minX As Double = uvCoordinates.Min(Function(p) p.X)
         Dim minY As Double = uvCoordinates.Min(Function(p) p.Y)
         Dim maxX As Double = uvCoordinates.Max(Function(p) p.X)
         Dim maxY As Double = uvCoordinates.Max(Function(p) p.Y)
-        Dim width As Double = maxX - minX
-        Dim height As Double = maxY - minY
-        Dim croppedBitmap As New CroppedBitmap(bitmapImage,
-                                  New Int32Rect(minX * bitmapImage.PixelWidth, minY * bitmapImage.PixelHeight,
-                                                width * bitmapImage.PixelWidth, height * bitmapImage.PixelHeight))
+
+        Dim x = minX * bitmapImage.PixelWidth
+        Dim y = minY * bitmapImage.PixelHeight
+        Dim width = (maxX - minX) * bitmapImage.PixelWidth
+        Dim height = (maxY - minY) * bitmapImage.PixelHeight
+        Console.WriteLine($"x: {x} y: {y}{vbCrLf}w: {width} h: {height}")
+
+        Dim croppedBitmap As New CroppedBitmap(bitmapImage, New Int32Rect(x, y, width, height))
 
         Dim bitmap As New Bitmap(croppedBitmap.PixelWidth, croppedBitmap.PixelHeight, System.Drawing.Imaging.PixelFormat.Format32bppRgb)
         Dim bitmapData As System.Drawing.Imaging.BitmapData = bitmap.LockBits(New System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height), System.Drawing.Imaging.ImageLockMode.[WriteOnly], bitmap.PixelFormat)
@@ -489,7 +507,7 @@ Public Class GrpBrowser
         Dim mesh = OptimizeMesh(meshBuilder)
         Dim material As Material
         Try
-            Dim cropped = CropBitmapByUV(GetImageFromName("CR_Monsta_default_LG.tga"), g3d.Model_Vertex_Texcoords)
+            Dim cropped = CropBitmapByUV(GetImageFromName("CR_Monsta_default_LG.tga"), mesh.TextureCoordinates)
             material = New DiffuseMaterial(New ImageBrush(cropped))
         Catch
             material = New DiffuseMaterial(New SolidColorBrush(Colors.LightSlateGray))
@@ -530,7 +548,7 @@ Public Class GrpBrowser
         Dim material As Material
         If b3d.texName <> "" Then
             Try
-                Dim cropped = CropBitmapByUV(GetImageFromName(b3d.texName), b3d.Model_Vertex_Texcoords)
+                Dim cropped = CropBitmapByUV(GetImageFromName(b3d.texName), mesh.TextureCoordinates)
                 material = New DiffuseMaterial(New ImageBrush(cropped))
             Catch
                 material = New DiffuseMaterial(New SolidColorBrush(Colors.LightSlateGray))
@@ -553,7 +571,46 @@ Public Class GrpBrowser
         Return modelGroup
     End Function
 
-    ' removes exact duplicate vertices, while keeping texture coordinates and intact
+    Private Function _8ModelToUsableMesh(_8 As _8Model) As Model3DGroup
+        Dim meshBuilder = New MeshBuilder()
+        For i = 0 To _8.IDX.Count - 1
+            Dim face = _8.IDX(i)
+            Dim a = New Point3D(_8.GVP(face(0)).X, _8.GVP(face(0)).Y, _8.GVP(face(0)).Z)
+            Dim b = New Point3D(_8.GVP(face(1)).X, _8.GVP(face(1)).Y, _8.GVP(face(1)).Z)
+            Dim c = New Point3D(_8.GVP(face(2)).X, _8.GVP(face(2)).Y, _8.GVP(face(2)).Z)
+            Dim texA = New Point(_8.GVT(face(0)).X, 1 - _8.GVT(face(0)).Y)
+            Dim texB = New Point(_8.GVT(face(1)).X, 1 - _8.GVT(face(1)).Y)
+            Dim texC = New Point(_8.GVT(face(2)).X, 1 - _8.GVT(face(2)).Y)
+            meshBuilder.AddTriangle(a, b, c, texA, texB, texC)
+        Next
+        Dim mesh = OptimizeMesh(meshBuilder)
+        Dim material As Material
+        If _8.MAT.Count > 0 andalso _8.MAT(0).FileName <> "" Then
+            Try
+                Dim cropped = CropBitmapByUV(GetImageFromName(_8.MAT(0).FileName), mesh.TextureCoordinates)
+                material = New DiffuseMaterial(New ImageBrush(cropped))
+            Catch
+                material = New DiffuseMaterial(New SolidColorBrush(Colors.LightSlateGray))
+            End Try
+        Else
+           material = New DiffuseMaterial(New SolidColorBrush(Colors.LightSlateGray))
+        End If
+        Dim model = New GeometryModel3D With {
+                .Geometry = mesh,
+                .Material = material,
+                .BackMaterial = material
+                }
+
+        'Dim rotateTransform = New RotateTransform3D(New AxisAngleRotation3D(New Vector3D(0, 0, 1), -90))
+        'model.Transform = rotateTransform
+
+        Dim modelGroup As New Model3DGroup()
+        modelGroup.Children.Add(model)
+
+        Return modelGroup
+    End Function
+
+    ' removes exact duplicate vertices, while keeping texture coordinates and faces intact
     Private Function OptimizeMesh(mesh As MeshBuilder) As MeshGeometry3D
         Dim meshBuilder = New MeshBuilder()
         Dim positions = mesh.Positions
@@ -649,10 +706,7 @@ Public Class GrpBrowser
 
     Private Sub DarkButton2_Click(sender As Object, e As EventArgs) Handles DarkButton2.Click
         Dim selectedNode = DarkTreeView1.SelectedNodes(0)
-        Dim parentName = selectedNode.ParentNode.Text
-        Dim packIndex = grpnames.IndexOf(parentName)
-        Dim g As Integer = localIndexToGlobal(packIndex)(selectedNode.ParentNode.Nodes.IndexOf(selectedNode))
-        extractFile(g)
+        extractFile(fullNameToGlobalIndex(selectedNode.Text), True)
     End Sub
 
 End Class

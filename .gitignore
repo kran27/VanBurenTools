@@ -29,7 +29,7 @@ VBLauncher/bin/Release/setup.exe
 VBLauncher/bin/Release/sni.dll
 VBLauncher/bin/Release/VBLauncher.application
 VBLauncher/bin/Release/AltUI.pdb
-VBEditor/obj
-VBEditor/bin
+VB3DLib/obj
+VB3DLib/bin
 VBExtender/Release
 VBExtender/Debug

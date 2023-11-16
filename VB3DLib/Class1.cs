@@ -1,5 +1,5 @@
-﻿using System.Numerics;
-using System.Xml.Linq;
+﻿using System.Drawing;
+using System.Numerics;
 
 namespace VB3DLib
 {
@@ -48,6 +48,7 @@ namespace VB3DLib
             Console.WriteLine("head");
             header.print();
             Console.WriteLine("head_end");
+
             //var Material_Node = new TMaterial_Node(f);
             while (f.BaseStream.Position < f.BaseStream.Length)
             {
@@ -88,13 +89,17 @@ namespace VB3DLib
                         var Vertex_Node = new TVertex_Node(f);
                         Console.WriteLine(f.BaseStream.Position);
                         break;
+
+                    default:
+                        Console.WriteLine(f.BaseStream.Position);
+                        return;
                 }
             }
         }
 
         public static char[] StringRead(BinaryReader f)
         {
-            if(f.BaseStream.Position >= f.BaseStream.Length - 2) { return new char[0]; }
+            if (f.BaseStream.Position >= f.BaseStream.Length - 2) { return new char[0]; }
             var s = new List<char>();
             int len = f.ReadInt16();
 
@@ -812,6 +817,254 @@ namespace VB3DLib
             {
                 Model_Faces_Index.Add(new[] { tmpList[i], tmpList[i + 1], tmpList[i + 2] });
             }
+        }
+    }
+
+    public class _8Model
+    {
+        public static string MapName = "defaultName";
+
+        public static List<Vector3> GVP = new(); // vertex position
+        public static List<Vector3> GVN = new(); // vertex normal
+        public static List<Color> GVD = new(); // vertex diffuse color
+        public static List<Vector3> GVT = new(); // texture coords
+        public static List<Vector2> GVL = new(); // lightmap coords
+
+        public static List<int[]> IDX = new(); // face indexes
+        public static List<int> MDX = new(); // mat index
+        public static List<BitmapTexture> MAT = new(); // materials
+
+        public static int Flag = 1;
+
+        public _8Model(string path, bool flgs)
+        {
+            Flag = flgs ? 4 : 1;
+            GVP = new();
+
+            GVN = new();
+            GVD = new();
+            GVT = new();
+            GVL = new();
+
+            IDX = new();
+            MDX = new();
+            MAT = new();
+            var f = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read));
+            ReadTREE_Data(f);
+        }
+
+        public _8Model(byte[] file, bool flgs)
+        {
+            Flag = flgs ? 4 : 1;
+            GVP = new();
+
+            GVN = new();
+            GVD = new();
+            GVT = new();
+            GVL = new();
+
+            IDX = new();
+            MDX = new();
+            MAT = new();
+            var f = new BinaryReader(new MemoryStream(file));
+            ReadTREE_Data(f);
+        }
+
+        public static string String4Read(BinaryReader f)
+        {
+            string s = "";
+            for (int i = 0; i < 4; ++i)
+            {
+                var t = f.BaseStream.Position;
+                try
+                {
+                    s += f.ReadChar();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    return "    ";
+                }
+            }
+
+            return s;
+        }
+
+        public struct TSectionHeader
+        {
+            public string id; // name
+            public int size;
+
+            public TSectionHeader(BinaryReader f)
+            {
+                id = String4Read(f);
+                size = f.ReadInt32();
+            }
+        }
+
+        public struct BitmapTexture
+        {
+            public string FileName;
+            public int AlphaSource;
+        }
+
+        public static bool IsHeader(string s)
+        {
+            return s switch
+            {
+                "NODE" or "LEAF" or "INFO" or "IDXD" or "IDXS" or "FLGS" or "TREE" or "LVL0" or "XYZ " or "MATR"
+                    or "MATD" or "TXTD" or "VTXD" or "VTXB" or "TXUV" or "LMUV" or "DIFU" or "NRML" or "LVLD"
+                    or "HEAD" or "8TRE" or "LGTD" or "LGTR" => true,
+                _ => false,
+            };
+        }
+
+        public void ReadTREE_Data(BinaryReader f)
+        {
+            ReadBlock(f, 0);
+        }
+
+        public int ReadBlock(BinaryReader f, int size)
+        {
+            var header = new TSectionHeader(f);
+
+            Console.WriteLine(header.id);
+
+            switch (header.id)
+            {
+                case "FLGS":
+                    f.BaseStream.Seek(header.size * Flag, SeekOrigin.Current);
+                    return 0;
+                case "IDXD":
+                    //f.BaseStream.Seek(-16, SeekOrigin.Current);
+                    //int tmp = 1 + ReadLong(f);
+                    //if (tmp >= 1 && tmp <= buffer_offset.Count) //no clue what buffer_offset is meant to be, but this ends up back where it started
+                    //    buffer_index = tmp;
+                    //f.BaseStream.Seek(12, SeekOrigin.Current);
+                    break;
+                case "TXTD":
+                    Console.WriteLine(f.ReadInt32());
+                    Console.WriteLine(f.ReadInt32());
+                    break;
+                case "TXUV":
+                {
+                    for (int i = 1; i <= header.size / 8; i++)
+                    {
+                        float u = f.ReadSingle();
+                        float v = f.ReadSingle();
+                        GVT.Add(new Vector3(u, 1 - v, 0));
+                    }
+
+                    break;
+                }
+                case "TXTR":
+                {
+                    string s = "";
+                    for (int i = 1; i <= header.size; i++)
+                        s += f.ReadChar();
+
+                    if (s.IndexOf("ctx") != -1) return 0;
+
+                    BitmapTexture tm = new BitmapTexture();
+                    tm.AlphaSource = 2;
+                    tm.FileName = /*dir + "../Tiles/" +*/ s;
+                    Console.WriteLine(s);
+                    MAT.Add(tm);
+
+                    return 0;
+                }
+                case "IDXS":
+                {
+                    var end = (f.BaseStream.Position) + header.size;
+                    var m = 0;
+                    var mp = 0;
+
+                    while ((f.BaseStream.Position + 12) < end)
+                    {
+                        var tmp = f.ReadUInt16();
+                        if (tmp == 0)
+                        {
+                            tmp = f.ReadUInt16();
+                        }
+
+                        if ((tmp & 0xFF00) == 0x8000)
+                        {
+                            f.ReadUInt16();
+                            var t1 = (f.ReadUInt16()) - 0x4000;
+                            f.ReadUInt16();
+                            var t2 = f.ReadUInt16();
+                            m = t2;
+                        }
+
+                        if ((tmp & 0xFF00) == 0x4000)
+                        {
+                            f.ReadUInt16();
+                            var t1 = f.ReadUInt16();
+                            m = t1;
+                        }
+
+                        if ((tmp & 0xFF00) == 0) m = tmp;
+
+                        var sz = f.ReadUInt16();
+
+                        for (var i = 1; i <= (sz / 3); i++)
+                        {
+                            var a = /*buffer_offset[buffer_index] +*/ f.ReadUInt16();
+                            var b = /*buffer_offset[buffer_index] +*/ f.ReadUInt16();
+                            var c = /*buffer_offset[buffer_index] +*/ f.ReadUInt16();
+
+                            IDX.Add(new int[] { a, c, b });
+                            MDX.Add(m == 0 ? 0 : m);
+                        }
+                    }
+
+                    f.BaseStream.Seek(end, SeekOrigin.Begin);
+                    return 0;
+                }
+                case "VTXB":
+                    f.ReadInt32();
+                    header.size -= 4;
+                    //buffer_offset[buffer_offset.Count + 1] = GVP.Count + 1;
+                    break;
+                case "VTXD":
+                    f.ReadInt32();
+                    header.size -= 4;
+                    break;
+                case "XYZ ":
+                {
+                    for (int i = 1; i <= header.size / 12; i++)
+                    {
+                        float x = f.ReadSingle();
+                        float y = f.ReadSingle();
+                        float z = f.ReadSingle();
+
+                        GVP.Add(new Vector3(x, z, y));
+                    }
+
+                    return 0;
+                }
+            }
+
+            if (IsHeader(header.id))
+            {
+                var end = (f.BaseStream.Position + header.size);
+                while (f.BaseStream.Position < end)
+                {
+                    ReadBlock(f, header.size);
+                }
+            }
+            else
+            {
+                f.BaseStream.Seek(-8, SeekOrigin.Current);
+                if ((size < 4 && (size != 0)))
+                {
+                    size = 4;
+                }
+
+                f.BaseStream.Seek(size, SeekOrigin.Current);
+            }
+
+            return 0;
         }
     }
 }

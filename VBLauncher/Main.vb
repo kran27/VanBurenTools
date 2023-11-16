@@ -35,6 +35,11 @@ Public Class Main
     Private sound As SoundPlayer = New SoundPlayer()
 
     Private Sub Startup(sender As Object, e As EventArgs) Handles MyBase.Load
+#If DEBUG Then
+        AllocConsole()
+        Dim x = new GrpBrowser({"8"}, true)
+        x.ShowDialog()
+#End If
         Logo.Parent = Background
         Background.BackgroundImage = My.Resources.ResourceManager.GetObject($"BG{New Random().Next(1, 13)}")
         If File.Exists("F3.exe") Then
