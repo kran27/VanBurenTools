@@ -1,4 +1,5 @@
 ﻿Imports System.IO
+Imports System.Numerics
 Imports System.Runtime.InteropServices
 Imports System.Text
 Imports System.Windows
@@ -932,9 +933,9 @@ Public Class GrpBrowser
             Dim b = New Point3D(g3d.Model_Vertex_Position(face(1)).X / cs, g3d.Model_Vertex_Position(face(1)).Y / cs, g3d.Model_Vertex_Position(face(1)).Z / cs)
             Dim c = New Point3D(g3d.Model_Vertex_Position(face(2)).X / cs, g3d.Model_Vertex_Position(face(2)).Y / cs, g3d.Model_Vertex_Position(face(2)).Z / cs)
 
-            Dim texA = New Point(g3d.Model_Vertex_Texcoords(face(0)).X / 1024, g3d.Model_Vertex_Texcoords(face(0)).Y / 1024)
-            Dim texB = New Point(g3d.Model_Vertex_Texcoords(face(1)).X / 1024, g3d.Model_Vertex_Texcoords(face(1)).Y / 1024)
-            Dim texC = New Point(g3d.Model_Vertex_Texcoords(face(2)).X / 1024, g3d.Model_Vertex_Texcoords(face(2)).Y / 1024)
+            Dim texA = New Point(g3d.Model_Vertex_Texcoords(face(0)).X, g3d.Model_Vertex_Texcoords(face(0)).Y)
+            Dim texB = New Point(g3d.Model_Vertex_Texcoords(face(1)).X, g3d.Model_Vertex_Texcoords(face(1)).Y)
+            Dim texC = New Point(g3d.Model_Vertex_Texcoords(face(2)).X, g3d.Model_Vertex_Texcoords(face(2)).Y)
 
             meshBuilder.AddTriangle(a, b, c, texA, texB, texC)
         Next
