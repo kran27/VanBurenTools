@@ -37,7 +37,7 @@ Public Class Main
     Private Sub Startup(sender As Object, e As EventArgs) Handles MyBase.Load
 #If DEBUG Then
         AllocConsole()
-        Dim x = new GrpBrowser({"8", "g3d", "b3d"}, true)
+        Dim x = new GrpBrowser({"crt", "g3d", "b3d", "map"}, true)
         x.ShowDialog()
 #End If
         Logo.Parent = Background

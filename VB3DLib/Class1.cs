@@ -6,32 +6,32 @@ namespace VB3DLib
 {
     public class B3DModel
     {
-        public static int FormatVer = 0;
-        public static List<Vector3> Model_Vertex_Position = new();
-        public static List<Vector2> Model_Vertex_Texcoords = new();
-        public static List<Vector3> Model_Vertex_Normal = new();
-        public static List<int[]> Model_Faces_Index = new();
-        public static List<int> Model_Faces_Mats = new();
+        public int FormatVer = 0;
+        public List<Vector3> Model_Vertex_Position = new();
+        public List<Vector2> Model_Vertex_Texcoords = new();
+        public List<Vector3> Model_Vertex_Normal = new();
+        public List<int[]> Model_Faces_Index = new();
+        public List<int> Model_Faces_Mats = new();
 
-        public static string texName;
+        public string texName;
 
-        public static List<string> Txs = new();
+        public List<string> Txs = new();
 
-        public static int Vertex_Type_Flag = 0;
+        public int Vertex_Type_Flag = 0;
 
         public B3DModel(string path)
         {
             var f = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read));
-            ReadB3D(f);
+            ReadB3D(f, this);
         }
 
         public B3DModel(byte[] file)
         {
             var f = new BinaryReader(new MemoryStream(file));
-            ReadB3D(f);
+            ReadB3D(f, this);
         }
 
-        private void ReadB3D(BinaryReader f)
+        private void ReadB3D(BinaryReader f, B3DModel b3d)
         {
             texName = "";
             FormatVer = 0;
@@ -45,7 +45,7 @@ namespace VB3DLib
 
             Vertex_Type_Flag = 0;
 
-            var header = new b3d_header(f);
+            var header = new b3d_header(f, b3d);
             Console.WriteLine("head");
             header.print();
             Console.WriteLine("head_end");
@@ -65,7 +65,7 @@ namespace VB3DLib
 
                     case 0x08:
                         Console.WriteLine("Textures");
-                        var Textures = new TTextures(f);
+                        var Textures = new TTextures(f, b3d);
                         Textures.print();
                         Console.WriteLine(f.BaseStream.Position);
                         break;
@@ -87,7 +87,7 @@ namespace VB3DLib
 
                     case 0x0F:
                         Console.WriteLine("VertexNodes");
-                        var Vertex_Node = new TVertex_Node(f);
+                        var Vertex_Node = new TVertex_Node(f, b3d);
                         Console.WriteLine(f.BaseStream.Position);
                         break;
 
@@ -132,7 +132,7 @@ namespace VB3DLib
             public byte Unknown6 = 0; //: byte;
             public int Unknown7 = 0; //: intword;
 
-            public b3d_header(BinaryReader f)
+            public b3d_header(BinaryReader f, B3DModel b3d)
             {
                 //Console.WriteLine("b3d_header");
                 for (var i = 0; i < 8; i++)
@@ -144,17 +144,11 @@ namespace VB3DLib
                 Unknown2 = f.ReadByte();
                 if (Unknown2 == 3)
                 {
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.BackgroundColor = ConsoleColor.Red;
-                    Console.WriteLine("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-                    Console.ResetColor();
-                    FormatVer = 1;
-                    for (var i = 1; i <= 2; i++)
-                    {
-                        f.ReadByte();
-                    }
+                    b3d.FormatVer = 1;
                     GlobalScaleFactor = f.ReadSingle();
+                    f.ReadByte();
                     CoordinateScale = f.ReadSingle();
+                    f.ReadByte();
                     CoordinateSystem = StringRead(f);
                     Unknown6 = f.ReadByte();
                     Unknown7 = f.ReadInt32();
@@ -195,19 +189,19 @@ namespace VB3DLib
             public Vector2 Unknown2; //: array[0..1]of single;
             public Vector2 Unknown3; //: array[0..1]of single;
 
-            public TVertex64(BinaryReader f)
+            public TVertex64(BinaryReader f, B3DModel b3d)
             {
                 //Console.WriteLine("TVertex64");
                 Coordinate.X = f.ReadSingle();
                 Coordinate.Z = f.ReadSingle();
                 Coordinate.Y = f.ReadSingle();
-                Model_Vertex_Position.Add(Coordinate);
-                Model_Vertex_Texcoords.Add(Unknown2);
+                b3d.Model_Vertex_Position.Add(Coordinate);
+                b3d.Model_Vertex_Texcoords.Add(Unknown2);
 
                 Normal.X = f.ReadSingle();
                 Normal.Y = f.ReadSingle();
                 Normal.Z = f.ReadSingle();
-                Model_Vertex_Normal.Add(Normal);
+                b3d.Model_Vertex_Normal.Add(Normal);
 
                 Color.X = f.ReadSingle();
                 Color.Y = f.ReadSingle();
@@ -222,7 +216,7 @@ namespace VB3DLib
                     {
                         Unknown2.X = f.ReadSingle();
                         Unknown2.Y = f.ReadSingle();
-                        Model_Vertex_Texcoords[Model_Vertex_Position.Count - 1] = Unknown2;
+                        b3d.Model_Vertex_Texcoords[b3d.Model_Vertex_Position.Count - 1] = Unknown2;
                     }
                     else
                     {
@@ -248,25 +242,25 @@ namespace VB3DLib
             public Vector2 TextureCoord; // Oaenoo?iua eii?aeiaou (s, t: single);
             public int[] Unknown1; // Iaecaanoii
 
-            public TVertex44(BinaryReader f)
+            public TVertex44(BinaryReader f, B3DModel b3d)
             {
                 //Console.WriteLine("TVertex44");
                 Coordinate.X = f.ReadSingle();
                 Coordinate.Z = f.ReadSingle();
                 Coordinate.Y = f.ReadSingle();
-                Model_Vertex_Position.Add(Coordinate);
+                b3d.Model_Vertex_Position.Add(Coordinate);
 
                 Normal.X = f.ReadSingle();
                 Normal.Y = f.ReadSingle();
                 Normal.Z = f.ReadSingle();
-                Model_Vertex_Normal.Add(Normal);
+                b3d.Model_Vertex_Normal.Add(Normal);
 
                 Color = new byte[4];
                 for (var i = 0; i < 4; i++) Color[i] = f.ReadByte();
 
                 TextureCoord.X = f.ReadSingle();
                 TextureCoord.Y = f.ReadSingle();
-                Model_Vertex_Texcoords.Add(TextureCoord);
+                b3d.Model_Vertex_Texcoords.Add(TextureCoord);
 
                 Unknown1 = new int[2];
                 Unknown1[0] = f.ReadInt32();
@@ -298,7 +292,7 @@ namespace VB3DLib
             public char[] Zone;
             public int Unknown3;
 
-            public TMaterial_Data44(BinaryReader f)
+            public TMaterial_Data44(BinaryReader f, B3DModel b3d)
             {
                 //Console.WriteLine("TMaterial_Data44");
                 Name = StringRead(f);
@@ -315,7 +309,7 @@ namespace VB3DLib
                     if (Unknown2 == 1)
                     {
                         Zone = StringRead(f);
-                        Txs.Add(new string(Zone));
+                        b3d.Txs.Add(new string(Zone));
                         Unknown2 = f.ReadInt32();
                         for (var j = 1; j <= Unknown2; j++)
                             StringRead(f);
@@ -357,7 +351,7 @@ namespace VB3DLib
             public char[] Zone; //: TCharArray;
             public uint Unknown3; //: intword;
 
-            public TMaterial_Data(BinaryReader f)
+            public TMaterial_Data(BinaryReader f, B3DModel b3d)
             {
                 //Console.WriteLine("TMaterial_Data");
                 Unknown3 = f.ReadUInt32();
@@ -368,7 +362,7 @@ namespace VB3DLib
                     Mtl_ID = StringRead(f);
                 }
 
-                Txs.Add(new string(Mtl_ID));
+                b3d.Txs.Add(new string(Mtl_ID));
 
                 uint kk = 0;
                 f.ReadByte();
@@ -380,8 +374,8 @@ namespace VB3DLib
                     var a = f.ReadInt32();
                     var b = f.ReadInt32();
                     var c = f.ReadInt32();
-                    Model_Faces_Index.Add(new[] { b, a, c });
-                    Model_Faces_Mats.Add(Txs.Count);
+                    b3d.Model_Faces_Index.Add(new[] { b, a, c });
+                    b3d.Model_Faces_Mats.Add(b3d.Txs.Count);
                 }
 
                 for (uint i = 1; i <= kk; i++)
@@ -418,7 +412,7 @@ namespace VB3DLib
             public int BonesPerVert;
             public int NumberMaterial;
 
-            public TVertex_Node(BinaryReader f)
+            public TVertex_Node(BinaryReader f, B3DModel b3d)
             {
                 Unknown3 = new List<float>();
                 //Console.WriteLine("TVertex_Node");
@@ -426,26 +420,26 @@ namespace VB3DLib
                 Unknown2 = f.ReadByte();
                 Console.WriteLine($"VertNode U1 {Unknown1} U2 {Unknown2}");
 
-                if (FormatVer == 0)
+                if (b3d.FormatVer == 0)
                 {
                     VertexTypeFlag = f.ReadByte();
-                    Vertex_Type_Flag = VertexTypeFlag;
+                    b3d.Vertex_Type_Flag = VertexTypeFlag;
                 }
                 else
                 {
-                    Vertex_Type_Flag = 0;
+                    b3d.Vertex_Type_Flag = 0;
                 }
 
                 NumberVerts = f.ReadInt32();
                 Console.WriteLine($"Vertex count - {NumberVerts}");
                 Console.WriteLine($"Vertex_Type_Flag - {VertexTypeFlag}");
-                if (Vertex_Type_Flag == 1)
+                if (b3d.Vertex_Type_Flag == 1)
                 {
                     SizeOfVerts = f.ReadInt32();
                     Console.WriteLine($"SizeOfVerts - {SizeOfVerts}");
                     for (var i = 0; i < NumberVerts; i++)
                     {
-                        var Vertex44 = new TVertex44(f);
+                        var Vertex44 = new TVertex44(f, b3d);
                     }
 
                     for (var i = 0; i < 6; i++)
@@ -469,7 +463,7 @@ namespace VB3DLib
                     Console.WriteLine($"NumberMaterial - {NumberMaterial}");
                     for (var i = 0; i < NumberMaterial; i++)
                     {
-                        var MD = new TMaterial_Data44(f);
+                        var MD = new TMaterial_Data44(f, b3d);
                         MD.print();
                     }
 
@@ -508,8 +502,8 @@ namespace VB3DLib
                             int a = f.ReadUInt16();
                             int b = f.ReadUInt16();
                             int c = f.ReadUInt16();
-                            Model_Faces_Index.Add(new[] { c, b, a });
-                            Model_Faces_Mats.Add(j);
+                            b3d.Model_Faces_Index.Add(new[] { c, b, a });
+                            b3d.Model_Faces_Mats.Add(j);
                         }
                     }
                 }
@@ -517,7 +511,7 @@ namespace VB3DLib
                 {
                     for (var i = 0; i < NumberVerts; i++)
                     {
-                        var Vertex64 = new TVertex64(f);
+                        var Vertex64 = new TVertex64(f, b3d);
                     }
 
                     Console.WriteLine(f.BaseStream.Position);
@@ -526,7 +520,7 @@ namespace VB3DLib
                     Console.WriteLine($"NumberMaterial - {NumberMaterial}");
                     for (var i = 0; i < NumberMaterial; i++)
                     {
-                        var MD = new TMaterial_Data(f);
+                        var MD = new TMaterial_Data(f, b3d);
                         MD.print();
                     }
                 }
@@ -660,12 +654,12 @@ namespace VB3DLib
             public uint Width;
             public uint Height;
 
-            public TTextures(BinaryReader f)
+            public TTextures(BinaryReader f, B3DModel b3d)
             {
                 //Console.WriteLine("TTextures");
                 Unknown1 = f.ReadByte();
                 Name = StringRead(f);
-                texName = new string(Name);
+                if (b3d.texName == "") {b3d.texName = new string(Name);}
                 FileName = StringRead(f);
                 Width = f.ReadUInt32();
                 Height = f.ReadUInt32();

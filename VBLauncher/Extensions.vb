@@ -1,8 +1,6 @@
 ﻿Imports System.Collections.Concurrent
-Imports System.Drawing
 Imports System.Runtime.CompilerServices
 Imports System.Text
-Imports System.Windows.Forms
 
 Public Module Extensions
 
@@ -487,6 +485,16 @@ Public Module Extensions
         Return cf
     End Function
 
+    <Extension>
+    Public Function ReadARM(b As Byte()) As ARM
+        Dim cf = New ARM()
+        cf.EEN2 = b.GetRegions("EEN2")(0).ToEEN2c()
+        cf.GENT = b.GetRegions("GENT")(0).ToGENTc()
+        cf.GITM = b.GetRegions("GITM")(0).ToGITMc()
+        cf.GIAR = b.GetRegions("GIAR")(0).ToGIARc()
+        Return cf
+    End Function
+
 #End Region
 
 #Region "Byte array search"
@@ -541,8 +549,8 @@ Public Module Extensions
     Public Function GetTriggers(b As Byte()) As List(Of Trigger)
         Dim hc = b.Locate(Encoding.ASCII.GetBytes("EMTR"))
         Return (From l In hc Let tl = BitConverter.ToInt32(b, l + 8) Let h1 = b.Skip(l).Take(tl).ToArray()
-               Let h2 = b.Skip(l + tl).Take(b(l + tl + 8)).ToArray()
-               Select New Trigger With {.EMTR = h1.ToEMTRc, .ExTR = h2.ToExTRc}).ToList()
+                Let h2 = b.Skip(l + tl).Take(b(l + tl + 8)).ToArray()
+                Select New Trigger With {.EMTR = h1.ToEMTRc, .ExTR = h2.ToExTRc}).ToList()
     End Function
 
     ''' <summary>
