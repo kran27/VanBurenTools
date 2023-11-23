@@ -1,5 +1,5 @@
-﻿Imports System.IO
-Imports System.Numerics
+﻿Imports System.Drawing.Imaging
+Imports System.IO
 Imports System.Runtime.InteropServices
 Imports System.Text
 Imports System.Windows
@@ -94,19 +94,20 @@ Public Class GrpBrowser
     Public Sub extractFile(index As Integer, Optional convert As Boolean = False)
         Dim b As Byte()
         If index = -1 Then
-            Parallel.For(0, head.nEntries, Sub(i)
-                                               Dim ext = extensions(i)
-                                               Console.WriteLine(filenames(i) & "." & ext)
-                                               If convert Then
-                                                   If ext = "tga" Then ext = "png"
-                                                   If ext = "b3d" OrElse ext = "g3d" Then ext = "obj"
-                                               End If
-                                               b = getFileBytes(i, convert)
-                                               File.WriteAllBytes(
-                                                   grpnames(packOffsetToIndex(globalIndexToPackOffset(i))) & "\" & filenames(i) & "." & ext,
-                                                   b)
-                                               GC.Collect() ' auto GC is too slow and will run out of memory otherwise
-                                           End Sub)
+            Parallel.For(0, head.nEntries,
+            Sub(i)
+                Dim ext = extensions(i)
+                Console.WriteLine(filenames(i) & "." & ext)
+                If convert Then
+                    If ext = "tga" Then ext = "png"
+                    If ext = "b3d" OrElse ext = "g3d" Then ext = "obj"
+                End If
+                b = getFileBytes(i, convert)
+                File.WriteAllBytes(
+                    grpnames(packOffsetToIndex(globalIndexToPackOffset(i))) & "\" & filenames(i) & "." & ext,
+                    b)
+                GC.Collect() ' auto GC is too slow and will run out of memory otherwise
+            End Sub)
         Else
             Dim ext = extensions(index)
             Console.WriteLine(filenames(index) & "." & ext)
@@ -376,13 +377,17 @@ Public Class GrpBrowser
     End Function
 
     Private Function BitmapToBitmapImage(b As Bitmap) As BitmapImage
-        Dim ms = New MemoryStream()
-        b.Save(ms, System.Drawing.Imaging.ImageFormat.Png)
-        Dim bitmapImage As New BitmapImage()
-        bitmapImage.BeginInit()
-        bitmapImage.StreamSource = ms
-        bitmapImage.EndInit()
-        Return bitmapImage
+        Using memory = New MemoryStream()
+            b.Save(memory, ImageFormat.Png)
+            memory.Position = 0
+            Dim bitmapImage = New BitmapImage()
+            bitmapImage.BeginInit()
+            bitmapImage.StreamSource = memory
+            bitmapImage.CacheOption = BitmapCacheOption.OnLoad
+            bitmapImage.EndInit()
+            bitmapImage.Freeze()
+            Return bitmapImage
+        End Using
     End Function
 
     Private Sub DarkButton1_Click(sender As Object, e As EventArgs) Handles DarkTreeView1.SelectedNodesChanged, DarkButton1.Click
@@ -526,17 +531,17 @@ Public Class GrpBrowser
                     viewport.Children.Add(New DefaultLights())
                     TableLayoutPanel1.Controls.Add(host, 1, 0)
                 Case "crt"
-                    Try
-                        Dim crt = CRTToUsableMesh(b)
-                        model = New ModelVisual3D() With {.Content = crt}
-                        viewport.Children.Clear()
-                        viewport.Children.Add(model)
-                        viewport.Children.Add(New DefaultLights())
-                        TableLayoutPanel1.Controls.Add(host, 1, 0)
-                    Catch
-                        TableLayoutPanel1.Controls.Add(HexBox1, 1, 0)
-                        HexBox1.ByteProvider = New DynamicByteProvider(b)
-                    End Try
+                    'Try
+                    Dim crt = CRTToUsableMesh(b)
+                    model = New ModelVisual3D() With {.Content = crt}
+                    viewport.Children.Clear()
+                    viewport.Children.Add(model)
+                    viewport.Children.Add(New DefaultLights())
+                    TableLayoutPanel1.Controls.Add(host, 1, 0)
+                    'Catch
+                    '    TableLayoutPanel1.Controls.Add(HexBox1, 1, 0)
+                    '    HexBox1.ByteProvider = New DynamicByteProvider(b)
+                    'End Try
                 Case Else
                     TableLayoutPanel1.Controls.Add(HexBox1, 1, 0)
                     HexBox1.ByteProvider = New DynamicByteProvider(b)
@@ -591,22 +596,22 @@ Public Class GrpBrowser
             Dim shoTex As String
             Dim vanTex As String
 
-            For Each arm In From i In crt.GCRE.Inventory Where i.ToLower.EndsWith(".arm") Select getFileBytes(fullNameToGlobalIndex(i.ToLower)).ReadARM()
-                If arm.GITM.Bac.Model <> "" Then bacModel = (crt.EEN2.skl & "_" & arm.GITM.Bac.Model & ".b3d").ToLower()
-                If arm.GITM.Bod.Model <> "" Then bodModel = (crt.EEN2.skl & "_" & arm.GITM.Bod.Model & ".b3d").ToLower()
-                If arm.GITM.Fee.Model <> "" Then feeModel = (crt.EEN2.skl & "_" & arm.GITM.Fee.Model & ".b3d").ToLower()
-                If arm.GITM.Han.Model <> "" Then hanModel = (crt.EEN2.skl & "_" & arm.GITM.Han.Model & ".b3d").ToLower()
-                If arm.GITM.Hea.Model <> "" Then heaModel = (crt.EEN2.skl & "_" & arm.GITM.Hea.Model & ".b3d").ToLower()
-                If arm.GITM.Sho.Model <> "" Then shoModel = (crt.EEN2.skl & "_" & arm.GITM.Sho.Model & ".b3d").ToLower()
-                If arm.GITM.Van.Model <> "" Then vanModel = (crt.EEN2.skl & "_" & arm.GITM.Van.Model & ".b3d").ToLower()
-                heaTex = arm.GITM.Hea.Tex.Replace(".dds", ".tga").ToLower
-                eyeTex = arm.GITM.Eye.Tex.Replace(".dds", ".tga").ToLower
-                bodTex = arm.GITM.Bod.Tex.Replace(".dds", ".tga").ToLower
-                hanTex = arm.GITM.Han.Tex.Replace(".dds", ".tga").ToLower
-                feeTex = arm.GITM.Fee.Tex.Replace(".dds", ".tga").ToLower
-                bacTex = arm.GITM.Bac.Tex.Replace(".dds", ".tga").ToLower
-                shoTex = arm.GITM.Sho.Tex.Replace(".dds", ".tga").ToLower
-                vanTex = arm.GITM.Van.Tex.Replace(".dds", ".tga").ToLower
+            For Each itm In From i In crt.GCRE.Inventory Where i.ToLower.EndsWith(".arm") Select getFileBytes(fullNameToGlobalIndex(i.ToLower)).ReadITM()
+                If itm.GITM.Bac.Model <> "" Then bacModel = (crt.EEN2.skl & "_" & itm.GITM.Bac.Model & ".b3d").ToLower()
+                If itm.GITM.Bod.Model <> "" Then bodModel = (crt.EEN2.skl & "_" & itm.GITM.Bod.Model & ".b3d").ToLower()
+                If itm.GITM.Fee.Model <> "" Then feeModel = (crt.EEN2.skl & "_" & itm.GITM.Fee.Model & ".b3d").ToLower()
+                If itm.GITM.Han.Model <> "" Then hanModel = (crt.EEN2.skl & "_" & itm.GITM.Han.Model & ".b3d").ToLower()
+                If itm.GITM.Hea.Model <> "" Then heaModel = (crt.EEN2.skl & "_" & itm.GITM.Hea.Model & ".b3d").ToLower()
+                If itm.GITM.Sho.Model <> "" Then shoModel = (crt.EEN2.skl & "_" & itm.GITM.Sho.Model & ".b3d").ToLower()
+                If itm.GITM.Van.Model <> "" Then vanModel = (crt.EEN2.skl & "_" & itm.GITM.Van.Model & ".b3d").ToLower()
+                heaTex = itm.GITM.Hea.Tex.Replace(".dds", ".tga").ToLower
+                eyeTex = itm.GITM.Eye.Tex.Replace(".dds", ".tga").ToLower
+                bodTex = itm.GITM.Bod.Tex.Replace(".dds", ".tga").ToLower
+                hanTex = itm.GITM.Han.Tex.Replace(".dds", ".tga").ToLower
+                feeTex = itm.GITM.Fee.Tex.Replace(".dds", ".tga").ToLower
+                bacTex = itm.GITM.Bac.Tex.Replace(".dds", ".tga").ToLower
+                shoTex = itm.GITM.Sho.Tex.Replace(".dds", ".tga").ToLower
+                vanTex = itm.GITM.Van.Tex.Replace(".dds", ".tga").ToLower
             Next
 
             Dim baseB3D = New B3DModel(getFileBytes(fullNameToGlobalIndex(baseModel)))
@@ -848,7 +853,7 @@ Public Class GrpBrowser
                 modelGroup.Children.Add(feeGM3)
             End If
             If bacMesh IsNot Nothing Then
-                Dim bacMat = New DiffuseMaterial(New ImageBrush(CropBitmapByUV(xbi, bacMesh.TextureCoordinates)))
+                Dim bacMat = New DiffuseMaterial(New ImageBrush(CropBitmapByUV(xbi, bacMesh.TextureCoordinates, True)))
                 Dim bacGM3 = New GeometryModel3D With {
                     .Geometry = bacMesh,
                     .Material = bacMat,
@@ -1058,6 +1063,13 @@ Public Class GrpBrowser
             modelGroup.Children.Add(model)
         Next
 
+        Dim exp = New ObjExporter
+        exp.MaterialsFile = "temp.mtl"
+        Dim tmp = New ModelVisual3D() With {.Content = modelGroup}
+        Dim fs = New FileStream("test.obj", FileMode.Create)
+        exp.Export(tmp, fs)
+        fs.Close()
+
         Return modelGroup
     End Function
 
@@ -1099,8 +1111,8 @@ Public Class GrpBrowser
     End Function
 
     Private viewport As New HelixViewport3D() With {
-        .CameraRotationMode = CameraRotationMode.Trackball,
-        .IsHeadLightEnabled = True
+        .CameraRotationMode = CameraRotationMode.Turntable,
+        .RotateAroundMouseDownPoint = True
     }
 
     Private host As New ElementHost With {

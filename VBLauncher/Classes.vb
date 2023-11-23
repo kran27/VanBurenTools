@@ -34,7 +34,7 @@ Public Class Map
         b.AddRange(EME2.SelectMany(Function(x) x.ToByte()))
         b.AddRange(EMEP.SelectMany(Function(x) x.ToByte()))
         If ECAM IsNot Nothing Then b.AddRange(ECAM.ToByte())
-        If _2MWT.chunks.Any() Then b.AddRange(_2MWT.ToByte())
+        If _2MWT IsNot Nothing Then b.AddRange(_2MWT.ToByte())
         b.AddRange(Triggers.SelectMany(Function(x) x.ToByte()))
         b.AddRange(EPTH.SelectMany(Function(x) x.ToByte()))
         b.AddRange(EMSD.SelectMany(Function(x) x.ToByte()))
