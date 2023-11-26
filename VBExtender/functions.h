@@ -72,7 +72,7 @@ auto GetEntityPtr = reinterpret_cast<GetEntityPtrFunc>(F3 + 0x14BE10);
 typedef int (*__cdecl sub_5CCCC0Func)(int a1, int a2, _DWORD* a3);
 auto sub_5CCCC0 = reinterpret_cast<sub_5CCCC0Func>(F3 + 0x1CCCC0);
 
-typedef void (*__cdecl sub_59F030Func)(const char *a1);
+typedef void (*__cdecl sub_59F030Func)(const char* a1);
 auto sub_59F030 = reinterpret_cast<sub_59F030Func>(F3 + 0x1F030);
 
 typedef void(*NoParamFunc)();
@@ -197,33 +197,25 @@ inline float* getCamPtr2()
 
 inline uintptr_t getPlayerptr()
 {
-	unsigned int result; // eax
-	int* v4; // edi
-	_DWORD* v5; // esi
-	int v6; // ecx
-	int v7; // edx
-
-	v4 = 0;
+	int* playerPtr = nullptr;
 
 	auto dwd = Read<_DWORD*>(dword_70BE0C);
 	auto hb = Read<_DWORD>(HudBase);
 
-	if (dwd)
-		v5 = *(_DWORD**)dwd;
-	else
-		v5 = 0;
+	_DWORD* v5 = dwd ? *(_DWORD**)dwd : nullptr;
+
 	if (v5 != dwd)
 	{
 		do
 		{
-			result = v5[2];
-			v6 = *(_DWORD*)(result + 0x1E4);
+			auto result = v5[2];
+			auto v6 = *(_DWORD*)(result + 0x1E4);
 			if (v6)
 			{
-				v7 = *(_DWORD*)(hb + 0x2C);
+				auto v7 = *(_DWORD*)(hb + 0x2C);
 				if (v6 == *(_DWORD*)(v7 + 0xBC))
 				{
-					v4 = (int*)v5[2];
+					playerPtr = (int*)v5[2];
 					result = *(_DWORD*)(result + 0x1DC);
 					if (result == *(_DWORD*)(v7 + 0xE0))
 						break;
@@ -231,18 +223,20 @@ inline uintptr_t getPlayerptr()
 			}
 			v5 = (_DWORD*)*v5;
 		} while (v5 != dwd);
-		if (v4)
-			return (uintptr_t)v4;
+		if (playerPtr)
+			return (uintptr_t)playerPtr;
 	}
+	return 0;
 }
 
 //to be used in a custom console command, a1 as the value given to the function, count as the number of params needed.
 inline auto getParams(unsigned a1, unsigned count) {
-	std::vector<char const*> values;
+	std::vector<const char*> values;
+	values.reserve(count);  // Reserve space in the vector
 	auto v1 = *(int*)(a1 + 4);
-	for (int i = 1; i <= count; ++i) {
-		auto value = (char const*)*(int*)(v1 + i * 4);
-		values.push_back(value);
+	for (unsigned i = 1; i <= count; ++i) {
+		auto value = reinterpret_cast<const char*>(*(int*)(v1 + i * 4));
+		values.emplace_back(value);  // Use emplace_back instead of push_back
 	}
 	return values;
 }
@@ -426,7 +420,7 @@ std::vector<float> worldToScreen(const float x, const float y, const float z)
 {
 	const auto camPtr = getCamPtr();
 	const auto camPtr2 = getCamPtr2();
-	
+
 	DirectX::XMFLOAT3 cameraPos = DirectX::XMFLOAT3(Read<float>(SettingsBase + 0xFC), Read<float>(SettingsBase + 0x100), Read<float>(SettingsBase + 0x104));
 	DirectX::XMFLOAT3 cameraTarget = DirectX::XMFLOAT3(camPtr2[36], camPtr2[37], camPtr2[38]);
 	float fov = camPtr[68];
@@ -435,7 +429,7 @@ std::vector<float> worldToScreen(const float x, const float y, const float z)
 	DirectX::XMFLOAT3 cameraUp = DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f);
 	float nearPlane = 1.0f;
 	float farPlane = 10000.0f;
-	
+
 	DirectX::XMMATRIX viewMatrix = DirectX::XMMatrixLookAtLH(DirectX::XMLoadFloat3(&cameraPos), XMLoadFloat3(&cameraTarget), XMLoadFloat3(&cameraUp));
 	DirectX::XMMATRIX projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(fov, aspectRatio, nearPlane, farPlane);
 	DirectX::XMMATRIX viewProjectionMatrix = viewMatrix * projectionMatrix;
@@ -445,10 +439,10 @@ std::vector<float> worldToScreen(const float x, const float y, const float z)
 	DirectX::XMVECTOR ndcPos = DirectX::XMVectorSetW(clipSpacePos, 1.0f / DirectX::XMVectorGetW(clipSpacePos));
 	D3D11_VIEWPORT viewport = { 0.0f, 0.0f, Read<int>(F3 + 0x307EA8), Read<int>(F3 + 0x307EAC), 0.0f, 1.0f };
 	DirectX::XMMATRIX viewportMatrix = DirectX::XMMatrixScaling(viewport.Width / 2.0f, -viewport.Height / 2.0f, 1.0f) * DirectX::XMMatrixTranslation(viewport.Width / 2.0f + viewport.TopLeftX, viewport.Height / 2.0f + viewport.TopLeftY, 0.0f);
-	
+
 	DirectX::XMVECTOR screenPos = XMVector3TransformCoord(ndcPos, viewportMatrix);
 
-	std::vector a = {DirectX::XMVectorGetX(screenPos), DirectX::XMVectorGetY(screenPos)};
+	std::vector a = { DirectX::XMVectorGetX(screenPos), DirectX::XMVectorGetY(screenPos) };
 	return a;
 }
 
@@ -462,30 +456,20 @@ inline void ToggleConsole() { showConsole = !showConsole; }
 
 inline void TestFunction(int a1)
 {
-	//auto params = getParams(a1, 1);
-	//auto param = atoi(params[0]);
-	//
-	//auto cur = getCurrentEntityPtr();
-	//auto ent = (_DWORD *)RTDynamicCast((uint32*)cur, NULL, Entity, GameEntity, NULL); //Should be GameCreature, but this is for testing purposes
-	//
-	//if (cur)
-	//	if (ent)
-	//	{
-	//		auto attr = GetDerivedAttribute(ent, param);
-	//		WriteToConsole(consolePtr(), "Attribute %d is %d", param, attr);
-	//	}
-	//	else
-	//	{
-	//		WriteToConsole(consolePtr(), "Entity is not a GameCreature");
-	//	}
-	//else
-	//{
-	//	WriteToConsole(consolePtr(), "No entity selected");
-	//}
+	auto params = getParams(a1, 1);
+	auto param = atoi(params[0]);
 
-	//auto x = getPlayerptr();
-	//auto y = getCurrentEntityPtr();
-	//DebugAndConsole("Player: %p Current: %p", x, y);
+	auto cur = getCurrentEntityPtr();
+	auto ent = (_DWORD*)RTDynamicCast((uint32*)cur, NULL, Entity, GameCreature, NULL);
 
-	sub_59F030("GetVBEVersion");
+	if (cur)
+	{
+		WriteToConsole(consolePtr(), "Current Entity: %p", cur);
+		if (ent)
+			WriteToConsole(consolePtr(), "Attribute %d is %d", param, GetDerivedAttribute(ent, param));
+		else
+			WriteToConsole(consolePtr(), "Entity is not a GameCreature");
+	}
+	else
+		WriteToConsole(consolePtr(), "No entity selected");
 }

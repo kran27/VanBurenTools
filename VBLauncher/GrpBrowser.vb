@@ -54,7 +54,7 @@ Public Class GrpBrowser
 
     Friend Structure Lump
         Public offset As Integer
-        Public lenght As Integer
+        Public length As Integer
     End Structure
 
     Private head As F3RHTHeader
@@ -84,8 +84,9 @@ Public Class GrpBrowser
                 {3600, "con"}, {3700, "tok"}
                 }
 
-        If extensionMap.ContainsKey(a1) Then
-            Return extensionMap(a1)
+        Dim value As String = Nothing
+        If extensionMap.TryGetValue(a1, value) Then
+            Return value
         Else
             Return Nothing
         End If
@@ -144,11 +145,11 @@ Public Class GrpBrowser
         Dim lumps(grpHeader.nFiles) As Lump
         For i = 0 To grpHeader.nFiles - 1
             lumps(i).offset = br.ReadInt32()
-            lumps(i).lenght = br.ReadInt32()
+            lumps(i).length = br.ReadInt32()
         Next
-        Dim buffer(lumps(filenumber).lenght) As Byte
+        Dim buffer(lumps(filenumber).length) As Byte
         fs.Seek(lumps(filenumber).offset, SeekOrigin.Begin)
-        fs.Read(buffer, 0, lumps(filenumber).lenght)
+        fs.Read(buffer, 0, lumps(filenumber).length)
         fs.Close()
 
         Dim ext = GetExtension(filetype)
@@ -169,8 +170,8 @@ Public Class GrpBrowser
         End If
 
         Dim b As Byte()
-        ReDim b(lumps(filenumber).lenght)
-        Array.Copy(buffer, b, lumps(filenumber).lenght)
+        ReDim b(lumps(filenumber).length - 1)
+        Array.Copy(buffer, b, lumps(filenumber).length)
 
         If convert Then
             If ext = "tga" Then
@@ -242,11 +243,11 @@ Public Class GrpBrowser
         Dim lumps(grpHeader.nFiles) As Lump
         For i = 0 To grpHeader.nFiles - 1
             lumps(i).offset = br.ReadInt32()
-            lumps(i).lenght = br.ReadInt32()
+            lumps(i).length = br.ReadInt32()
         Next
-        Dim buffer(lumps(filenumber).lenght) As Byte
+        Dim buffer(lumps(filenumber).length) As Byte
         fs.Seek(lumps(filenumber).offset, SeekOrigin.Begin)
-        fs.Read(buffer, 0, lumps(filenumber).lenght)
+        fs.Read(buffer, 0, lumps(filenumber).length)
         fs.Close()
 
         Dim ext = GetExtension(filetype)

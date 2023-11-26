@@ -1,5 +1,6 @@
 *.user
 .vs/
+.idea/
 Debug
 Release
 VBLauncher/bin/Debug

@@ -13,49 +13,58 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="DiscordRPC">
+      <UniqueIdentifier>{c0b3d410-0f44-42da-a612-c588153d4595}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ImGui">
+      <UniqueIdentifier>{6e55e371-53be-41f2-a580-4eae96b21f1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MemoryModule">
+      <UniqueIdentifier>{fe945735-473e-46a1-9cfd-c66c302be393}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DiscordRPC\src\connection_win.cpp">
+      <Filter>DiscordRPC</Filter>
+    </ClCompile>
+    <ClCompile Include="DiscordRPC\src\discord_register_win.cpp">
+      <Filter>DiscordRPC</Filter>
+    </ClCompile>
+    <ClCompile Include="DiscordRPC\src\discord_rpc.cpp">
+      <Filter>DiscordRPC</Filter>
+    </ClCompile>
+    <ClCompile Include="DiscordRPC\src\rpc_connection.cpp">
+      <Filter>DiscordRPC</Filter>
+    </ClCompile>
+    <ClCompile Include="DiscordRPC\src\serialization.cpp">
+      <Filter>DiscordRPC</Filter>
+    </ClCompile>
     <ClCompile Include="ImGui\imgui.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>ImGui</Filter>
     </ClCompile>
     <ClCompile Include="ImGui\imgui_demo.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>ImGui</Filter>
     </ClCompile>
     <ClCompile Include="ImGui\imgui_draw.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\imgui_tables.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\imgui_widgets.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\backends\imgui_impl_win32.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>ImGui</Filter>
     </ClCompile>
     <ClCompile Include="ImGui\backends\imgui_impl_dx11.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\backends\imgui_impl_win32.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_tables.cpp">
+      <Filter>ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_widgets.cpp">
+      <Filter>ImGui</Filter>
     </ClCompile>
     <ClCompile Include="MemoryModule\MemoryModule.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DiscordRPC\connection_win.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DiscordRPC\discord_register_win.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DiscordRPC\discord_rpc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DiscordRPC\rpc_connection.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DiscordRPC\serialization.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>MemoryModule</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -93,10 +102,10 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DiscordRPC\discord_register.h">
-      <Filter>Header Files</Filter>
+      <Filter>DiscordRPC</Filter>
     </ClInclude>
     <ClInclude Include="DiscordRPC\discord_rpc.h">
-      <Filter>Header Files</Filter>
+      <Filter>DiscordRPC</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

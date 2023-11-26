@@ -66,8 +66,9 @@ Public Module Extensions
             .s1 = GetString(b, 14, b(12)),
             .l = New Point4(BitConverter.ToSingle(b, 14 + b(12)), BitConverter.ToSingle(b, 18 + b(12)),
                            BitConverter.ToSingle(b, 22 + b(12)), BitConverter.ToSingle(b, 26 + b(12))),
-            .s2 = GetString(b, 41 + b(12), b(39 + b(12)))
-                        }
+            .s2 = GetString(b, 41 + b(12), b(39 + b(12))),
+            .b = b(41 + b(12) + b(39 + b(12)))
+        }
     End Function
 
     <Extension>
@@ -303,7 +304,7 @@ Public Module Extensions
     End Function
 
     <Extension>
-    Private Function ReadChunk(ByRef b As Byte(), offset As Integer) As _2MWTChunk
+    Private Function Read2MWTChunk(ByRef b As Byte(), offset As Integer) As _2MWTChunk
         Dim p3 = New Point3(BitConverter.ToSingle(b, offset), BitConverter.ToSingle(b, offset + 4), BitConverter.ToSingle(b, offset + 8))
         Dim s = GetString(b, offset + 14, b(offset + 12))
         Dim p2 = New Point2(BitConverter.ToSingle(b, offset + 14 + s.Length), BitConverter.ToSingle(b, offset + 18 + s.Length))
@@ -315,7 +316,7 @@ Public Module Extensions
         Dim cl = New List(Of _2MWTChunk)
         Dim io = 158 + b(12)
         For i = 1 To BitConverter.ToInt32(b, 154 + b(12))
-            cl.Add(b.ReadChunk(io))
+            cl.Add(b.Read2MWTChunk(io))
             io += b(io + 12) + 22
         Next
         Return New _2MWTc With {
@@ -380,6 +381,89 @@ Public Module Extensions
         Dim model = GetString(b, i + 2, b(i))
         Dim tex = GetString(b, i + 4 + b(i), b(i + 2 + b(i)))
         Return New Socket(model, tex)
+    End Function
+
+    <Extension>
+    Public Function ReadEMNPChunk(b As Byte(), offset As Integer) As EMNPChunk
+        Dim bool = b(offset) <> 0
+        Dim p3 = New Point3(BitConverter.ToSingle(b, offset + 1), BitConverter.ToSingle(b, offset + 5), BitConverter.ToSingle(b, offset + 9))
+        Dim b1 = b(offset + 13)
+        Dim b2 = b(offset + 14)
+        Dim b3 = b(offset + 15)
+        Dim b4 = b(offset + 16)
+        Dim b5 = b(offset + 17)
+
+        Return New EMNPChunk() With {
+            .bool = bool,
+            .l = p3,
+            .b1 = b1,
+            .b2 = b2,
+            .b3 = b3,
+            .b4 = b4,
+            .b5 = b5
+        }
+    End Function
+
+    <Extension>
+    Public Function ToEMNPc(b As Byte()) As EMNPc
+        Dim cl = New List(Of EMNPChunk)
+        Dim io = 16
+        For i = 1 To BitConverter.ToInt32(b, 12)
+            cl.Add(b.ReadEMNPChunk(io))
+            io += 30
+        Next
+        Return New EMNPc() With {
+            .chunks = cl
+        }
+    End Function
+
+    <Extension>
+    Public Function ToEMNOc(b As Byte()) As EMNOc
+        Dim l = New Point2(BitConverter.ToSingle(b, 12), BitConverter.ToSingle(b, 20))
+        Dim tex = GetString(b, 26, b(24))
+        Dim sr = BitConverter.ToInt32(b, 26 + tex.Length)
+
+        Return New EMNOc() With {
+                    .l = l,
+                    .tex = tex,
+                    .sr = sr
+                }
+    End Function
+
+    <Extension>
+    Public Function ToEMFGc(b As Byte()) As EMFGc
+        Dim enabled = b(12) <> 0
+        Dim colour = Color.FromArgb(b(13), b(14), b(15))
+        Dim base_height = BitConverter.ToSingle(b, 16)
+        Dim anim1Speed = BitConverter.ToSingle(b, 20)
+        Dim anim1Height = BitConverter.ToSingle(b, 24)
+        Dim total_height = BitConverter.ToSingle(b, 28)
+        Dim anim2Speed = BitConverter.ToSingle(b, 32)
+        Dim anim2Height = BitConverter.ToSingle(b, 36)
+        Dim verticalOffset = BitConverter.ToSingle(b, 40)
+        Dim max_fog_density = BitConverter.ToSingle(b, 44)
+
+        Return New EMFGc() With {
+                    .enabled = enabled,
+                    .colour = colour,
+                    .base_height = base_height,
+                    .anim1Speed = anim1Speed,
+                    .anim1Height = anim1Height,
+                    .total_height = total_height,
+                    .anim2Speed = anim2Speed,
+                    .anim2Height = anim2Height,
+                    .verticalOffset = verticalOffset,
+                    .max_fog_density = max_fog_density
+                }
+    End Function
+
+    <Extension>
+    Public Function ToGOBJc(b As Byte()) As GOBJc
+        Dim t = b(12)
+
+        Return New GOBJc() With {
+                    .Type = t
+                }
     End Function
 
 #End Region
@@ -472,6 +556,9 @@ Public Module Extensions
         cf.Triggers = b.GetTriggers
         cf.EPTH = (From x In b.GetRegions("EPTH") Select x.ToEPTHc).ToList
         cf.EMSD = (From x In b.GetRegions("EMSD") Select x.ToEMSDc).ToList
+        Try : cf.EMNP = b.GetRegions("EMNP")(0).ToEMNPc : Catch : End Try
+        Try : cf.EMFG = b.GetRegions("EMFG")(0).ToEMFGc : Catch : End Try
+        cf.EMNO = (From x In b.GetRegions("EMNO") Select x.ToEMNOc).ToList
         cf.EMEF = (From x In b.GetRegions("EMEF") Select x.ToEMEFc).ToList
         Return cf
     End Function
@@ -492,6 +579,15 @@ Public Module Extensions
         cf.GENT = b.GetRegions("GENT")(0).ToGENTc()
         cf.GITM = b.GetRegions("GITM")(0).ToGITMc()
         cf.GIAR = b.GetRegions("GIAR")(0).ToGIARc()
+        Return cf
+    End Function
+
+    <Extension>
+    Public Function ReadUSE(b As Byte()) As USE
+        Dim cf = New USE()
+        cf.EEN2 = b.GetRegions("EEN2")(0).ToEEN2c()
+        cf.GENT = b.GetRegions("GENT")(0).ToGENTc()
+        cf.GOBJ = b.GetRegions("GOBJ")(0).ToGOBJc()
         Return cf
     End Function
 
@@ -523,7 +619,8 @@ Public Module Extensions
                              list.Add(i)
                          End If
                      End Sub)
-        Return If(list.IsEmpty, Empty, list.ToArray())
+        Dim sortedList = list.OrderBy(Function(i) i).ToArray() ' ensure list is in order of location for (hopefully) identical file output
+        Return If(sortedList.Length = 0, Empty, sortedList)
     End Function
 
 #End Region
@@ -608,7 +705,7 @@ Public Module Extensions
     ''' <summary>This function reads the values in a DataGridView control into a string array</summary>
     <Extension>
     Public Function GetStringArray(dgv As DataGridView) As List(Of String)
-        Return From r As DataGridViewRow In dgv.Rows Where r.Cells(0).Value IsNot Nothing Select CStr(r.Cells(0).Value).ToList()
+        Return (From r As DataGridViewRow In dgv.Rows Where r.Cells(0).Value IsNot Nothing Select r.Cells(0).Value).Cast(Of String)().ToList()
     End Function
 
     ''' <summary>Returns the specified color as an array of bytes.</summary>

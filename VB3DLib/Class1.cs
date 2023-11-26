@@ -966,17 +966,17 @@ namespace VB3DLib
 
                         break;
                     }
-                case "LMUV":
-                {
-                    for (int i = 1; i <= header.size / 8; i++)
-                    {
-                        float u = f.ReadSingle();
-                        float v = f.ReadSingle();
-                        GVL.Add(new Vector2(u, v));
-                    }
-
-                    break;
-                }
+                //case "LMUV":
+                //{
+                //    for (int i = 1; i <= header.size / 8; i++)
+                //    {
+                //        float u = f.ReadSingle();
+                //        float v = f.ReadSingle();
+                //        GVL.Add(new Vector2(u, v));
+                //    }
+                //
+                //    break;
+                //}
                 case "TXTR":
                     {
                         string s = "";

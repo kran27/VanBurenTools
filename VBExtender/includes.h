@@ -11,5 +11,5 @@
 #include "hooks.h"
 #include "speed.h"
 #include <filesystem>
-#include "DiscordRPC/discord_register.h"
-#include "DiscordRPC/discord_rpc.h"
+#include "DiscordRPC/include/discord_register.h"
+#include "DiscordRPC/include/discord_rpc.h"

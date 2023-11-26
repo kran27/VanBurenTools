@@ -44,12 +44,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(DXSDK_DIR)Include;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)</IncludePath>
+    <IncludePath>$(DXSDK_DIR)Include;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir);$(ProjectDir)\DiscordRPC\include;$(ProjectDir)\rapidjson\include</IncludePath>
     <LibraryPath>$(DXSDK_DIR)Lib\x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86)</LibraryPath>
     <TargetName>binkw32</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(DXSDK_DIR)Include;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)</IncludePath>
+    <IncludePath>$(DXSDK_DIR)Include;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir);$(ProjectDir)\DiscordRPC\include;$(ProjectDir)\rapidjson\include</IncludePath>
     <LibraryPath>$(DXSDK_DIR)Lib\x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86)</LibraryPath>
     <TargetName>binkw32</TargetName>
   </PropertyGroup>
@@ -97,11 +97,11 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="DiscordRPC\connection_win.cpp" />
-    <ClCompile Include="DiscordRPC\discord_register_win.cpp" />
-    <ClCompile Include="DiscordRPC\discord_rpc.cpp" />
-    <ClCompile Include="DiscordRPC\rpc_connection.cpp" />
-    <ClCompile Include="DiscordRPC\serialization.cpp" />
+    <ClCompile Include="DiscordRPC\src\connection_win.cpp" />
+    <ClCompile Include="DiscordRPC\src\discord_register_win.cpp" />
+    <ClCompile Include="DiscordRPC\src\discord_rpc.cpp" />
+    <ClCompile Include="DiscordRPC\src\rpc_connection.cpp" />
+    <ClCompile Include="DiscordRPC\src\serialization.cpp" />
     <ClCompile Include="ImGui\backends\imgui_impl_dx11.cpp" />
     <ClCompile Include="ImGui\backends\imgui_impl_win32.cpp" />
     <ClCompile Include="ImGui\imgui.cpp" />
