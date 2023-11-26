@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "speed.h"
-#include "Detours/detours.h"
+#include "detours.h"
 #include "functions.h"
 #include "globals.h"
 #include "imguiextensions.h"

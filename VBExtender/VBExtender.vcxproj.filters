@@ -5,22 +5,24 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Header Files">
+    <Filter Include="Source Files\Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="Dependencies">
+      <UniqueIdentifier>{f39883eb-d513-4298-8586-24473a21b5eb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="DiscordRPC">
+    <Filter Include="Dependencies\DiscordRPC">
       <UniqueIdentifier>{c0b3d410-0f44-42da-a612-c588153d4595}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ImGui">
+    <Filter Include="Dependencies\ImGui">
       <UniqueIdentifier>{6e55e371-53be-41f2-a580-4eae96b21f1f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="MemoryModule">
+    <Filter Include="Dependencies\MemoryModule">
       <UniqueIdentifier>{fe945735-473e-46a1-9cfd-c66c302be393}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Dependencies\Detours">
+      <UniqueIdentifier>{3ff681b7-3f55-46f5-8fce-b80379417865}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -28,84 +30,102 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DiscordRPC\src\connection_win.cpp">
-      <Filter>DiscordRPC</Filter>
+      <Filter>Dependencies\DiscordRPC</Filter>
     </ClCompile>
     <ClCompile Include="DiscordRPC\src\discord_register_win.cpp">
-      <Filter>DiscordRPC</Filter>
+      <Filter>Dependencies\DiscordRPC</Filter>
     </ClCompile>
     <ClCompile Include="DiscordRPC\src\discord_rpc.cpp">
-      <Filter>DiscordRPC</Filter>
+      <Filter>Dependencies\DiscordRPC</Filter>
     </ClCompile>
     <ClCompile Include="DiscordRPC\src\rpc_connection.cpp">
-      <Filter>DiscordRPC</Filter>
+      <Filter>Dependencies\DiscordRPC</Filter>
     </ClCompile>
     <ClCompile Include="DiscordRPC\src\serialization.cpp">
-      <Filter>DiscordRPC</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\imgui.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\imgui_demo.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\imgui_draw.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\backends\imgui_impl_dx11.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\backends\imgui_impl_win32.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\imgui_tables.cpp">
-      <Filter>ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\imgui_widgets.cpp">
-      <Filter>ImGui</Filter>
+      <Filter>Dependencies\DiscordRPC</Filter>
     </ClCompile>
     <ClCompile Include="MemoryModule\MemoryModule.c">
-      <Filter>MemoryModule</Filter>
+      <Filter>Dependencies\MemoryModule</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui.cpp">
+      <Filter>Dependencies\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_demo.cpp">
+      <Filter>Dependencies\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_draw.cpp">
+      <Filter>Dependencies\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_tables.cpp">
+      <Filter>Dependencies\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_widgets.cpp">
+      <Filter>Dependencies\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\backends\imgui_impl_dx11.cpp">
+      <Filter>Dependencies\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\backends\imgui_impl_win32.cpp">
+      <Filter>Dependencies\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Detours\src\creatwth.cpp">
+      <Filter>Dependencies\Detours</Filter>
+    </ClCompile>
+    <ClCompile Include="Detours\src\detours.cpp">
+      <Filter>Dependencies\Detours</Filter>
+    </ClCompile>
+    <ClCompile Include="Detours\src\disasm.cpp">
+      <Filter>Dependencies\Detours</Filter>
+    </ClCompile>
+    <ClCompile Include="Detours\src\disolx86.cpp">
+      <Filter>Dependencies\Detours</Filter>
+    </ClCompile>
+    <ClCompile Include="Detours\src\image.cpp">
+      <Filter>Dependencies\Detours</Filter>
+    </ClCompile>
+    <ClCompile Include="Detours\src\modules.cpp">
+      <Filter>Dependencies\Detours</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="defs.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="memory.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="includes.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="functions.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="hooks.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="proxy.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="byte_arrays.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="globals.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="speed.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="imguimenu.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="imguiextensions.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DiscordRPC\discord_register.h">
-      <Filter>DiscordRPC</Filter>
+      <Filter>Dependencies\DiscordRPC</Filter>
     </ClInclude>
     <ClInclude Include="DiscordRPC\discord_rpc.h">
-      <Filter>DiscordRPC</Filter>
+      <Filter>Dependencies\DiscordRPC</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

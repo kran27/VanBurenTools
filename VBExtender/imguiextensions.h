@@ -2,7 +2,7 @@
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include <stdio.h>
-#include <ImGui/imgui.h>
+#include "imgui.h"
 #pragma comment(lib, "D3DX11.lib")
 #pragma comment(lib, "d3d11.lib")
 #include <iostream>
@@ -13,9 +13,8 @@
 #include <d3d11.h>
 #include <D3DX11tex.h>
 
-#include "ImGui/imgui.h"
-#include "ImGui/backends/imgui_impl_win32.h"
-#include "ImGui/backends/imgui_impl_dx11.h"
+#include "backends/imgui_impl_win32.h"
+#include "backends/imgui_impl_dx11.h"
 #include "byte_arrays.h"
 #include "globals.h"
 #include "functions.h"

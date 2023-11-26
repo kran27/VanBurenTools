@@ -1,5 +1,4 @@
 #pragma once
-#pragma comment(lib, "Detours/detours.lib")
 #include <tchar.h>
 #include <Windows.h>
 #include "defs.h"
@@ -11,5 +10,5 @@
 #include "hooks.h"
 #include "speed.h"
 #include <filesystem>
-#include "DiscordRPC/include/discord_register.h"
-#include "DiscordRPC/include/discord_rpc.h"
+#include "discord_register.h"
+#include "discord_rpc.h"

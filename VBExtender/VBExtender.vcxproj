@@ -44,12 +44,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(DXSDK_DIR)Include;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir);$(ProjectDir)\DiscordRPC\include;$(ProjectDir)\rapidjson\include</IncludePath>
+    <IncludePath>$(DXSDK_DIR)Include;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir);$(ProjectDir)DiscordRPC\include;$(ProjectDir)rapidjson\include;$(ProjectDir)Detours\src;$(ProjectDir)ImGui</IncludePath>
     <LibraryPath>$(DXSDK_DIR)Lib\x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86)</LibraryPath>
     <TargetName>binkw32</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(DXSDK_DIR)Include;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir);$(ProjectDir)\DiscordRPC\include;$(ProjectDir)\rapidjson\include</IncludePath>
+    <IncludePath>$(DXSDK_DIR)Include;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir);$(ProjectDir)DiscordRPC\include;$(ProjectDir)rapidjson\include;$(ProjectDir)Detours\src;$(ProjectDir)ImGui</IncludePath>
     <LibraryPath>$(DXSDK_DIR)Lib\x86;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86)</LibraryPath>
     <TargetName>binkw32</TargetName>
   </PropertyGroup>
@@ -97,6 +97,12 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Detours\src\creatwth.cpp" />
+    <ClCompile Include="Detours\src\detours.cpp" />
+    <ClCompile Include="Detours\src\disasm.cpp" />
+    <ClCompile Include="Detours\src\disolx86.cpp" />
+    <ClCompile Include="Detours\src\image.cpp" />
+    <ClCompile Include="Detours\src\modules.cpp" />
     <ClCompile Include="DiscordRPC\src\connection_win.cpp" />
     <ClCompile Include="DiscordRPC\src\discord_register_win.cpp" />
     <ClCompile Include="DiscordRPC\src\discord_rpc.cpp" />

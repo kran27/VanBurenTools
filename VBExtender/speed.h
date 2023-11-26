@@ -1,6 +1,6 @@
 #pragma once
 #include <Windows.h>
-#include "Detours/detours.h"
+#include "detours.h"
 
 template<class DataType>
 class SpeedHack {
