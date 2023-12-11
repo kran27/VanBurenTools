@@ -145,8 +145,8 @@ Public Class ModLoader
         Using txtbrsh As New SolidBrush(Theme.Colors.LightText)
             e.Graphics.FillRectangle(New SolidBrush(BackgroundColour), e.Bounds)
             e.Graphics.DrawString(e.Header.Text, e.Font, txtbrsh,
-                                  (e.Bounds.Left + (e.Bounds.Width / 2)) -
-                                  (e.Graphics.MeasureString(e.Header.Text, e.Font).Width / 2), e.Bounds.Top + 5)
+                                  CInt(e.Bounds.Left + (e.Bounds.Width / 2) - (e.Graphics.MeasureString(e.Header.Text, e.Font).Width / 2)),
+                                  e.Bounds.Top + 5)
 
             e.Graphics.DrawLine(New Pen(Theme.Colors.GreySelection, 1), e.Bounds.Left, e.Bounds.Top, e.Bounds.Right,
                                 e.Bounds.Top)
@@ -213,8 +213,7 @@ Public Class ModLoader
             ElseIf e.Item.SubItems(2) Is e.SubItem Then
                 If e.Item.Checked Then
                     e.Graphics.DrawString(e.SubItem.Text, e.Item.Font, txtbrsh,
-                                  (e.Bounds.Left + (e.Bounds.Width / 2)) -
-                                  (e.Graphics.MeasureString(e.SubItem.Text, e.SubItem.Font).Width / 2),
+                                  CInt(e.Bounds.Left + (e.Bounds.Width / 2)) - (e.Graphics.MeasureString(e.SubItem.Text, e.SubItem.Font).Width / 2),
                                   e.Bounds.Top + 2)
                 End If
             Else

@@ -35,22 +35,25 @@ Public Class Main
     Private sound As SoundPlayer = New SoundPlayer()
 
     Private Sub Startup(sender As Object, e As EventArgs) Handles MyBase.Load
-#If DEBUG Then
-        AllocConsole()
-        Dim x = new GrpBrowser({"crt", "g3d", "b3d", "map", "8"}, true)
-        x.ShowDialog()
-#End If
         Logo.Parent = Background
         Background.BackgroundImage = My.Resources.ResourceManager.GetObject($"BG{New Random().Next(1, 13)}")
         If File.Exists("F3.exe") Then
             Directory.CreateDirectory("Mods")
             File.WriteAllBytes("Mods\Fixes.zip", My.Resources.Fixes)
             File.WriteAllBytes("Mods\SUMM.zip", My.Resources.SUMM)
+            File.WriteAllBytes("granny2.7.0.30.dll", My.Resources.granny2_7_0_30) ' granny dll used for parsing game files
             AddFontResource("Fonts\TT0807M_.TTF")
             AddFontResource("Fonts\r_fallouty.ttf")
         Else
             ShowError("Please put the launcher in the same directory as the game so you can launch it!", "Game Executable Not Found!")
         End If
+
+#If DEBUG Then
+        AllocConsole()
+        Dim x = new GrpBrowser({"skl"}, true)
+        x.ShowDialog()
+#End If
+
         AllowTransparency = False
         Try : File.Delete($"{My.Computer.FileSystem.SpecialDirectories.MyDocuments}\F3\Characters\None.CRT")
         Catch : End Try

@@ -1,5 +1,6 @@
 ﻿Imports System.Drawing.Imaging
 Imports System.IO
+Imports System.Numerics
 Imports System.Runtime.InteropServices
 Imports System.Text
 Imports System.Windows
@@ -95,8 +96,9 @@ Public Class GrpBrowser
     Public Sub extractFile(index As Integer, Optional convert As Boolean = False)
         Dim b As Byte()
         If index = -1 Then
-            Parallel.For(0, head.nEntries,
-            Sub(i)
+            For i = 0 To head.nEntries - 1
+                'Parallel.For(0, head.nEntries,
+                'Sub(i)
                 Dim ext = extensions(i)
                 Console.WriteLine(filenames(i) & "." & ext)
                 If convert Then
@@ -108,7 +110,8 @@ Public Class GrpBrowser
                     grpnames(packOffsetToIndex(globalIndexToPackOffset(i))) & "\" & filenames(i) & "." & ext,
                     b)
                 GC.Collect() ' auto GC is too slow and will run out of memory otherwise
-            End Sub)
+                'End Sub)
+            Next
         Else
             Dim ext = extensions(index)
             Console.WriteLine(filenames(index) & "." & ext)
@@ -391,15 +394,16 @@ Public Class GrpBrowser
         End Using
     End Function
 
+    Private lastIndex = -1
+
     Private Sub DarkButton1_Click(sender As Object, e As EventArgs) Handles DarkTreeView1.SelectedNodesChanged, DarkButton1.Click
         If Not DarkTreeView1.SelectedNodes.Any() Then Return
-        For Each c As Control In TableLayoutPanel1.Controls
-            If c IsNot DarkTreeView1 AndAlso c IsNot DarkButton1 AndAlso c IsNot DarkButton2 Then
-                TableLayoutPanel1.Controls.Remove(c)
-            End If
-        Next
         Dim selectedNode = DarkTreeView1.SelectedNodes(0)
         If selectedNode.Nodes.Count <> 0 Then Return
+        Dim g As Integer = fullNameToGlobalIndex(selectedNode.Text.ToLower())
+        If lastIndex = g Then Return
+        lastIndex = g
+        DarkSectionPanel2.Controls.Clear()
         Dim name = selectedNode.Text
         Dim ext = name.Split(".")(1)
         name = name.Split(".")(0)
@@ -408,18 +412,17 @@ Public Class GrpBrowser
         Dim packIndex = grpnames.IndexOf(parentName)
         If previewMode Then
             Dim b As Byte()
-            Dim g As Integer = fullNameToGlobalIndex(selectedNode.Text.ToLower())
             b = getFileBytes(g)
             Select Case ext
                 Case "bmp"
-                    TableLayoutPanel1.Controls.Add(PictureBox1, 1, 0)
+                    DarkSectionPanel2.Controls.Add(PictureBox1)
                     Dim ms = New MemoryStream(b)
                     PictureBox1.BackgroundImage = New Bitmap(ms)
                 Case "tga"
-                    TableLayoutPanel1.Controls.Add(PictureBox1, 1, 0)
+                    DarkSectionPanel2.Controls.Add(PictureBox1)
                     PictureBox1.BackgroundImage = TargaToBitmap(b)
                 Case "psf", "ini", "pce", "sco", "gsf", "gls", "tok"
-                    TableLayoutPanel1.Controls.Add(DarkRichTextBox1, 1, 0)
+                    DarkSectionPanel2.Controls.Add(DarkRichTextBox1)
                     DarkRichTextBox1.Text = Encoding.ASCII.GetString(b)
                 Case "g3d"
                     Dim g3d = New G3DModel(b)
@@ -428,15 +431,17 @@ Public Class GrpBrowser
                     viewport.Children.Clear()
                     viewport.Children.Add(model)
                     viewport.Children.Add(New DefaultLights())
-                    TableLayoutPanel1.Controls.Add(host, 1, 0)
+                    DarkSectionPanel2.Controls.Add(host)
                 Case "b3d"
                     Dim b3d = New B3DModel(b)
+                    Console.WriteLine(b3d.Model_Vertex_Position.Count)
+                    Console.WriteLine(b3d.Vertex_Nodes.Count)
                     Dim mesh = B3DModelToUsableMesh(b3d, selectedNode.Text)
                     model = New ModelVisual3D() With {.Content = mesh}
                     viewport.Children.Clear()
                     viewport.Children.Add(model)
                     viewport.Children.Add(New DefaultLights())
-                    TableLayoutPanel1.Controls.Add(host, 1, 0)
+                    DarkSectionPanel2.Controls.Add(host)
                 Case "8"
                     Dim _8 = New _8Model(b, MsgBox("FLGS Size?", MsgBoxStyle.YesNo, "Option") = DialogResult.Yes)
                     Dim mesh = _8ModelToUsableMesh(_8)
@@ -444,14 +449,14 @@ Public Class GrpBrowser
                     viewport.Children.Clear()
                     viewport.Children.Add(model)
                     viewport.Children.Add(New DefaultLights())
-                    TableLayoutPanel1.Controls.Add(host, 1, 0)
+                    DarkSectionPanel2.Controls.Add(host)
                 Case "map"
                     viewport.Children.Clear()
                     Dim map As Map
                     Try
                         map = b.ReadMap()
                     Catch
-                        TableLayoutPanel1.Controls.Add(HexBox1, 1, 0)
+                        DarkSectionPanel2.Controls.Add(HexBox1)
                         HexBox1.ByteProvider = New DynamicByteProvider(b)
                         Return
                     End Try
@@ -475,49 +480,39 @@ Public Class GrpBrowser
                         Catch
                             Continue For
                         End Try
+
+                        Dim m As Model3DGroup
+
                         If ent.name.ToLower.EndsWith(".crt") Then
-                            Dim crt = CRTToUsableMesh(getFileBytes(gInd))
-
-                            Dim t = New Transform3DGroup()
-
-                            Dim rot = ent.l.r * 180 / Math.PI '+ 90 ' adding 90 fixes some rotations, breaks others
-
-                            t.Children.Add(New RotateTransform3D(New AxisAngleRotation3D(New Vector3D(0, 0, 1), rot)))
-                            t.Children.Add(New TranslateTransform3D(ent.l.x, ent.l.y, ent.l.z))
-
-                            crt.Transform = t
-
-                            Dim mv3 = New ModelVisual3D() With {.Content = crt}
-
-                            viewport.Children.Add(mv3)
+                            m = CRTToUsableMesh(getFileBytes(gInd))
                         Else
-                            Dim c = getFileBytes(gInd).ToEEN2c()
+                            Dim c = getFileBytes(gInd).ToEEN2c() ' EEN2 is the first chunk for all entities, only .CRT requires special processing.
                             Dim gInd2 = fullNameToGlobalIndex(c.skl.ToLower() & ".b3d")
                             Dim b3d = New B3DModel(getFileBytes(gInd2))
-                            Dim m = B3DModelToUsableMesh(b3d, selectedNode.Text)
-
-                            Dim t = New Transform3DGroup()
-
-                            Dim rot = ent.l.r * 180 / Math.PI '+ 90 ' adding 90 fixes some rotations, breaks others
-
-                            t.Children.Add(New RotateTransform3D(New AxisAngleRotation3D(New Vector3D(0, 0, 1), rot)))
-                            t.Children.Add(New TranslateTransform3D(ent.l.x, ent.l.y, ent.l.z))
-
-                            m.Transform = t
-
-                            Dim mv3 = New ModelVisual3D() With {.Content = m}
-
-                            viewport.Children.Add(mv3)
+                            m = B3DModelToUsableMesh(b3d, selectedNode.Text)
                         End If
+
+                        Dim t = New Transform3DGroup()
+
+                        Dim rot = ent.l.r * 180 / Math.PI ' convert to degrees
+
+                        t.Children.Add(New RotateTransform3D(New AxisAngleRotation3D(New Vector3D(0, 0, 1), rot)))
+                        t.Children.Add(New TranslateTransform3D(ent.l.x, ent.l.y, ent.l.z))
+
+                        m.Transform = t
+
+                        Dim mv3 = New ModelVisual3D() With {.Content = m}
+
+                        viewport.Children.Add(mv3)
                     Next
 
-                    For Each ep In map.EMEP
+                    For Each ep In map.EMEP ' adds default player character to map entry points
                         Dim gInd = fullNameToGlobalIndex("default_pc.crt")
                         Dim crt = CRTToUsableMesh(getFileBytes(gInd))
 
                         Dim t = New Transform3DGroup()
 
-                        Dim rot = ep.r * 180 / Math.PI '+ 90 ' adding 90 fixes some rotations, breaks others
+                        Dim rot = ep.r * 180 / Math.PI
 
                         t.Children.Add(New RotateTransform3D(New AxisAngleRotation3D(New Vector3D(0, 0, 1), rot)))
                         t.Children.Add(New TranslateTransform3D(ep.p.x, ep.p.y, ep.p.z))
@@ -530,7 +525,7 @@ Public Class GrpBrowser
                     Next
 
                     viewport.Children.Add(New DefaultLights())
-                    TableLayoutPanel1.Controls.Add(host, 1, 0)
+                    DarkSectionPanel2.Controls.Add(host)
                 Case "crt"
                     'Try
                     Dim crt = CRTToUsableMesh(b)
@@ -538,13 +533,24 @@ Public Class GrpBrowser
                     viewport.Children.Clear()
                     viewport.Children.Add(model)
                     viewport.Children.Add(New DefaultLights())
-                    TableLayoutPanel1.Controls.Add(host, 1, 0)
+                    DarkSectionPanel2.Controls.Add(host)
                     'Catch
-                    '    TableLayoutPanel1.Controls.Add(HexBox1, 1, 0)
+                    '    DarkSectionPanel2.Controls.Add(HexBox1)
                     '    HexBox1.ByteProvider = New DynamicByteProvider(b)
                     'End Try
+                Case "gr2", "skl"
+                    Dim gr2 = GrannyFormats.ReadFileFromMemory(b)
+                    Console.WriteLine(gr2.FromFileName)
+                    If gr2.Models.Any() Then
+                        Dim skl = GetSkeletonModel(gr2.Models(0))
+                        model = New ModelVisual3D() With {.Content = skl}
+                        viewport.Children.Clear()
+                        viewport.Children.Add(model)
+                        viewport.Children.Add(New DefaultLights())
+                        DarkSectionPanel2.Controls.Add(host)
+                    End If
                 Case Else
-                    TableLayoutPanel1.Controls.Add(HexBox1, 1, 0)
+                    DarkSectionPanel2.Controls.Add(HexBox1)
                     HexBox1.ByteProvider = New DynamicByteProvider(b)
             End Select
         Else
@@ -569,6 +575,50 @@ Public Class GrpBrowser
                 Return TargaToBitmapImage(getFileBytes(g))
             Next
         Next
+    End Function
+
+    Public Shared Function ApplyMatrix(ByVal vector As Vector3, ByVal matrix As Single()()) As Vector3
+        Return New Vector3(vector.X * matrix(0)(0) + vector.Y * matrix(0)(1) + vector.Z * matrix(0)(2), vector.X * matrix(1)(0) + vector.Y * matrix(1)(1) + vector.Z * matrix(1)(2), vector.X * matrix(2)(0) + vector.Y * matrix(2)(1) + vector.Z * matrix(2)(2))
+        Return vector
+    End Function
+
+    Private Function GetSkeletonModel(m As GrannyFormats.model) As Model3DGroup
+        Dim mb As New MeshBuilder
+        Dim baseTranslate = Matrix4x4.CreateTranslation(m.InitialPlacement.Position)
+        For Each b As GrannyFormats.bone In m.Skeleton.Bones
+            Dim t = b.LocalTransform
+            Dim world4x4
+            Matrix4x4.Invert(b.InverseWorld4x4, world4x4)
+            Dim p1 = b.LocalTransform.Position
+            p1 = Vector3.Transform(p1, b.LocalTransform.Orientation)
+            p1 = ApplyMatrix(p1, t.ScaleShear)
+            p1 = Vector3.Transform(p1, world4x4)
+            Dim p2 = New Vector3(0, 0, 0)
+            If b.ParentIndex <> -1 Then
+                Dim world4x42
+                Matrix4x4.Invert(m.Skeleton.Bones(b.ParentIndex).InverseWorld4x4, world4x42)
+                p2 = m.Skeleton.Bones(b.ParentIndex).LocalTransform.Position
+                p2 = Vector3.Transform(p2, m.Skeleton.Bones(b.ParentIndex).LocalTransform.Orientation)
+                p2 = ApplyMatrix(p2, m.Skeleton.Bones(b.ParentIndex).LocalTransform.ScaleShear)
+                p2 = Vector3.Transform(p2, world4x42)
+            End If
+
+            mb.AddArrow(New Point3D(p2.X, p2.Y, p2.Z), New Point3D(p1.X, p1.Y, p1.Z), 0.002)
+            Console.WriteLine(b.Name)
+            Console.WriteLine($"X: {p1.X} Y: {p1.Y} Z: {p1.Z}")
+        Next
+
+        Dim mesh = mb.ToMesh()
+        Dim material = New DiffuseMaterial(New SolidColorBrush(Colors.LightSlateGray))
+        Dim model = New GeometryModel3D With {
+                .Geometry = mesh,
+                .Material = material,
+                .BackMaterial = material
+                }
+        Dim modelGroup As New Model3DGroup()
+        modelGroup.Children.Add(model)
+
+        Return modelGroup
     End Function
 
     Private Function CRTToUsableMesh(b As Byte()) As Model3DGroup
@@ -999,7 +1049,7 @@ Public Class GrpBrowser
                 material = New DiffuseMaterial(New SolidColorBrush(Colors.LightSlateGray))
             End Try
         Else
-            material = New DiffuseMaterial(New SolidColorBrush(Colors.LightSlateGray))
+            material = New DiffuseMaterial(New SolidColorBrush(Colors.LightGreen))
         End If
         Dim model = New GeometryModel3D With {
             .Geometry = mesh,
@@ -1117,6 +1167,7 @@ Public Class GrpBrowser
     }
 
     Private host As New ElementHost With {
+        .Name = "Model Viewer",
         .Dock = DockStyle.Fill,
         .Child = viewport
     }
@@ -1163,6 +1214,10 @@ Public Class GrpBrowser
     Private Sub DarkButton2_Click(sender As Object, e As EventArgs) Handles DarkButton2.Click
         Dim selectedNode = DarkTreeView1.SelectedNodes(0)
         extractFile(fullNameToGlobalIndex(selectedNode.Text.ToLower()), True)
+    End Sub
+
+    Private Sub DarkSectionPanel2_ControlAdded(sender As Object, e As EventArgs) Handles DarkSectionPanel2.ControlAdded
+        DarkSectionPanel2.SectionHeader = DarkSectionPanel2.Controls(0).Name
     End Sub
 
 End Class

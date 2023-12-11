@@ -401,6 +401,16 @@ Namespace My.Resources
         '''<summary>
         '''  Looks up a localized resource of type System.Byte[].
         '''</summary>
+        Friend ReadOnly Property granny2_7_0_30() As Byte()
+            Get
+                Dim obj As Object = ResourceManager.GetObject("granny2.7.0.30", resourceCulture)
+                Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Byte[].
+        '''</summary>
         Friend ReadOnly Property SUMM() As Byte()
             Get
                 Dim obj As Object = ResourceManager.GetObject("SUMM", resourceCulture)
