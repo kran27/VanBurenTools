@@ -50,7 +50,7 @@ Public Class Main
 
 #If DEBUG Then
         AllocConsole()
-        Dim x = new GrpBrowser({"skl"}, true)
+        Dim x = new GrpBrowser({"skl", "b3d"}, true)
         x.ShowDialog()
 #End If
 

@@ -89,19 +89,25 @@ namespace VB3DLib
             for (var i = 0; i < fileInfo.ModelCount; i++)
             {
                 var model = ReadFromPointerArray<unm_model>(fileInfo.Models, i);
-                var parsedModel = new model();
-                parsedModel.Name = Marshal.PtrToStringAnsi(model.Name);
+                var parsedModel = new model
+                {
+                    Name = Marshal.PtrToStringAnsi(model.Name)
+                };
                 var skeleton = (unm_skeleton)Marshal.PtrToStructure(model.Skeleton, typeof(unm_skeleton));
                 parsedModel.Skeleton.Name = Marshal.PtrToStringAnsi(skeleton.Name);
                 parsedModel.Skeleton.Bones = new List<bone>();
                 for (var j = 0; j < skeleton.BoneCount; j++)
                 {
                     var bone = ReadFromArray<unm_bone>(skeleton.Bones, j);
-                    var parsedBone = new bone();
-                    parsedBone.Name = Marshal.PtrToStringAnsi(bone.Name);
-                    parsedBone.ParentIndex = bone.ParentIndex;
-                    parsedBone.LocalTransform = CreateTransform(bone.LocalTransform);
-                    parsedBone.InverseWorld4x4 = ConvertToMatrix4x4(bone.InverseWorld4x4);
+                    var parsedBone = new bone
+                    {
+                        Name = Marshal.PtrToStringAnsi(bone.Name),
+                        ParentIndex = bone.ParentIndex,
+                        LocalTransform = CreateTransform(bone.LocalTransform),
+                        InverseWorld4x4 = ConvertToMatrix4x4(bone.InverseWorld4x4)
+                    };
+                    Matrix4x4.Invert(parsedBone.InverseWorld4x4, out Matrix4x4 World4x4);
+                    parsedBone.ActualPosition = Vector3.Transform(Vector3.Zero, World4x4);
                     parsedModel.Skeleton.Bones.Add(parsedBone);
                 }
                 parsedModel.InitialPlacement = CreateTransform(model.InitialPlacement);
@@ -112,25 +118,31 @@ namespace VB3DLib
             for (var i = 0; i < fileInfo.AnimationCount; i++)
             {
                 var animation = ReadFromPointerArray<unm_animation>(fileInfo.Animations, i);
-                var parsedAnimation = new animation();
-                parsedAnimation.Name = Marshal.PtrToStringAnsi(animation.Name);
-                parsedAnimation.Duration = animation.Duration;
-                parsedAnimation.TimeStep = animation.TimeStep;
-                parsedAnimation.Oversampling = animation.Oversampling;
-                parsedAnimation.TrackGroups = new List<track_group>();
+                var parsedAnimation = new animation
+                {
+                    Name = Marshal.PtrToStringAnsi(animation.Name),
+                    Duration = animation.Duration,
+                    TimeStep = animation.TimeStep,
+                    Oversampling = animation.Oversampling,
+                    TrackGroups = new List<track_group>()
+                };
                 for (var j = 0; j < animation.TrackGroupCount; j++)
                 {
                     var trackGroup = ReadFromPointerArray<unm_track_group>(animation.TrackGroups, j);
-                    var parsedTrackGroup = new track_group();
-                    parsedTrackGroup.Name = Marshal.PtrToStringAnsi(trackGroup.Name);
-                    parsedTrackGroup.TransformTracks = new List<transform_track>();
+                    var parsedTrackGroup = new track_group
+                    {
+                        Name = Marshal.PtrToStringAnsi(trackGroup.Name),
+                        TransformTracks = new List<transform_track>()
+                    };
                     for (var k = 0; k < trackGroup.TransformTrackCount; k++)
                     {
                         var transformTrack = ReadFromArray<unm_transform_track>(trackGroup.TransformTracks, k);
-                        var parsedTransformTrack = new transform_track();
-                        parsedTransformTrack.Name = Marshal.PtrToStringAnsi(transformTrack.Name);
-                        parsedTransformTrack.Flags = transformTrack.Flags;
-                        parsedTransformTrack.OrientationCurve = new curve_data();
+                        var parsedTransformTrack = new transform_track
+                        {
+                            Name = Marshal.PtrToStringAnsi(transformTrack.Name),
+                            Flags = transformTrack.Flags,
+                            OrientationCurve = new curve_data()
+                        };
                         var orientationCurve = (unm_curve_data_da_k32f_c32f)Marshal.PtrToStructure(transformTrack.OrientationCurve.CurveData.Object, typeof(unm_curve_data_da_k32f_c32f)); // assuming this curve type is always correct
                         parsedTransformTrack.OrientationCurve.Knots = new List<float>();
                         for (var l = 0; l < orientationCurve.KnotCount; l++)
@@ -675,12 +687,9 @@ namespace VB3DLib
         {
             public art_tool_info ArtToolInfo;
             public exporter_info ExporterInfo;
-
             public string FromFileName;
-
             // model and animation are the highest level of data, I use them exclusively to make parsing easier
             public List<model> Models;
-
             public List<animation> Animations;
         }
 
@@ -723,6 +732,7 @@ namespace VB3DLib
         {
             public string Name;
             public int ParentIndex;
+            public Vector3 ActualPosition;
             public transform LocalTransform;
             public Matrix4x4 InverseWorld4x4;
         }

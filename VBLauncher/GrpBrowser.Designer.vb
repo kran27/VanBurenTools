@@ -31,9 +31,14 @@ Partial Class GrpBrowser
         DarkSectionPanel2 = New AltUI.Controls.DarkSectionPanel()
         PictureBox1 = New PictureBox()
         DarkRichTextBox1 = New AltUI.Controls.DarkRichTextBox()
+        TableLayoutPanel2 = New TableLayoutPanel()
+        TrackBar1 = New TrackBar()
         TableLayoutPanel1.SuspendLayout()
         DarkSectionPanel1.SuspendLayout()
+        DarkSectionPanel2.SuspendLayout()
         CType(PictureBox1, ComponentModel.ISupportInitialize).BeginInit()
+        TableLayoutPanel2.SuspendLayout()
+        CType(TrackBar1, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
         ' 
         ' HexBox1
@@ -150,6 +155,29 @@ Partial Class GrpBrowser
         DarkRichTextBox1.TabIndex = 2
         DarkRichTextBox1.Text = ""
         ' 
+        ' TableLayoutPanel2
+        ' 
+        TableLayoutPanel2.ColumnCount = 1
+        TableLayoutPanel2.ColumnStyles.Add(New ColumnStyle(SizeType.Percent, 100F))
+        TableLayoutPanel2.Controls.Add(TrackBar1, 0, 1)
+        TableLayoutPanel2.Dock = DockStyle.Fill
+        TableLayoutPanel2.Location = New Point(1, 25)
+        TableLayoutPanel2.Name = "TableLayoutPanel2"
+        TableLayoutPanel2.RowCount = 2
+        TableLayoutPanel2.RowStyles.Add(New RowStyle(SizeType.Percent, 100F))
+        TableLayoutPanel2.RowStyles.Add(New RowStyle())
+        TableLayoutPanel2.Size = New Size(392, 389)
+        TableLayoutPanel2.TabIndex = 0
+        ' 
+        ' TrackBar1
+        ' 
+        TrackBar1.Dock = DockStyle.Fill
+        TrackBar1.Location = New Point(3, 341)
+        TrackBar1.Name = "TrackBar1"
+        TrackBar1.RightToLeft = RightToLeft.No
+        TrackBar1.Size = New Size(386, 45)
+        TrackBar1.TabIndex = 0
+        ' 
         ' GrpBrowser
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
@@ -161,7 +189,11 @@ Partial Class GrpBrowser
         Text = "GrpBrowser"
         TableLayoutPanel1.ResumeLayout(False)
         DarkSectionPanel1.ResumeLayout(False)
+        DarkSectionPanel2.ResumeLayout(False)
         CType(PictureBox1, ComponentModel.ISupportInitialize).EndInit()
+        TableLayoutPanel2.ResumeLayout(False)
+        TableLayoutPanel2.PerformLayout()
+        CType(TrackBar1, ComponentModel.ISupportInitialize).EndInit()
         ResumeLayout(False)
 
     End Sub
@@ -174,4 +206,6 @@ Partial Class GrpBrowser
     Friend WithEvents DarkButton2 As AltUI.Controls.DarkButton
     Friend WithEvents DarkSectionPanel1 As AltUI.Controls.DarkSectionPanel
     Friend WithEvents DarkSectionPanel2 As AltUI.Controls.DarkSectionPanel
+    Friend WithEvents TableLayoutPanel2 As TableLayoutPanel
+    Friend WithEvents TrackBar1 As TrackBar
 End Class

@@ -440,6 +440,16 @@ Public Class GrpBrowser
                     model = New ModelVisual3D() With {.Content = mesh}
                     viewport.Children.Clear()
                     viewport.Children.Add(model)
+                    Try
+                        Dim gr2b = getFileBytes(fullNameToGlobalIndex(name.ToLower() & ".skl"))
+                        Dim gr2 = GrannyFormats.ReadFileFromMemory(gr2b)
+                        If gr2.Models.Any() Then
+                            Dim skl = GetSkeletonModel(gr2.Models(0))
+                            Dim model2 = New ModelVisual3D() With {.Content = skl}
+                            viewport.Children.Add(model2)
+                        End If
+                    Catch
+                    End Try
                     viewport.Children.Add(New DefaultLights())
                     DarkSectionPanel2.Controls.Add(host)
                 Case "8"
@@ -577,44 +587,37 @@ Public Class GrpBrowser
         Next
     End Function
 
-    Public Shared Function ApplyMatrix(ByVal vector As Vector3, ByVal matrix As Single()()) As Vector3
-        Return New Vector3(vector.X * matrix(0)(0) + vector.Y * matrix(0)(1) + vector.Z * matrix(0)(2), vector.X * matrix(1)(0) + vector.Y * matrix(1)(1) + vector.Z * matrix(1)(2), vector.X * matrix(2)(0) + vector.Y * matrix(2)(1) + vector.Z * matrix(2)(2))
-        Return vector
-    End Function
-
     Private Function GetSkeletonModel(m As GrannyFormats.model) As Model3DGroup
         Dim mb As New MeshBuilder
         Dim baseTranslate = Matrix4x4.CreateTranslation(m.InitialPlacement.Position)
         For Each b As GrannyFormats.bone In m.Skeleton.Bones
-            Dim t = b.LocalTransform
-            Dim world4x4
-            Matrix4x4.Invert(b.InverseWorld4x4, world4x4)
-            Dim p1 = b.LocalTransform.Position
-            p1 = Vector3.Transform(p1, b.LocalTransform.Orientation)
-            p1 = ApplyMatrix(p1, t.ScaleShear)
-            p1 = Vector3.Transform(p1, world4x4)
+            Dim p1 = b.ActualPosition
             Dim p2 = New Vector3(0, 0, 0)
             If b.ParentIndex <> -1 Then
-                Dim world4x42
-                Matrix4x4.Invert(m.Skeleton.Bones(b.ParentIndex).InverseWorld4x4, world4x42)
-                p2 = m.Skeleton.Bones(b.ParentIndex).LocalTransform.Position
-                p2 = Vector3.Transform(p2, m.Skeleton.Bones(b.ParentIndex).LocalTransform.Orientation)
-                p2 = ApplyMatrix(p2, m.Skeleton.Bones(b.ParentIndex).LocalTransform.ScaleShear)
-                p2 = Vector3.Transform(p2, world4x42)
+                p2 = m.Skeleton.Bones(b.ParentIndex).ActualPosition
             End If
-
-            mb.AddArrow(New Point3D(p2.X, p2.Y, p2.Z), New Point3D(p1.X, p1.Y, p1.Z), 0.002)
+            p1 *= 10 ' match scale of b3d
+            p2 *= 10 '
+            mb.AddArrow(New Point3D(p2.X, p2.Y, p2.Z), New Point3D(p1.X, p1.Y, p1.Z), 0.01)
             Console.WriteLine(b.Name)
             Console.WriteLine($"X: {p1.X} Y: {p1.Y} Z: {p1.Z}")
         Next
 
         Dim mesh = mb.ToMesh()
-        Dim material = New DiffuseMaterial(New SolidColorBrush(Colors.LightSlateGray))
-        Dim model = New GeometryModel3D With {
+        Dim material = New EmissiveMaterial(New SolidColorBrush(Colors.White))
+        Dim model = New Media3D.GeometryModel3D With {
                 .Geometry = mesh,
                 .Material = material,
                 .BackMaterial = material
                 }
+
+        Dim rotateTransform = New RotateTransform3D(New AxisAngleRotation3D(New Vector3D(1, 0, 0), 90))
+        Dim rotateTransform2 = New RotateTransform3D(New AxisAngleRotation3D(New Vector3D(0, 0, 1), 180))
+        Dim transformGroup = New Transform3DGroup()
+        transformGroup.Children.Add(rotateTransform)
+        transformGroup.Children.Add(rotateTransform2)
+        model.Transform = transformGroup
+
         Dim modelGroup As New Model3DGroup()
         modelGroup.Children.Add(model)
 
@@ -1216,7 +1219,7 @@ Public Class GrpBrowser
         extractFile(fullNameToGlobalIndex(selectedNode.Text.ToLower()), True)
     End Sub
 
-    Private Sub DarkSectionPanel2_ControlAdded(sender As Object, e As EventArgs) Handles DarkSectionPanel2.ControlAdded
+    Private Sub DarkSectionPanel2_ControlAdded(sender As Object, e As EventArgs)
         DarkSectionPanel2.SectionHeader = DarkSectionPanel2.Controls(0).Name
     End Sub
 
