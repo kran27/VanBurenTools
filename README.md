@@ -12,6 +12,7 @@ Put the launcher in the game directory, and open the options menu(s) and apply y
 - [AltUI](https://github.com/kran27/AltUI)
 - [dgVoodoo2](http://dege.fw.hu)
 - [DXVK](https://github.com/doitsujin/dxvk)
+- [Helix Toolkit](https://github.com/helix-toolkit/helix-toolkit)
 - [HexBox](https://sourceforge.net/projects/hexbox/)
 - [Pfim](https://github.com/nickbabcock/Pfim)
 ### VBExtender:
