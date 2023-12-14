@@ -1,5 +1,5 @@
 # VanBurenTools
-[![](https://discordapp.com/api/guilds/470671750087180289/widget.png?style=shield)](https://discord.gg/tzF3YFu)
+[![](dyna-badge.vercel.app/api/discord-badge?guild=470671750087180289)](https://discord.gg/tzF3YFu)
 - You can get the latest version of the launcher [here](https://github.com/kran27/VanBurenLauncher/raw/main/VBLauncher/bin/Release/VBLauncher.exe)
 - You can get Van Buren [here](https://archive.org/details/f3demo)
 
