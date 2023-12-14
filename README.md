@@ -1,5 +1,5 @@
 # VanBurenTools
-[![](discordapp.com/api/guilds/470671750087180289/widget.png?style=shield)](https://discord.gg/tzF3YFu)
+[![](https://discordapp.com/api/guilds/470671750087180289/widget.png?style=shield)](https://discord.gg/tzF3YFu)
 
 A collection of tools 
 - You can get the latest version of the launcher [here](https://github.com/kran27/VanBurenLauncher/raw/main/VBLauncher/bin/Release/VBLauncher.exe)
