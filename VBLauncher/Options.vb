@@ -1,8 +1,6 @@
 ﻿Imports System.Data
 Imports System.IO
 Imports AltUI.Config
-Imports VBLauncher.General
-Imports VBLauncher.IniManager
 Imports VBLauncher.VideoInfo
 
 Public Class Options

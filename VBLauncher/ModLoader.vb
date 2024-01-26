@@ -3,7 +3,6 @@ Imports System.IO
 Imports System.IO.Compression
 Imports AltUI.Config
 Imports AltUI.Config.ThemeProvider
-Imports VBEditor
 
 Public Class ModLoader
 

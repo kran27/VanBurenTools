@@ -7,16 +7,12 @@ Public Class Main
 
 #Region "Move Form"
 
-    Public Const WM_NCLBUTTONDOWN As Integer = &HA1
-    Public Const HT_CAPTION As Integer = &H2
+    Private Const WM_NCLBUTTONDOWN As Integer = &HA1
+    Private Const HT_CAPTION As Integer = &H2
 
     <DllImport("user32.dll")>
     Private Shared Sub SendMessage(ByVal hWnd As IntPtr, ByVal msg As Integer, ByVal wParam As Integer, ByVal lParam As Integer)
     End Sub
-
-    <DllImport("kernel32.dll", SetLastError:=True)>
-    Private Shared Function AllocConsole() As Boolean
-    End Function
 
     <DllImport("user32.dll")>
     Private Shared Sub ReleaseCapture()
@@ -32,7 +28,7 @@ Public Class Main
 #End Region
 
     Private _mouseDown As Boolean
-    Private sound As SoundPlayer = New SoundPlayer()
+    Private ReadOnly sound As SoundPlayer = New SoundPlayer()
 
     Private Sub Startup(sender As Object, e As EventArgs) Handles MyBase.Load
         Logo.Parent = Background
@@ -41,7 +37,7 @@ Public Class Main
             Directory.CreateDirectory("Mods")
             File.WriteAllBytes("Mods\Fixes.zip", My.Resources.Fixes)
             File.WriteAllBytes("Mods\SUMM.zip", My.Resources.SUMM)
-            File.WriteAllBytes("granny2.7.0.30.dll", My.Resources.granny2_7_0_30) ' granny dll used for parsing game files
+            File.WriteAllBytes("granny2_x64.dll", My.Resources.granny2_x64) ' granny dll used for parsing game files
             AddFontResource("Fonts\TT0807M_.TTF")
             AddFontResource("Fonts\r_fallouty.ttf")
         Else
@@ -49,7 +45,6 @@ Public Class Main
         End If
 
 #If DEBUG Then
-        AllocConsole()
         Dim x = new GrpBrowser({"skl", "b3d"}, true)
         x.ShowDialog()
 #End If

@@ -95,7 +95,7 @@ Public Class GrpBrowser
 
     Public Sub extractFile(index As Integer, Optional convert As Boolean = False)
         Dim b As Byte()
-        If index = -1 Then
+        If index = - 1 Then
             For i = 0 To head.nEntries - 1
                 'Parallel.For(0, head.nEntries,
                 'Sub(i)
@@ -121,8 +121,7 @@ Public Class GrpBrowser
             End If
             b = getFileBytes(index, convert)
             File.WriteAllBytes(
-                grpnames(packOffsetToIndex(globalIndexToPackOffset(index))) & "\" & filenames(index) & "." &
-                ext, b)
+                grpnames(packOffsetToIndex(globalIndexToPackOffset(index))) & "\" & filenames(index) & "." & ext, b)
         End If
         GC.Collect()
     End Sub
@@ -137,7 +136,8 @@ Public Class GrpBrowser
                             entries(packOffsetToIndex(packLoc))(localIndex).type, extname, convert)
     End Function
 
-    Private Function getFileBytes(packname As String, filenumber As Integer, filetype As Integer, filename As String, Optional convert As Boolean = False) As Byte()
+    Private Function getFileBytes(packname As String, filenumber As Integer, filetype As Integer, filename As String,
+                                  Optional convert As Boolean = False) As Byte()
         Dim fs As FileStream = New FileStream(packname, FileMode.Open, FileAccess.Read)
         Dim br As BinaryReader = New BinaryReader(fs)
         Dim grpHeader As F3GRPHeader
@@ -362,7 +362,8 @@ Public Class GrpBrowser
         Try
             Dim ms = New MemoryStream(b)
             Dim image = Pfim.Pfimage.FromStream(ms)
-            Dim bmpSource = BitmapSource.Create(image.Width, image.Height, 96.0, 96.0, PixelFormats.Bgra32, Nothing, image.Data, image.Stride)
+            Dim bmpSource = BitmapSource.Create(image.Width, image.Height, 96.0, 96.0, PixelFormats.Bgra32, Nothing,
+                                                image.Data, image.Stride)
             ' Convert the BitmapSource to a BitmapImage
             Dim bitmapImage As New BitmapImage()
             Dim memoryStream As New MemoryStream()
@@ -394,9 +395,10 @@ Public Class GrpBrowser
         End Using
     End Function
 
-    Private lastIndex = -1
+    Private lastIndex = - 1
 
-    Private Sub DarkButton1_Click(sender As Object, e As EventArgs) Handles DarkTreeView1.SelectedNodesChanged, DarkButton1.Click
+    Private Sub DarkButton1_Click(sender As Object, e As EventArgs) _
+        Handles DarkTreeView1.SelectedNodesChanged, DarkButton1.Click
         If Not DarkTreeView1.SelectedNodes.Any() Then Return
         Dim selectedNode = DarkTreeView1.SelectedNodes(0)
         If selectedNode.Nodes.Count <> 0 Then Return
@@ -496,7 +498,8 @@ Public Class GrpBrowser
                         If ent.name.ToLower.EndsWith(".crt") Then
                             m = CRTToUsableMesh(getFileBytes(gInd))
                         Else
-                            Dim c = getFileBytes(gInd).ToEEN2c() ' EEN2 is the first chunk for all entities, only .CRT requires special processing.
+                            Dim c = getFileBytes(gInd).ToEEN2c() _
+                            ' EEN2 is the first chunk for all entities, only .CRT requires special processing.
                             Dim gInd2 = fullNameToGlobalIndex(c.skl.ToLower() & ".b3d")
                             Dim b3d = New B3DModel(getFileBytes(gInd2))
                             m = B3DModelToUsableMesh(b3d, selectedNode.Text)
@@ -504,7 +507,7 @@ Public Class GrpBrowser
 
                         Dim t = New Transform3DGroup()
 
-                        Dim rot = ent.l.r * 180 / Math.PI ' convert to degrees
+                        Dim rot = ent.l.r*180/Math.PI ' convert to degrees
 
                         t.Children.Add(New RotateTransform3D(New AxisAngleRotation3D(New Vector3D(0, 0, 1), rot)))
                         t.Children.Add(New TranslateTransform3D(ent.l.x, ent.l.y, ent.l.z))
@@ -522,7 +525,7 @@ Public Class GrpBrowser
 
                         Dim t = New Transform3DGroup()
 
-                        Dim rot = ep.r * 180 / Math.PI
+                        Dim rot = ep.r*180/Math.PI
 
                         t.Children.Add(New RotateTransform3D(New AxisAngleRotation3D(New Vector3D(0, 0, 1), rot)))
                         t.Children.Add(New TranslateTransform3D(ep.p.x, ep.p.y, ep.p.z))
@@ -564,9 +567,9 @@ Public Class GrpBrowser
                     HexBox1.ByteProvider = New DynamicByteProvider(b)
             End Select
         Else
-            For Each g In
+            For Each g In _
                 From ent In entries(packIndex) Select g1 = localIndexToGlobal(packIndex)(ent.number)
-                Where filenames(g1) = name
+                    Where filenames(g1) = name
                 FileBytes = getFileBytes(g)
                 Extension = extensions(g)
                 FileName = filenames(g)
@@ -579,9 +582,9 @@ Public Class GrpBrowser
     Private Function GetImageFromName(name As String) As BitmapImage
         Dim nne = name.Split(".")(0)
         For i = 0 To entries.Length - 1
-            For Each g In
+            For Each g In _
                 From e In entries(i) Let g1 = localIndexToGlobal(i)(e.number)
-                Where filenames(g1) = nne AndAlso GetExtension(e.type) = "image" Select g1
+                    Where filenames(g1) = nne AndAlso GetExtension(e.type) = "image" Select g1
                 Return TargaToBitmapImage(getFileBytes(g))
             Next
         Next
@@ -593,7 +596,7 @@ Public Class GrpBrowser
         For Each b As GrannyFormats.bone In m.Skeleton.Bones
             Dim p1 = b.ActualPosition
             Dim p2 = New Vector3(0, 0, 0)
-            If b.ParentIndex <> -1 Then
+            If b.ParentIndex <> - 1 Then
                 p2 = m.Skeleton.Bones(b.ParentIndex).ActualPosition
             End If
             p1 *= 10 ' match scale of b3d
@@ -650,7 +653,9 @@ Public Class GrpBrowser
             Dim shoTex As String
             Dim vanTex As String
 
-            For Each itm In From i In crt.GCRE.Inventory Where i.ToLower.EndsWith(".arm") Select getFileBytes(fullNameToGlobalIndex(i.ToLower)).ReadITM()
+            For Each itm In _
+                From i In crt.GCRE.Inventory Where i.ToLower.EndsWith(".arm")
+                    Select getFileBytes(fullNameToGlobalIndex(i.ToLower)).ReadITM()
                 If itm.GITM.Bac.Model <> "" Then bacModel = (crt.EEN2.skl & "_" & itm.GITM.Bac.Model & ".b3d").ToLower()
                 If itm.GITM.Bod.Model <> "" Then bodModel = (crt.EEN2.skl & "_" & itm.GITM.Bod.Model & ".b3d").ToLower()
                 If itm.GITM.Fee.Model <> "" Then feeModel = (crt.EEN2.skl & "_" & itm.GITM.Fee.Model & ".b3d").ToLower()
@@ -748,66 +753,113 @@ Public Class GrpBrowser
 
             Dim x As New Bitmap(512, 512)
             Using gr = Graphics.FromImage(x)
-                Dim baseTex = If(crt.EEN2.EEOV.s4 <> "", crt.EEN2.EEOV.s4.Replace(".dds", ".tga").ToLower(), baseB3D.texName.ToLower())
+                Dim baseTex =
+                        If _
+                        (crt.EEN2.EEOV.s4 <> "", crt.EEN2.EEOV.s4.Replace(".dds", ".tga").ToLower(),
+                         baseB3D.texName.ToLower())
                 Dim baseImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex(baseTex)))
                 gr.DrawImageUnscaled(baseImage, 0, 0)
                 If heaMesh IsNot Nothing Then
-                    If heaTex = "" Then heaTex = If(crt.GCRE.Hea.Tex <> "", crt.GCRE.Hea.Tex.Replace(".dds", ".tga").ToLower(), heaB3D.texName.ToLower())
+                    If heaTex = "" Then _
+                        heaTex =
+                            If _
+                                (crt.GCRE.Hea.Tex <> "", crt.GCRE.Hea.Tex.Replace(".dds", ".tga").ToLower(),
+                                 heaB3D.texName.ToLower())
                     Dim heaImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex(heaTex)))
                     gr.DrawImageUnscaled(heaImage, 384, 0)
                 End If
                 If haiMesh IsNot Nothing Then
-                    Dim haiTex = If(crt.GCRE.Hai.Tex <> "", crt.GCRE.Hai.Tex.Replace(".dds", ".tga").ToLower(), haiB3D.texName.ToLower())
+                    Dim haiTex =
+                            If _
+                            (crt.GCRE.Hai.Tex <> "", crt.GCRE.Hai.Tex.Replace(".dds", ".tga").ToLower(),
+                             haiB3D.texName.ToLower())
                     Dim haiImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex(haiTex)))
                     gr.DrawImageUnscaled(haiImage, 256, 128)
                 End If
                 If ponMesh IsNot Nothing Then
-                    Dim ponTex = If(crt.GCRE.Pon.Tex <> "", crt.GCRE.Pon.Tex.Replace(".dds", ".tga").ToLower(), ponB3D.texName.ToLower())
+                    Dim ponTex =
+                            If _
+                            (crt.GCRE.Pon.Tex <> "", crt.GCRE.Pon.Tex.Replace(".dds", ".tga").ToLower(),
+                             ponB3D.texName.ToLower())
                     Dim ponImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex(ponTex)))
                     gr.DrawImageUnscaled(ponImage, 288, 224)
                 End If
                 If musMesh IsNot Nothing Then
-                    Dim musTex = If(crt.GCRE.Mus.Tex <> "", crt.GCRE.Mus.Tex.Replace(".dds", ".tga").ToLower(), musB3D.texName.ToLower())
+                    Dim musTex =
+                            If _
+                            (crt.GCRE.Mus.Tex <> "", crt.GCRE.Mus.Tex.Replace(".dds", ".tga").ToLower(),
+                             musB3D.texName.ToLower())
                     Dim musImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex(musTex)))
                     gr.DrawImageUnscaled(musImage, 256, 224)
                 End If
                 If beaMesh IsNot Nothing Then
-                    Dim beaTex = If(crt.GCRE.Bea.Tex <> "", crt.GCRE.Bea.Tex.Replace(".dds", ".tga").ToLower(), beaB3D.texName.ToLower())
+                    Dim beaTex =
+                            If _
+                            (crt.GCRE.Bea.Tex <> "", crt.GCRE.Bea.Tex.Replace(".dds", ".tga").ToLower(),
+                             beaB3D.texName.ToLower())
                     Dim beaImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex(beaTex)))
                     gr.DrawImageUnscaled(beaImage, 256, 192)
                 End If
                 If eyeMesh IsNot Nothing Then
-                    If eyeTex = "" Then eyeTex = If(crt.GCRE.Eye.Tex <> "", crt.GCRE.Eye.Tex.Replace(".dds", ".tga").ToLower(), eyeB3D.texName.ToLower())
+                    If eyeTex = "" Then _
+                        eyeTex =
+                            If _
+                                (crt.GCRE.Eye.Tex <> "", crt.GCRE.Eye.Tex.Replace(".dds", ".tga").ToLower(),
+                                 eyeB3D.texName.ToLower())
                     Dim eyeImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex(eyeTex)))
                     gr.DrawImageUnscaled(eyeImage, 320, 192) ' guess, i know of nothing that uses the eye socket
                 End If
                 If bodMesh IsNot Nothing Then
-                    If bodTex = "" Then bodTex = If(crt.GCRE.Bod.Tex <> "", crt.GCRE.Bod.Tex.Replace(".dds", ".tga").ToLower(), bodB3D.texName.ToLower())
+                    If bodTex = "" Then _
+                        bodTex =
+                            If _
+                                (crt.GCRE.Bod.Tex <> "", crt.GCRE.Bod.Tex.Replace(".dds", ".tga").ToLower(),
+                                 bodB3D.texName.ToLower())
                     Dim bodImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex(bodTex)))
                     gr.DrawImageUnscaled(bodImage, 0, 256)
                 End If
                 If hanMesh IsNot Nothing Then
-                    If hanTex = "" Then hanTex = If(crt.GCRE.Han.Tex <> "", crt.GCRE.Han.Tex.Replace(".dds", ".tga").ToLower(), hanB3D.texName.ToLower())
+                    If hanTex = "" Then _
+                        hanTex =
+                            If _
+                                (crt.GCRE.Han.Tex <> "", crt.GCRE.Han.Tex.Replace(".dds", ".tga").ToLower(),
+                                 hanB3D.texName.ToLower())
                     Dim hanImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex(hanTex)))
                     gr.DrawImageUnscaled(hanImage, 384, 128)
                 End If
                 If feeMesh IsNot Nothing Then
-                    If feeTex = "" Then feeTex = If(crt.GCRE.Fee.Tex <> "", crt.GCRE.Fee.Tex.Replace(".dds", ".tga").ToLower(), feeB3D.texName.ToLower())
+                    If feeTex = "" Then _
+                        feeTex =
+                            If _
+                                (crt.GCRE.Fee.Tex <> "", crt.GCRE.Fee.Tex.Replace(".dds", ".tga").ToLower(),
+                                 feeB3D.texName.ToLower())
                     Dim feeImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex(feeTex)))
                     gr.DrawImageUnscaled(feeImage, 384, 256)
                 End If
                 If bacMesh IsNot Nothing Then
-                    If bacTex = "" Then bacTex = If(crt.GCRE.Bac.Tex <> "", crt.GCRE.Bac.Tex.Replace(".dds", ".tga").ToLower(), bacB3D.texName.ToLower())
+                    If bacTex = "" Then _
+                        bacTex =
+                            If _
+                                (crt.GCRE.Bac.Tex <> "", crt.GCRE.Bac.Tex.Replace(".dds", ".tga").ToLower(),
+                                 bacB3D.texName.ToLower())
                     Dim bacImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex(bacTex)))
                     gr.DrawImageUnscaled(bacImage, 256, 256)
                 End If
                 If shoMesh IsNot Nothing Then
-                    If shoTex = "" Then shoTex = If(crt.GCRE.Sho.Tex <> "", crt.GCRE.Sho.Tex.Replace(".dds", ".tga").ToLower(), shoB3D.texName.ToLower())
+                    If shoTex = "" Then _
+                        shoTex =
+                            If _
+                                (crt.GCRE.Sho.Tex <> "", crt.GCRE.Sho.Tex.Replace(".dds", ".tga").ToLower(),
+                                 shoB3D.texName.ToLower())
                     Dim shoImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex(shoTex)))
                     gr.DrawImageUnscaled(shoImage, 256, 0)
                 End If
                 If vanMesh IsNot Nothing Then
-                    If vanTex = "" Then vanTex = If(crt.GCRE.Van.Tex <> "", crt.GCRE.Van.Tex.Replace(".dds", ".tga").ToLower(), vanB3D.texName.ToLower())
+                    If vanTex = "" Then _
+                        vanTex =
+                            If _
+                                (crt.GCRE.Van.Tex <> "", crt.GCRE.Van.Tex.Replace(".dds", ".tga").ToLower(),
+                                 vanB3D.texName.ToLower())
                     Dim vanImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex(vanTex)))
                     gr.DrawImageUnscaled(vanImage, 320, 128)
                 End If
@@ -819,118 +871,118 @@ Public Class GrpBrowser
             Dim modelGroup = New Model3DGroup()
 
             Dim baseGM3 = New GeometryModel3D With {
-                .Geometry = baseMesh,
-                .Material = baseMat,
-                .BackMaterial = baseMat
-            }
+                    .Geometry = baseMesh,
+                    .Material = baseMat,
+                    .BackMaterial = baseMat
+                    }
             modelGroup.Children.Add(baseGM3)
 
             If heaMesh IsNot Nothing Then
                 Dim heaMat = New DiffuseMaterial(New ImageBrush(CropBitmapByUV(xbi, heaMesh.TextureCoordinates)))
                 Dim heaGM3 = New GeometryModel3D With {
-                    .Geometry = heaMesh,
-                    .Material = heaMat,
-                    .BackMaterial = heaMat
-                }
+                        .Geometry = heaMesh,
+                        .Material = heaMat,
+                        .BackMaterial = heaMat
+                        }
                 modelGroup.Children.Add(heaGM3)
             End If
             If haiMesh IsNot Nothing Then
                 Dim haiMat = New DiffuseMaterial(New ImageBrush(CropBitmapByUV(xbi, haiMesh.TextureCoordinates, True)))
                 Dim haiGM3 = New GeometryModel3D With {
-                    .Geometry = haiMesh,
-                    .Material = haiMat,
-                    .BackMaterial = haiMat
-                }
+                        .Geometry = haiMesh,
+                        .Material = haiMat,
+                        .BackMaterial = haiMat
+                        }
                 modelGroup.Children.Add(haiGM3)
             End If
             If ponMesh IsNot Nothing Then
                 Dim ponMat = New DiffuseMaterial(New ImageBrush(CropBitmapByUV(xbi, ponMesh.TextureCoordinates)))
                 Dim ponGM3 = New GeometryModel3D With {
-                    .Geometry = ponMesh,
-                    .Material = ponMat,
-                    .BackMaterial = ponMat
-                }
+                        .Geometry = ponMesh,
+                        .Material = ponMat,
+                        .BackMaterial = ponMat
+                        }
                 modelGroup.Children.Add(ponGM3)
             End If
             If musMesh IsNot Nothing Then
                 Dim musMat = New DiffuseMaterial(New ImageBrush(CropBitmapByUV(xbi, musMesh.TextureCoordinates, True)))
                 Dim musGM3 = New GeometryModel3D With {
-                    .Geometry = musMesh,
-                    .Material = musMat,
-                    .BackMaterial = musMat
-                }
+                        .Geometry = musMesh,
+                        .Material = musMat,
+                        .BackMaterial = musMat
+                        }
                 modelGroup.Children.Add(musGM3)
             End If
             If beaMesh IsNot Nothing Then
                 Dim beaMat = New DiffuseMaterial(New ImageBrush(CropBitmapByUV(xbi, beaMesh.TextureCoordinates, True)))
                 Dim beaGM3 = New GeometryModel3D With {
-                    .Geometry = beaMesh,
-                    .Material = beaMat,
-                    .BackMaterial = beaMat
-                }
+                        .Geometry = beaMesh,
+                        .Material = beaMat,
+                        .BackMaterial = beaMat
+                        }
                 modelGroup.Children.Add(beaGM3)
             End If
             If eyeMesh IsNot Nothing Then
                 Dim eyeMat = New DiffuseMaterial(New ImageBrush(CropBitmapByUV(xbi, eyeMesh.TextureCoordinates)))
                 Dim eyeGM3 = New GeometryModel3D With {
-                    .Geometry = eyeMesh,
-                    .Material = eyeMat,
-                    .BackMaterial = eyeMat
-                }
+                        .Geometry = eyeMesh,
+                        .Material = eyeMat,
+                        .BackMaterial = eyeMat
+                        }
                 modelGroup.Children.Add(eyeGM3)
             End If
             If bodMesh IsNot Nothing Then
                 Dim bodMat = New DiffuseMaterial(New ImageBrush(CropBitmapByUV(xbi, bodMesh.TextureCoordinates, True)))
                 Dim bodGM3 = New GeometryModel3D With {
-                    .Geometry = bodMesh,
-                    .Material = bodMat,
-                    .BackMaterial = bodMat
-                }
+                        .Geometry = bodMesh,
+                        .Material = bodMat,
+                        .BackMaterial = bodMat
+                        }
                 modelGroup.Children.Add(bodGM3)
             End If
             If hanMesh IsNot Nothing Then
                 Dim hanMat = New DiffuseMaterial(New ImageBrush(CropBitmapByUV(xbi, hanMesh.TextureCoordinates)))
                 Dim hanGM3 = New GeometryModel3D With {
-                    .Geometry = hanMesh,
-                    .Material = hanMat,
-                    .BackMaterial = hanMat
-                }
+                        .Geometry = hanMesh,
+                        .Material = hanMat,
+                        .BackMaterial = hanMat
+                        }
                 modelGroup.Children.Add(hanGM3)
             End If
             If feeMesh IsNot Nothing Then
                 Dim feeMat = New DiffuseMaterial(New ImageBrush(CropBitmapByUV(xbi, feeMesh.TextureCoordinates)))
                 Dim feeGM3 = New GeometryModel3D With {
-                    .Geometry = feeMesh,
-                    .Material = feeMat,
-                    .BackMaterial = feeMat
-                }
+                        .Geometry = feeMesh,
+                        .Material = feeMat,
+                        .BackMaterial = feeMat
+                        }
                 modelGroup.Children.Add(feeGM3)
             End If
             If bacMesh IsNot Nothing Then
                 Dim bacMat = New DiffuseMaterial(New ImageBrush(CropBitmapByUV(xbi, bacMesh.TextureCoordinates, True)))
                 Dim bacGM3 = New GeometryModel3D With {
-                    .Geometry = bacMesh,
-                    .Material = bacMat,
-                    .BackMaterial = bacMat
-                }
+                        .Geometry = bacMesh,
+                        .Material = bacMat,
+                        .BackMaterial = bacMat
+                        }
                 modelGroup.Children.Add(bacGM3)
             End If
             If shoMesh IsNot Nothing Then
                 Dim shoMat = New DiffuseMaterial(New ImageBrush(CropBitmapByUV(xbi, shoMesh.TextureCoordinates)))
                 Dim shoGM3 = New GeometryModel3D With {
-                    .Geometry = shoMesh,
-                    .Material = shoMat,
-                    .BackMaterial = shoMat
-                }
+                        .Geometry = shoMesh,
+                        .Material = shoMat,
+                        .BackMaterial = shoMat
+                        }
                 modelGroup.Children.Add(shoGM3)
             End If
             If vanMesh IsNot Nothing Then
                 Dim vanMat = New DiffuseMaterial(New ImageBrush(CropBitmapByUV(xbi, vanMesh.TextureCoordinates)))
                 Dim vanGM3 = New GeometryModel3D With {
-                    .Geometry = vanMesh,
-                    .Material = vanMat,
-                    .BackMaterial = vanMat
-                }
+                        .Geometry = vanMesh,
+                        .Material = vanMat,
+                        .BackMaterial = vanMat
+                        }
                 modelGroup.Children.Add(vanGM3)
             End If
 
@@ -939,11 +991,15 @@ Public Class GrpBrowser
             Dim baseModel = (crt.EEN2.skl & ".b3d").ToLower()
             Dim baseB3D = New B3DModel(getFileBytes(fullNameToGlobalIndex(baseModel)))
             Dim baseMesh = B3DToNoMatMesh(baseB3D)
-            Dim baseTex = If(crt.EEN2.EEOV.s4 <> "", crt.EEN2.EEOV.s4.Replace(".dds", ".tga").ToLower(), baseB3D.texName.ToLower())
+            Dim baseTex =
+                    If _
+                    (crt.EEN2.EEOV.s4 <> "", crt.EEN2.EEOV.s4.Replace(".dds", ".tga").ToLower(),
+                     baseB3D.texName.ToLower())
             Dim baseMat As DiffuseMaterial
             Try
                 Dim baseImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex(baseTex)))
-                baseMat = New DiffuseMaterial(New ImageBrush(CropBitmapByUV(BitmapToBitmapImage(baseImage), baseMesh.TextureCoordinates, True)))
+                baseMat = New DiffuseMaterial(New ImageBrush(CropBitmapByUV(BitmapToBitmapImage(baseImage),
+                                                                            baseMesh.TextureCoordinates, True)))
             Catch
                 baseMat = New DiffuseMaterial(New SolidColorBrush(Colors.LightSlateGray))
             End Try
@@ -962,35 +1018,48 @@ Public Class GrpBrowser
     ' crops texture to the UV bounds for previewing
     ' necessary due to a weird quirk of HelixToolkit
     ' transparency also disabled by default due to rendering issue
-    Public Function CropBitmapByUV(bitmapImage As BitmapImage, uvCoordinates As PointCollection, Optional trans As Boolean = False) As BitmapImage
+    Public Function CropBitmapByUV(bitmapImage As BitmapImage, uvCoordinates As PointCollection,
+                                   Optional trans As Boolean = False) As BitmapImage
         Dim minX As Double = uvCoordinates.Min(Function(p) p.X)
         Dim minY As Double = uvCoordinates.Min(Function(p) p.Y)
         Dim maxX As Double = uvCoordinates.Max(Function(p) p.X)
         Dim maxY As Double = uvCoordinates.Max(Function(p) p.Y)
 
-        Dim x = minX * bitmapImage.PixelWidth
-        Dim y = minY * bitmapImage.PixelHeight
-        Dim width = (maxX - minX) * bitmapImage.PixelWidth
-        Dim height = (maxY - minY) * bitmapImage.PixelHeight
+        Dim x = minX*bitmapImage.PixelWidth
+        Dim y = minY*bitmapImage.PixelHeight
+        Dim width = (maxX - minX)*bitmapImage.PixelWidth
+        Dim height = (maxY - minY)*bitmapImage.PixelHeight
         Console.WriteLine($"x: {x} y: {y}{vbCrLf}w: {width} h: {height}")
 
         Dim croppedBitmap As New CroppedBitmap(bitmapImage, New Int32Rect(x, y, width, height))
 
-        Dim bitmap As New Bitmap(croppedBitmap.PixelWidth, croppedBitmap.PixelHeight, If(trans, System.Drawing.Imaging.PixelFormat.Format32bppArgb, System.Drawing.Imaging.PixelFormat.Format32bppRgb))
-        Dim bitmapData As System.Drawing.Imaging.BitmapData = bitmap.LockBits(New System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height), System.Drawing.Imaging.ImageLockMode.[WriteOnly], bitmap.PixelFormat)
-        croppedBitmap.CopyPixels(System.Windows.Int32Rect.Empty, bitmapData.Scan0, bitmapData.Height * bitmapData.Stride, bitmapData.Stride)
+        Dim _
+            bitmap As _
+                New Bitmap(croppedBitmap.PixelWidth, croppedBitmap.PixelHeight,
+                           If _
+                              (trans, System.Drawing.Imaging.PixelFormat.Format32bppArgb,
+                               System.Drawing.Imaging.PixelFormat.Format32bppRgb))
+        Dim bitmapData As System.Drawing.Imaging.BitmapData = bitmap.LockBits(
+            New System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height),
+            System.Drawing.Imaging.ImageLockMode.[WriteOnly], bitmap.PixelFormat)
+        croppedBitmap.CopyPixels(System.Windows.Int32Rect.Empty, bitmapData.Scan0, bitmapData.Height*bitmapData.Stride,
+                                 bitmapData.Stride)
         bitmap.UnlockBits(bitmapData)
         Return BitmapToBitmapImage(bitmap)
     End Function
 
     Private Function G3DModelToUsableMesh(g3d As G3DModel) As Model3DGroup
         Dim meshBuilder = New MeshBuilder()
-        Dim cs = 96.0F ' coordinate scale, to roughly match the size of b3d models (not the same as CoordinateScale in models, it's purpose is unknown)
+        Dim cs = 96.0F _
+        ' coordinate scale, to roughly match the size of b3d models (not the same as CoordinateScale in models, it's purpose is unknown)
         For i = 0 To g3d.Model_Faces_Index.Count - 1
             Dim face = g3d.Model_Faces_Index(i)
-            Dim a = New Point3D(g3d.Model_Vertex_Position(face(0)).X / cs, g3d.Model_Vertex_Position(face(0)).Y / cs, g3d.Model_Vertex_Position(face(0)).Z / cs)
-            Dim b = New Point3D(g3d.Model_Vertex_Position(face(1)).X / cs, g3d.Model_Vertex_Position(face(1)).Y / cs, g3d.Model_Vertex_Position(face(1)).Z / cs)
-            Dim c = New Point3D(g3d.Model_Vertex_Position(face(2)).X / cs, g3d.Model_Vertex_Position(face(2)).Y / cs, g3d.Model_Vertex_Position(face(2)).Z / cs)
+            Dim a = New Point3D(g3d.Model_Vertex_Position(face(0)).X/cs, g3d.Model_Vertex_Position(face(0)).Y/cs,
+                                g3d.Model_Vertex_Position(face(0)).Z/cs)
+            Dim b = New Point3D(g3d.Model_Vertex_Position(face(1)).X/cs, g3d.Model_Vertex_Position(face(1)).Y/cs,
+                                g3d.Model_Vertex_Position(face(1)).Z/cs)
+            Dim c = New Point3D(g3d.Model_Vertex_Position(face(2)).X/cs, g3d.Model_Vertex_Position(face(2)).Y/cs,
+                                g3d.Model_Vertex_Position(face(2)).Z/cs)
 
             Dim texA = New Point(g3d.Model_Vertex_Texcoords(face(0)).X, g3d.Model_Vertex_Texcoords(face(0)).Y)
             Dim texB = New Point(g3d.Model_Vertex_Texcoords(face(1)).X, g3d.Model_Vertex_Texcoords(face(1)).Y)
@@ -1007,14 +1076,14 @@ Public Class GrpBrowser
             material = New DiffuseMaterial(New SolidColorBrush(Colors.LightSlateGray))
         End Try
         Dim model = New GeometryModel3D With {
-            .Geometry = mesh,
-            .Material = material,
-            .BackMaterial = material
-        }
+                .Geometry = mesh,
+                .Material = material,
+                .BackMaterial = material
+                }
 
         ' rotate model to match b3ds
         Dim rotateTransform = New RotateTransform3D(New AxisAngleRotation3D(New Vector3D(1, 0, 0), 90))
-        Dim rotateTransform2 = New RotateTransform3D(New AxisAngleRotation3D(New Vector3D(0, 0, 1), -90))
+        Dim rotateTransform2 = New RotateTransform3D(New AxisAngleRotation3D(New Vector3D(0, 0, 1), - 90))
         Dim transformGroup = New Transform3DGroup()
         transformGroup.Children.Add(rotateTransform)
         transformGroup.Children.Add(rotateTransform2)
@@ -1030,9 +1099,12 @@ Public Class GrpBrowser
         Dim meshBuilder = New MeshBuilder()
         For i = 0 To b3d.Model_Faces_Index.Count - 1
             Dim face = b3d.Model_Faces_Index(i)
-            Dim a = New Point3D(b3d.Model_Vertex_Position(face(0)).X, b3d.Model_Vertex_Position(face(0)).Y, b3d.Model_Vertex_Position(face(0)).Z)
-            Dim b = New Point3D(b3d.Model_Vertex_Position(face(1)).X, b3d.Model_Vertex_Position(face(1)).Y, b3d.Model_Vertex_Position(face(1)).Z)
-            Dim c = New Point3D(b3d.Model_Vertex_Position(face(2)).X, b3d.Model_Vertex_Position(face(2)).Y, b3d.Model_Vertex_Position(face(2)).Z)
+            Dim a = New Point3D(b3d.Model_Vertex_Position(face(0)).X, b3d.Model_Vertex_Position(face(0)).Y,
+                                b3d.Model_Vertex_Position(face(0)).Z)
+            Dim b = New Point3D(b3d.Model_Vertex_Position(face(1)).X, b3d.Model_Vertex_Position(face(1)).Y,
+                                b3d.Model_Vertex_Position(face(1)).Z)
+            Dim c = New Point3D(b3d.Model_Vertex_Position(face(2)).X, b3d.Model_Vertex_Position(face(2)).Y,
+                                b3d.Model_Vertex_Position(face(2)).Z)
             Dim texA = New Point(b3d.Model_Vertex_Texcoords(face(0)).X, b3d.Model_Vertex_Texcoords(face(0)).Y)
             Dim texB = New Point(b3d.Model_Vertex_Texcoords(face(1)).X, b3d.Model_Vertex_Texcoords(face(1)).Y)
             Dim texC = New Point(b3d.Model_Vertex_Texcoords(face(2)).X, b3d.Model_Vertex_Texcoords(face(2)).Y)
@@ -1055,10 +1127,10 @@ Public Class GrpBrowser
             material = New DiffuseMaterial(New SolidColorBrush(Colors.LightGreen))
         End If
         Dim model = New GeometryModel3D With {
-            .Geometry = mesh,
-            .Material = material,
-            .BackMaterial = material
-        }
+                .Geometry = mesh,
+                .Material = material,
+                .BackMaterial = material
+                }
 
         'Dim rotateTransform = New RotateTransform3D(New AxisAngleRotation3D(New Vector3D(0, 0, 1), -90))
         'model.Transform = rotateTransform
@@ -1099,7 +1171,8 @@ Public Class GrpBrowser
             Dim material As Material
 
             Try
-                Dim cropped = CropBitmapByUV(GetImageFromName(_8.MAT(i).FileName), mesh.TextureCoordinates, If(_8.MAT(i).FileName.Contains("Flora"), True, False))
+                Dim cropped = CropBitmapByUV(GetImageFromName(_8.MAT(i).FileName), mesh.TextureCoordinates,
+                                             If(_8.MAT(i).FileName.Contains("Flora"), True, False))
                 material = New DiffuseMaterial(New ImageBrush(cropped))
             Catch
                 material = New DiffuseMaterial(New SolidColorBrush(Colors.LightSlateGray))
@@ -1160,20 +1233,23 @@ Public Class GrpBrowser
 
         meshBuilder.Append(newPositions, newIndices, newNormals, newTexcoords)
         Dim newMesh = meshBuilder.ToMesh()
-        Console.WriteLine($"Old Positions: {positions.Count} New Positions: {newPositions.Count}{vbCrLf}Old Indices: {indices.Count} New Indices: {newIndices.Count}{vbCrLf}Old Texcoords: {texcoords.Count} New Texcoords: {newTexcoords.Count}{vbCrLf}Old Normals: {normals.Count} New Normals: {newNormals.Count}")
+        Console.WriteLine(
+            $"Old Positions: {positions.Count} New Positions: {newPositions.Count}{vbCrLf}Old Indices: {indices.Count _
+                             } New Indices: {newIndices.Count}{vbCrLf}Old Texcoords: {texcoords.Count} New Texcoords: { _
+                             newTexcoords.Count}{vbCrLf}Old Normals: {normals.Count} New Normals: {newNormals.Count}")
         Return newMesh
     End Function
 
     Private viewport As New HelixViewport3D() With {
         .CameraRotationMode = CameraRotationMode.Turntable,
         .RotateAroundMouseDownPoint = True
-    }
+        }
 
     Private host As New ElementHost With {
         .Name = "Model Viewer",
         .Dock = DockStyle.Fill,
         .Child = viewport
-    }
+        }
 
     Private model As New ModelVisual3D()
 
@@ -1222,5 +1298,4 @@ Public Class GrpBrowser
     Private Sub DarkSectionPanel2_ControlAdded(sender As Object, e As EventArgs)
         DarkSectionPanel2.SectionHeader = DarkSectionPanel2.Controls(0).Name
     End Sub
-
 End Class

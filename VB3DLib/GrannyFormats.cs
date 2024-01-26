@@ -5,12 +5,11 @@ namespace VB3DLib
 {
     public class GrannyFormats
     {
-        // original file name is granny2.dll but i had to use a different version than the game does.
-        // theoretically it's possible to use the same version but struct info is sourced from a .pdb of this version.
-        [DllImport("granny2.7.0.30.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "_GrannyGetFileInfo@4")]
+        // Van Buren uses v2.1.0.5, which doesn't exist in x64, this is v2.8.0.49.
+        [DllImport("granny2_x64.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "GrannyGetFileInfo")]
         private static extern IntPtr GrannyGetFileInfo(IntPtr file);
 
-        [DllImport("granny2.7.0.30.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "_GrannyReadEntireFileFromMemory@8")]
+        [DllImport("granny2_x64.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "GrannyReadEntireFileFromMemory")]
         private static extern IntPtr GrannyReadEntireFileFromMemory(int memorySize, IntPtr memory);
 
         private static T ReadFromPointerArray<T>(IntPtr ptrArray, int index) where T : struct
@@ -222,7 +221,7 @@ namespace VB3DLib
 
         #region "unmanaged structs"
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_data_type_definition
         {
             public member_type Type;
@@ -236,14 +235,14 @@ namespace VB3DLib
             public uint Ignored__Ignored;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_variant
         {
             public IntPtr Type;
             public IntPtr Object;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_art_tool_info
         {
             public IntPtr FromArtToolName;
@@ -266,7 +265,7 @@ namespace VB3DLib
             public unm_variant ExtendedData;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_exporter_info
         {
             public IntPtr ExporterName;
@@ -277,7 +276,7 @@ namespace VB3DLib
             public unm_variant ExtendedData;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_pixel_layout
         {
             public int BytesPerPixel;
@@ -289,7 +288,7 @@ namespace VB3DLib
             public int[] BitsForComponent;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_texture_mip_level
         {
             public int Stride;
@@ -297,14 +296,14 @@ namespace VB3DLib
             public IntPtr PixelBytes;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_texture_image
         {
             public int MIPLevelCount;
             public IntPtr MIPLevels;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_texture
         {
             public IntPtr FromFileName;
@@ -319,14 +318,14 @@ namespace VB3DLib
             public unm_variant ExtendedData;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_material_map
         {
             public IntPtr Usage;
             public IntPtr Material;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_material
         {
             public IntPtr Name;
@@ -336,7 +335,7 @@ namespace VB3DLib
             public unm_variant ExtendedData;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_transform
         {
             public uint Flags;
@@ -351,7 +350,7 @@ namespace VB3DLib
             public float[] ScaleShear;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_bone
         {
             public IntPtr Name;
@@ -365,7 +364,7 @@ namespace VB3DLib
             public unm_variant ExtendedData;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_skeleton
         {
             public IntPtr Name;
@@ -374,7 +373,7 @@ namespace VB3DLib
             public int LODType;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_vertex_annotation_set
         {
             public IntPtr Name;
@@ -386,7 +385,7 @@ namespace VB3DLib
             public IntPtr VertexAnnotationIndices;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_vertex_data
         {
             public IntPtr VertexType;
@@ -398,7 +397,7 @@ namespace VB3DLib
             public IntPtr VertexAnnotationSets;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_tri_material_group
         {
             public int MaterialIndex;
@@ -406,7 +405,7 @@ namespace VB3DLib
             public int TriCount;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_tri_annotation_set
         {
             public IntPtr Name;
@@ -418,7 +417,7 @@ namespace VB3DLib
             public IntPtr TriAnnotationIndices;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_tri_topology
         {
             public int GroupCount;
@@ -441,7 +440,7 @@ namespace VB3DLib
             public IntPtr TriAnnotationSets;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_morph_target
         {
             public IntPtr ScalarName;
@@ -449,13 +448,13 @@ namespace VB3DLib
             public int DataIsDeltas;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_material_binding
         {
             public IntPtr Material;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_bone_binding
         {
             public IntPtr BoneName;
@@ -470,7 +469,7 @@ namespace VB3DLib
             public IntPtr TriangleIndices;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_mesh
         {
             public IntPtr Name;
@@ -485,13 +484,13 @@ namespace VB3DLib
             public unm_variant ExtendedData;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_model_mesh_binding
         {
             public IntPtr Mesh;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_model
         {
             public IntPtr Name;
@@ -501,14 +500,14 @@ namespace VB3DLib
             public IntPtr MeshBindings;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_curve_data_header
         {
             public byte Format;
             public byte Degree;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_curve_data_da_k32f_c32f
         {
             public unm_curve_data_header CurveDataHeader;
@@ -519,13 +518,13 @@ namespace VB3DLib
             public IntPtr Controls;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_curve2
         {
             public unm_variant CurveData;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_vector_track
         {
             public IntPtr Name;
@@ -534,7 +533,7 @@ namespace VB3DLib
             public unm_curve2 ValueCurve;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_transform_track
         {
             public IntPtr Name;
@@ -544,14 +543,14 @@ namespace VB3DLib
             public unm_curve2 ScaleShearCurve;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_text_track_entry
         {
             public float TimeStamp;
             public IntPtr Text;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_text_track
         {
             public IntPtr Name;
@@ -559,7 +558,7 @@ namespace VB3DLib
             public IntPtr Entries;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_periodic_loop
         {
             public float Radius;
@@ -576,7 +575,7 @@ namespace VB3DLib
             public float[] Axis;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_track_group
         {
             public IntPtr Name;
@@ -599,7 +598,7 @@ namespace VB3DLib
             public unm_variant ExtendedData;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_animation
         {
             public IntPtr Name;
@@ -610,7 +609,7 @@ namespace VB3DLib
             public IntPtr TrackGroups;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_file_info
         {
             public IntPtr ArtToolInfo;
@@ -637,14 +636,14 @@ namespace VB3DLib
             public unm_variant ExtendedData;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_grn_reference
         {
             public uint SectionIndex;
             public uint Offset;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_grn_file_header
         {
             public uint Version;
@@ -665,7 +664,7 @@ namespace VB3DLib
             public uint[] ReservedUnused;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential, Pack=4)]
         internal struct unm_grn_file_magic_value
         {
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
