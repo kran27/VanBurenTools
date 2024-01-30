@@ -140,7 +140,7 @@ Partial Class Editor
         Me.EMEPnud = New AltUI.Controls.DarkNumericUpDown()
         Me.EMEPx = New AltUI.Controls.DarkTextBox()
         Me.EME2tmr = New System.Windows.Forms.Timer(Me.components)
-        Me.MainMenuStrip = New AltUI.Controls.DarkMenuStrip()
+        Me.DarkMainMenuStrip = New AltUI.Controls.DarkMenuStrip()
         Me.FileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.NewToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.AmoToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
@@ -293,7 +293,7 @@ Partial Class Editor
         Me.EMAPgb.SuspendLayout
         Me.EMEPgb.SuspendLayout
         CType(Me.EMEPnud,System.ComponentModel.ISupportInitialize).BeginInit
-        Me.MainMenuStrip.SuspendLayout
+        Me.DarkMainMenuStrip.SuspendLayout
         CType(Me.GWAMsf,System.ComponentModel.ISupportInitialize).BeginInit
         CType(Me.EEN2dgv,System.ComponentModel.ISupportInitialize).BeginInit
         Me.CRTgb.SuspendLayout
@@ -1554,15 +1554,15 @@ Partial Class Editor
         '
         'MainMenuStrip
         '
-        Me.MainMenuStrip.BackColor = System.Drawing.Color.FromArgb(CType(CType(31,Byte),Integer), CType(CType(31,Byte),Integer), CType(CType(32,Byte),Integer))
-        Me.MainMenuStrip.ForeColor = System.Drawing.Color.FromArgb(CType(CType(213,Byte),Integer), CType(CType(213,Byte),Integer), CType(CType(213,Byte),Integer))
-        Me.MainMenuStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileToolStripMenuItem, Me.OptionsToolStripMenuItem, Me.ToolsToolStripMenuItem})
-        Me.MainMenuStrip.Location = New System.Drawing.Point(0, 0)
-        Me.MainMenuStrip.Name = "MainMenuStrip"
-        Me.MainMenuStrip.Padding = New System.Windows.Forms.Padding(3, 2, 0, 2)
-        Me.MainMenuStrip.Size = New System.Drawing.Size(624, 24)
-        Me.MainMenuStrip.TabIndex = 14
-        Me.MainMenuStrip.Text = "DarkMenuStrip1"
+        Me.DarkMainMenuStrip.BackColor = System.Drawing.Color.FromArgb(CType(CType(31,Byte),Integer), CType(CType(31,Byte),Integer), CType(CType(32,Byte),Integer))
+        Me.DarkMainMenuStrip.ForeColor = System.Drawing.Color.FromArgb(CType(CType(213,Byte),Integer), CType(CType(213,Byte),Integer), CType(CType(213,Byte),Integer))
+        Me.DarkMainMenuStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileToolStripMenuItem, Me.OptionsToolStripMenuItem, Me.ToolsToolStripMenuItem})
+        Me.DarkMainMenuStrip.Location = New System.Drawing.Point(0, 0)
+        Me.DarkMainMenuStrip.Name = "DarkMainMenuStrip"
+        Me.DarkMainMenuStrip.Padding = New System.Windows.Forms.Padding(3, 2, 0, 2)
+        Me.DarkMainMenuStrip.Size = New System.Drawing.Size(624, 24)
+        Me.DarkMainMenuStrip.TabIndex = 14
+        Me.DarkMainMenuStrip.Text = "DarkMenuStrip1"
         '
         'FileToolStripMenuItem
         '
@@ -3066,7 +3066,7 @@ Partial Class Editor
         Me.Controls.Add(Me.ITMgb)
         Me.Controls.Add(Me.CRTgb)
         Me.Controls.Add(Me.Mapgb)
-        Me.Controls.Add(Me.MainMenuStrip)
+        Me.Controls.Add(Me.DarkMainMenuStrip)
         Me.CornerStyle = AltUI.Forms.DarkForm.CornerPreference.[Default]
         Me.Icon = CType(resources.GetObject("$this.Icon"),System.Drawing.Icon)
         Me.MaximizeBox = false
@@ -3096,8 +3096,8 @@ Partial Class Editor
         Me.EMEPgb.ResumeLayout(false)
         Me.EMEPgb.PerformLayout
         CType(Me.EMEPnud,System.ComponentModel.ISupportInitialize).EndInit
-        Me.MainMenuStrip.ResumeLayout(false)
-        Me.MainMenuStrip.PerformLayout
+        Me.DarkMainMenuStrip.ResumeLayout(false)
+        Me.DarkMainMenuStrip.PerformLayout
         CType(Me.GWAMsf,System.ComponentModel.ISupportInitialize).EndInit
         CType(Me.EEN2dgv,System.ComponentModel.ISupportInitialize).EndInit
         Me.CRTgb.ResumeLayout(false)
@@ -3232,7 +3232,7 @@ End Sub
     Friend WithEvents Triggernud As DarkNumericUpDown
     Friend WithEvents EPTHpm As DarkButton
     Friend WithEvents EPTHnud As DarkNumericUpDown
-    Friend WithEvents MainMenuStrip As DarkMenuStrip
+    Friend WithEvents DarkMainMenuStrip As DarkMenuStrip
     Friend WithEvents FileToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents NewToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents OpenToolStripMenuItem As ToolStripMenuItem

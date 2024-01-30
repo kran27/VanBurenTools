@@ -1,4 +1,4 @@
-﻿Imports System.Drawing.Imaging
+Imports System.Drawing.Imaging
 Imports System.IO
 Imports System.Numerics
 Imports System.Runtime.InteropServices
@@ -27,6 +27,7 @@ Public Class GrpBrowser
                  "enc", "wmp", "amo", "con", "tok", "b3d", "g3d", "tga", "bmp"}
 
     Public Sub New(filter As String(), Optional previewMode As Boolean = False)
+        InitializeComponent()
         Me.previewMode = previewMode
         If filter IsNot Nothing AndAlso Not filter.Count = 0 Then Me.filter = filter
     End Sub
@@ -185,7 +186,7 @@ Public Class GrpBrowser
             ElseIf ext = "b3d" Then
                 Try
                     Dim b3d = New B3DModel(b)
-                    Dim model = B3DModelToUsableMesh(b3d, filename)
+                    Dim model = B3DModelToUsableMesh(b3d)
                     ' Create an instance of ObjExporter
                     Dim exporter As New ObjExporter()
                     exporter.MaterialsFile = filename & ".mtl"
@@ -230,12 +231,12 @@ Public Class GrpBrowser
             Dim grpname = $"data\{grpnames(packOffsetToIndex(packLoc))}.grp"
             Dim extname = $"{grpnames(packOffsetToIndex(packLoc))}\{filenames(i)}"
             readExtensions(grpname, entries(packOffsetToIndex(packLoc))(localIndex).number,
-                           entries(packOffsetToIndex(packLoc))(localIndex).type, extname)
+                           entries(packOffsetToIndex(packLoc))(localIndex).type)
             fullNameToGlobalIndex.Add((filenames(i) & "." & extensions(i)).ToLower(), i)
         Next
     End Sub
 
-    Private Sub readExtensions(packname As String, filenumber As Integer, filetype As Integer, filename As String)
+    Private Sub readExtensions(packname As String, filenumber As Integer, filetype As Integer)
         Dim fs As FileStream = New FileStream(packname, FileMode.Open, FileAccess.Read)
         Dim br As BinaryReader = New BinaryReader(fs)
         Dim grpHeader As F3GRPHeader
@@ -328,6 +329,7 @@ Public Class GrpBrowser
 
 #End Region
 
+    ' thanks bsimser, i stole this from Van-Buren-Explorer
     Private Function TargaToBitmap(b As Byte()) As Bitmap
         Dim ms = New MemoryStream(b)
         Dim image = Pfim.Pfimage.FromStream(ms)
@@ -352,8 +354,8 @@ Public Class GrpBrowser
                 MsgBox(image.Format.ToString())
         End Select
         ' pin image data as the picture box can outlive the pfim image object
-        ' which, unless pinned, will garbage collect the data array causing image corruption
-        Dim handle = GCHandle.Alloc(image.Data, GCHandleType.Pinned)
+        ' which, unless pinned, will garbage collect the data array causing image corruption (disabled for testing)
+        ' Dim handle = GCHandle.Alloc(image.Data, GCHandleType.Pinned)
         Dim ptr = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0)
         Return New Bitmap(image.Width, image.Height, image.Stride, format, ptr)
     End Function
@@ -438,7 +440,7 @@ Public Class GrpBrowser
                     Dim b3d = New B3DModel(b)
                     Console.WriteLine(b3d.Model_Vertex_Position.Count)
                     Console.WriteLine(b3d.Vertex_Nodes.Count)
-                    Dim mesh = B3DModelToUsableMesh(b3d, selectedNode.Text)
+                    Dim mesh = B3DModelToUsableMesh(b3d)
                     model = New ModelVisual3D() With {.Content = mesh}
                     viewport.Children.Clear()
                     viewport.Children.Add(model)
@@ -486,7 +488,7 @@ Public Class GrpBrowser
                     Catch
                     End Try
                     For Each ent In map.EME2
-                        Dim gInd = 0
+                        Dim gInd As Integer
                         Try
                             gInd = fullNameToGlobalIndex(ent.name.ToLower())
                         Catch
@@ -502,7 +504,7 @@ Public Class GrpBrowser
                             ' EEN2 is the first chunk for all entities, only .CRT requires special processing.
                             Dim gInd2 = fullNameToGlobalIndex(c.skl.ToLower() & ".b3d")
                             Dim b3d = New B3DModel(getFileBytes(gInd2))
-                            m = B3DModelToUsableMesh(b3d, selectedNode.Text)
+                            m = B3DModelToUsableMesh(b3d)
                         End If
 
                         Dim t = New Transform3DGroup()
@@ -553,8 +555,9 @@ Public Class GrpBrowser
                     'End Try
                 Case "gr2", "skl"
                     Dim gr2 = GrannyFormats.ReadFileFromMemory(b)
+                    'MessageBox.Show(gr2.Animations(0).TrackGroups(0).TransformTracks(0).OrientationCurve.Count = gr2.Animations(0).TrackGroups(0).TransformTracks(0).PositionCurve.Count)
                     Console.WriteLine(gr2.FromFileName)
-                    If gr2.Models.Any() Then
+                    If gr2.Models IsNot Nothing Then
                         Dim skl = GetSkeletonModel(gr2.Models(0))
                         model = New ModelVisual3D() With {.Content = skl}
                         viewport.Children.Clear()
@@ -592,10 +595,13 @@ Public Class GrpBrowser
 
     Private Function GetSkeletonModel(m As GrannyFormats.model) As Model3DGroup
         Dim mb As New MeshBuilder
-        Dim baseTranslate = Matrix4x4.CreateTranslation(m.InitialPlacement.Position)
         For Each b As GrannyFormats.bone In m.Skeleton.Bones
+            'Dim animgr2 = GrannyFormats.ReadFileFromMemory(getFileBytes(fullNameToGlobalIndex("HumM_Com_Una_Run_01.gr2".ToLower())))
+            'dim track = animgr2.Animations(0).TrackGroups(0).TransformTracks.Where(Function(x) x.Name = b.Name).FirstOrDefault()
+            'Dim matricks = track.CalculateMatrix(0.4d)
+            'Dim p1 = Vector3.Transform(Vector3.Zero, matricks)
             Dim p1 = b.ActualPosition
-            Dim p2 = New Vector3(0, 0, 0)
+            Dim p2 = Vector3.Zero
             If b.ParentIndex <> - 1 Then
                 p2 = m.Skeleton.Bones(b.ParentIndex).ActualPosition
             End If
@@ -1050,16 +1056,15 @@ Public Class GrpBrowser
 
     Private Function G3DModelToUsableMesh(g3d As G3DModel) As Model3DGroup
         Dim meshBuilder = New MeshBuilder()
-        Dim cs = 96.0F _
-        ' coordinate scale, to roughly match the size of b3d models (not the same as CoordinateScale in models, it's purpose is unknown)
+        Dim sf = 96.0F ' scale factor, to roughly match the size of b3d models
         For i = 0 To g3d.Model_Faces_Index.Count - 1
             Dim face = g3d.Model_Faces_Index(i)
-            Dim a = New Point3D(g3d.Model_Vertex_Position(face(0)).X/cs, g3d.Model_Vertex_Position(face(0)).Y/cs,
-                                g3d.Model_Vertex_Position(face(0)).Z/cs)
-            Dim b = New Point3D(g3d.Model_Vertex_Position(face(1)).X/cs, g3d.Model_Vertex_Position(face(1)).Y/cs,
-                                g3d.Model_Vertex_Position(face(1)).Z/cs)
-            Dim c = New Point3D(g3d.Model_Vertex_Position(face(2)).X/cs, g3d.Model_Vertex_Position(face(2)).Y/cs,
-                                g3d.Model_Vertex_Position(face(2)).Z/cs)
+            Dim a = New Point3D(g3d.Model_Vertex_Position(face(0)).X/sf, g3d.Model_Vertex_Position(face(0)).Y/sf,
+                                g3d.Model_Vertex_Position(face(0)).Z/sf)
+            Dim b = New Point3D(g3d.Model_Vertex_Position(face(1)).X/sf, g3d.Model_Vertex_Position(face(1)).Y/sf,
+                                g3d.Model_Vertex_Position(face(1)).Z/sf)
+            Dim c = New Point3D(g3d.Model_Vertex_Position(face(2)).X/sf, g3d.Model_Vertex_Position(face(2)).Y/sf,
+                                g3d.Model_Vertex_Position(face(2)).Z/sf)
 
             Dim texA = New Point(g3d.Model_Vertex_Texcoords(face(0)).X, g3d.Model_Vertex_Texcoords(face(0)).Y)
             Dim texB = New Point(g3d.Model_Vertex_Texcoords(face(1)).X, g3d.Model_Vertex_Texcoords(face(1)).Y)
@@ -1113,7 +1118,7 @@ Public Class GrpBrowser
         Return OptimizeMesh(meshBuilder)
     End Function
 
-    Private Function B3DModelToUsableMesh(b3d As B3DModel, fn As String) As Model3DGroup
+    Private Function B3DModelToUsableMesh(b3d As B3DModel) As Model3DGroup
         Dim mesh = B3DToNoMatMesh(b3d)
         Dim material As Material
         If b3d.texName <> "" Then
@@ -1253,11 +1258,6 @@ Public Class GrpBrowser
 
     Private model As New ModelVisual3D()
 
-    Private Sub LoadModel(objFileLocation As String)
-        Dim reader = New ObjReader()
-        model = New ModelVisual3D() With {.Content = reader.Read(objFileLocation)}
-    End Sub
-
     Private Sub GrpBrowser_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         InitializeComponent()
         Refresh()
@@ -1295,7 +1295,7 @@ Public Class GrpBrowser
         extractFile(fullNameToGlobalIndex(selectedNode.Text.ToLower()), True)
     End Sub
 
-    Private Sub DarkSectionPanel2_ControlAdded(sender As Object, e As EventArgs)
+    Private Sub DarkSectionPanel2_ControlAdded(sender As Object, e As EventArgs) Handles DarkSectionPanel2.ControlAdded
         DarkSectionPanel2.SectionHeader = DarkSectionPanel2.Controls(0).Name
     End Sub
 End Class

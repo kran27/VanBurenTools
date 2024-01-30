@@ -5,7 +5,6 @@ Imports AltUI.Config
 Imports AltUI.Config.ThemeProvider
 
 Public Class ModLoader
-
     Private modList As New List(Of ModInfo)
     Private bArray As String()
 
@@ -21,8 +20,8 @@ Public Class ModLoader
                         Dim description = iniData.Ini("Info", "Description", KeyType.Multiline)
                         Dim version = iniData.Ini("Info", "Version")
                         Dim entries = (From ent In zip.Entries
-                                       Where ent.Name.ToLower() <> "mod.info"
-                                       Select ent.Name).ToList()
+                                Where ent.Name.ToLower() <> "mod.info"
+                                Select ent.Name).ToList()
                         modList.Add(New ModInfo(mname, description, version, New FileInfo(file.FullName), entries))
                     End Using
                     Exit For
@@ -62,8 +61,9 @@ Public Class ModLoader
 
         Sub New(Name As String, Description As String, Version As String, Zip As FileInfo, Entries As List(Of String))
             Me.Name = Name
-            Me.Conflict = ConflictStatus.Clear
-            Me.Priority = 0
+            Conflict = ConflictStatus.Clear
+            Priority = 0
+            Me.Zip = Zip
             Me.Description = Description
             Me.Version = Version
             Me.Entries = Entries
@@ -75,7 +75,6 @@ Public Class ModLoader
             out.SubItems.Add(Priority)
             Return out
         End Function
-
     End Class
 
     Private Enum ConflictStatus
@@ -97,15 +96,15 @@ Public Class ModLoader
     End Sub
 
     Private Sub ListView1_DragLeave(sender As Object, e As EventArgs) Handles ListView1.DragLeave
-        ListView1.InsertionMark.Index = -1
+        ListView1.InsertionMark.Index = - 1
     End Sub
 
     Private Sub ListView1_DragOver(sender As Object, e As DragEventArgs) Handles ListView1.DragOver
         Dim targetPoint As Point = ListView1.PointToClient(New Point(e.X, e.Y))
         Dim targetIndex As Integer = ListView1.InsertionMark.NearestIndex(targetPoint)
-        If targetIndex > -1 Then
+        If targetIndex > - 1 Then
             Dim itemBounds As Rectangle = ListView1.GetItemRect(targetIndex)
-            If targetPoint.Y > itemBounds.Top + (itemBounds.Height \ 2) Then
+            If targetPoint.Y > itemBounds.Top + (itemBounds.Height\2) Then
                 ListView1.InsertionMark.AppearsAfterItem = True
             Else
                 ListView1.InsertionMark.AppearsAfterItem = False
@@ -116,7 +115,7 @@ Public Class ModLoader
 
     Private Sub ListView1_DragDrop(sender As Object, e As DragEventArgs) Handles ListView1.DragDrop
         Dim targetIndex As Integer = ListView1.InsertionMark.Index
-        If targetIndex = -1 Then
+        If targetIndex = - 1 Then
             Return
         End If
         If ListView1.InsertionMark.AppearsAfterItem Then
@@ -140,18 +139,22 @@ Public Class ModLoader
 
 #Region "Paint"
 
-    Private Sub ListView1_DrawColumnHeader(sender As Object, e As DrawListViewColumnHeaderEventArgs) Handles ListView1.DrawColumnHeader
+    Private Sub ListView1_DrawColumnHeader(sender As Object, e As DrawListViewColumnHeaderEventArgs) _
+        Handles ListView1.DrawColumnHeader
         Using txtbrsh As New SolidBrush(Theme.Colors.LightText)
             e.Graphics.FillRectangle(New SolidBrush(BackgroundColour), e.Bounds)
             e.Graphics.DrawString(e.Header.Text, e.Font, txtbrsh,
-                                  CInt(e.Bounds.Left + (e.Bounds.Width / 2) - (e.Graphics.MeasureString(e.Header.Text, e.Font).Width / 2)),
+                                  CInt(
+                                      e.Bounds.Left + (e.Bounds.Width/2) -
+                                      (e.Graphics.MeasureString(e.Header.Text, e.Font).Width/2)),
                                   e.Bounds.Top + 5)
 
             e.Graphics.DrawLine(New Pen(Theme.Colors.GreySelection, 1), e.Bounds.Left, e.Bounds.Top, e.Bounds.Right,
                                 e.Bounds.Top)
 
             If e.Header.DisplayIndex = 1 Then
-                e.Graphics.DrawLine(New Pen(Theme.Colors.GreySelection, 1), e.Bounds.Left, e.Bounds.Top + 3, e.Bounds.Left,
+                e.Graphics.DrawLine(New Pen(Theme.Colors.GreySelection, 1), e.Bounds.Left, e.Bounds.Top + 3,
+                                    e.Bounds.Left,
                                     e.Bounds.Bottom - 3)
                 e.Graphics.DrawLine(New Pen(Theme.Colors.GreySelection, 1), e.Bounds.Right - 1, e.Bounds.Top + 3,
                                     e.Bounds.Right - 1, e.Bounds.Bottom - 3)
@@ -159,7 +162,8 @@ Public Class ModLoader
         End Using
     End Sub
 
-    Private Sub ListView1_DrawSubItem(ByVal sender As Object, e As DrawListViewSubItemEventArgs) Handles ListView1.DrawSubItem
+    Private Sub ListView1_DrawSubItem(ByVal sender As Object, e As DrawListViewSubItemEventArgs) _
+        Handles ListView1.DrawSubItem
         Using txtbrsh As New SolidBrush(Theme.Colors.LightText)
             If ListView1.SelectedIndices.Contains(e.ItemIndex) And ListView1.Focused Then
                 e.Graphics.FillRectangle(New SolidBrush(Theme.Colors.BlueHighlight), e.Bounds)
@@ -179,12 +183,12 @@ Public Class ModLoader
                 Dim fillColor = If(e.Item.Checked, Theme.Colors.LightestBackground, Theme.Colors.GreyBackground)
 
                 Using b = New SolidBrush(Theme.Colors.LightBackground)
-                    Dim boxRect = New Rectangle(e.Bounds.Left + 2, e.Bounds.Top + (rect.Height \ 2) - (size / 2), size, size)
+                    Dim boxRect = New Rectangle(e.Bounds.Left + 2, e.Bounds.Top + (rect.Height\2) - (size/2), size, size)
                     g.FillRoundedRectangle(b, boxRect, 2)
                 End Using
 
                 Using p = New Pen(borderColor)
-                    Dim boxRect = New Rectangle(e.Bounds.Left + 2, e.Bounds.Top + (rect.Height \ 2) - (size / 2), size, size)
+                    Dim boxRect = New Rectangle(e.Bounds.Left + 2, e.Bounds.Top + (rect.Height\2) - (size/2), size, size)
                     g.DrawRoundedRectangle(p, boxRect, 2)
                 End Using
 
@@ -200,20 +204,20 @@ Public Class ModLoader
                 End Using
             ElseIf e.Item.SubItems(1) Is e.SubItem Then
                 If e.Item.Checked Then
-                    Using _
-                    sf As _
-                        New StringFormat _
-                            With {.Alignment = StringAlignment.Near, .LineAlignment = StringAlignment.Center,
-                                .FormatFlags = StringFormatFlags.NoWrap, .Trimming = StringTrimming.EllipsisCharacter}
-                        e.Graphics.DrawImage(My.Resources.ResourceManager.GetObject($"conflict_{e.SubItem.Text.ToLower()}"),
-                                         e.Bounds.Left + (e.Bounds.Width / 2.0F) - 8, e.Bounds.Top, 16, 16)
+                    Using sf As New StringFormat _
+                        With {.Alignment = StringAlignment.Near, .LineAlignment = StringAlignment.Center,
+                            .FormatFlags = StringFormatFlags.NoWrap, .Trimming = StringTrimming.EllipsisCharacter}
+                        e.Graphics.DrawImage(
+                            My.Resources.ResourceManager.GetObject($"conflict_{e.SubItem.Text.ToLower()}"),
+                            e.Bounds.Left + (e.Bounds.Width/2.0F) - 8, e.Bounds.Top, 16, 16)
                     End Using
                 End If
             ElseIf e.Item.SubItems(2) Is e.SubItem Then
                 If e.Item.Checked Then
                     e.Graphics.DrawString(e.SubItem.Text, e.Item.Font, txtbrsh,
-                                  CInt(e.Bounds.Left + (e.Bounds.Width / 2)) - (e.Graphics.MeasureString(e.SubItem.Text, e.SubItem.Font).Width / 2),
-                                  e.Bounds.Top + 2)
+                                          CInt(e.Bounds.Left + (e.Bounds.Width/2)) -
+                                          (e.Graphics.MeasureString(e.SubItem.Text, e.SubItem.Font).Width/2),
+                                          e.Bounds.Top + 2)
                 End If
             Else
                 e.DrawDefault = True
@@ -222,11 +226,13 @@ Public Class ModLoader
         End Using
     End Sub
 
-    Private Shared Sub ToolStripLabel_MouseEnter(sender As Object, e As EventArgs) Handles ToolStripLabel2.MouseEnter, ToolStripLabel3.MouseEnter
+    Private Shared Sub ToolStripLabel_MouseEnter(sender As Object, e As EventArgs) _
+        Handles ToolStripLabel2.MouseEnter, ToolStripLabel3.MouseEnter
         sender.ForeColor = Theme.Colors.BlueHighlight
     End Sub
 
-    Private Shared Sub ToolStripLabel_MouseLeave(sender As Object, e As EventArgs) Handles ToolStripLabel2.MouseLeave, ToolStripLabel3.MouseLeave
+    Private Shared Sub ToolStripLabel_MouseLeave(sender As Object, e As EventArgs) _
+        Handles ToolStripLabel2.MouseLeave, ToolStripLabel3.MouseLeave
         sender.ForeColor = Theme.Colors.LightText
     End Sub
 
@@ -256,18 +262,18 @@ Public Class ModLoader
 
         Protected Overrides Sub OnHandleCreated(e As EventArgs)
             MyBase.OnHandleCreated(e)
-            Application.VisualStyleState = System.Windows.Forms.VisualStyles.VisualStyleState.ClientAndNonClientAreasEnabled
+            Application.VisualStyleState =
+                System.Windows.Forms.VisualStyles.VisualStyleState.ClientAndNonClientAreasEnabled
         End Sub
-
     End Class
 
 #End Region
 
     Private Sub SizeAdjust()
-        Dim sz As Integer = ListView1.Width / 4
-        ListView1.Columns(0).Width = sz * 2
+        Dim sz As Integer = ListView1.Width/4
+        ListView1.Columns(0).Width = sz*2
         ListView1.Columns(1).Width = sz
-        ListView1.Columns(2).Width = sz + (ListView1.Width - sz * 4)
+        ListView1.Columns(2).Width = sz + (ListView1.Width - sz*4)
     End Sub
 
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
@@ -304,8 +310,12 @@ Public Class ModLoader
             End Try
 
             Dim cfs
-            Dim overwrites = modList(i).Entries.Any(Function(s) s.Equals("English.stf", StringComparison.OrdinalIgnoreCase) AndAlso lpe.Contains(s))
-            Dim overwritten = modList(i).Entries.Any(Function(s) s.Equals("English.stf", StringComparison.OrdinalIgnoreCase) AndAlso hpe.Contains(s))
+            Dim overwrites =
+                    modList(i).Entries.Any(
+                        Function(s) s.Equals("English.stf", StringComparison.OrdinalIgnoreCase) AndAlso lpe.Contains(s))
+            Dim overwritten =
+                    modList(i).Entries.Any(
+                        Function(s) s.Equals("English.stf", StringComparison.OrdinalIgnoreCase) AndAlso hpe.Contains(s))
             If overwrites AndAlso overwritten Then
                 cfs = ConflictStatus.Mixed
                 modList(i).Conflict = cfs
@@ -319,7 +329,9 @@ Public Class ModLoader
                 cfs = ConflictStatus.Clear
                 modList(i).Conflict = cfs
             End If
-            Dim redundant = modList(i).Entries.Where(Function(s) s.Equals("English.stf", StringComparison.OrdinalIgnoreCase)).All(Function(s) hpe.Contains(s))
+            Dim redundant =
+                    modList(i).Entries.Where(Function(s) s.Equals("English.stf", StringComparison.OrdinalIgnoreCase)).
+                    All(Function(s) hpe.Contains(s))
             If redundant Then
                 cfs = ConflictStatus.Redundant
                 modList(i).Conflict = cfs
@@ -331,13 +343,15 @@ Public Class ModLoader
         ToolStripLabel1.Text = $"Active: {ListView1.CheckedItems.Count}"
     End Sub
 
-    Private Sub EnableAllToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles EnableAllToolStripMenuItem.Click
+    Private Sub EnableAllToolStripMenuItem_Click(sender As Object, e As EventArgs) _
+        Handles EnableAllToolStripMenuItem.Click
         For Each itm As ListViewItem In ListView1.Items
             itm.Checked = True
         Next
     End Sub
 
-    Private Sub DisableAllToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles DisableAllToolStripMenuItem.Click
+    Private Sub DisableAllToolStripMenuItem_Click(sender As Object, e As EventArgs) _
+        Handles DisableAllToolStripMenuItem.Click
         For Each itm As ListViewItem In ListView1.Items
             itm.Checked = False
         Next
@@ -437,7 +451,9 @@ Public Class ModLoader
                             Dim tmpDir = "Mods\tmp"
                             Directory.CreateDirectory(tmpDir)
                             For Each entry2 As ZipArchiveEntry In zip.Entries
-                                If Not entry2.Name.ToLower() = "english.stf" AndAlso Not entry2.Name.ToLower() = "mod.info" Then
+                                If _
+                                    Not entry2.Name.ToLower() = "english.stf" AndAlso
+                                    Not entry2.Name.ToLower() = "mod.info" Then
                                     entry2.ExtractToFile(Path.Combine(tmpDir, entry2.Name), True)
                                 End If
                             Next
@@ -453,5 +469,4 @@ Public Class ModLoader
             End If
         Next
     End Sub
-
 End Class

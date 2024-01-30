@@ -4,8 +4,34 @@ Imports AltUI.Config
 Imports VBLauncher.VideoInfo
 
 Public Class Options
-    Private ReadOnly MainMenus As MainMenuDef() = {MMD("mainmenu.map", 0, 5.5, 0, 2, 0.75, 59.2), MMD("zz_TestMapsaarontemp2.map", 0, 0, 0, 0, 0, 0), MMD("zz_TestMapsTest_City_Building01.map", 0, 5.5, 0, 45, -2.5, 57), MMD("zz_TestMapsTest_City_Building02.map", 0, 5.5, 0, 43, -2.5, 57), MMD("zz_TestMapsTest_City_Building03.map", 0, 5.5, 0, 43, -5, 57), MMD("zz_TestMapsTest_City_Building04.map", 0, 5.5, 0, 43, -5.5, 57), MMD("98_Canyon_Random_01.map", 50, 5, 10, 61, 0, 45), MMD("98_Canyon_Random_02.map", 55, 5, 10, 36, -2.5, 50), MMD("04_0202_Spelunking.map", 70, 5, 45, 15, 5, 50), MMD("zz_TestMapsTest_City_Fences.map", 0, 40, 0, 42, 35, 50), MMD("zz_TestMapsScottE_Test1.map", 85, 30, 30, 255, 39, 60), MMD("zz_TestMapsScottE_Test2.map", 145, 80, -85, 0.5, 25, 75), MMD("zz_TestMapsScottE_Test4.map", 0, 7.5, 0, 45, 12.5, 50), MMD("zz_TestMapsTest_Junktown_Shacks.map", 0, 50, -10, 42, 39, 50), MMD("Default_StartMap.map", 60, 7.5, 25, 270, 8, 27), MMD("00_03_Tutorial_Junktown.map", 80, 7.5, 50, 5, 10, 68), MMD("00_04_Tutorial_Vault.map", 50, 50.5, 0, 36, 25, 68)}
-    Private ReadOnly Maps As String() = {"mainmenu.map", "zz_TestMapsaarontemp2.map", "zz_TestMapsTest_City_Building01.map", "zz_TestMapsTest_City_Building02.map", "zz_TestMapsTest_City_Building03.map", "zz_TestMapsTest_City_Building04.map", "98_Canyon_Random_01.map", "98_Canyon_Random_02.map", "04_0202_Spelunking.map", "zz_TestMapsTest_City_Fences.map", "zz_TestMapsScottE_Test1.map", "zz_TestMapsScottE_Test2.map", "zz_TestMapsScottE_Test4.map", "zz_TestMapsTest_Junktown_Shacks.map", "Default_StartMap.map", "00_03_Tutorial_Junktown.map", "00_04_Tutorial_Vault.map"}
+    Private ReadOnly _
+        MainMenus As MainMenuDef() =
+            {MMD("mainmenu.map", 0, 5.5, 0, 2, 0.75, 59.2), MMD("zz_TestMapsaarontemp2.map", 0, 0, 0, 0, 0, 0),
+             MMD("zz_TestMapsTest_City_Building01.map", 0, 5.5, 0, 45, - 2.5, 57),
+             MMD("zz_TestMapsTest_City_Building02.map", 0, 5.5, 0, 43, - 2.5, 57),
+             MMD("zz_TestMapsTest_City_Building03.map", 0, 5.5, 0, 43, - 5, 57),
+             MMD("zz_TestMapsTest_City_Building04.map", 0, 5.5, 0, 43, - 5.5, 57),
+             MMD("98_Canyon_Random_01.map", 50, 5, 10, 61, 0, 45),
+             MMD("98_Canyon_Random_02.map", 55, 5, 10, 36, - 2.5, 50),
+             MMD("04_0202_Spelunking.map", 70, 5, 45, 15, 5, 50),
+             MMD("zz_TestMapsTest_City_Fences.map", 0, 40, 0, 42, 35, 50),
+             MMD("zz_TestMapsScottE_Test1.map", 85, 30, 30, 255, 39, 60),
+             MMD("zz_TestMapsScottE_Test2.map", 145, 80, - 85, 0.5, 25, 75),
+             MMD("zz_TestMapsScottE_Test4.map", 0, 7.5, 0, 45, 12.5, 50),
+             MMD("zz_TestMapsTest_Junktown_Shacks.map", 0, 50, - 10, 42, 39, 50),
+             MMD("Default_StartMap.map", 60, 7.5, 25, 270, 8, 27),
+             MMD("00_03_Tutorial_Junktown.map", 80, 7.5, 50, 5, 10, 68),
+             MMD("00_04_Tutorial_Vault.map", 50, 50.5, 0, 36, 25, 68)}
+
+    Private ReadOnly _
+        Maps As String() =
+            {"mainmenu.map", "zz_TestMapsaarontemp2.map", "zz_TestMapsTest_City_Building01.map",
+             "zz_TestMapsTest_City_Building02.map", "zz_TestMapsTest_City_Building03.map",
+             "zz_TestMapsTest_City_Building04.map", "98_Canyon_Random_01.map", "98_Canyon_Random_02.map",
+             "04_0202_Spelunking.map", "zz_TestMapsTest_City_Fences.map", "zz_TestMapsScottE_Test1.map",
+             "zz_TestMapsScottE_Test2.map", "zz_TestMapsScottE_Test4.map", "zz_TestMapsTest_Junktown_Shacks.map",
+             "Default_StartMap.map", "00_03_Tutorial_Junktown.map", "00_04_Tutorial_Vault.map"}
+
     Private dgV2Conf() As String
     Private ReadOnly AAModes As String() = {"off", "2x", "4x", "8x"}
     Private ReadOnly FModes As String() = {"appdriven", "pointsampled", "Linearmip", "2", "4", "8", "16"}
@@ -25,8 +51,12 @@ Public Class Options
         SysIni.Ini("Mainmenu", "fov", MMD.FOV)
     End Sub
 
-    Private Shared Function MMD(MapName As String, TargetX As String, TargetY As String, TargetZ As String, Azimuth As String, Elevation As String, FOV As String) As MainMenuDef
-        Return New MainMenuDef With {.MapName = MapName, .TargetX = TargetX, .TargetY = TargetY, .TargetZ = TargetZ, .Azimuth = Azimuth, .Elevation = Elevation, .FOV = FOV}
+    Private Shared Function MMD(MapName As String, TargetX As String, TargetY As String, TargetZ As String,
+                                Azimuth As String, Elevation As String, FOV As String) As MainMenuDef
+        Return _
+            New MainMenuDef _
+                With {.MapName = MapName, .TargetX = TargetX, .TargetY = TargetY, .TargetZ = TargetZ, .Azimuth = Azimuth,
+                    .Elevation = Elevation, .FOV = FOV}
     End Function
 
     Private Sub CheckOptions(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -70,15 +100,18 @@ Public Class Options
         AACB.SelectedIndex = AAModes.ToList.IndexOf(dgV2Conf.Ini("DirectX", "Antialiasing"))
         TextureCB.SelectedIndex = FModes.ToList.IndexOf(dgV2Conf.Ini("DirectX", "Filtering"))
         SSFCB.SelectedIndex = SSModes.ToList.IndexOf(dgV2Conf.Ini("DirectX", "Resolution"))
-        Try : MipmapCB.Checked = Not Boolean.Parse(dgV2Conf.Ini("DirectX", "DisableMipmapping")) : Catch : End Try
-        Try : PhongCB.Checked = Boolean.Parse(dgV2Conf.Ini("DirectX", "PhongShadingWhenPossible")) : Catch : End Try
+        Try : MipmapCB.Checked = Not Boolean.Parse(dgV2Conf.Ini("DirectX", "DisableMipmapping")) :
+        Catch :
+        End Try
+        Try : PhongCB.Checked = Boolean.Parse(dgV2Conf.Ini("DirectX", "PhongShadingWhenPossible")) :
+        Catch :
+        End Try
         LoadKeybinds(sender, e)
     End Sub
 
     Private Sub LoadKeybinds(sender As Object, e As EventArgs) Handles DarkButton2.Click
         DarkLabel1.Hide()
         DarkScrollBar1.BringToFront()
-        Dim modifiers As String() = {"Ctrl", "Shift", "Alt"}
         Dim BindString = F3Ini.GetSection("HotKeys")
         Dim Binds As New List(Of Keybind)
         For Each s In BindString
@@ -100,7 +133,6 @@ Public Class Options
                 End If
             End If
         Next
-        Dim i = 0
 
         Dim dt As New DataTable
 
@@ -110,13 +142,16 @@ Public Class Options
         dt.Columns.Add("On Key")
         For Each bind In Binds
             dt.Rows.Add(bind.Modifier, bind.Key, bind.Action, If(bind.OnPress, "Down", "Up"))
-            i += 1
         Next
         DataGridView1.GridColor = ThemeProvider.Theme.Colors.GreySelection
         DataGridView1.BackgroundColor = ThemeProvider.Theme.Colors.LightBackground
         DarkScrollBar1.BackColor = ThemeProvider.Theme.Colors.LightBackground
         DataGridView1.DefaultCellStyle.WrapMode = DataGridViewTriState.True
-        Dim cellStyle = New DataGridViewCellStyle With {.BackColor = ThemeProvider.Theme.Colors.LightBackground, .ForeColor = ThemeProvider.Theme.Colors.LightText, .SelectionBackColor = ThemeProvider.Theme.Colors.BlueSelection, .SelectionForeColor = ThemeProvider.Theme.Colors.LightText}
+        Dim cellStyle = New DataGridViewCellStyle _
+                With {.BackColor = ThemeProvider.Theme.Colors.LightBackground,
+                .ForeColor = ThemeProvider.Theme.Colors.LightText,
+                .SelectionBackColor = ThemeProvider.Theme.Colors.BlueSelection,
+                .SelectionForeColor = ThemeProvider.Theme.Colors.LightText}
         DataGridView1.DefaultCellStyle = cellStyle
         DataGridView1.ColumnHeadersDefaultCellStyle = cellStyle
         DataGridView1.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single
@@ -185,7 +220,8 @@ Public Class Options
         Dim index = SSFCB.SelectedIndex
         Dim res = StrToRes(ResolutionCB.Text)
         SSFCB.Items.Clear()
-        Dim resolutions() As String = {ResToStr(res, False), ResToStr(res, False, 2), ResToStr(res, False, 3), ResToStr(res, False, 4)}
+        Dim resolutions() As String =
+                {ResToStr(res, False), ResToStr(res, False, 2), ResToStr(res, False, 3), ResToStr(res, False, 4)}
         SSFCB.Items.AddRange(resolutions)
         SSFCB.SelectedIndex = index
     End Sub
@@ -203,16 +239,8 @@ Public Class Options
         End If
     End Function
 
-    Private Function KeybindToStr(kb As Keybind) As String
-        Dim ch As String = If(kb.OnPress, "+", "-")
-        If kb.Modifier = "" Then
-            Return $"{ch}{kb.Key} = {kb.Action}"
-        Else
-            Return $"{ch}{kb.Modifier}{ch}{kb.Key} = {kb.Action}"
-        End If
-    End Function
-
-    Private Sub DataGridView1_CellContentClick(sender As Object, e As DataGridViewCellEventArgs) Handles DataGridView1.CellClick
+    Private Sub DataGridView1_CellContentClick(sender As Object, e As DataGridViewCellEventArgs) _
+        Handles DataGridView1.CellClick
         If e.RowIndex < 0 Then Exit Sub
         Select Case e.ColumnIndex
             Case 0, 1
@@ -223,15 +251,19 @@ Public Class Options
                 DarkLabel1.Hide()
                 WantKey = False
             Case 3
-                If DataGridView1.Rows(e.RowIndex).Cells(e.ColumnIndex).Value Is DBNull.Value Then DataGridView1.Rows(e.RowIndex).Cells(e.ColumnIndex).Value = "Up"
-                DataGridView1.Rows(e.RowIndex).Cells(e.ColumnIndex).Value = If(DataGridView1.Rows(e.RowIndex).Cells(e.ColumnIndex).Value = "Up", "Down", "Up")
+                If DataGridView1.Rows(e.RowIndex).Cells(e.ColumnIndex).Value Is DBNull.Value Then _
+                    DataGridView1.Rows(e.RowIndex).Cells(e.ColumnIndex).Value = "Up"
+                DataGridView1.Rows(e.RowIndex).Cells(e.ColumnIndex).Value =
+                    If(DataGridView1.Rows(e.RowIndex).Cells(e.ColumnIndex).Value = "Up", "Down", "Up")
                 DarkLabel1.Hide()
                 WantKey = False
         End Select
     End Sub
 
     Private Sub DataGridView1_ScrollChanged(sender As Object, e As EventArgs) Handles DataGridView1.Scroll
-        DarkScrollBar1.ScrollTo((DataGridView1.FirstDisplayedScrollingRowIndex / (DataGridView1.Rows.Count - DataGridView1.DisplayedRowCount(False))) * DarkScrollBar1.Maximum)
+        DarkScrollBar1.ScrollTo(
+            (DataGridView1.FirstDisplayedScrollingRowIndex/
+             (DataGridView1.Rows.Count - DataGridView1.DisplayedRowCount(False)))*DarkScrollBar1.Maximum)
     End Sub
 
     Private Sub DarkScrollBar1_Click(sender As Object, e As EventArgs) Handles DarkScrollBar1.MouseDown
@@ -243,7 +275,9 @@ Public Class Options
     End Sub
 
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
-        DataGridView1.FirstDisplayedScrollingRowIndex = (DarkScrollBar1.Value / (DarkScrollBar1.Maximum)) * (DataGridView1.Rows.Count - DataGridView1.DisplayedRowCount(False))
+        DataGridView1.FirstDisplayedScrollingRowIndex = (DarkScrollBar1.Value/(DarkScrollBar1.Maximum))*
+                                                        (DataGridView1.Rows.Count -
+                                                         DataGridView1.DisplayedRowCount(False))
     End Sub
 
     Private Sub DataGridView1_KeyDown(sender As Object, e As KeyEventArgs) Handles DataGridView1.KeyDown
@@ -259,35 +293,11 @@ Public Class Options
         End Select
     End Sub
 
-    Private Shared Function ProperName(key As String) As String
-        Select Case key
-            Case "D1" : Return "1"
-            Case "D2" : Return "2"
-            Case "D3" : Return "3"
-            Case "D4" : Return "4"
-            Case "D5" : Return "5"
-            Case "D6" : Return "6"
-            Case "D7" : Return "7"
-            Case "D8" : Return "8"
-            Case "D9" : Return "9"
-            Case "D0" : Return "0"
-            Case "Control" : Return "Ctrl"
-            Case "None" : Return ""
-            Case "Oemtilde" : Return "`"
-            Case "Oemminus" : Return "-"
-            Case "Oemplus" : Return "+"
-            Case "OemOpenBrackets" : Return "["
-            Case "Oem6" : Return "]"
-            Case "Oem5" : Return "\"
-            Case "Oem1" : Return ";"
-            Case "Oem7" : Return """"
-            Case "Oemcomma" : Return ","
-            Case "Oemperiod" : Return "."
-            Case "OemQuestion" : Return "/"
-            Case Else : Return key
-        End Select
-    End Function
-
+    Private ProperName = New Dictionary(Of String, String) From
+        {{"D1", "1"}, {"D2", "2"}, {"D3", "3"}, {"D4", "4"}, {"D5", "5"}, {"D6", "6"}, {"D7", "7"}, {"D8", "8"},
+        {"D9", "9"}, {"D0", "0"}, {"Control", "Ctrl"}, {"None", ""}, {"Oemtilde", "`"}, {"Oemminus", "-"},
+        {"Oemplus", "+"}, {"OemOpenBrackets", "["}, {"Oem6", "]"}, {"Oem5", "\"}, {"Oem1", ";"}, {"Oem7", """"},
+        {"Oemcomma", ","}, {"Oemperiod", "."}, {"OemQuestion", "/"}}
 End Class
 
 Public Class MainMenuDef
@@ -312,5 +322,4 @@ Public Class Keybind
         Me.Action = Action
         Me.OnPress = OnPress
     End Sub
-
 End Class

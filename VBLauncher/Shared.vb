@@ -60,7 +60,6 @@ Public Module IniManager
             ' Find comment, if any
             Dim Comment = Nothing
             Try : Comment = KeyValue.Substring(KeyValue.IndexOf(";")) : Catch : End Try
-            If Comment IsNot Nothing Then KeyValue = KeyValue.Substring(0, KeyValue.LastIndexOf(";")).Trim
             'Set to new value
             IniArray(KeyIndex) = Trim($"{IniKey} = {Value} {Comment}")
         Else

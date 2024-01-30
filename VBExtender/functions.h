@@ -14,6 +14,11 @@ auto RegisterConsoleCommand = reinterpret_cast<RegisterConsoleCommandFunc>(F3 + 
 typedef void(*SendDebugStringFunc)(const char* Format, ...);
 auto SendDebugString = reinterpret_cast<SendDebugStringFunc>(F3 + 0x00097120);
 
+typedef void (*sub_46CD60Func)(int a1, const char* Format, ...);
+auto WriteToDebugWindow = reinterpret_cast<sub_46CD60Func>(F3 + 0x6CD60); // also calls SendDebugString
+
+//sub_41CFE0 (writes to bottom left of screen) // through WriteToFeedback?
+
 typedef uintptr_t(*__cdecl RTDynamicCastFunc)(PVOID inptr, LONG VfDelta, PVOID SrcType, PVOID TargetType, BOOL isReference);
 auto RTDynamicCast = reinterpret_cast<RTDynamicCastFunc>(F3 + 0x002165E0);
 #pragma region Game Types
@@ -430,6 +435,9 @@ std::vector<float> worldToScreen(const float x, const float y, const float z)
 	float nearPlane = 1.0f;
 	float farPlane = 10000.0f;
 
+	//ensure pos and target are not the same
+	if (cameraPos.x == cameraTarget.x && cameraPos.y == cameraTarget.y && cameraPos.z == cameraTarget.z)
+		cameraPos.z += 0.01f;
 	DirectX::XMMATRIX viewMatrix = DirectX::XMMatrixLookAtLH(DirectX::XMLoadFloat3(&cameraPos), XMLoadFloat3(&cameraTarget), XMLoadFloat3(&cameraUp));
 	DirectX::XMMATRIX projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(fov, aspectRatio, nearPlane, farPlane);
 	DirectX::XMMATRIX viewProjectionMatrix = viewMatrix * projectionMatrix;
@@ -457,19 +465,5 @@ inline void ToggleConsole() { showConsole = !showConsole; }
 inline void TestFunction(int a1)
 {
 	auto params = getParams(a1, 1);
-	auto param = atoi(params[0]);
-
-	auto cur = getCurrentEntityPtr();
-	auto ent = (_DWORD*)RTDynamicCast((uint32*)cur, NULL, Entity, GameCreature, NULL);
-
-	if (cur)
-	{
-		WriteToConsole(consolePtr(), "Current Entity: %p", cur);
-		if (ent)
-			WriteToConsole(consolePtr(), "Attribute %d is %d", param, GetDerivedAttribute(ent, param));
-		else
-			WriteToConsole(consolePtr(), "Entity is not a GameCreature");
-	}
-	else
-		WriteToConsole(consolePtr(), "No entity selected");
+	WriteToDebugWindow(0, "TestFunction(%d)", params[0]);
 }

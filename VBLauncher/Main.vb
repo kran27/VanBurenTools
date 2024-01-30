@@ -45,8 +45,9 @@ Public Class Main
         End If
 
 #If DEBUG Then
-        Dim x = new GrpBrowser({"skl", "b3d"}, true)
+        Dim x = new GrpBrowser({"skl"}, true)
         x.ShowDialog()
+        
 #End If
 
         AllowTransparency = False

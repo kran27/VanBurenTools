@@ -15,7 +15,7 @@ bool initReady = false;
 inline void WINAPI HookedOutputDebugStringA(const LPCSTR lpOutputString)
 {
 	//Only initialize after Client is connected (probably should do this smarter than checking debug strings.)
-	if (!initReady && strcmp(lpOutputString, "Client: connected to server.  My id is 1\n") == 0) initReady = true;
+	if (!initReady && strcmp(lpOutputString, "DIALOGUEINTERFACE INSTANTIATED\n - This debug line is to double check that it's not being created more than once.") == 0) initReady = true;
 	
 	logs.AddLog(lpOutputString);
 

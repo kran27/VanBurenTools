@@ -181,7 +181,7 @@ Public Class Editor
 
     Private Sub MapSetupUI(ByRef cf As Map) ' Only way I found to bypass the issue of functions like .Any() not being found
         Mapgb.Location = New Point(12, 27)
-        Size = New Size(Mapgb.Width + Mapgb.Padding.Left * 13, Mapgb.Height + MainMenuStrip.Height + Mapgb.Padding.Top * 17)
+        Size = New Size(Mapgb.Width + Mapgb.Padding.Left * 13, Mapgb.Height + DarkMainMenuStrip.Height + Mapgb.Padding.Top * 17)
         CRTgb.Hide()
         Mapgb.Show()
         ITMgb.Hide()
@@ -297,7 +297,7 @@ Public Class Editor
         CRTgb.Controls.Add(GENTgb)
         GENTgb.Location = New Point(618, 22)
         CRTgb.Location = New Point(12, 27)
-        Size = New Size(CRTgb.Width + CRTgb.Padding.Left * 13, CRTgb.Height + MainMenuStrip.Height + CRTgb.Padding.Top * 17)
+        Size = New Size(CRTgb.Width + CRTgb.Padding.Left * 13, CRTgb.Height + DarkMainMenuStrip.Height + CRTgb.Padding.Top * 17)
         CRTgb.Show()
         Mapgb.Hide()
         ITMgb.Hide()
@@ -332,7 +332,7 @@ Public Class Editor
         ITMgb.Controls.Add(GENTgb)
         GENTgb.Location = New Point(618, 66)
         ITMgb.Location = New Point(12, 27)
-        Size = New Size(ITMgb.Width + ITMgb.Padding.Left * 13, ITMgb.Height + MainMenuStrip.Height + ITMgb.Padding.Top * 17)
+        Size = New Size(ITMgb.Width + ITMgb.Padding.Left * 13, ITMgb.Height + DarkMainMenuStrip.Height + ITMgb.Padding.Top * 17)
         ITMgb.Show()
         CRTgb.Hide()
         Mapgb.Hide()

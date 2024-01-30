@@ -1,13 +1,12 @@
-﻿﻿using System.Drawing;
+﻿using System.Drawing;
 using System.Numerics;
 using System.Text;
-using static VB3DLib.B3DModel;
 
 namespace VB3DLib
 {
     public class B3DModel
     {
-        public int FormatVer = 0;
+        public int FormatVer;
         public List<Vector3> Model_Vertex_Position = new();
         public List<Vector2> Model_Vertex_Texcoords = new();
         public List<Vector3> Model_Vertex_Normal = new();
@@ -19,7 +18,7 @@ namespace VB3DLib
         
         public List<string> Txs = new();
 
-        public int Vertex_Type_Flag = 0;
+        public int Vertex_Type_Flag;
 
         public B3DModel(string path)
         {
@@ -367,7 +366,7 @@ namespace VB3DLib
 
                 b3d.Txs.Add(new string(Mtl_ID));
 
-                uint kk = 0;
+                uint kk;
                 f.ReadByte();
                 f.ReadUInt32();
                 kk = f.ReadUInt32();
@@ -499,7 +498,6 @@ namespace VB3DLib
                     Console.WriteLine(NumVert);
                     Console.WriteLine("NumTri");
                     Console.WriteLine(NumTri);
-                    NumTri = NumTri / 3;
 
                     for (var j = 0; j < NumberMaterial; j++)
                     {
@@ -539,7 +537,7 @@ namespace VB3DLib
             public ushort Unknown1;
             public byte Flag;
             public Vector3 Translation;
-            public System.Numerics.Quaternion Rotation;
+            public Quaternion Rotation;
 
             public TBone(BinaryReader reader)
             {
@@ -580,10 +578,10 @@ namespace VB3DLib
 
         public class TColor
         {
-            public float r = 0;
-            public float g = 0;
-            public float b = 0;
-            public float a = 0;
+            public float r;
+            public float g;
+            public float b;
+            public float a;
 
             public TColor(BinaryReader f)
             {
@@ -681,7 +679,7 @@ namespace VB3DLib
             }
         }
 
-        public partial class TNodes
+        public class TNodes
         {
             public byte Unknown1; //: byte;
             public char[] Name; //: TCharArray;
@@ -743,9 +741,9 @@ namespace VB3DLib
 
     public class G3DModel
     {
-        public static List<Vector3> Model_Vertex_Position = new();
-        public static List<int[]> Model_Faces_Index = new();
-        public static List<Vector2> Model_Vertex_Texcoords = new();
+        public List<Vector3> Model_Vertex_Position = new();
+        public List<int[]> Model_Faces_Index = new();
+        public List<Vector2> Model_Vertex_Texcoords = new();
 
         public G3DModel(string path)
         {
@@ -755,7 +753,7 @@ namespace VB3DLib
 
         public G3DModel(byte[] file)
         {
-            var s = System.Text.Encoding.UTF8.GetString(file);
+            var s = Encoding.UTF8.GetString(file);
             // split into array at every CrLf
             s = s.Replace("\r\n", "\n");
             var sa = s.Split('\n');
@@ -767,10 +765,6 @@ namespace VB3DLib
         // if not, it works so i don't care.
         private void ReadG3D(string[] f)
         {
-            Model_Vertex_Position = new();
-            Model_Faces_Index = new();
-            Model_Vertex_Texcoords = new();
-
             for (var i = 73; i < 3645; i++)
             {
                 //example line
@@ -823,39 +817,26 @@ namespace VB3DLib
 
     public class _8Model
     {
-        public static string MapName = "defaultName";
+        public string MapName = "defaultName";
 
-        public static List<Vector3> GVP = new(); // vertex position
-        public static List<Vector3> GVN = new(); // vertex normal
-        public static List<Color> GVD = new(); // vertex diffuse color
-        public static List<Vector2> GVT = new(); // texture coords
-        public static List<Vector2> GVL = new(); // lightmap coords
+        public List<Vector3> GVP = new(); // vertex position
+        public List<Vector3> GVN = new(); // vertex normal
+        public List<Color> GVD = new(); // vertex diffuse color
+        public List<Vector2> GVT = new(); // texture coords
+        public List<Vector2> GVL = new(); // lightmap coords
 
-        public static List<int[]> IDX = new(); // face indexes
-        public static List<int> MDX = new(); // mat index
-        public static List<BitmapTexture> MAT = new(); // materials
+        public List<int[]> IDX = new(); // face indexes
+        public List<int> MDX = new(); // mat index
+        public List<BitmapTexture> MAT = new(); // materials
 
-        public static int buffer_index = 0;
-        public static List<int> buffer_offset = new();
+        public int buffer_index;
+        public List<int> buffer_offset = new();
 
-        public static int Flag = 1;
+        public int Flag = 1;
 
         public _8Model(string path, bool flgs)
         {
             Flag = flgs ? 4 : 1;
-            GVP = new();
-
-            GVN = new();
-            GVD = new();
-            GVT = new();
-            GVL = new();
-
-            IDX = new();
-            MDX = new();
-            MAT = new();
-
-            buffer_index = 0;
-            buffer_offset = new();
 
             var f = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read));
             ReadTREE_Data(f);
@@ -989,7 +970,7 @@ namespace VB3DLib
                         for (int i = 1; i <= header.size; i++)
                             s += f.ReadChar();
 
-                        if (s.IndexOf("ctx") != -1) return 0;
+                        if (s.IndexOf("ctx", StringComparison.Ordinal) != -1) return 0;
 
                         BitmapTexture tm = new BitmapTexture();
                         tm.AlphaSource = 2;
@@ -1039,7 +1020,7 @@ namespace VB3DLib
                                 var b = buffer_offset[buffer_index] + f.ReadUInt16();
                                 var c = buffer_offset[buffer_index] + f.ReadUInt16();
 
-                                IDX.Add(new int[] { a, c, b });
+                                IDX.Add(new[] { a, c, b });
                                 MDX.Add(m == 0 ? 0 : m);
                             }
                         }

@@ -257,7 +257,7 @@ Public Module Extensions
 
         Dim inv = New List(Of String)
         io = 279 + psl
-        Dim itemN = ""
+        Dim itemN As String
         For i = 0 To b(io - 6) - 1
             Try : itemN = GetString(b.Skip(io).Take(b(io - 2))) : Catch : Exit For : End Try
             If Not itemN.Length = 0 Then inv.Add(itemN)
@@ -266,7 +266,6 @@ Public Module Extensions
 
 #End Region
 
-        Dim il = inv.Sum(Function(x) x.Length + 2)
         Return New GCREc() With {
             .Special = New Integer() {b(12), b(16), b(20), b(24), b(28), b(32), b(36)},
             .Age = b(56),
