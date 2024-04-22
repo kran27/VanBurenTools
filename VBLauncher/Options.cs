@@ -44,8 +44,7 @@ namespace VBLauncher
 
         private static MainMenuDef MMD(string MapName, string TargetX, string TargetY, string TargetZ, string Azimuth, string Elevation, string FOV)
         {
-            return new MainMenuDef()
-
+            return new MainMenuDef
             {
                 MapName = MapName,
                 TargetX = TargetX,
@@ -88,7 +87,7 @@ namespace VBLauncher
             }
             ResolutionCB.Items.Clear();
             ResolutionCB.Items.AddRange(GetResAsStrings());
-            var inires = new Resolution()
+            var inires = new Resolution
             {
                 Width = Conversions.ToInteger(IniManager.Ini(ref IniManager.F3Ini, "Graphics", "width")),
                 Height = Conversions.ToInteger(IniManager.Ini(ref IniManager.F3Ini, "Graphics", "height")),
@@ -131,14 +130,14 @@ namespace VBLauncher
         {
             DarkLabel1.Hide();
             DarkScrollBar1.BringToFront();
-            string[] BindString = IniManager.F3Ini.GetSection("HotKeys");
+            var BindString = IniManager.F3Ini.GetSection("HotKeys");
             var Binds = new List<Keybind>();
             foreach (var s in BindString)
             {
                 if (s.StartsWith("+"))
                 {
-                    string[] keys = s.Substring(0, s.IndexOf("=") - 1).Trim().Split("+");
-                    string action = s.Substring(s.IndexOf("=") + 1).Trim();
+                    var keys = s.Substring(0, s.IndexOf("=") - 1).Trim().Split("+");
+                    var action = s.Substring(s.IndexOf("=") + 1).Trim();
                     if (keys.Length > 2)
                     {
                         Binds.Add(new Keybind(keys[2], keys[1], action));
@@ -150,8 +149,8 @@ namespace VBLauncher
                 }
                 else if (s.StartsWith("-"))
                 {
-                    string[] keys = s.Substring(0, s.IndexOf("=") - 1).Trim().Split("-");
-                    string action = s.Substring(s.IndexOf("=") + 1).Trim();
+                    var keys = s.Substring(0, s.IndexOf("=") - 1).Trim().Split("-");
+                    var action = s.Substring(s.IndexOf("=") + 1).Trim();
                     if (keys.Length > 2)
                     {
                         Binds.Add(new Keybind(keys[2], keys[1], action, false));
@@ -175,7 +174,7 @@ namespace VBLauncher
             DataGridView1.BackgroundColor = ThemeProvider.Theme.Colors.LightBackground;
             DarkScrollBar1.BackColor = ThemeProvider.Theme.Colors.LightBackground;
             DataGridView1.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-            var cellStyle = new DataGridViewCellStyle()
+            var cellStyle = new DataGridViewCellStyle
             {
                 BackColor = ThemeProvider.Theme.Colors.LightBackground,
                 ForeColor = ThemeProvider.Theme.Colors.LightText,
@@ -238,8 +237,8 @@ namespace VBLauncher
             var NewBinds = (from DataGridViewRow r in DataGridView1.Rows
                             select RowToStr(r)).ToList();
 
-            int SectionStart = Array.FindIndex(IniManager.F3Ini, x => x.StartsWith($"[HotKeys]"));
-            int SectionEnd = Array.FindIndex(IniManager.F3Ini, SectionStart + 1, x => x.StartsWith("[")) - 1;
+            var SectionStart = Array.FindIndex(IniManager.F3Ini, x => x.StartsWith($"[HotKeys]"));
+            var SectionEnd = Array.FindIndex(IniManager.F3Ini, SectionStart + 1, x => x.StartsWith("[")) - 1;
             if (SectionEnd < 0)
                 SectionEnd = IniManager.F3Ini.Length - 1;
 
@@ -256,10 +255,10 @@ namespace VBLauncher
 
         private void SetupSSCB(object sender, EventArgs e)
         {
-            int index = SSFCB.SelectedIndex;
+            var index = SSFCB.SelectedIndex;
             var res = StrToRes(ResolutionCB.Text);
             SSFCB.Items.Clear();
-            string[] resolutions = new string[] { ResToStr(res, false), ResToStr(res, false, 2), ResToStr(res, false, 3), ResToStr(res, false, 4) };
+            var resolutions = new[] { ResToStr(res, false), ResToStr(res, false, 2), ResToStr(res, false, 3), ResToStr(res, false, 4) };
             SSFCB.Items.AddRange(resolutions);
             SSFCB.SelectedIndex = index;
         }
@@ -271,7 +270,7 @@ namespace VBLauncher
 
         private static string RowToStr(DataGridViewRow row)
         {
-            string ch = Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(row.Cells[3].Value, "Up", false)) ? "-" : "+";
+            var ch = Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(row.Cells[3].Value, "Up", false)) ? "-" : "+";
             if (Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(row.Cells[0].Value, "", false)))
             {
                 return $"{ch}{row.Cells[1].Value} = {row.Cells[2].Value}";

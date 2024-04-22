@@ -35,9 +35,6 @@
     <ProjectReference Include="..\AltUI\AltUI\AltUI.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Chunk Editors\EEOVEditor.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Update="Editor.cs" />
     <Compile Update="Resources.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -77,5 +74,8 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Chunk Editors\" />
   </ItemGroup>
 </Project>

@@ -109,7 +109,7 @@ namespace VB3DLib
                         LocalTransform = CreateTransform(bone.LocalTransform),
                         InverseWorld4x4 = ConvertToMatrix4x4(bone.InverseWorld4x4)
                     };
-                    Matrix4x4.Invert(parsedBone.InverseWorld4x4, out Matrix4x4 World4x4);
+                    Matrix4x4.Invert(parsedBone.InverseWorld4x4, out var World4x4);
                     parsedBone.ActualPosition =
                         Vector3.Transform(Vector3.Zero,
                             World4x4); // transform data is parent-relative, so i use world transform for easy previewing

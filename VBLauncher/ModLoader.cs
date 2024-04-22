@@ -30,16 +30,16 @@ namespace VBLauncher
             foreach (var @file in directory.GetFiles("*.zip"))
             {
                 var zip = ZipFile.OpenRead(@file.FullName);
-                foreach (ZipArchiveEntry entry in zip.Entries)
+                foreach (var entry in zip.Entries)
                 {
                     if (entry.Name == "mod.info")
                     {
                         using (var reader = new StreamReader(entry.Open()))
                         {
-                            string[] iniData = reader.ReadToEnd().Split(Constants.vbCrLf);
-                            string mname = IniManager.Ini(ref iniData, "Info", "Name");
-                            string description = IniManager.Ini(ref iniData, "Info", "Description", IniManager.KeyType.Multiline);
-                            string version = IniManager.Ini(ref iniData, "Info", "Version");
+                            var iniData = reader.ReadToEnd().Split(Constants.vbCrLf);
+                            var mname = IniManager.Ini(ref iniData, "Info", "Name");
+                            var description = IniManager.Ini(ref iniData, "Info", "Description", IniManager.KeyType.Multiline);
+                            var version = IniManager.Ini(ref iniData, "Info", "Version");
                             var entries = (from ent in zip.Entries
                                            where ent.Name.ToLower() != "mod.info"
                                            select ent.Name).ToList();
@@ -65,8 +65,8 @@ namespace VBLauncher
             ListView1.ForeColor = Theme.Colors.LightText;
             ListView1.AllowColumnReorder = false;
 
-            string[] files = Directory.GetFiles("Mods");
-            string[] directories = Directory.GetDirectories("Mods");
+            var files = Directory.GetFiles("Mods");
+            var directories = Directory.GetDirectories("Mods");
 
             LoadMods();
         }
@@ -130,7 +130,7 @@ namespace VBLauncher
         private void ListView1_DragOver(object sender, DragEventArgs e)
         {
             var targetPoint = ListView1.PointToClient(new Point(e.X, e.Y));
-            int targetIndex = ListView1.InsertionMark.NearestIndex(targetPoint);
+            var targetIndex = ListView1.InsertionMark.NearestIndex(targetPoint);
             if (targetIndex > -1)
             {
                 var itemBounds = ListView1.GetItemRect(targetIndex);
@@ -148,7 +148,7 @@ namespace VBLauncher
 
         private void ListView1_DragDrop(object sender, DragEventArgs e)
         {
-            int targetIndex = ListView1.InsertionMark.Index;
+            var targetIndex = ListView1.InsertionMark.Index;
             if (targetIndex == -1)
             {
                 return;
@@ -157,7 +157,7 @@ namespace VBLauncher
             {
                 targetIndex += 1;
             }
-            ListViewItem draggedItem = (ListViewItem)e.Data.GetData(typeof(ListViewItem));
+            var draggedItem = (ListViewItem)e.Data.GetData(typeof(ListViewItem));
 
             var tmp = modList[ListView1.Items.IndexOf(draggedItem)];
             modList.RemoveAt(ListView1.Items.IndexOf(draggedItem));
@@ -214,7 +214,7 @@ namespace VBLauncher
                     g.SmoothingMode = SmoothingMode.AntiAlias;
                     var rect = e.Bounds;
 
-                    int size = Theme.Sizes.CheckBoxSize;
+                    var size = Theme.Sizes.CheckBoxSize;
 
                     var textColor = Theme.Colors.LightText;
                     var borderColor = Theme.Colors.GreySelection;
@@ -250,8 +250,8 @@ namespace VBLauncher
                 {
                     if (e.Item.Checked)
                     {
-                        using (var sf = new StringFormat()
-                        {
+                        using (var sf = new StringFormat
+                               {
                             Alignment = StringAlignment.Near,
                             LineAlignment = StringAlignment.Center,
                             FormatFlags = StringFormatFlags.NoWrap,
@@ -327,7 +327,7 @@ namespace VBLauncher
 
         private void SizeAdjust()
         {
-            int sz = (int)Math.Round(ListView1.Width / 4d);
+            var sz = (int)Math.Round(ListView1.Width / 4d);
             ListView1.Columns[0].Width = sz * 2;
             ListView1.Columns[1].Width = sz;
             ListView1.Columns[2].Width = sz + (ListView1.Width - sz * 4);
@@ -379,8 +379,8 @@ namespace VBLauncher
                 }
 
                 object cfs;
-                bool overwrites = modList[i].Entries.Any(s => s.Equals("English.stf", StringComparison.OrdinalIgnoreCase) && lpe.Contains(s));
-                bool overwritten = modList[i].Entries.Any(s => s.Equals("English.stf", StringComparison.OrdinalIgnoreCase) && hpe.Contains(s));
+                var overwrites = modList[i].Entries.Any(s => s.Equals("English.stf", StringComparison.OrdinalIgnoreCase) && lpe.Contains(s));
+                var overwritten = modList[i].Entries.Any(s => s.Equals("English.stf", StringComparison.OrdinalIgnoreCase) && hpe.Contains(s));
                 if (overwrites && overwritten)
                 {
                     cfs = ConflictStatus.Mixed;
@@ -401,7 +401,7 @@ namespace VBLauncher
                     cfs = ConflictStatus.Clear;
                     modList[i].Conflict = (ConflictStatus)Conversions.ToInteger(cfs);
                 }
-                bool redundant = modList[i].Entries.Where(s => s.Equals("English.stf", StringComparison.OrdinalIgnoreCase)).All(s => hpe.Contains(s));
+                var redundant = modList[i].Entries.Where(s => s.Equals("English.stf", StringComparison.OrdinalIgnoreCase)).All(s => hpe.Contains(s));
                 if (redundant)
                 {
                     cfs = ConflictStatus.Redundant;
@@ -433,15 +433,15 @@ namespace VBLauncher
 
         public (string[], int) MergeSTF(string[] lArray, string[] hArray)
         {
-            string[] oArray = new string[3282];
-            int additionalStrings = 0;
+            var oArray = new string[3282];
+            var additionalStrings = 0;
 
             // Copy low-priority array's Vanilla string section into output, to preserve any changes.
             Array.Copy(lArray, oArray, 3281);
 
             // If high-priority array has modified Vanilla strings, overwrite that string.
             // this will effectively merge changes from both low and high, prioritizing high.
-            for (int i = 0; i <= 3281; i++)
+            for (var i = 0; i <= 3281; i++)
             {
                 if ((hArray[i] ?? "") != (bArray[i] ?? ""))
                 {
@@ -475,7 +475,7 @@ namespace VBLauncher
         private void IncSTFRefs(string fp, int incVal)
         {
 
-            byte[] b = File.ReadAllBytes(fp);
+            var b = File.ReadAllBytes(fp);
 
             var @file = default(object);
 
@@ -541,28 +541,28 @@ namespace VBLauncher
         private void ToolStripLabel2_Click(object sender, EventArgs e)
         {
             bArray = (string[])Extensions.STFToTXT(File.ReadAllBytes(My.MySettingsProperty.Settings.STFDir));
-            string[] tmpArray = bArray;
+            var tmpArray = bArray;
             foreach (var i in ListView1.CheckedIndices)
             {
                 if (modList[Conversions.ToInteger(i)].Entries.Any(x => x.Equals("English.stf", StringComparison.OrdinalIgnoreCase)))
                 {
                     var zip = ZipFile.OpenRead(modList[Conversions.ToInteger(i)].Zip.FullName);
-                    foreach (ZipArchiveEntry entry in zip.Entries)
+                    foreach (var entry in zip.Entries)
                     {
                         if (entry.Name.ToLower() == "english.stf")
                         {
                             using (var memoryStream = new MemoryStream())
                             {
                                 entry.Open().CopyTo(memoryStream);
-                                byte[] stfData = memoryStream.ToArray();
+                                var stfData = memoryStream.ToArray();
                                 var stfArray = Extensions.STFToTXT(stfData);
 
                                 var tmp = MergeSTF(tmpArray, (string[])stfArray);
                                 tmpArray = tmp.Item1;
 
-                                string tmpDir = @"Mods\tmp";
+                                var tmpDir = @"Mods\tmp";
                                 Directory.CreateDirectory(tmpDir);
-                                foreach (ZipArchiveEntry entry2 in zip.Entries)
+                                foreach (var entry2 in zip.Entries)
                                 {
                                     if (!(entry2.Name.ToLower() == "english.stf") && !(entry2.Name.ToLower() == "mod.info"))
                                     {

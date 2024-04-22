@@ -11,6 +11,5 @@ namespace VBLauncher
             BackColor = AltUI.Config.ThemeProvider.BackgroundColour;
             InitializeComponent();
         }
-
     }
 }

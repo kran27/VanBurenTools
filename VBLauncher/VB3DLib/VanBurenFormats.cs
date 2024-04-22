@@ -869,7 +869,7 @@ namespace VB3DLib
         public static string String4Read(BinaryReader f)
         {
             var s = new byte[4];
-            for (int i = 0; i < 4; ++i)
+            for (var i = 0; i < 4; ++i)
             {
                 var t = f.BaseStream.Position;
                 s[i] = f.ReadByte();
@@ -934,7 +934,7 @@ namespace VB3DLib
 
                 case "IDXD":
                     f.BaseStream.Seek(-16, SeekOrigin.Current);
-                    int t = f.ReadInt32();
+                    var t = f.ReadInt32();
                     if (t >= 0 && t <= buffer_offset.Count - 1) // maybe if (t >= 1 && t <= buffer_offset.Count)
                         buffer_index = t;
                     f.BaseStream.Seek(12, SeekOrigin.Current);
@@ -947,10 +947,10 @@ namespace VB3DLib
 
                 case "TXUV":
                     {
-                        for (int i = 1; i <= header.size / 8; i++)
+                        for (var i = 1; i <= header.size / 8; i++)
                         {
-                            float u = f.ReadSingle();
-                            float v = f.ReadSingle();
+                            var u = f.ReadSingle();
+                            var v = f.ReadSingle();
                             GVT.Add(new Vector2(u, v));
                         }
 
@@ -969,15 +969,17 @@ namespace VB3DLib
                 //}
                 case "TXTR":
                     {
-                        string s = "";
-                        for (int i = 1; i <= header.size; i++)
+                        var s = "";
+                        for (var i = 1; i <= header.size; i++)
                             s += f.ReadChar();
 
                         if (s.IndexOf("ctx", StringComparison.Ordinal) != -1) return 0;
 
-                        BitmapTexture tm = new BitmapTexture();
-                        tm.AlphaSource = 2;
-                        tm.FileName = /*dir + "../Tiles/" +*/ s;
+                        var tm = new BitmapTexture
+                        {
+                            AlphaSource = 2,
+                            FileName = s
+                        };
                         Console.WriteLine(s);
                         MAT.Add(tm);
 
@@ -1044,11 +1046,11 @@ namespace VB3DLib
 
                 case "XYZ ":
                     {
-                        for (int i = 1; i <= header.size / 12; i++)
+                        for (var i = 1; i <= header.size / 12; i++)
                         {
-                            float x = f.ReadSingle();
-                            float y = f.ReadSingle();
-                            float z = f.ReadSingle();
+                            var x = f.ReadSingle();
+                            var y = f.ReadSingle();
+                            var z = f.ReadSingle();
 
                             GVP.Add(new Vector3(x, z, y));
                         }
