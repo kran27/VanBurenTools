@@ -26,19 +26,19 @@ namespace VBLauncher
         public static string Ini(ref string[] IniArray, string IniSection, string IniKey, KeyType KeyType = KeyType.Normal)
         {
             // Find bounds of section
-            int SectionStart = Array.FindIndex(IniArray, x => x.StartsWith($"[{IniSection}]"));
-            int SectionEnd = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith("[")) - 1;
+            var SectionStart = Array.FindIndex(IniArray, x => x.StartsWith($"[{IniSection}]"));
+            var SectionEnd = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith("[")) - 1;
             if (SectionEnd == -1)
                 SectionEnd = IniArray.Length - 1;
 
             if (KeyType == KeyType.Normal)
             {
                 // Find key location and value
-                int KeyIndex = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith(IniKey));
+                var KeyIndex = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith(IniKey));
                 if (KeyIndex > SectionEnd)
                     return null;
-                string KeyLine = IniArray[KeyIndex];
-                string KeyValue = KeyLine.Substring(KeyLine.IndexOf("=", StringComparison.Ordinal) + 1).Trim();
+                var KeyLine = IniArray[KeyIndex];
+                var KeyValue = KeyLine.Substring(KeyLine.IndexOf("=", StringComparison.Ordinal) + 1).Trim();
                 // Find comment, if any
                 object Comment = null;
                 try
@@ -56,12 +56,12 @@ namespace VBLauncher
             else
             {
                 // Multiline key
-                int KeyStart = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith($"<{IniKey}>"));
-                int KeyEnd = Array.FindIndex(IniArray, KeyStart + 1, x => x.StartsWith($"</{IniKey}>"));
+                var KeyStart = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith($"<{IniKey}>"));
+                var KeyEnd = Array.FindIndex(IniArray, KeyStart + 1, x => x.StartsWith($"</{IniKey}>"));
                 if (KeyEnd < 0)
                     KeyEnd = IniArray.Length - 1;
                 // Get key value
-                string KeyValue = string.Join(Environment.NewLine, IniArray, KeyStart + 1, KeyEnd - KeyStart - 1);
+                var KeyValue = string.Join(Environment.NewLine, IniArray, KeyStart + 1, KeyEnd - KeyStart - 1);
                 // Return read value
                 return KeyValue;
             }
@@ -70,19 +70,19 @@ namespace VBLauncher
         public static void Ini(ref string[] IniArray, string IniSection, string IniKey, string Value, KeyType KeyType = KeyType.Normal)
         {
             // Find bounds of section
-            int SectionStart = Array.FindIndex(IniArray, x => x.StartsWith($"[{IniSection}]"));
-            int SectionEnd = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith("[")) - 1;
+            var SectionStart = Array.FindIndex(IniArray, x => x.StartsWith($"[{IniSection}]"));
+            var SectionEnd = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith("[")) - 1;
             if (SectionEnd < 0)
                 SectionEnd = IniArray.Length - 1;
 
             if (KeyType == KeyType.Normal)
             {
                 // Find key location and value
-                int KeyIndex = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith(IniKey));
+                var KeyIndex = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith(IniKey));
                 if (KeyIndex > SectionEnd)
                     return;
-                string KeyLine = IniArray[KeyIndex];
-                string KeyValue = KeyLine.Substring(KeyLine.IndexOf("=") + 1).Trim();
+                var KeyLine = IniArray[KeyIndex];
+                var KeyValue = KeyLine.Substring(KeyLine.IndexOf("=") + 1).Trim();
                 // Find comment, if any
                 object Comment = null;
                 try
@@ -97,13 +97,13 @@ namespace VBLauncher
             }
             else
             {
-                int startIndex = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith($"<{IniKey}>"));
-                int endIndex = Array.FindIndex(IniArray, startIndex + 1, x => x.StartsWith($"</{IniKey}>"));
+                var startIndex = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith($"<{IniKey}>"));
+                var endIndex = Array.FindIndex(IniArray, startIndex + 1, x => x.StartsWith($"</{IniKey}>"));
 
                 if (startIndex < SectionEnd & endIndex > SectionEnd)
                 {
-                    int keyValueStart = startIndex + 1;
-                    int keyValueEnd = endIndex - 1;
+                    var keyValueStart = startIndex + 1;
+                    var keyValueEnd = endIndex - 1;
 
                     string[] newValues;
                     newValues = new string[SectionEnd - SectionStart + 1 + keyValueEnd - keyValueStart + 2 + 1];
@@ -120,8 +120,8 @@ namespace VBLauncher
         public static string[] GetSection(this string[] IniArray, string IniSection)
         {
             // Find bounds of section
-            int SectionStart = Array.FindIndex(IniArray, x => x.StartsWith($"[{IniSection}]"));
-            int SectionEnd = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith("[")) - 1;
+            var SectionStart = Array.FindIndex(IniArray, x => x.StartsWith($"[{IniSection}]"));
+            var SectionEnd = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith("[")) - 1;
             if (SectionEnd < 0)
                 SectionEnd = IniArray.Length - 1;
             // Return section
@@ -140,7 +140,7 @@ namespace VBLauncher
             FolderStack.Push(RootFolder);
             while (FolderStack.Count > 0)
             {
-                string ThisFolder = FolderStack.Pop();
+                var ThisFolder = FolderStack.Pop();
                 try
                 {
                     foreach (var SubFolder in Directory.GetDirectories(ThisFolder))
@@ -190,7 +190,7 @@ namespace VBLauncher
 
         public static string RemoveExtension(this string fileName)
         {
-            int lastDotIndex = fileName.LastIndexOf(".");
+            var lastDotIndex = fileName.LastIndexOf(".");
             if (lastDotIndex == -1)
             {
                 return fileName;
@@ -203,7 +203,7 @@ namespace VBLauncher
 
         public static string GetExtension(this string fileName)
         {
-            int lastDotIndex = fileName.LastIndexOf(".");
+            var lastDotIndex = fileName.LastIndexOf(".");
             if (lastDotIndex == -1)
             {
                 return "";
@@ -289,12 +289,12 @@ namespace VBLauncher
         public static Resolution[] GetResolution()
         {
             var DM = new DevModeW();
-            int Index = 0;
+            var Index = 0;
             var SizeList = new List<Resolution>();
             DM.dmSize = (ushort)Marshal.SizeOf(typeof(DevModeW));
             while (EnumDisplaySettingsExW(Screen.PrimaryScreen.DeviceName, Index, ref DM, 0U))
             {
-                var Resolution = new Resolution() { Width = (int)DM.dmPelsWidth, Height = (int)DM.dmPelsHeight, Hz = (int)DM.dmDisplayFrequency };
+                var Resolution = new Resolution { Width = (int)DM.dmPelsWidth, Height = (int)DM.dmPelsHeight, Hz = (int)DM.dmDisplayFrequency };
                 if (!SizeList.Contains(Resolution))
                 {
                     try
@@ -316,9 +316,9 @@ namespace VBLauncher
         {
             try
             {
-                string[] a = str.Split(new char[] { 'x' });
-                string[] b = a[1].Split(new char[] { '@' });
-                return new Resolution()
+                var a = str.Split(new[] { 'x' });
+                var b = a[1].Split(new[] { '@' });
+                return new Resolution
                 {
                     Width = Conversions.ToInteger(a[0]),
                     Height = Conversions.ToInteger(b[0]),
@@ -327,7 +327,7 @@ namespace VBLauncher
             }
             catch
             {
-                return new Resolution()
+                return new Resolution
                 {
                     Width = 0,
                     Height = 0,

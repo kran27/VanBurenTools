@@ -22,28 +22,27 @@ using VB3DLib;
 
 namespace VBLauncher
 {
-
     public partial class GrpBrowser
     {
         public byte[] FileBytes { get; set; }
         public string Extension { get; set; }
         public string FileName { get; set; }
-        private bool previewMode { get; set; }
+        private bool previewMode { get; }
 
         #region .rht/.grp Reading
 
-        private string[] filter = new[] { "psf", "int", "rle", "itm", "veg", "crt", "map", "wav", "amx", "rtd", "rlz", "ini", "skl", "gr2", "skn", "8", "dlg", "str", "sst", "use", "arm", "dor", "wea", "pce", "sco", "gsf", "gls", "fnt", "spl", "pro", "enc", "wmp", "amo", "con", "tok", "b3d", "g3d", "tga", "bmp" };
+        public string[] filter = { "psf", "int", "rle", "itm", "veg", "crt", "map", "wav", "amx", "rtd", "rlz", "ini", "skl", "gr2", "skn", "8", "dlg", "str", "sst", "use", "arm", "dor", "wea", "pce", "sco", "gsf", "gls", "fnt", "spl", "pro", "enc", "wmp", "amo", "con", "tok", "b3d", "g3d", "tga", "bmp" };
 
         public GrpBrowser(string[] filter, bool previewMode = false)
         {
-            host = new ElementHost()
+            host = new ElementHost
             {
                 Name = "Model Viewer",
                 Dock = DockStyle.Fill,
                 Child = viewport
             };
             this.previewMode = previewMode;
-            if (filter is not null && !(filter.Count() == 0))
+            if (filter is not null && filter.Length != 0)
                 this.filter = filter;
             InitializeComponent();
         }
@@ -90,11 +89,11 @@ namespace VBLauncher
         private List<string> extensions;
 
         // TODO: Automate this for proper support instead of hardcoded to this rht
-        private Dictionary<int, int> packOffsetToIndex = new Dictionary<int, int>() { { 0, 0 }, { 6, 1 }, { 16, 2 }, { 25, 3 }, { 32, 4 }, { 42, 5 }, { 50, 6 }, { 55, 7 }, { 63, 8 }, { 68, 9 }, { 74, 10 }, { 81, 11 }, { 87, 12 }, { 92, 13 }, { 97, 14 }, { 102, 15 }, { 107, 16 }, { 112, 17 }, { 117, 18 }, { 122, 19 }, { 127, 20 }, { 132, 21 }, { 137, 22 }, { 142, 23 } };
+        private Dictionary<int, int> packOffsetToIndex = new Dictionary<int, int> { { 0, 0 }, { 6, 1 }, { 16, 2 }, { 25, 3 }, { 32, 4 }, { 42, 5 }, { 50, 6 }, { 55, 7 }, { 63, 8 }, { 68, 9 }, { 74, 10 }, { 81, 11 }, { 87, 12 }, { 92, 13 }, { 97, 14 }, { 102, 15 }, { 107, 16 }, { 112, 17 }, { 117, 18 }, { 122, 19 }, { 127, 20 }, { 132, 21 }, { 137, 22 }, { 142, 23 } };
 
         private string GetExtension(int a1)
         {
-            var extensionMap = new Dictionary<int, string>() { { 1900, "psf" }, { 1600, "int" }, { 1700, "rle" }, { 1800, "itm" }, { 1500, "veg" }, { 1400, "crt" }, { 1300, "map" }, { 1100, "wav" }, { 1200, "amx" }, { 1000, "rtd" }, { 900, "rlz" }, { 800, "ini" }, { 600, "skl" }, { 700, "gr2" }, { 500, "skn" }, { 400, "8" }, { 300, "dlg" }, { 100, "model" }, { 200, "image" }, { 2900, "str" }, { 2800, "sst" }, { 2700, "use" }, { 2500, "arm" }, { 2600, "dor" }, { 2400, "wea" }, { 2300, "pce" }, { 2200, "sco" }, { 2000, "gsf" }, { 2100, "gls" }, { 3400, "fnt" }, { 3300, "spl" }, { 3200, "pro" }, { 3000, "enc" }, { 3100, "wmp" }, { 3500, "amo" }, { 3600, "con" }, { 3700, "tok" } };
+            var extensionMap = new Dictionary<int, string> { { 1900, "psf" }, { 1600, "int" }, { 1700, "rle" }, { 1800, "itm" }, { 1500, "veg" }, { 1400, "crt" }, { 1300, "map" }, { 1100, "wav" }, { 1200, "amx" }, { 1000, "rtd" }, { 900, "rlz" }, { 800, "ini" }, { 600, "skl" }, { 700, "gr2" }, { 500, "skn" }, { 400, "8" }, { 300, "dlg" }, { 100, "model" }, { 200, "image" }, { 2900, "str" }, { 2800, "sst" }, { 2700, "use" }, { 2500, "arm" }, { 2600, "dor" }, { 2400, "wea" }, { 2300, "pce" }, { 2200, "sco" }, { 2000, "gsf" }, { 2100, "gls" }, { 3400, "fnt" }, { 3300, "spl" }, { 3200, "pro" }, { 3000, "enc" }, { 3100, "wmp" }, { 3500, "amo" }, { 3600, "con" }, { 3700, "tok" } };
 
             string value = null;
             if (extensionMap.TryGetValue(a1, out value))
@@ -116,7 +115,7 @@ namespace VBLauncher
                 {
                     // Parallel.For(0, head.nEntries,
                     // Sub[i]
-                    string ext = extensions[i];
+                    var ext = extensions[i];
                     Console.WriteLine(filenames[i] + "." + ext);
                     if (convert)
                     {
@@ -133,7 +132,7 @@ namespace VBLauncher
             }
             else
             {
-                string ext = extensions[index];
+                var ext = extensions[index];
                 Console.WriteLine(filenames[index] + "." + ext);
                 if (convert)
                 {
@@ -150,11 +149,11 @@ namespace VBLauncher
 
         private byte[] getFileBytes(int index, bool convert = false)
         {
-            int packLoc = globalIndexToPackOffset[index];
-            int localIndex = globalIndexToLocal[index];
+            var packLoc = globalIndexToPackOffset[index];
+            var localIndex = globalIndexToLocal[index];
             Directory.CreateDirectory(grpnames[packOffsetToIndex[packLoc]]);
-            string grpname = $@"data\{grpnames[packOffsetToIndex[packLoc]]}.grp";
-            string extname = $@"{grpnames[packOffsetToIndex[packLoc]]}\{filenames[index]}";
+            var grpname = $@"data\{grpnames[packOffsetToIndex[packLoc]]}.grp";
+            var extname = $@"{grpnames[packOffsetToIndex[packLoc]]}\{filenames[index]}";
             return getFileBytes(grpname, entries[packOffsetToIndex[packLoc]][localIndex].number, entries[packOffsetToIndex[packLoc]][localIndex].type, extname, convert);
         }
 
@@ -178,7 +177,7 @@ namespace VBLauncher
             fs.Read(buffer, 0, lumps[filenumber].length);
             fs.Close();
 
-            string ext = GetExtension(filetype);
+            var ext = GetExtension(filetype);
             if (ext == "model")
             {
                 // check if buffer starts with "B3D "
@@ -225,15 +224,17 @@ namespace VBLauncher
                         var b3d = new B3DModel(b);
                         var model = B3DModelToUsableMesh(b3d, filename);
                         // Create an instance of ObjExporter
-                        var exporter = new ObjExporter();
-                        exporter.MaterialsFile = filename + ".mtl";
+                        var exporter = new ObjExporter
+                        {
+                            MaterialsFile = filename + ".mtl"
+                        };
                         // Create a MemoryStream
                         using (var memoryStream = new MemoryStream())
                         {
                             // Export the Model3DGroup to the MemoryStream
                             exporter.Export(model, memoryStream);
                             // Convert the MemoryStream to a byte array
-                            byte[] byteArray = memoryStream.ToArray();
+                            var byteArray = memoryStream.ToArray();
                             return byteArray;
                         }
                     }
@@ -247,15 +248,17 @@ namespace VBLauncher
                     var g3d = new G3DModel(b);
                     var model = G3DModelToUsableMesh(g3d);
                     // Create an instance of ObjExporter
-                    var exporter = new ObjExporter();
-                    exporter.MaterialsFile = filename + ".mtl";
+                    var exporter = new ObjExporter
+                    {
+                        MaterialsFile = filename + ".mtl"
+                    };
                     // Create a MemoryStream
                     using (var memoryStream = new MemoryStream())
                     {
                         // Export the Model3DGroup to the MemoryStream
                         exporter.Export(model, memoryStream);
                         // Convert the MemoryStream to a byte array
-                        byte[] byteArray = memoryStream.ToArray();
+                        var byteArray = memoryStream.ToArray();
                         return byteArray;
                     }
                 }
@@ -270,11 +273,11 @@ namespace VBLauncher
 
             for (int i = 0, loopTo = head.nEntries - 1; i <= loopTo; i++) // can't use Parallel.For to speed up
             {
-                int packLoc = globalIndexToPackOffset[i];
-                int localIndex = globalIndexToLocal[i];
+                var packLoc = globalIndexToPackOffset[i];
+                var localIndex = globalIndexToLocal[i];
                 Directory.CreateDirectory(grpnames[packOffsetToIndex[packLoc]]);
-                string grpname = $@"data\{grpnames[packOffsetToIndex[packLoc]]}.grp";
-                string extname = $@"{grpnames[packOffsetToIndex[packLoc]]}\{filenames[i]}";
+                var grpname = $@"data\{grpnames[packOffsetToIndex[packLoc]]}.grp";
+                var extname = $@"{grpnames[packOffsetToIndex[packLoc]]}\{filenames[i]}";
                 readExtensions(grpname, entries[packOffsetToIndex[packLoc]][localIndex].number, entries[packOffsetToIndex[packLoc]][localIndex].type, extname);
                 fullNameToGlobalIndex.Add((filenames[i] + "." + extensions[i]).ToLower(), i);
             }
@@ -300,7 +303,7 @@ namespace VBLauncher
             fs.Read(buffer, 0, lumps[filenumber].length);
             fs.Close();
 
-            string ext = GetExtension(filetype);
+            var ext = GetExtension(filetype);
             if (ext == "model")
             {
                 // check if buffer starts with "B3D "
@@ -367,7 +370,7 @@ namespace VBLauncher
             fs.Seek(head.offsetPacks, SeekOrigin.Begin);
             for (int i = 0, loopTo2 = head.offsetResources - head.offsetPacks; i <= loopTo2; i++)
             {
-                int c = fs.ReadByte();
+                var c = fs.ReadByte();
                 if (c == 0)
                 {
                     grpnames.Add(sb.ToString());
@@ -380,7 +383,7 @@ namespace VBLauncher
             }
             for (long i = 0L, loopTo3 = fs.Length - head.offsetResources; i <= loopTo3; i++)
             {
-                int c = fs.ReadByte();
+                var c = fs.ReadByte();
                 if (c == 0)
                 {
                     filenames.Add(sb.ToString());
@@ -503,17 +506,17 @@ namespace VBLauncher
             var selectedNode = DarkTreeView1.SelectedNodes[0];
             if (selectedNode.Nodes.Count != 0)
                 return;
-            int g = fullNameToGlobalIndex[selectedNode.Text.ToLower()];
+            var g = fullNameToGlobalIndex[selectedNode.Text.ToLower()];
             if (Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(lastIndex, g, false)))
                 return;
             lastIndex = g;
             DarkSectionPanel2.Controls.Clear();
-            string name = selectedNode.Text;
-            string ext = name.Split(".")[1];
+            var name = selectedNode.Text;
+            var ext = name.Split(".")[1];
             name = name.Split(".")[0];
-            string parentName = selectedNode.ParentNode.Text;
+            var parentName = selectedNode.ParentNode.Text;
             // find entry with matching name
-            int packIndex = grpnames.IndexOf(parentName);
+            var packIndex = grpnames.IndexOf(parentName);
             if (previewMode)
             {
                 byte[] b;
@@ -549,7 +552,7 @@ namespace VBLauncher
                         {
                             var g3d = new G3DModel(b);
                             var mesh = G3DModelToUsableMesh(g3d);
-                            model = new ModelVisual3D() { Content = mesh };
+                            model = new ModelVisual3D { Content = mesh };
                             viewport.Children.Clear();
                             viewport.Children.Add(model);
                             viewport.Children.Add(new DefaultLights());
@@ -562,17 +565,17 @@ namespace VBLauncher
                             Console.WriteLine(b3d.Model_Vertex_Position.Count);
                             Console.WriteLine(b3d.Vertex_Nodes.Count);
                             var mesh = B3DModelToUsableMesh(b3d, selectedNode.Text);
-                            model = new ModelVisual3D() { Content = mesh };
+                            model = new ModelVisual3D { Content = mesh };
                             viewport.Children.Clear();
                             viewport.Children.Add(model);
                             try
                             {
-                                byte[] gr2b = getFileBytes(fullNameToGlobalIndex[name.ToLower() + ".skl"]);
+                                var gr2b = getFileBytes(fullNameToGlobalIndex[name.ToLower() + ".skl"]);
                                 var gr2 = GrannyFormats.ReadFileFromMemory(gr2b);
                                 if (gr2.Models.Any())
                                 {
                                     var skl = GetSkeletonModel(gr2.Models[0]);
-                                    var model2 = new ModelVisual3D() { Content = skl };
+                                    var model2 = new ModelVisual3D { Content = skl };
                                     viewport.Children.Add(model2);
                                 }
                             }
@@ -587,7 +590,7 @@ namespace VBLauncher
                         {
                             var _8 = new _8Model(b, (int)Interaction.MsgBox("FLGS Size?", MsgBoxStyle.YesNo, "Option") == (int)DialogResult.Yes);
                             var mesh = _8ModelToUsableMesh(_8);
-                            model = new ModelVisual3D() { Content = mesh };
+                            model = new ModelVisual3D { Content = mesh };
                             viewport.Children.Clear();
                             viewport.Children.Add(model);
                             viewport.Children.Add(new DefaultLights());
@@ -609,15 +612,15 @@ namespace VBLauncher
                                 return;
                             }
 
-                            string mmn = map.EMAP.s1.ToLower();
+                            var mmn = map.EMAP.s1.ToLower();
                             try
                             {
-                                int mgi = fullNameToGlobalIndex[mmn];
-                                byte[] mmb = getFileBytes(mgi);
+                                var mgi = fullNameToGlobalIndex[mmn];
+                                var mmb = getFileBytes(mgi);
 
                                 var _8 = new _8Model(mmb, (int)Interaction.MsgBox("FLGS Size?", MsgBoxStyle.YesNo, "Option") == (int)DialogResult.Yes);
                                 var mapMesh = _8ModelToUsableMesh(_8);
-                                var mapModel = new ModelVisual3D() { Content = mapMesh };
+                                var mapModel = new ModelVisual3D { Content = mapMesh };
 
                                 viewport.Children.Add(mapModel);
                             }
@@ -626,7 +629,7 @@ namespace VBLauncher
                             }
                             foreach (var ent in map.EME2)
                             {
-                                int gInd = 0;
+                                var gInd = 0;
                                 try
                                 {
                                     gInd = fullNameToGlobalIndex[ent.name.ToLower()];
@@ -644,42 +647,42 @@ namespace VBLauncher
                                 }
                                 else
                                 {
-                                    var c = VBLauncher.Extensions.ToEEN2c(getFileBytes(gInd));
+                                    var c = getFileBytes(gInd).ToEEN2c();
                                     // EEN2 is the first chunk for all entities, only .CRT requires special processing.
-                                    int gInd2 = fullNameToGlobalIndex[c.skl.ToLower() + ".b3d"];
+                                    var gInd2 = fullNameToGlobalIndex[c.skl.ToLower() + ".b3d"];
                                     var b3d = new B3DModel(getFileBytes(gInd2));
                                     m = B3DModelToUsableMesh(b3d, selectedNode.Text);
                                 }
 
                                 var t = new Transform3DGroup();
 
-                                double rot = (double)(ent.l.r * 180f) / Math.PI; // convert to degrees
+                                var rot = (double)(ent.l.r * 180f) / Math.PI; // convert to degrees
 
                                 t.Children.Add(new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(0d, 0d, 1d), rot)));
                                 t.Children.Add(new TranslateTransform3D((double)ent.l.x, (double)ent.l.y, (double)ent.l.z));
 
                                 m.Transform = t;
 
-                                var mv3 = new ModelVisual3D() { Content = m };
+                                var mv3 = new ModelVisual3D { Content = m };
 
                                 viewport.Children.Add(mv3);
                             }
 
                             foreach (var ep in map.EMEP) // adds default player character to map entry points
                             {
-                                int gInd = fullNameToGlobalIndex["default_pc.crt"];
+                                var gInd = fullNameToGlobalIndex["default_pc.crt"];
                                 var crt = CRTToUsableMesh(getFileBytes(gInd));
 
                                 var t = new Transform3DGroup();
 
-                                double rot = (double)(ep.r * 180f) / Math.PI;
+                                var rot = (double)(ep.r * 180f) / Math.PI;
 
                                 t.Children.Add(new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(0d, 0d, 1d), rot)));
                                 t.Children.Add(new TranslateTransform3D((double)ep.p.x, (double)ep.p.y, (double)ep.p.z));
 
                                 crt.Transform = t;
 
-                                var mv3 = new ModelVisual3D() { Content = crt };
+                                var mv3 = new ModelVisual3D { Content = crt };
 
                                 viewport.Children.Add(mv3);
                             }
@@ -692,7 +695,7 @@ namespace VBLauncher
                         {
                             // Try
                             var crt = CRTToUsableMesh(b);
-                            model = new ModelVisual3D() { Content = crt };
+                            model = new ModelVisual3D { Content = crt };
                             viewport.Children.Clear();
                             viewport.Children.Add(model);
                             viewport.Children.Add(new DefaultLights());
@@ -711,7 +714,7 @@ namespace VBLauncher
                             if (gr2.Models.Any())
                             {
                                 var skl = GetSkeletonModel(gr2.Models[0]);
-                                model = new ModelVisual3D() { Content = skl };
+                                model = new ModelVisual3D { Content = skl };
                                 viewport.Children.Clear();
                                 viewport.Children.Add(model);
                                 viewport.Children.Add(new DefaultLights());
@@ -744,7 +747,7 @@ namespace VBLauncher
 
         private BitmapImage GetImageFromName(string name)
         {
-            string nne = name.Split(".")[0];
+            var nne = name.Split(".")[0];
             for (int i = 0, loopTo = entries.Length - 1; i <= loopTo; i++)
             {
                 foreach (var g in from e in entries[i]
@@ -761,7 +764,7 @@ namespace VBLauncher
         {
             var mb = new MeshBuilder();
             var baseTranslate = Matrix4x4.CreateTranslation(m.InitialPlacement.Position);
-            foreach (GrannyFormats.bone b in m.Skeleton.Bones)
+            foreach (var b in m.Skeleton.Bones)
             {
                 var p1 = b.ActualPosition;
                 var p2 = new Vector3(0f, 0f, 0f);
@@ -778,7 +781,7 @@ namespace VBLauncher
 
             var mesh = mb.ToMesh();
             var material = new EmissiveMaterial(new SolidColorBrush(Colors.White));
-            var model = new GeometryModel3D()
+            var model = new GeometryModel3D
             {
                 Geometry = mesh,
                 Material = material,
@@ -803,19 +806,19 @@ namespace VBLauncher
             var crt = b.ReadCRT();
             if (crt.EEN2.skl.StartsWith("Hum"))
             {
-                string baseModel = (crt.EEN2.skl + ".b3d").ToLower();
-                string heaModel = (crt.EEN2.skl + "_" + crt.GCRE.Hea.Model + ".b3d").ToLower();
-                string haiModel = (crt.EEN2.skl + "_" + crt.GCRE.Hai.Model + ".b3d").ToLower();
-                string ponModel = (crt.EEN2.skl + "_" + crt.GCRE.Pon.Model + ".b3d").ToLower();
-                string musModel = (crt.EEN2.skl + "_" + crt.GCRE.Mus.Model + ".b3d").ToLower();
-                string beaModel = (crt.EEN2.skl + "_" + crt.GCRE.Bea.Model + ".b3d").ToLower();
-                string eyeModel = (crt.EEN2.skl + "_" + crt.GCRE.Eye.Model + ".b3d").ToLower();
-                string bodModel = (crt.EEN2.skl + "_" + crt.GCRE.Bod.Model + ".b3d").ToLower();
-                string hanModel = (crt.EEN2.skl + "_" + crt.GCRE.Han.Model + ".b3d").ToLower();
-                string feeModel = (crt.EEN2.skl + "_" + crt.GCRE.Fee.Model + ".b3d").ToLower();
-                string bacModel = (crt.EEN2.skl + "_" + crt.GCRE.Bac.Model + ".b3d").ToLower();
-                string shoModel = (crt.EEN2.skl + "_" + crt.GCRE.Sho.Model + ".b3d").ToLower();
-                string vanModel = (crt.EEN2.skl + "_" + crt.GCRE.Van.Model + ".b3d").ToLower();
+                var baseModel = (crt.EEN2.skl + ".b3d").ToLower();
+                var heaModel = (crt.EEN2.skl + "_" + crt.GCRE.Hea.Model + ".b3d").ToLower();
+                var haiModel = (crt.EEN2.skl + "_" + crt.GCRE.Hai.Model + ".b3d").ToLower();
+                var ponModel = (crt.EEN2.skl + "_" + crt.GCRE.Pon.Model + ".b3d").ToLower();
+                var musModel = (crt.EEN2.skl + "_" + crt.GCRE.Mus.Model + ".b3d").ToLower();
+                var beaModel = (crt.EEN2.skl + "_" + crt.GCRE.Bea.Model + ".b3d").ToLower();
+                var eyeModel = (crt.EEN2.skl + "_" + crt.GCRE.Eye.Model + ".b3d").ToLower();
+                var bodModel = (crt.EEN2.skl + "_" + crt.GCRE.Bod.Model + ".b3d").ToLower();
+                var hanModel = (crt.EEN2.skl + "_" + crt.GCRE.Han.Model + ".b3d").ToLower();
+                var feeModel = (crt.EEN2.skl + "_" + crt.GCRE.Fee.Model + ".b3d").ToLower();
+                var bacModel = (crt.EEN2.skl + "_" + crt.GCRE.Bac.Model + ".b3d").ToLower();
+                var shoModel = (crt.EEN2.skl + "_" + crt.GCRE.Sho.Model + ".b3d").ToLower();
+                var vanModel = (crt.EEN2.skl + "_" + crt.GCRE.Van.Model + ".b3d").ToLower();
 
                 var heaTex = default(string);
                 var eyeTex = default(string);
@@ -947,7 +950,7 @@ namespace VBLauncher
                 var x = new Bitmap(512, 512);
                 using (var gr = Graphics.FromImage(x))
                 {
-                    string baseTex = !string.IsNullOrEmpty(crt.EEN2.EEOV.s4) ? crt.EEN2.EEOV.s4.Replace(".dds", ".tga").ToLower() : baseB3D.texName.ToLower();
+                    var baseTex = !string.IsNullOrEmpty(crt.EEN2.EEOV.s4) ? crt.EEN2.EEOV.s4.Replace(".dds", ".tga").ToLower() : baseB3D.texName.ToLower();
                     var baseImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex[baseTex]));
                     gr.DrawImageUnscaled(baseImage, 0, 0);
                     if (heaMesh is not null)
@@ -959,25 +962,25 @@ namespace VBLauncher
                     }
                     if (haiMesh is not null)
                     {
-                        string haiTex = !string.IsNullOrEmpty(crt.GCRE.Hai.Tex) ? crt.GCRE.Hai.Tex.Replace(".dds", ".tga").ToLower() : haiB3D.texName.ToLower();
+                        var haiTex = !string.IsNullOrEmpty(crt.GCRE.Hai.Tex) ? crt.GCRE.Hai.Tex.Replace(".dds", ".tga").ToLower() : haiB3D.texName.ToLower();
                         var haiImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex[haiTex]));
                         gr.DrawImageUnscaled(haiImage, 256, 128);
                     }
                     if (ponMesh is not null)
                     {
-                        string ponTex = !string.IsNullOrEmpty(crt.GCRE.Pon.Tex) ? crt.GCRE.Pon.Tex.Replace(".dds", ".tga").ToLower() : ponB3D.texName.ToLower();
+                        var ponTex = !string.IsNullOrEmpty(crt.GCRE.Pon.Tex) ? crt.GCRE.Pon.Tex.Replace(".dds", ".tga").ToLower() : ponB3D.texName.ToLower();
                         var ponImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex[ponTex]));
                         gr.DrawImageUnscaled(ponImage, 288, 224);
                     }
                     if (musMesh is not null)
                     {
-                        string musTex = !string.IsNullOrEmpty(crt.GCRE.Mus.Tex) ? crt.GCRE.Mus.Tex.Replace(".dds", ".tga").ToLower() : musB3D.texName.ToLower();
+                        var musTex = !string.IsNullOrEmpty(crt.GCRE.Mus.Tex) ? crt.GCRE.Mus.Tex.Replace(".dds", ".tga").ToLower() : musB3D.texName.ToLower();
                         var musImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex[musTex]));
                         gr.DrawImageUnscaled(musImage, 256, 224);
                     }
                     if (beaMesh is not null)
                     {
-                        string beaTex = !string.IsNullOrEmpty(crt.GCRE.Bea.Tex) ? crt.GCRE.Bea.Tex.Replace(".dds", ".tga").ToLower() : beaB3D.texName.ToLower();
+                        var beaTex = !string.IsNullOrEmpty(crt.GCRE.Bea.Tex) ? crt.GCRE.Bea.Tex.Replace(".dds", ".tga").ToLower() : beaB3D.texName.ToLower();
                         var beaImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex[beaTex]));
                         gr.DrawImageUnscaled(beaImage, 256, 192);
                     }
@@ -1037,7 +1040,7 @@ namespace VBLauncher
                 var baseMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(xbi, baseMesh.TextureCoordinates)));
                 var modelGroup = new Model3DGroup();
 
-                var baseGM3 = new GeometryModel3D()
+                var baseGM3 = new GeometryModel3D
                 {
                     Geometry = baseMesh,
                     Material = baseMat,
@@ -1048,7 +1051,7 @@ namespace VBLauncher
                 if (heaMesh is not null)
                 {
                     var heaMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(xbi, heaMesh.TextureCoordinates)));
-                    var heaGM3 = new GeometryModel3D()
+                    var heaGM3 = new GeometryModel3D
                     {
                         Geometry = heaMesh,
                         Material = heaMat,
@@ -1059,7 +1062,7 @@ namespace VBLauncher
                 if (haiMesh is not null)
                 {
                     var haiMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(xbi, haiMesh.TextureCoordinates, true)));
-                    var haiGM3 = new GeometryModel3D()
+                    var haiGM3 = new GeometryModel3D
                     {
                         Geometry = haiMesh,
                         Material = haiMat,
@@ -1070,7 +1073,7 @@ namespace VBLauncher
                 if (ponMesh is not null)
                 {
                     var ponMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(xbi, ponMesh.TextureCoordinates)));
-                    var ponGM3 = new GeometryModel3D()
+                    var ponGM3 = new GeometryModel3D
                     {
                         Geometry = ponMesh,
                         Material = ponMat,
@@ -1081,7 +1084,7 @@ namespace VBLauncher
                 if (musMesh is not null)
                 {
                     var musMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(xbi, musMesh.TextureCoordinates, true)));
-                    var musGM3 = new GeometryModel3D()
+                    var musGM3 = new GeometryModel3D
                     {
                         Geometry = musMesh,
                         Material = musMat,
@@ -1092,7 +1095,7 @@ namespace VBLauncher
                 if (beaMesh is not null)
                 {
                     var beaMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(xbi, beaMesh.TextureCoordinates, true)));
-                    var beaGM3 = new GeometryModel3D()
+                    var beaGM3 = new GeometryModel3D
                     {
                         Geometry = beaMesh,
                         Material = beaMat,
@@ -1103,7 +1106,7 @@ namespace VBLauncher
                 if (eyeMesh is not null)
                 {
                     var eyeMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(xbi, eyeMesh.TextureCoordinates)));
-                    var eyeGM3 = new GeometryModel3D()
+                    var eyeGM3 = new GeometryModel3D
                     {
                         Geometry = eyeMesh,
                         Material = eyeMat,
@@ -1114,7 +1117,7 @@ namespace VBLauncher
                 if (bodMesh is not null)
                 {
                     var bodMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(xbi, bodMesh.TextureCoordinates, true)));
-                    var bodGM3 = new GeometryModel3D()
+                    var bodGM3 = new GeometryModel3D
                     {
                         Geometry = bodMesh,
                         Material = bodMat,
@@ -1125,7 +1128,7 @@ namespace VBLauncher
                 if (hanMesh is not null)
                 {
                     var hanMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(xbi, hanMesh.TextureCoordinates)));
-                    var hanGM3 = new GeometryModel3D()
+                    var hanGM3 = new GeometryModel3D
                     {
                         Geometry = hanMesh,
                         Material = hanMat,
@@ -1136,7 +1139,7 @@ namespace VBLauncher
                 if (feeMesh is not null)
                 {
                     var feeMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(xbi, feeMesh.TextureCoordinates)));
-                    var feeGM3 = new GeometryModel3D()
+                    var feeGM3 = new GeometryModel3D
                     {
                         Geometry = feeMesh,
                         Material = feeMat,
@@ -1147,7 +1150,7 @@ namespace VBLauncher
                 if (bacMesh is not null)
                 {
                     var bacMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(xbi, bacMesh.TextureCoordinates, true)));
-                    var bacGM3 = new GeometryModel3D()
+                    var bacGM3 = new GeometryModel3D
                     {
                         Geometry = bacMesh,
                         Material = bacMat,
@@ -1158,7 +1161,7 @@ namespace VBLauncher
                 if (shoMesh is not null)
                 {
                     var shoMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(xbi, shoMesh.TextureCoordinates)));
-                    var shoGM3 = new GeometryModel3D()
+                    var shoGM3 = new GeometryModel3D
                     {
                         Geometry = shoMesh,
                         Material = shoMat,
@@ -1169,7 +1172,7 @@ namespace VBLauncher
                 if (vanMesh is not null)
                 {
                     var vanMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(xbi, vanMesh.TextureCoordinates)));
-                    var vanGM3 = new GeometryModel3D()
+                    var vanGM3 = new GeometryModel3D
                     {
                         Geometry = vanMesh,
                         Material = vanMat,
@@ -1182,10 +1185,10 @@ namespace VBLauncher
             }
             else
             {
-                string baseModel = (crt.EEN2.skl + ".b3d").ToLower();
+                var baseModel = (crt.EEN2.skl + ".b3d").ToLower();
                 var baseB3D = new B3DModel(getFileBytes(fullNameToGlobalIndex[baseModel]));
                 var baseMesh = B3DToNoMatMesh(baseB3D);
-                string baseTex = !string.IsNullOrEmpty(crt.EEN2.EEOV.s4) ? crt.EEN2.EEOV.s4.Replace(".dds", ".tga").ToLower() : baseB3D.texName.ToLower();
+                var baseTex = !string.IsNullOrEmpty(crt.EEN2.EEOV.s4) ? crt.EEN2.EEOV.s4.Replace(".dds", ".tga").ToLower() : baseB3D.texName.ToLower();
                 DiffuseMaterial baseMat;
                 try
                 {
@@ -1198,7 +1201,7 @@ namespace VBLauncher
                 }
                 var modelGroup = new Model3DGroup();
 
-                var baseGM3 = new GeometryModel3D()
+                var baseGM3 = new GeometryModel3D
                 {
                     Geometry = baseMesh,
                     Material = baseMat,
@@ -1214,15 +1217,15 @@ namespace VBLauncher
         // transparency also disabled by default due to rendering issue
         public BitmapImage CropBitmapByUV(BitmapImage bitmapImage, PointCollection uvCoordinates, bool trans = false)
         {
-            double minX = uvCoordinates.Min(p => p.X);
-            double minY = uvCoordinates.Min(p => p.Y);
-            double maxX = uvCoordinates.Max(p => p.X);
-            double maxY = uvCoordinates.Max(p => p.Y);
+            var minX = uvCoordinates.Min(p => p.X);
+            var minY = uvCoordinates.Min(p => p.Y);
+            var maxX = uvCoordinates.Max(p => p.X);
+            var maxY = uvCoordinates.Max(p => p.Y);
 
-            double x = minX * bitmapImage.PixelWidth;
-            double y = minY * bitmapImage.PixelHeight;
-            double width = (maxX - minX) * bitmapImage.PixelWidth;
-            double height = (maxY - minY) * bitmapImage.PixelHeight;
+            var x = minX * bitmapImage.PixelWidth;
+            var y = minY * bitmapImage.PixelHeight;
+            var width = (maxX - minX) * bitmapImage.PixelWidth;
+            var height = (maxY - minY) * bitmapImage.PixelHeight;
             Console.WriteLine($"x: {x} y: {y}{Constants.vbCrLf}w: {width} h: {height}");
 
             var croppedBitmap = new CroppedBitmap(bitmapImage, new Int32Rect((int)Math.Round(x), (int)Math.Round(y), (int)Math.Round(width), (int)Math.Round(height)));
@@ -1239,7 +1242,7 @@ namespace VBLauncher
         private Model3DGroup G3DModelToUsableMesh(G3DModel g3d)
         {
             var meshBuilder = new MeshBuilder();
-            float cs = 96.0f;
+            var cs = 96.0f;
             // coordinate scale, to roughly match the size of b3d models (not the same as CoordinateScale in models, it's purpose is unknown)
             for (int i = 0, loopTo = g3d.Model_Faces_Index.Count - 1; i <= loopTo; i++)
             {
@@ -1265,7 +1268,7 @@ namespace VBLauncher
             {
                 material = new DiffuseMaterial(new SolidColorBrush(Colors.LightSlateGray));
             }
-            var model = new GeometryModel3D()
+            var model = new GeometryModel3D
             {
                 Geometry = mesh,
                 Material = material,
@@ -1323,7 +1326,7 @@ namespace VBLauncher
             {
                 material = new DiffuseMaterial(new SolidColorBrush(Colors.LightGreen));
             }
-            var model = new GeometryModel3D()
+            var model = new GeometryModel3D
             {
                 Geometry = mesh,
                 Material = material,
@@ -1381,7 +1384,7 @@ namespace VBLauncher
                     material = new DiffuseMaterial(new SolidColorBrush(Colors.LightSlateGray));
                 }
 
-                var model = new GeometryModel3D()
+                var model = new GeometryModel3D
                 {
                     Geometry = mesh,
                     Material = material,
@@ -1394,9 +1397,11 @@ namespace VBLauncher
                 modelGroup.Children.Add(model);
             }
 
-            var exp = new ObjExporter();
-            exp.MaterialsFile = "temp.mtl";
-            var tmp = new ModelVisual3D() { Content = modelGroup };
+            var exp = new ObjExporter
+            {
+                MaterialsFile = "temp.mtl"
+            };
+            var tmp = new ModelVisual3D { Content = modelGroup };
             var fs = new FileStream("test.obj", FileMode.Create);
             exp.Export(tmp, fs);
             fs.Close();
@@ -1417,7 +1422,7 @@ namespace VBLauncher
             var newTexcoords = new List<System.Windows.Point>();
             var newNormals = new List<Vector3D>();
             var vertexIndexMap = new Dictionary<(Point3D, System.Windows.Point), int>();
-            int index = 0;
+            var index = 0;
 
             for (int i = 0, loopTo = positions.Count - 1; i <= loopTo; i++)
             {
@@ -1445,7 +1450,7 @@ namespace VBLauncher
             return newMesh;
         }
 
-        private HelixViewport3D viewport = new HelixViewport3D()
+        private HelixViewport3D viewport = new HelixViewport3D
         {
             CameraRotationMode = CameraRotationMode.Turntable,
             RotateAroundMouseDownPoint = true
@@ -1458,7 +1463,7 @@ namespace VBLauncher
         private void LoadModel(string objFileLocation)
         {
             var reader = new ObjReader();
-            model = new ModelVisual3D() { Content = reader.Read(objFileLocation) };
+            model = new ModelVisual3D { Content = reader.Read(objFileLocation) };
         }
 
         private void GrpBrowser_Load(object sender, EventArgs e)
@@ -1467,18 +1472,18 @@ namespace VBLauncher
             ReadRHT();
             readExtensions();
             DarkTreeView1.Nodes.Clear();
-            for (int i = 0; i <= 23; i++)
+            for (var i = 0; i <= 23; i++)
             {
                 DarkTreeView1.Nodes.Add(new DarkTreeNode(grpnames[i]));
                 foreach (var g in from ent in entries[i]
                                   select localIndexToGlobal[i][ent.number])
                 {
-                    string ext = extensions[g];
+                    var ext = extensions[g];
                     if (filter.Contains(ext))
                         DarkTreeView1.Nodes[i].Nodes.Add(new DarkTreeNode(filenames[g] + "." + ext));
                 }
             }
-            DarkTreeNode[] temp = (from node1 in DarkTreeView1.Nodes
+            var temp = (from node1 in DarkTreeView1.Nodes
                                    where node1.Nodes.Count == 0
                                    select node1).ToArray();
             foreach (var enode in temp)

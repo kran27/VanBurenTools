@@ -107,7 +107,7 @@ auto ToggleWind = reinterpret_cast<NoParamFunc>(F3 + 0x606E0);
 #pragma endregion
 
 inline auto getClient() { return *reinterpret_cast<int**>(GetAddr(HudBase, { 0x2C })); }
-inline auto getServer() { return *reinterpret_cast<int**>(GetAddr(HudBase, { 0x18 })); }
+inline auto getServer() { return *reinterpret_cast<int**>(GetAddr(HudBase, { 0x18 })); } // TODO: probably fails in multiplayer?
 inline uintptr_t consolePtr() { return GetAddr(HudBase, { 0x2C, 0x88, 0x0 }); }
 inline uintptr_t cursorPtr() { return GetAddr(HudBase, { 0x2C, 0xA4, 0x0 }); }
 
