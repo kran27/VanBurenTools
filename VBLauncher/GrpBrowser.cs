@@ -711,7 +711,7 @@ namespace VBLauncher
                         {
                             var gr2 = GrannyFormats.ReadFileFromMemory(b);
                             Console.WriteLine(gr2.FromFileName);
-                            if (gr2.Models.Any())
+                            if (gr2.Models != null)
                             {
                                 var skl = GetSkeletonModel(gr2.Models[0]);
                                 model = new ModelVisual3D { Content = skl };
