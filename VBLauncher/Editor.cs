@@ -10,6 +10,7 @@ using AltUI.Config;
 using AltUI.Controls;
 using AltUI.Forms;
 using Microsoft.VisualBasic.CompilerServices;
+using VBLauncher.My;
 
 namespace VBLauncher
 {
@@ -22,8 +23,8 @@ namespace VBLauncher
         private List<string> stf;
         private string f;
         private string ext;
-        private object cf; // As ITM ' Current file, ambiguous type (I set the type while coding to avoid errors)
-        private readonly string[] DontWipe = new[] { "Triggertcb", "GCREspcb", "GCREskcb", "GCREtrcb", "GCREtscb", "GCREsoccb" };
+        private dynamic cf; // As ITM ' Current file, ambiguous type (I set the type while coding to avoid errors)
+        private readonly string[] DontWipe = { "Triggertcb", "GCREspcb", "GCREskcb", "GCREtrcb", "GCREtscb", "GCREsoccb" };
         private bool HCtrl;
         private bool HN;
         private bool H1;
@@ -47,7 +48,7 @@ namespace VBLauncher
         private void InitialSetup()
         {
             Size = new Size(640, 480);
-            EnableSTFEdit.Checked = My.MySettingsProperty.Settings.STFEditEnabled;
+            EnableSTFEdit.Checked = MySettingsProperty.Settings.STFEditEnabled;
             Mapgb.Hide();
             CRTgb.Hide();
             ITMgb.Hide();
@@ -94,7 +95,7 @@ namespace VBLauncher
             }
             else
             {
-                DarkMessageBox.ShowError($".STF Not selected, file creation aborted", ".STF Not Selected");
+                DarkMessageBox.ShowError(".STF Not selected, file creation aborted", ".STF Not Selected");
             }
         }
 
@@ -118,7 +119,7 @@ namespace VBLauncher
             }
             else
             {
-                DarkMessageBox.ShowError($".STF Not selected, file creation aborted", ".STF Not Selected");
+                DarkMessageBox.ShowError(".STF Not selected, file creation aborted", ".STF Not Selected");
             }
         }
 
@@ -245,9 +246,9 @@ namespace VBLauncher
             var sfd = new SaveFileDialog { Filter = $"Van Buren Data File|*{ext}", ValidateNames = true, DefaultExt = ext };
             if (sfd.ShowDialog() == DialogResult.OK)
             {
-                if (My.MySettingsProperty.Settings.STFEditEnabled && stf is not null)
-                    File.WriteAllBytes(My.MySettingsProperty.Settings.STFDir, Extensions.TXTToSTF(stf.ToArray()));
-                File.WriteAllBytes(sfd.FileName, (byte[])((dynamic)cf).ToByte().ToArray());
+                if (MySettingsProperty.Settings.STFEditEnabled && stf is not null)
+                    File.WriteAllBytes(MySettingsProperty.Settings.STFDir, Extensions.TXTToSTF(stf.ToArray()));
+                File.WriteAllBytes(sfd.FileName, (byte[])cf.ToByte().ToArray());
             }
         }
 
@@ -529,28 +530,28 @@ namespace VBLauncher
 
         private void EMAPToUI()
         {
-            EMAPslb.BorderColour = (Color)((dynamic)cf).EMAP.col;
-            EMAPs1.Text = Convert.ToString(((dynamic)cf).EMAP.s1.Replace(".8", ""));
-            EMAPs2.Text = Convert.ToString(((dynamic)cf).EMAP.s2.Replace(".rle", ""));
-            EMAPs3.Text = Convert.ToString(((dynamic)cf).EMAP.s3.Replace(".dds", ""));
-            EMAPilcb.Checked = Convert.ToBoolean(((dynamic)cf).EMAP.il);
+            EMAPslb.BorderColour = (Color)cf.EMAP.col;
+            EMAPs1.Text = Convert.ToString(cf.EMAP.s1.Replace(".8", ""));
+            EMAPs2.Text = Convert.ToString(cf.EMAP.s2.Replace(".rle", ""));
+            EMAPs3.Text = Convert.ToString(cf.EMAP.s3.Replace(".dds", ""));
+            EMAPilcb.Checked = Convert.ToBoolean(cf.EMAP.il);
         }
 
         private void EME2ToUI()
         {
-            EME2n.Text = Convert.ToString(((dynamic)cf).EME2[EME2cb.SelectedIndex].name);
-            EME2s1.Text = Convert.ToString(((dynamic)cf).EME2[EME2cb.SelectedIndex].EEOV.s1);
-            EME2s2.Text = Convert.ToString(((dynamic)cf).EME2[EME2cb.SelectedIndex].EEOV.s2);
-            EME2s3.Text = Convert.ToString(((dynamic)cf).EME2[EME2cb.SelectedIndex].EEOV.s3.Replace(".amx", ""));
-            EME2s4.Text = Convert.ToString(((dynamic)cf).EME2[EME2cb.SelectedIndex].EEOV.s4.Replace(".dds", ""));
-            EME2s5.Text = Convert.ToString(((dynamic)cf).EME2[EME2cb.SelectedIndex].EEOV.s5.Replace(".veg", ""));
-            EME2x.Text = Convert.ToString(((dynamic)cf).EME2[EME2cb.SelectedIndex].l.x);
-            EME2y.Text = Convert.ToString(((dynamic)cf).EME2[EME2cb.SelectedIndex].l.y);
-            EME2z.Text = Convert.ToString(((dynamic)cf).EME2[EME2cb.SelectedIndex].l.z);
-            EME2r.Text = Convert.ToString(((dynamic)cf).EME2[EME2cb.SelectedIndex].l.r);
+            EME2n.Text = Convert.ToString(cf.EME2[EME2cb.SelectedIndex].name);
+            EME2s1.Text = Convert.ToString(cf.EME2[EME2cb.SelectedIndex].EEOV.s1);
+            EME2s2.Text = Convert.ToString(cf.EME2[EME2cb.SelectedIndex].EEOV.s2);
+            EME2s3.Text = Convert.ToString(cf.EME2[EME2cb.SelectedIndex].EEOV.s3.Replace(".amx", ""));
+            EME2s4.Text = Convert.ToString(cf.EME2[EME2cb.SelectedIndex].EEOV.s4.Replace(".dds", ""));
+            EME2s5.Text = Convert.ToString(cf.EME2[EME2cb.SelectedIndex].EEOV.s5.Replace(".veg", ""));
+            EME2x.Text = Convert.ToString(cf.EME2[EME2cb.SelectedIndex].l.x);
+            EME2y.Text = Convert.ToString(cf.EME2[EME2cb.SelectedIndex].l.y);
+            EME2z.Text = Convert.ToString(cf.EME2[EME2cb.SelectedIndex].l.z);
+            EME2r.Text = Convert.ToString(cf.EME2[EME2cb.SelectedIndex].l.r);
             var dt = new DataTable();
             dt.Columns.Add("item name", typeof(string));
-            foreach (var item in (IEnumerable)((dynamic)cf).EME2[EME2cb.SelectedIndex].EEOV.inv)
+            foreach (var item in (IEnumerable)cf.EME2[EME2cb.SelectedIndex].EEOV.inv)
                 dt.Rows.Add(item);
             EME2dgv.DataSource = dt;
             foreach (DataGridViewColumn col in EME2dgv.Columns)
@@ -562,27 +563,27 @@ namespace VBLauncher
 
         private void EMEPToUI()
         {
-            EMEPnud.Value = Convert.ToDecimal(((dynamic)cf).EMEP[EMEPcb.SelectedIndex].index);
-            EMEPx.Text = Convert.ToString(((dynamic)cf).EMEP[EMEPcb.SelectedIndex].p.x);
-            EMEPy.Text = Convert.ToString(((dynamic)cf).EMEP[EMEPcb.SelectedIndex].p.y);
-            EMEPz.Text = Convert.ToString(((dynamic)cf).EMEP[EMEPcb.SelectedIndex].p.z);
-            EMEPr.Text = Convert.ToString(((dynamic)cf).EMEP[EMEPcb.SelectedIndex].r);
+            EMEPnud.Value = Convert.ToDecimal(cf.EMEP[EMEPcb.SelectedIndex].index);
+            EMEPx.Text = Convert.ToString(cf.EMEP[EMEPcb.SelectedIndex].p.x);
+            EMEPy.Text = Convert.ToString(cf.EMEP[EMEPcb.SelectedIndex].p.y);
+            EMEPz.Text = Convert.ToString(cf.EMEP[EMEPcb.SelectedIndex].p.z);
+            EMEPr.Text = Convert.ToString(cf.EMEP[EMEPcb.SelectedIndex].r);
         }
 
         private void ECAMToUI()
         {
-            ECAMx.Text = Convert.ToString(((dynamic)cf).ECAM.p.x);
-            ECAMy.Text = Convert.ToString(((dynamic)cf).ECAM.p.y);
-            ECAMz.Text = Convert.ToString(((dynamic)cf).ECAM.p.z);
-            ECAMr.Text = Convert.ToString(((dynamic)cf).ECAM.p.r);
+            ECAMx.Text = Convert.ToString(cf.ECAM.p.x);
+            ECAMy.Text = Convert.ToString(cf.ECAM.p.y);
+            ECAMz.Text = Convert.ToString(cf.ECAM.p.z);
+            ECAMr.Text = Convert.ToString(cf.ECAM.p.r);
         }
 
         private void TriggerToUI()
         {
             Triggernud.Value = 1m;
-            Triggertcb.SelectedItem = ((dynamic)cf).Triggers[Triggercb.SelectedIndex].ExTR.@type;
+            Triggertcb.SelectedItem = cf.Triggers[Triggercb.SelectedIndex].ExTR.type;
             Triggern.Enabled = true;
-            Triggern.Text = Convert.ToString(((dynamic)cf).Triggers[Triggercb.SelectedIndex].ExTR.s);
+            Triggern.Text = Convert.ToString(cf.Triggers[Triggercb.SelectedIndex].ExTR.s);
             Triggernud_ValueChanged();
         }
 
@@ -590,20 +591,20 @@ namespace VBLauncher
         {
             if (Triggernud.Enabled)
             {
-                if (Convert.ToBoolean(Operators.ConditionalCompareObjectGreater(Triggernud.Value, ((dynamic)cf).Triggers[Triggercb.SelectedIndex].EMTR.r.Count, false)))
+                if (Convert.ToBoolean(Operators.ConditionalCompareObjectGreater(Triggernud.Value, cf.Triggers[Triggercb.SelectedIndex].EMTR.r.Count, false)))
                 {
-                    ((dynamic)cf).Triggers[Triggercb.SelectedIndex].EMTR.r.Add(new Point3(0f, 0f, 0f));
+                    cf.Triggers[Triggercb.SelectedIndex].EMTR.r.Add(new Point3(0f, 0f, 0f));
                 }
-                Triggerx.Text = Convert.ToString(((dynamic)cf).Triggers[Triggercb.SelectedIndex].EMTR.r[(int)(Triggernud.Value - 1m)].x);
-                Triggery.Text = Convert.ToString(((dynamic)cf).Triggers[Triggercb.SelectedIndex].EMTR.r[(int)(Triggernud.Value - 1m)].y);
-                Triggerz.Text = Convert.ToString(((dynamic)cf).Triggers[Triggercb.SelectedIndex].EMTR.r[(int)(Triggernud.Value - 1m)].z);
+                Triggerx.Text = Convert.ToString(cf.Triggers[Triggercb.SelectedIndex].EMTR.r[(int)(Triggernud.Value - 1m)].x);
+                Triggery.Text = Convert.ToString(cf.Triggers[Triggercb.SelectedIndex].EMTR.r[(int)(Triggernud.Value - 1m)].y);
+                Triggerz.Text = Convert.ToString(cf.Triggers[Triggercb.SelectedIndex].EMTR.r[(int)(Triggernud.Value - 1m)].z);
             }
         }
 
         private void EPTHToUI()
         {
             EPTHnud.Value = 1m;
-            EPTHn.Text = Convert.ToString(((dynamic)cf).EPTH[EPTHcb.SelectedIndex].name);
+            EPTHn.Text = Convert.ToString(cf.EPTH[EPTHcb.SelectedIndex].name);
             EPTHnud_ValueChanged();
         }
 
@@ -611,23 +612,23 @@ namespace VBLauncher
         {
             if (EPTHnud.Enabled)
             {
-                if (Convert.ToBoolean(Operators.ConditionalCompareObjectGreater(EPTHnud.Value, ((dynamic)cf).EPTH[EPTHcb.SelectedIndex].p.Count, false)))
+                if (Convert.ToBoolean(Operators.ConditionalCompareObjectGreater(EPTHnud.Value, cf.EPTH[EPTHcb.SelectedIndex].p.Count, false)))
                 {
-                    ((dynamic)cf).EPTH[EPTHcb.SelectedIndex].p.Add(new Point4(0f, 0f, 0f, 0f));
+                    cf.EPTH[EPTHcb.SelectedIndex].p.Add(new Point4(0f, 0f, 0f, 0f));
                 }
-                EPTHx.Text = Convert.ToString(((dynamic)cf).EPTH[EPTHcb.SelectedIndex].p[(int)(EPTHnud.Value - 1m)].x);
-                EPTHy.Text = Convert.ToString(((dynamic)cf).EPTH[EPTHcb.SelectedIndex].p[(int)(EPTHnud.Value - 1m)].y);
-                EPTHz.Text = Convert.ToString(((dynamic)cf).EPTH[EPTHcb.SelectedIndex].p[(int)(EPTHnud.Value - 1m)].z);
-                EPTHr.Text = Convert.ToString(((dynamic)cf).EPTH[EPTHcb.SelectedIndex].p[(int)(EPTHnud.Value - 1m)].r);
+                EPTHx.Text = Convert.ToString(cf.EPTH[EPTHcb.SelectedIndex].p[(int)(EPTHnud.Value - 1m)].x);
+                EPTHy.Text = Convert.ToString(cf.EPTH[EPTHcb.SelectedIndex].p[(int)(EPTHnud.Value - 1m)].y);
+                EPTHz.Text = Convert.ToString(cf.EPTH[EPTHcb.SelectedIndex].p[(int)(EPTHnud.Value - 1m)].z);
+                EPTHr.Text = Convert.ToString(cf.EPTH[EPTHcb.SelectedIndex].p[(int)(EPTHnud.Value - 1m)].r);
             }
         }
 
         private void Triggerpm_Click()
         {
             var i = Triggernud.Value - 1m;
-            if (Convert.ToBoolean(Operators.ConditionalCompareObjectNotEqual(((dynamic)cf).Triggers[Triggercb.SelectedIndex].EMTR.r.Count, 1, false)))
+            if (Convert.ToBoolean(Operators.ConditionalCompareObjectNotEqual(cf.Triggers[Triggercb.SelectedIndex].EMTR.r.Count, 1, false)))
             {
-                ((dynamic)cf).Triggers[Triggercb.SelectedIndex].EMTR.r.RemoveAt(i);
+                cf.Triggers[Triggercb.SelectedIndex].EMTR.r.RemoveAt(i);
                 Triggernud.Value = i;
             }
         }
@@ -635,46 +636,46 @@ namespace VBLauncher
         private void EPTHpm_Click()
         {
             var i = EPTHnud.Value - 1m;
-            if (Convert.ToBoolean(Operators.ConditionalCompareObjectNotEqual(((dynamic)cf).EPTH[EPTHcb.SelectedIndex].p.Count, 1, false)))
+            if (Convert.ToBoolean(Operators.ConditionalCompareObjectNotEqual(cf.EPTH[EPTHcb.SelectedIndex].p.Count, 1, false)))
             {
-                ((dynamic)cf).EPTH[EPTHcb.SelectedIndex].p.RemoveAt(i);
+                cf.EPTH[EPTHcb.SelectedIndex].p.RemoveAt(i);
                 EPTHnud.Value = i;
             }
         }
 
         private void EMSDToUI()
         {
-            EMSDs1.Text = Convert.ToString(((dynamic)cf).EMSD[EMSDcb.SelectedIndex].s1);
-            EMSDs2.Text = Convert.ToString(((dynamic)cf).EMSD[EMSDcb.SelectedIndex].s2.Replace(".psf", ""));
-            EMSDx.Text = Convert.ToString(((dynamic)cf).EMSD[EMSDcb.SelectedIndex].l.x);
-            EMSDy.Text = Convert.ToString(((dynamic)cf).EMSD[EMSDcb.SelectedIndex].l.y);
-            EMSDz.Text = Convert.ToString(((dynamic)cf).EMSD[EMSDcb.SelectedIndex].l.z);
+            EMSDs1.Text = Convert.ToString(cf.EMSD[EMSDcb.SelectedIndex].s1);
+            EMSDs2.Text = Convert.ToString(cf.EMSD[EMSDcb.SelectedIndex].s2.Replace(".psf", ""));
+            EMSDx.Text = Convert.ToString(cf.EMSD[EMSDcb.SelectedIndex].l.x);
+            EMSDy.Text = Convert.ToString(cf.EMSD[EMSDcb.SelectedIndex].l.y);
+            EMSDz.Text = Convert.ToString(cf.EMSD[EMSDcb.SelectedIndex].l.z);
         }
 
         private void EMEFToUI()
         {
-            EMEFs1.Text = Convert.ToString(((dynamic)cf).EMEF[EMEFcb.SelectedIndex].s1);
-            EMEFs2.Text = Convert.ToString(((dynamic)cf).EMEF[EMEFcb.SelectedIndex].s2.Replace(".veg", ""));
-            EMEFx.Text = Convert.ToString(((dynamic)cf).EMEF[EMEFcb.SelectedIndex].l.x);
-            EMEFy.Text = Convert.ToString(((dynamic)cf).EMEF[EMEFcb.SelectedIndex].l.y);
-            EMEFz.Text = Convert.ToString(((dynamic)cf).EMEF[EMEFcb.SelectedIndex].l.z);
-            EMEFr.Text = Convert.ToString(((dynamic)cf).EMEF[EMEFcb.SelectedIndex].l.r);
+            EMEFs1.Text = Convert.ToString(cf.EMEF[EMEFcb.SelectedIndex].s1);
+            EMEFs2.Text = Convert.ToString(cf.EMEF[EMEFcb.SelectedIndex].s2.Replace(".veg", ""));
+            EMEFx.Text = Convert.ToString(cf.EMEF[EMEFcb.SelectedIndex].l.x);
+            EMEFy.Text = Convert.ToString(cf.EMEF[EMEFcb.SelectedIndex].l.y);
+            EMEFz.Text = Convert.ToString(cf.EMEF[EMEFcb.SelectedIndex].l.z);
+            EMEFr.Text = Convert.ToString(cf.EMEF[EMEFcb.SelectedIndex].l.r);
         }
 
         private void EEN2ToUI()
         {
-            EEN2skl.Text = Convert.ToString(((dynamic)cf).EEN2.skl);
-            EEN2invt.Text = Convert.ToString(((dynamic)cf).EEN2.invtex.Replace(".dds", ""));
-            EEN2actt.Text = Convert.ToString(((dynamic)cf).EEN2.acttex.Replace(".dds", ""));
-            EEN2sel.Checked = Convert.ToBoolean(((dynamic)cf).EEN2.sel);
-            EEN2s1.Text = Convert.ToString(((dynamic)cf).EEN2.EEOV.s1);
-            EEN2s2.Text = Convert.ToString(((dynamic)cf).EEN2.EEOV.s2);
-            EEN2s3.Text = Convert.ToString(((dynamic)cf).EEN2.EEOV.s3.Replace(".amx", ""));
-            EEN2s4.Text = Convert.ToString(((dynamic)cf).EEN2.EEOV.s4.Replace(".dds", ""));
-            EEN2s5.Text = Convert.ToString(((dynamic)cf).EEN2.EEOV.s5.Replace(".veg", ""));
+            EEN2skl.Text = Convert.ToString(cf.EEN2.skl);
+            EEN2invt.Text = Convert.ToString(cf.EEN2.invtex.Replace(".dds", ""));
+            EEN2actt.Text = Convert.ToString(cf.EEN2.acttex.Replace(".dds", ""));
+            EEN2sel.Checked = Convert.ToBoolean(cf.EEN2.sel);
+            EEN2s1.Text = Convert.ToString(cf.EEN2.EEOV.s1);
+            EEN2s2.Text = Convert.ToString(cf.EEN2.EEOV.s2);
+            EEN2s3.Text = Convert.ToString(cf.EEN2.EEOV.s3.Replace(".amx", ""));
+            EEN2s4.Text = Convert.ToString(cf.EEN2.EEOV.s4.Replace(".dds", ""));
+            EEN2s5.Text = Convert.ToString(cf.EEN2.EEOV.s5.Replace(".veg", ""));
             var dt = new DataTable();
             dt.Columns.Add("item name", typeof(string));
-            foreach (var item in (IEnumerable)((dynamic)cf).EEN2.EEOV.inv)
+            foreach (var item in (IEnumerable)cf.EEN2.EEOV.inv)
                 dt.Rows.Add(item);
             EEN2dgv.DataSource = dt;
             foreach (DataGridViewColumn col in EEN2dgv.Columns)
@@ -686,92 +687,92 @@ namespace VBLauncher
 
         private void GENTToUI()
         {
-            GENThSR.Value = Convert.ToDecimal(((dynamic)cf).GENT.HoverSR);
+            GENThSR.Value = Convert.ToDecimal(cf.GENT.HoverSR);
             try
             {
-                GENTh.Text = stf[Convert.ToInt32(Operators.SubtractObject(((dynamic)cf).GENT.HoverSR, 1))];
+                GENTh.Text = stf[Convert.ToInt32(Operators.SubtractObject(cf.GENT.HoverSR, 1))];
             }
             catch
             {
             }
-            GENTh.Enabled = Convert.ToBoolean(My.MySettingsProperty.Settings.STFEditEnabled && Operators.ConditionalCompareObjectNotEqual(((dynamic)cf).GENT.HoverSR, 0, false));
-            GENTlSR.Value = Convert.ToDecimal(((dynamic)cf).GENT.LookSR);
+            GENTh.Enabled = Convert.ToBoolean(MySettingsProperty.Settings.STFEditEnabled && Operators.ConditionalCompareObjectNotEqual(cf.GENT.HoverSR, 0, false));
+            GENTlSR.Value = Convert.ToDecimal(cf.GENT.LookSR);
             try
             {
-                GENTl.Text = stf[Convert.ToInt32(Operators.SubtractObject(((dynamic)cf).GENT.LookSR, 1))];
+                GENTl.Text = stf[Convert.ToInt32(Operators.SubtractObject(cf.GENT.LookSR, 1))];
             }
             catch
             {
             }
-            GENTl.Enabled = Convert.ToBoolean(My.MySettingsProperty.Settings.STFEditEnabled && Operators.ConditionalCompareObjectNotEqual(((dynamic)cf).GENT.LookSR, 0, false));
-            GENTnSR.Value = Convert.ToDecimal(((dynamic)cf).GENT.NameSR);
+            GENTl.Enabled = Convert.ToBoolean(MySettingsProperty.Settings.STFEditEnabled && Operators.ConditionalCompareObjectNotEqual(cf.GENT.LookSR, 0, false));
+            GENTnSR.Value = Convert.ToDecimal(cf.GENT.NameSR);
             try
             {
-                GENTn.Text = stf[Convert.ToInt32(Operators.SubtractObject(((dynamic)cf).GENT.NameSR, 1))];
+                GENTn.Text = stf[Convert.ToInt32(Operators.SubtractObject(cf.GENT.NameSR, 1))];
             }
             catch
             {
             }
-            GENTn.Enabled = Convert.ToBoolean(My.MySettingsProperty.Settings.STFEditEnabled && Operators.ConditionalCompareObjectNotEqual(((dynamic)cf).GENT.NameSR, 0, false));
-            GENTuSR.Value = Convert.ToDecimal(((dynamic)cf).GENT.UnkwnSR);
+            GENTn.Enabled = Convert.ToBoolean(MySettingsProperty.Settings.STFEditEnabled && Operators.ConditionalCompareObjectNotEqual(cf.GENT.NameSR, 0, false));
+            GENTuSR.Value = Convert.ToDecimal(cf.GENT.UnkwnSR);
             try
             {
-                GENTu.Text = stf[Convert.ToInt32(Operators.SubtractObject(((dynamic)cf).GENT.UnkwnSR, 1))];
+                GENTu.Text = stf[Convert.ToInt32(Operators.SubtractObject(cf.GENT.UnkwnSR, 1))];
             }
             catch
             {
             }
-            GENTu.Enabled = Convert.ToBoolean(My.MySettingsProperty.Settings.STFEditEnabled && Operators.ConditionalCompareObjectNotEqual(((dynamic)cf).GENT.UnkwnSR, 0, false));
-            GENTmhp.Value = Convert.ToDecimal(((dynamic)cf).GENT.MaxHealth);
-            GENTihp.Value = Convert.ToDecimal(((dynamic)cf).GENT.StartHealth);
+            GENTu.Enabled = Convert.ToBoolean(MySettingsProperty.Settings.STFEditEnabled && Operators.ConditionalCompareObjectNotEqual(cf.GENT.UnkwnSR, 0, false));
+            GENTmhp.Value = Convert.ToDecimal(cf.GENT.MaxHealth);
+            GENTihp.Value = Convert.ToDecimal(cf.GENT.StartHealth);
         }
 
         private void GWAMToUI()
         {
-            GWAMani.Value = Convert.ToDecimal(((dynamic)cf).GCRE.GWAM[GWAMcb.SelectedIndex].Anim);
-            GWAMdt.SelectedIndex = Convert.ToInt32(((dynamic)cf).GCRE.GWAM[GWAMcb.SelectedIndex].DmgType);
-            GWAMsf.Value = Convert.ToDecimal(((dynamic)cf).GCRE.GWAM[GWAMcb.SelectedIndex].ShotsFired);
-            GWAMr.Value = Convert.ToDecimal(((dynamic)cf).GCRE.GWAM[GWAMcb.SelectedIndex].Range);
-            GWAMmin.Value = Convert.ToDecimal(((dynamic)cf).GCRE.GWAM[GWAMcb.SelectedIndex].MinDmg);
-            GWAMmax.Value = Convert.ToDecimal(((dynamic)cf).GCRE.GWAM[GWAMcb.SelectedIndex].MaxDmg);
-            GWAMap.Value = Convert.ToDecimal(((dynamic)cf).GCRE.GWAM[GWAMcb.SelectedIndex].AP);
-            GWAManSR.Value = Convert.ToDecimal(((dynamic)cf).GCRE.GWAM[GWAMcb.SelectedIndex].NameSR);
+            GWAMani.Value = Convert.ToDecimal(cf.GCRE.GWAM[GWAMcb.SelectedIndex].Anim);
+            GWAMdt.SelectedIndex = Convert.ToInt32(cf.GCRE.GWAM[GWAMcb.SelectedIndex].DmgType);
+            GWAMsf.Value = Convert.ToDecimal(cf.GCRE.GWAM[GWAMcb.SelectedIndex].ShotsFired);
+            GWAMr.Value = Convert.ToDecimal(cf.GCRE.GWAM[GWAMcb.SelectedIndex].Range);
+            GWAMmin.Value = Convert.ToDecimal(cf.GCRE.GWAM[GWAMcb.SelectedIndex].MinDmg);
+            GWAMmax.Value = Convert.ToDecimal(cf.GCRE.GWAM[GWAMcb.SelectedIndex].MaxDmg);
+            GWAMap.Value = Convert.ToDecimal(cf.GCRE.GWAM[GWAMcb.SelectedIndex].AP);
+            GWAManSR.Value = Convert.ToDecimal(cf.GCRE.GWAM[GWAMcb.SelectedIndex].NameSR);
             try
             {
-                GWAMan.Text = stf[Convert.ToInt32(Operators.SubtractObject(((dynamic)cf).GCRE.GWAM[GWAMcb.SelectedIndex].NameSR, 1))];
+                GWAMan.Text = stf[Convert.ToInt32(Operators.SubtractObject(cf.GCRE.GWAM[GWAMcb.SelectedIndex].NameSR, 1))];
             }
             catch
             {
             }
-            GWAMan.Enabled = Convert.ToBoolean(My.MySettingsProperty.Settings.STFEditEnabled && Operators.ConditionalCompareObjectNotEqual(((dynamic)cf).GCRE.GWAM[GWAMcb.SelectedIndex].NameSR, 0, false));
-            GWAMef.Text = Convert.ToString(((dynamic)cf).GCRE.GWAM[GWAMcb.SelectedIndex].VegName.Replace(".veg", ""));
+            GWAMan.Enabled = Convert.ToBoolean(MySettingsProperty.Settings.STFEditEnabled && Operators.ConditionalCompareObjectNotEqual(cf.GCRE.GWAM[GWAMcb.SelectedIndex].NameSR, 0, false));
+            GWAMef.Text = Convert.ToString(cf.GCRE.GWAM[GWAMcb.SelectedIndex].VegName.Replace(".veg", ""));
         }
 
         private void GCREToUI()
         {
-            GCREage.Value = Convert.ToDecimal(((dynamic)cf).GCRE.Age);
+            GCREage.Value = Convert.ToDecimal(cf.GCRE.Age);
             GCREspcb.SelectedIndex = 0;
-            GCREspv.Value = Convert.ToDecimal(((dynamic)cf).GCRE.Special[0]);
-            if (Convert.ToBoolean(Operators.ConditionalCompareObjectGreater(((dynamic)cf).GCRE.Skills.Count, 0, false)))
+            GCREspv.Value = Convert.ToDecimal(cf.GCRE.Special[0]);
+            if (Convert.ToBoolean(Operators.ConditionalCompareObjectGreater(cf.GCRE.Skills.Count, 0, false)))
             {
-                GCREskcb.SelectedIndex = Convert.ToInt32(((dynamic)cf).GCRE.Skills[0].Index);
-                GCREskv.Value = Convert.ToDecimal(((dynamic)cf).GCRE.Skills[0].Value);
+                GCREskcb.SelectedIndex = Convert.ToInt32(cf.GCRE.Skills[0].Index);
+                GCREskv.Value = Convert.ToDecimal(cf.GCRE.Skills[0].Value);
             }
             else
             {
                 GCREskcb.SelectedIndex = 0;
             }
             GCREtrcb.SelectedIndex = 0;
-            GCREtrv.Checked = Convert.ToBoolean(((dynamic)cf).GCRE.Traits.Contains(0));
+            GCREtrv.Checked = Convert.ToBoolean(cf.GCRE.Traits.Contains(0));
             GCREtscb.SelectedIndex = 0;
-            GCREtsv.Checked = Convert.ToBoolean(((dynamic)cf).GCRE.TagSkills.Contains(0));
-            GCREp.Text = Convert.ToString(((dynamic)cf).GCRE.PortStr.Replace(".dds", ""));
+            GCREtsv.Checked = Convert.ToBoolean(cf.GCRE.TagSkills.Contains(0));
+            GCREp.Text = Convert.ToString(cf.GCRE.PortStr.Replace(".dds", ""));
             GCREsoccb.SelectedIndex = 0;
-            GCREsocm.Text = Convert.ToString(((dynamic)cf).GCRE.Hea.Model);
-            GCREsoct.Text = Convert.ToString(((dynamic)cf).GCRE.Hea.Tex.Replace(".dds", ""));
+            GCREsocm.Text = Convert.ToString(cf.GCRE.Hea.Model);
+            GCREsoct.Text = Convert.ToString(cf.GCRE.Hea.Tex.Replace(".dds", ""));
             var dt = new DataTable();
             dt.Columns.Add("item name", typeof(string));
-            foreach (var item in (IEnumerable)((dynamic)cf).GCRE.Inventory)
+            foreach (var item in (IEnumerable)cf.GCRE.Inventory)
                 dt.Rows.Add(item);
             GCREdgv.DataSource = dt;
             foreach (DataGridViewColumn col in GCREdgv.Columns)
@@ -783,19 +784,19 @@ namespace VBLauncher
 
         private void GITMToUI()
         {
-            GITMtype.SelectedIndex = Convert.ToInt32(((dynamic)cf).GITM.@type);
-            GITMeq.Checked = Convert.ToBoolean(((dynamic)cf).GITM.equip);
-            GITMslot.SelectedIndex = Convert.ToInt32(((dynamic)cf).GITM.eqslot);
-            GITMrl.Text = Convert.ToString(((dynamic)cf).GITM.reload);
+            GITMtype.SelectedIndex = Convert.ToInt32(cf.GITM.type);
+            GITMeq.Checked = Convert.ToBoolean(cf.GITM.equip);
+            GITMslot.SelectedIndex = Convert.ToInt32(cf.GITM.eqslot);
+            GITMrl.Text = Convert.ToString(cf.GITM.reload);
             // GITMml.Checked = cf.GITM.reload =
-            GITMhhai.Checked = Convert.ToBoolean(((dynamic)cf).GITM.hHai);
-            GITMhbea.Checked = Convert.ToBoolean(((dynamic)cf).GITM.hBea);
-            GITMhmus.Checked = Convert.ToBoolean(((dynamic)cf).GITM.hMus);
-            GITMheye.Checked = Convert.ToBoolean(((dynamic)cf).GITM.hEye);
-            GITMhpon.Checked = Convert.ToBoolean(((dynamic)cf).GITM.hPon);
-            GITMhvan.Checked = Convert.ToBoolean(((dynamic)cf).GITM.hVan);
-            GITMsoct.Text = Convert.ToString(((dynamic)cf).GITM.Hea.Tex);
-            GITMsocm.Text = Convert.ToString(((dynamic)cf).GITM.Hea.Model);
+            GITMhhai.Checked = Convert.ToBoolean(cf.GITM.hHai);
+            GITMhbea.Checked = Convert.ToBoolean(cf.GITM.hBea);
+            GITMhmus.Checked = Convert.ToBoolean(cf.GITM.hMus);
+            GITMheye.Checked = Convert.ToBoolean(cf.GITM.hEye);
+            GITMhpon.Checked = Convert.ToBoolean(cf.GITM.hPon);
+            GITMhvan.Checked = Convert.ToBoolean(cf.GITM.hVan);
+            GITMsoct.Text = Convert.ToString(cf.GITM.Hea.Tex);
+            GITMsocm.Text = Convert.ToString(cf.GITM.Hea.Model);
         }
 
         #endregion
@@ -804,304 +805,294 @@ namespace VBLauncher
 
         private void PickLightingColour(object sender, EventArgs e)
         {
-            var cd = new ColorDialog { Color = (Color)((dynamic)cf).EMAP.col, FullOpen = true };
-            if (cd.ShowDialog() == DialogResult.OK)
-            {
-                EMAPslb.BorderColour = cd.Color;
-                ((dynamic)cf).EMAP.col = cd.Color;
-            }
+            var cd = new AltUI.ColorPicker.ColorPickerDialog();
+            cd.Color = (Color)cf.EMAP.col;
+            if (cd.ShowDialog() != DialogResult.OK) return;
+            EMAPslb.BorderColour = cd.Color;
+            cf.EMAP.col = cd.Color;
         }
 
         private void EMAPilcb_CheckedChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EMAP.il = EMAPilcb.Checked;
+                cf.EMAP.il = EMAPilcb.Checked;
         }
 
         private void EMAPs1_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EMAP.s1 = EMAPs1.Text + (string.IsNullOrWhiteSpace(EMAPs1.Text) ? "" : ".8");
+                cf.EMAP.s1 = EMAPs1.Text + (string.IsNullOrWhiteSpace(EMAPs1.Text) ? "" : ".8");
         }
 
         private void EMAPs2_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EMAP.s2 = EMAPs2.Text + (string.IsNullOrWhiteSpace(EMAPs2.Text) ? "" : ".rle");
+                cf.EMAP.s2 = EMAPs2.Text + (string.IsNullOrWhiteSpace(EMAPs2.Text) ? "" : ".rle");
         }
 
         private void EMAPs3_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EMAP.s3 = EMAPs3.Text + (string.IsNullOrWhiteSpace(EMAPs3.Text) ? "" : ".dds");
+                cf.EMAP.s3 = EMAPs3.Text + (string.IsNullOrWhiteSpace(EMAPs3.Text) ? "" : ".dds");
         }
 
         private void ECAMx_TextChanged(object sender, EventArgs e)
         {
-            if (Convert.ToBoolean(((dynamic)sender).Enabled))
-            {
-                if (((dynamic)cf).ECAM is null)
-                    ((dynamic)cf).ECAM = new ECAMc();
-                ((dynamic)cf).ECAM.p.x = string.IsNullOrEmpty(ECAMx.Text) ? 0 : float.Parse(ECAMx.Text);
-            }
+            if (!Convert.ToBoolean(((dynamic)sender).Enabled)) return;
+            cf.ECAM ??= new ECAMc();
+            cf.ECAM.p.x = string.IsNullOrEmpty(ECAMx.Text) ? 0 : float.Parse(ECAMx.Text);
         }
 
         private void ECAMy_TextChanged(object sender, EventArgs e)
         {
-            if (Convert.ToBoolean(((dynamic)sender).Enabled))
-            {
-                if (((dynamic)cf).ECAM is null)
-                    ((dynamic)cf).ECAM = new ECAMc();
-                ((dynamic)cf).ECAM.p.y = string.IsNullOrEmpty(ECAMy.Text) ? 0 : float.Parse(ECAMy.Text);
-            }
+            if (!Convert.ToBoolean(((dynamic)sender).Enabled)) return;
+            cf.ECAM ??= new ECAMc();
+            cf.ECAM.p.y = string.IsNullOrEmpty(ECAMy.Text) ? 0 : float.Parse(ECAMy.Text);
         }
 
         private void ECAMz_TextChanged(object sender, EventArgs e)
         {
-            if (Convert.ToBoolean(((dynamic)sender).Enabled))
-            {
-                if (((dynamic)cf).ECAM is null)
-                    ((dynamic)cf).ECAM = new ECAMc();
-                ((dynamic)cf).ECAM.p.z = string.IsNullOrEmpty(ECAMz.Text) ? 0 : float.Parse(ECAMz.Text);
-            }
+            if (!Convert.ToBoolean(((dynamic)sender).Enabled)) return;
+            cf.ECAM ??= new ECAMc();
+            cf.ECAM.p.z = string.IsNullOrEmpty(ECAMz.Text) ? 0 : float.Parse(ECAMz.Text);
         }
 
         private void ECAMr_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
             {
-                if (((dynamic)cf).ECAM is null)
-                    ((dynamic)cf).ECAM = new ECAMc();
-                ((dynamic)cf).ECAM.p.r = string.IsNullOrEmpty(ECAMr.Text) ? 0 : float.Parse(ECAMr.Text);
+                if (cf.ECAM is null)
+                    cf.ECAM = new ECAMc();
+                cf.ECAM.p.r = string.IsNullOrEmpty(ECAMr.Text) ? 0 : float.Parse(ECAMr.Text);
             }
         }
 
         private void EMEFs1_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EMEF[EMEFcb.SelectedIndex].s1 = EMEFs1.Text;
+                cf.EMEF[EMEFcb.SelectedIndex].s1 = EMEFs1.Text;
         }
 
         private void EMEFs2_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EMEF[EMEFcb.SelectedIndex].s2 = EMEFs2.Text + (string.IsNullOrWhiteSpace(EMEFs2.Text) ? "" : ".veg");
+                cf.EMEF[EMEFcb.SelectedIndex].s2 = EMEFs2.Text + (string.IsNullOrWhiteSpace(EMEFs2.Text) ? "" : ".veg");
         }
 
         private void EMEFx_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EMEF[EMEFcb.SelectedIndex].l.x = string.IsNullOrEmpty(EMEFx.Text) ? 0 : float.Parse(EMEFx.Text);
+                cf.EMEF[EMEFcb.SelectedIndex].l.x = string.IsNullOrEmpty(EMEFx.Text) ? 0 : float.Parse(EMEFx.Text);
         }
 
         private void EMEFy_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EMEF[EMEFcb.SelectedIndex].l.y = string.IsNullOrEmpty(EMEFy.Text) ? 0 : float.Parse(EMEFy.Text);
+                cf.EMEF[EMEFcb.SelectedIndex].l.y = string.IsNullOrEmpty(EMEFy.Text) ? 0 : float.Parse(EMEFy.Text);
         }
 
         private void EMEFz_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EMEF[EMEFcb.SelectedIndex].l.z = string.IsNullOrEmpty(EMEFz.Text) ? 0 : float.Parse(EMEFz.Text);
+                cf.EMEF[EMEFcb.SelectedIndex].l.z = string.IsNullOrEmpty(EMEFz.Text) ? 0 : float.Parse(EMEFz.Text);
         }
 
         private void EMEFr_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EMEF[EMEFcb.SelectedIndex].l.r = string.IsNullOrEmpty(EMEFr.Text) ? 0 : float.Parse(EMEFr.Text);
+                cf.EMEF[EMEFcb.SelectedIndex].l.r = string.IsNullOrEmpty(EMEFr.Text) ? 0 : float.Parse(EMEFr.Text);
         }
 
         private void EMEPnud_ValueChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EMEP[EMEPcb.SelectedIndex].index = (int)EMEPnud.Value;
+                cf.EMEP[EMEPcb.SelectedIndex].index = (int)EMEPnud.Value;
         }
 
         private void EMEPx_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EMEP[EMEPcb.SelectedIndex].p.x = string.IsNullOrEmpty(EMEPx.Text) ? 0 : float.Parse(EMEPx.Text);
+                cf.EMEP[EMEPcb.SelectedIndex].p.x = string.IsNullOrEmpty(EMEPx.Text) ? 0 : float.Parse(EMEPx.Text);
         }
 
         private void EMEPy_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EMEP[EMEPcb.SelectedIndex].p.y = string.IsNullOrEmpty(EMEPy.Text) ? 0 : float.Parse(EMEPy.Text);
+                cf.EMEP[EMEPcb.SelectedIndex].p.y = string.IsNullOrEmpty(EMEPy.Text) ? 0 : float.Parse(EMEPy.Text);
         }
 
         private void EMEPz_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EMEP[EMEPcb.SelectedIndex].p.z = string.IsNullOrEmpty(EMEPz.Text) ? 0 : float.Parse(EMEPz.Text);
+                cf.EMEP[EMEPcb.SelectedIndex].p.z = string.IsNullOrEmpty(EMEPz.Text) ? 0 : float.Parse(EMEPz.Text);
         }
 
         private void EMEPr_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EMEP[EMEPcb.SelectedIndex].r = string.IsNullOrEmpty(EMEPr.Text) ? 0 : float.Parse(EMEPr.Text);
+                cf.EMEP[EMEPcb.SelectedIndex].r = string.IsNullOrEmpty(EMEPr.Text) ? 0 : float.Parse(EMEPr.Text);
         }
 
         private void EME2dgv_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EME2[EME2cb.SelectedIndex].EEOV.inv = EME2dgv.GetStringArray();
+                cf.EME2[EME2cb.SelectedIndex].EEOV.inv = EME2dgv.GetStringArray();
         }
 
         private void EME2n_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EME2[EME2cb.SelectedIndex].name = EME2n.Text;
+                cf.EME2[EME2cb.SelectedIndex].name = EME2n.Text;
         }
 
         private void EME2s1_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EME2[EME2cb.SelectedIndex].EEOV.s1 = EME2s1.Text;
+                cf.EME2[EME2cb.SelectedIndex].EEOV.s1 = EME2s1.Text;
         }
 
         private void EME2s2_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EME2[EME2cb.SelectedIndex].EEOV.s2 = EME2s2.Text;
+                cf.EME2[EME2cb.SelectedIndex].EEOV.s2 = EME2s2.Text;
         }
 
         private void EME2s3_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EME2[EME2cb.SelectedIndex].EEOV.s3 = EME2s3.Text + (string.IsNullOrWhiteSpace(EME2s3.Text) ? "" : ".amx");
+                cf.EME2[EME2cb.SelectedIndex].EEOV.s3 = EME2s3.Text + (string.IsNullOrWhiteSpace(EME2s3.Text) ? "" : ".amx");
         }
 
         private void EME2s4_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EME2[EME2cb.SelectedIndex].EEOV.s4 = EME2s4.Text + (string.IsNullOrWhiteSpace(EME2s4.Text) ? "" : ".dds");
+                cf.EME2[EME2cb.SelectedIndex].EEOV.s4 = EME2s4.Text + (string.IsNullOrWhiteSpace(EME2s4.Text) ? "" : ".dds");
         }
 
         private void EME2s5_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EME2[EME2cb.SelectedIndex].EEOV.s5 = EME2s5.Text + (string.IsNullOrWhiteSpace(EME2s5.Text) ? "" : ".veg");
+                cf.EME2[EME2cb.SelectedIndex].EEOV.s5 = EME2s5.Text + (string.IsNullOrWhiteSpace(EME2s5.Text) ? "" : ".veg");
         }
 
         private void EME2x_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EME2[EME2cb.SelectedIndex].l.x = string.IsNullOrEmpty(EME2x.Text) ? 0 : float.Parse(EME2x.Text);
+                cf.EME2[EME2cb.SelectedIndex].l.x = string.IsNullOrEmpty(EME2x.Text) ? 0 : float.Parse(EME2x.Text);
         }
 
         private void EME2y_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EME2[EME2cb.SelectedIndex].l.y = string.IsNullOrEmpty(EME2y.Text) ? 0 : float.Parse(EME2y.Text);
+                cf.EME2[EME2cb.SelectedIndex].l.y = string.IsNullOrEmpty(EME2y.Text) ? 0 : float.Parse(EME2y.Text);
         }
 
         private void EME2z_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EME2[EME2cb.SelectedIndex].l.z = string.IsNullOrEmpty(EME2z.Text) ? 0 : float.Parse(EME2z.Text);
+                cf.EME2[EME2cb.SelectedIndex].l.z = string.IsNullOrEmpty(EME2z.Text) ? 0 : float.Parse(EME2z.Text);
         }
 
         private void EME2r_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EME2[EME2cb.SelectedIndex].l.r = string.IsNullOrEmpty(EME2r.Text) ? 0 : float.Parse(EME2r.Text);
+                cf.EME2[EME2cb.SelectedIndex].l.r = string.IsNullOrEmpty(EME2r.Text) ? 0 : float.Parse(EME2r.Text);
         }
 
         private void EMSDs1_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EMSD[EMSDcb.SelectedIndex].s1 = EMSDs1.Text;
+                cf.EMSD[EMSDcb.SelectedIndex].s1 = EMSDs1.Text;
         }
 
         private void EMSDs2_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EMSD[EMSDcb.SelectedIndex].s2 = EMSDs2.Text + (string.IsNullOrWhiteSpace(EMSDs2.Text) ? "" : ".psf");
+                cf.EMSD[EMSDcb.SelectedIndex].s2 = EMSDs2.Text + (string.IsNullOrWhiteSpace(EMSDs2.Text) ? "" : ".psf");
         }
 
         private void EMSDx_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EMSD[EMSDcb.SelectedIndex].l.x = string.IsNullOrEmpty(EMSDx.Text) ? 0 : float.Parse(EMSDx.Text);
+                cf.EMSD[EMSDcb.SelectedIndex].l.x = string.IsNullOrEmpty(EMSDx.Text) ? 0 : float.Parse(EMSDx.Text);
         }
 
         private void EMSDy_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EMSD[EMSDcb.SelectedIndex].l.y = string.IsNullOrEmpty(EMSDy.Text) ? 0 : float.Parse(EMSDy.Text);
+                cf.EMSD[EMSDcb.SelectedIndex].l.y = string.IsNullOrEmpty(EMSDy.Text) ? 0 : float.Parse(EMSDy.Text);
         }
 
         private void EMSDz_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EMSD[EMSDcb.SelectedIndex].l.z = string.IsNullOrEmpty(EMSDz.Text) ? 0 : float.Parse(EMSDz.Text);
+                cf.EMSD[EMSDcb.SelectedIndex].l.z = string.IsNullOrEmpty(EMSDz.Text) ? 0 : float.Parse(EMSDz.Text);
         }
 
         private void EPTHn_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EPTH[EPTHcb.SelectedIndex].name = EPTHn.Text;
+                cf.EPTH[EPTHcb.SelectedIndex].name = EPTHn.Text;
         }
 
         private void EPTHx_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EPTH[EPTHcb.SelectedIndex].p[(int)(EPTHnud.Value - 1m)].x = string.IsNullOrEmpty(EPTHx.Text) ? 0 : float.Parse(EPTHx.Text);
+                cf.EPTH[EPTHcb.SelectedIndex].p[(int)(EPTHnud.Value - 1m)].x = string.IsNullOrEmpty(EPTHx.Text) ? 0 : float.Parse(EPTHx.Text);
         }
 
         private void EPTHy_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EPTH[EPTHcb.SelectedIndex].p[(int)(EPTHnud.Value - 1m)].y = string.IsNullOrEmpty(EPTHy.Text) ? 0 : float.Parse(EPTHy.Text);
+                cf.EPTH[EPTHcb.SelectedIndex].p[(int)(EPTHnud.Value - 1m)].y = string.IsNullOrEmpty(EPTHy.Text) ? 0 : float.Parse(EPTHy.Text);
         }
 
         private void EPTHz_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EPTH[EPTHcb.SelectedIndex].p[(int)(EPTHnud.Value - 1m)].z = string.IsNullOrEmpty(EPTHz.Text) ? 0 : float.Parse(EPTHz.Text);
+                cf.EPTH[EPTHcb.SelectedIndex].p[(int)(EPTHnud.Value - 1m)].z = string.IsNullOrEmpty(EPTHz.Text) ? 0 : float.Parse(EPTHz.Text);
         }
 
         private void EPTHr_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EPTH[EPTHcb.SelectedIndex].p[(int)(EPTHnud.Value - 1m)].r = string.IsNullOrEmpty(EPTHr.Text) ? 0 : float.Parse(EPTHr.Text);
+                cf.EPTH[EPTHcb.SelectedIndex].p[(int)(EPTHnud.Value - 1m)].r = string.IsNullOrEmpty(EPTHr.Text) ? 0 : float.Parse(EPTHr.Text);
         }
 
         private void Triggern_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).Triggers[Triggercb.SelectedIndex].ExTR.s = Triggern.Text;
+                cf.Triggers[Triggercb.SelectedIndex].ExTR.s = Triggern.Text;
         }
 
         private void Triggertcb_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).Triggers[Triggercb.SelectedIndex].ExTR.@type = Triggertcb.SelectedItem!.ToString();
+                cf.Triggers[Triggercb.SelectedIndex].ExTR.type = Triggertcb.SelectedItem!.ToString();
         }
 
         private void Triggerx_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).Triggers[Triggercb.SelectedIndex].EMTR.r[(int)(Triggernud.Value - 1m)].x = string.IsNullOrEmpty(Triggerx.Text) ? 0 : float.Parse(Triggerx.Text);
+                cf.Triggers[Triggercb.SelectedIndex].EMTR.r[(int)(Triggernud.Value - 1m)].x = string.IsNullOrEmpty(Triggerx.Text) ? 0 : float.Parse(Triggerx.Text);
         }
 
         private void Triggery_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).Triggers[Triggercb.SelectedIndex].EMTR.r[(int)(Triggernud.Value - 1m)].y = string.IsNullOrEmpty(Triggery.Text) ? 0 : float.Parse(Triggery.Text);
+                cf.Triggers[Triggercb.SelectedIndex].EMTR.r[(int)(Triggernud.Value - 1m)].y = string.IsNullOrEmpty(Triggery.Text) ? 0 : float.Parse(Triggery.Text);
         }
 
         private void Triggerz_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).Triggers[Triggercb.SelectedIndex].EMTR.r[(int)(Triggernud.Value - 1m)].z = string.IsNullOrEmpty(Triggerz.Text) ? 0 : float.Parse(Triggerz.Text);
+                cf.Triggers[Triggercb.SelectedIndex].EMTR.r[(int)(Triggernud.Value - 1m)].z = string.IsNullOrEmpty(Triggerz.Text) ? 0 : float.Parse(Triggerz.Text);
         }
 
         private void GENThSR_ValueChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GENT.HoverSR = (int)GENThSR.Value;
+                cf.GENT.HoverSR = (int)GENThSR.Value;
             if (GENThSR.Value == 0m)
             {
                 GENTh.Enabled = false;
@@ -1109,7 +1100,7 @@ namespace VBLauncher
             }
             else
             {
-                GENTh.Enabled = My.MySettingsProperty.Settings.STFEditEnabled;
+                GENTh.Enabled = MySettingsProperty.Settings.STFEditEnabled;
                 if (GENThSR.Value - 1m < stf.Count)
                     stf.Add("");
                 GENTh.Text = stf[(int)(GENThSR.Value - 1m)];
@@ -1119,7 +1110,7 @@ namespace VBLauncher
         private void GENTlSR_ValueChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GENT.LookSR = (int)GENTlSR.Value;
+                cf.GENT.LookSR = (int)GENTlSR.Value;
             if (GENTlSR.Value == 0m)
             {
                 GENTl.Enabled = false;
@@ -1127,7 +1118,7 @@ namespace VBLauncher
             }
             else
             {
-                GENTl.Enabled = My.MySettingsProperty.Settings.STFEditEnabled;
+                GENTl.Enabled = MySettingsProperty.Settings.STFEditEnabled;
                 if (GENTlSR.Value - 1m < stf.Count)
                     stf.Add("");
                 GENTl.Text = stf[(int)(GENTlSR.Value - 1m)];
@@ -1137,7 +1128,7 @@ namespace VBLauncher
         private void GENTnSR_ValueChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GENT.NameSR = (int)GENTnSR.Value;
+                cf.GENT.NameSR = (int)GENTnSR.Value;
             if (GENTnSR.Value == 0m)
             {
                 GENTn.Enabled = false;
@@ -1145,7 +1136,7 @@ namespace VBLauncher
             }
             else
             {
-                GENTn.Enabled = My.MySettingsProperty.Settings.STFEditEnabled;
+                GENTn.Enabled = MySettingsProperty.Settings.STFEditEnabled;
                 if (GENTnSR.Value - 1m < stf.Count)
                     stf.Add("");
                 GENTn.Text = stf[(int)(GENTnSR.Value - 1m)];
@@ -1155,7 +1146,7 @@ namespace VBLauncher
         private void GENTuSR_ValueChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GENT.UnkwnSR = (int)GENTuSR.Value;
+                cf.GENT.UnkwnSR = (int)GENTuSR.Value;
             if (GENTuSR.Value == 0m)
             {
                 GENTu.Enabled = false;
@@ -1163,7 +1154,7 @@ namespace VBLauncher
             }
             else
             {
-                GENTu.Enabled = My.MySettingsProperty.Settings.STFEditEnabled;
+                GENTu.Enabled = MySettingsProperty.Settings.STFEditEnabled;
                 if (GENTuSR.Value - 1m < stf.Count)
                     stf.Add("");
                 GENTu.Text = stf[(int)(GENTuSR.Value - 1m)];
@@ -1173,7 +1164,7 @@ namespace VBLauncher
         private void GWAManSR_ValueChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GCRE.GWAM[GWAMcb.SelectedIndex].NameSR = (int)GWAManSR.Value;
+                cf.GCRE.GWAM[GWAMcb.SelectedIndex].NameSR = (int)GWAManSR.Value;
             if (GWAManSR.Value == 0m)
             {
                 GWAMan.Enabled = false;
@@ -1181,7 +1172,7 @@ namespace VBLauncher
             }
             else
             {
-                GWAMan.Enabled = My.MySettingsProperty.Settings.STFEditEnabled;
+                GWAMan.Enabled = MySettingsProperty.Settings.STFEditEnabled;
                 if (GWAManSR.Value - 1m < stf.Count)
                     stf.Add("");
                 GWAMan.Text = stf[(int)(GWAManSR.Value - 1m)];
@@ -1191,73 +1182,73 @@ namespace VBLauncher
         private void EEN2skl_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EEN2.skl = EEN2skl.Text;
+                cf.EEN2.skl = EEN2skl.Text;
         }
 
         private void EEN2invt_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EEN2.invtex = EEN2invt.Text + (string.IsNullOrWhiteSpace(EEN2invt.Text) ? "" : ".dds");
+                cf.EEN2.invtex = EEN2invt.Text + (string.IsNullOrWhiteSpace(EEN2invt.Text) ? "" : ".dds");
         }
 
         private void EEN2actt_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EEN2.acttex = EEN2actt.Text + (string.IsNullOrWhiteSpace(EEN2actt.Text) ? "" : ".dds");
+                cf.EEN2.acttex = EEN2actt.Text + (string.IsNullOrWhiteSpace(EEN2actt.Text) ? "" : ".dds");
         }
 
         private void EEN2s1_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EEN2.EEOV.s1 = EEN2s1.Text;
+                cf.EEN2.EEOV.s1 = EEN2s1.Text;
         }
 
         private void EEN2s2_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EEN2.EEOV.s2 = EEN2s2.Text;
+                cf.EEN2.EEOV.s2 = EEN2s2.Text;
         }
 
         private void EEN2s3_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EEN2.EEOV.s3 = EEN2s3.Text + (string.IsNullOrWhiteSpace(EEN2s3.Text) ? "" : ".amx");
+                cf.EEN2.EEOV.s3 = EEN2s3.Text + (string.IsNullOrWhiteSpace(EEN2s3.Text) ? "" : ".amx");
         }
 
         private void EEN2s4_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EEN2.EEOV.s4 = EEN2s4.Text + (string.IsNullOrWhiteSpace(EEN2s4.Text) ? "" : ".dds");
+                cf.EEN2.EEOV.s4 = EEN2s4.Text + (string.IsNullOrWhiteSpace(EEN2s4.Text) ? "" : ".dds");
         }
 
         private void EEN2s5_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EEN2.EEOV.s5 = EEN2s5.Text + (string.IsNullOrWhiteSpace(EEN2s5.Text) ? "" : ".veg");
+                cf.EEN2.EEOV.s5 = EEN2s5.Text + (string.IsNullOrWhiteSpace(EEN2s5.Text) ? "" : ".veg");
         }
 
         private void EEN2sel_CheckedChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EEN2.sel = EEN2sel.Checked;
+                cf.EEN2.sel = EEN2sel.Checked;
         }
 
         private void EEN2dgv_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).EEN2.EEOV.inv = EEN2dgv.GetStringArray();
+                cf.EEN2.EEOV.inv = EEN2dgv.GetStringArray();
         }
 
         private void GENTmhp_ValueChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GENT.MaxHealth = (int)GENTmhp.Value;
+                cf.GENT.MaxHealth = (int)GENTmhp.Value;
         }
 
         private void GENTihp_ValueChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GENT.StartHealth = (int)GENTihp.Value;
+                cf.GENT.StartHealth = (int)GENTihp.Value;
         }
 
         private void GENTh_TextChanged(object sender, EventArgs e)
@@ -1293,50 +1284,48 @@ namespace VBLauncher
         private void GCREspcb_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                GCREspv.Value = Convert.ToDecimal(((dynamic)cf).GCRE.Special[GCREspcb.SelectedIndex]);
+                GCREspv.Value = Convert.ToDecimal(cf.GCRE.Special[GCREspcb.SelectedIndex]);
         }
 
         private void GCREspv_ValueChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GCRE.Special[GCREspcb.SelectedIndex] = (int)GCREspv.Value;
+                cf.GCRE.Special[GCREspcb.SelectedIndex] = (int)GCREspv.Value;
         }
 
         private void GCREskcb_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (Convert.ToBoolean(((dynamic)sender).Enabled))
-            {
-                var existingSkill = ((List<Skill>)((dynamic)cf).GCRE.Skills).FirstOrDefault(sk => sk.Index == GCREskcb.SelectedIndex, null); // Determine whether or not the list of skills contains a skill with the current index
-                GCREskv.Value = existingSkill != null ? (decimal)Convert.ToDecimal(((dynamic)cf).GCRE.Skills(((dynamic)cf).GCRE.Skills.IndexOf(existingSkill)).Value) : 0m;
-            }
+            if (!Convert.ToBoolean(((dynamic)sender).Enabled)) return;
+            var existingSkill = ((List<Skill>)cf.GCRE.Skills).FirstOrDefault(sk => sk.Index == GCREskcb.SelectedIndex, null); // Determine whether or not the list of skills contains a skill with the current index
+            GCREskv.Value = existingSkill?.Value ?? 0m;
         }
 
         private void GCREskv_ValueChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
             {
-                var existingSkill = ((List<Skill>)((dynamic)cf).GCRE.Skills).FirstOrDefault(sk => sk.Index == GCREskcb.SelectedIndex, null);
+                var existingSkill = ((List<Skill>)cf.GCRE.Skills).FirstOrDefault(sk => sk.Index == GCREskcb.SelectedIndex, null);
                 if (existingSkill != null)                                                                            
                 {
-                    var skillIndex = ((dynamic)cf).GCRE.Skills.IndexOf(existingSkill);
+                    int skillIndex = cf.GCRE.Skills.IndexOf(existingSkill);
                     if (GCREskv.Value == 0m)
                     {
-                        ((dynamic)cf).GCRE.Skills.RemoveAt(skillIndex);
+                        cf.GCRE.Skills.RemoveAt(skillIndex);
                     }
                     else
                     {
-                        ((dynamic)cf).GCRE.Skills(skillIndex).Value = (int)GCREskv.Value;
+                        cf.GCRE.Skills[skillIndex].Value = (int)GCREskv.Value;
                     }
                 }
                 else if (GCREskv.Value != 0m)
-                    ((dynamic)cf).GCRE.Skills.Add(new Skill(GCREskcb.SelectedIndex, (int)(GCREskv.Value)));
+                    cf.GCRE.Skills.Add(new Skill(GCREskcb.SelectedIndex, (int)GCREskv.Value));
             }
         }
 
         private void GCREtrcb_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                GCREtrv.Checked = Convert.ToBoolean(((dynamic)cf).GCRE.Traits.Contains(GCREtrcb.SelectedIndex));
+                GCREtrv.Checked = Convert.ToBoolean(cf.GCRE.Traits.Contains(GCREtrcb.SelectedIndex));
         }
 
         private void GCREtrv_CheckedChanged(object sender, EventArgs e)
@@ -1345,12 +1334,12 @@ namespace VBLauncher
             {
                 if (GCREtrv.Checked)
                 {
-                    if (Convert.ToBoolean(!((dynamic)cf).GCRE.Traits.Contains(GCREtrcb.SelectedIndex)))
-                        ((dynamic)cf).GCRE.Traits.Add(GCREtrcb.SelectedIndex);
+                    if (Convert.ToBoolean(!cf.GCRE.Traits.Contains(GCREtrcb.SelectedIndex)))
+                        cf.GCRE.Traits.Add(GCREtrcb.SelectedIndex);
                 }
                 else
                 {
-                    ((dynamic)cf).GCRE.Traits.Remove(GCREtrcb.SelectedIndex);
+                    cf.GCRE.Traits.Remove(GCREtrcb.SelectedIndex);
                 }
             }
         }
@@ -1358,7 +1347,7 @@ namespace VBLauncher
         private void GCREtscb_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                GCREtsv.Checked = Convert.ToBoolean(((dynamic)cf).GCRE.TagSkills.Contains(GCREtscb.SelectedIndex));
+                GCREtsv.Checked = Convert.ToBoolean(cf.GCRE.TagSkills.Contains(GCREtscb.SelectedIndex));
         }
 
         private void GCREtsv_CheckedChanged(object sender, EventArgs e)
@@ -1367,12 +1356,12 @@ namespace VBLauncher
             {
                 if (GCREtsv.Checked)
                 {
-                    if (Convert.ToBoolean(!((dynamic)cf).GCRE.TagSkills.Contains(GCREtscb.SelectedIndex)))
-                        ((dynamic)cf).GCRE.TagSkills.Add(GCREtscb.SelectedIndex);
+                    if (Convert.ToBoolean(!cf.GCRE.TagSkills.Contains(GCREtscb.SelectedIndex)))
+                        cf.GCRE.TagSkills.Add(GCREtscb.SelectedIndex);
                 }
                 else
                 {
-                    ((dynamic)cf).GCRE.TagSkills.Remove(GCREtscb.SelectedIndex);
+                    cf.GCRE.TagSkills.Remove(GCREtscb.SelectedIndex);
                 }
             }
         }
@@ -1380,7 +1369,7 @@ namespace VBLauncher
         private void GCREp_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GCRE.PortStr = GCREp.Text + (string.IsNullOrWhiteSpace(GCREp.Text) ? "" : ".dds");
+                cf.GCRE.PortStr = GCREp.Text + (string.IsNullOrWhiteSpace(GCREp.Text) ? "" : ".dds");
         }
 
         private void GCREsoccb_SelectedIndexChanged(object sender, EventArgs e)
@@ -1391,85 +1380,85 @@ namespace VBLauncher
                 {
                     case "Head":
                         {
-                            GCREsocm.Text = Convert.ToString(((dynamic)cf).GCRE.Hea.Model);
-                            GCREsoct.Text = Convert.ToString(((dynamic)cf).GCRE.Hea.Tex.Replace(".dds", ""));
+                            GCREsocm.Text = Convert.ToString(cf.GCRE.Hea.Model);
+                            GCREsoct.Text = Convert.ToString(cf.GCRE.Hea.Tex.Replace(".dds", ""));
                             break;
                         }
 
                     case "Hair":
                         {
-                            GCREsocm.Text = Convert.ToString(((dynamic)cf).GCRE.Hai.Model);
-                            GCREsoct.Text = Convert.ToString(((dynamic)cf).GCRE.Hai.Tex.Replace(".dds", ""));
+                            GCREsocm.Text = Convert.ToString(cf.GCRE.Hai.Model);
+                            GCREsoct.Text = Convert.ToString(cf.GCRE.Hai.Tex.Replace(".dds", ""));
                             break;
                         }
 
                     case "Ponytail":
                         {
-                            GCREsocm.Text = Convert.ToString(((dynamic)cf).GCRE.Pon.Model);
-                            GCREsoct.Text = Convert.ToString(((dynamic)cf).GCRE.Pon.Tex.Replace(".dds", ""));
+                            GCREsocm.Text = Convert.ToString(cf.GCRE.Pon.Model);
+                            GCREsoct.Text = Convert.ToString(cf.GCRE.Pon.Tex.Replace(".dds", ""));
                             break;
                         }
 
                     case "Moustache":
                         {
-                            GCREsocm.Text = Convert.ToString(((dynamic)cf).GCRE.Mus.Model);
-                            GCREsoct.Text = Convert.ToString(((dynamic)cf).GCRE.Mus.Tex.Replace(".dds", ""));
+                            GCREsocm.Text = Convert.ToString(cf.GCRE.Mus.Model);
+                            GCREsoct.Text = Convert.ToString(cf.GCRE.Mus.Tex.Replace(".dds", ""));
                             break;
                         }
 
                     case "Beard":
                         {
-                            GCREsocm.Text = Convert.ToString(((dynamic)cf).GCRE.Bea.Model);
-                            GCREsoct.Text = Convert.ToString(((dynamic)cf).GCRE.Bea.Tex.Replace(".dds", ""));
+                            GCREsocm.Text = Convert.ToString(cf.GCRE.Bea.Model);
+                            GCREsoct.Text = Convert.ToString(cf.GCRE.Bea.Tex.Replace(".dds", ""));
                             break;
                         }
 
                     case "Eye":
                         {
-                            GCREsocm.Text = Convert.ToString(((dynamic)cf).GCRE.Eye.Model);
-                            GCREsoct.Text = Convert.ToString(((dynamic)cf).GCRE.Eye.Tex.Replace(".dds", ""));
+                            GCREsocm.Text = Convert.ToString(cf.GCRE.Eye.Model);
+                            GCREsoct.Text = Convert.ToString(cf.GCRE.Eye.Tex.Replace(".dds", ""));
                             break;
                         }
 
                     case "Body":
                         {
-                            GCREsocm.Text = Convert.ToString(((dynamic)cf).GCRE.Bod.Model);
-                            GCREsoct.Text = Convert.ToString(((dynamic)cf).GCRE.Bod.Tex.Replace(".dds", ""));
+                            GCREsocm.Text = Convert.ToString(cf.GCRE.Bod.Model);
+                            GCREsoct.Text = Convert.ToString(cf.GCRE.Bod.Tex.Replace(".dds", ""));
                             break;
                         }
 
                     case "Hand":
                         {
-                            GCREsocm.Text = Convert.ToString(((dynamic)cf).GCRE.Han.Model);
-                            GCREsoct.Text = Convert.ToString(((dynamic)cf).GCRE.Han.Tex.Replace(".dds", ""));
+                            GCREsocm.Text = Convert.ToString(cf.GCRE.Han.Model);
+                            GCREsoct.Text = Convert.ToString(cf.GCRE.Han.Tex.Replace(".dds", ""));
                             break;
                         }
 
                     case "Feet":
                         {
-                            GCREsocm.Text = Convert.ToString(((dynamic)cf).GCRE.Fee.Model);
-                            GCREsoct.Text = Convert.ToString(((dynamic)cf).GCRE.Fee.Tex.Replace(".dds", ""));
+                            GCREsocm.Text = Convert.ToString(cf.GCRE.Fee.Model);
+                            GCREsoct.Text = Convert.ToString(cf.GCRE.Fee.Tex.Replace(".dds", ""));
                             break;
                         }
 
                     case "Back":
                         {
-                            GCREsocm.Text = Convert.ToString(((dynamic)cf).GCRE.Bac.Model);
-                            GCREsoct.Text = Convert.ToString(((dynamic)cf).GCRE.Bac.Tex.Replace(".dds", ""));
+                            GCREsocm.Text = Convert.ToString(cf.GCRE.Bac.Model);
+                            GCREsoct.Text = Convert.ToString(cf.GCRE.Bac.Tex.Replace(".dds", ""));
                             break;
                         }
 
                     case "Shoulder":
                         {
-                            GCREsocm.Text = Convert.ToString(((dynamic)cf).GCRE.Sho.Model);
-                            GCREsoct.Text = Convert.ToString(((dynamic)cf).GCRE.Sho.Tex.Replace(".dds", ""));
+                            GCREsocm.Text = Convert.ToString(cf.GCRE.Sho.Model);
+                            GCREsoct.Text = Convert.ToString(cf.GCRE.Sho.Tex.Replace(".dds", ""));
                             break;
                         }
 
                     case "Vanity":
                         {
-                            GCREsocm.Text = Convert.ToString(((dynamic)cf).GCRE.Van.Model);
-                            GCREsoct.Text = Convert.ToString(((dynamic)cf).GCRE.Van.Tex.Replace(".dds", ""));
+                            GCREsocm.Text = Convert.ToString(cf.GCRE.Van.Model);
+                            GCREsoct.Text = Convert.ToString(cf.GCRE.Van.Tex.Replace(".dds", ""));
                             break;
                         }
                 }
@@ -1484,73 +1473,73 @@ namespace VBLauncher
                 {
                     case "Head":
                         {
-                            ((dynamic)cf).GCRE.Hea.Model = GCREsocm.Text;
+                            cf.GCRE.Hea.Model = GCREsocm.Text;
                             break;
                         }
 
                     case "Hair":
                         {
-                            ((dynamic)cf).GCRE.Hai.Model = GCREsocm.Text;
+                            cf.GCRE.Hai.Model = GCREsocm.Text;
                             break;
                         }
 
                     case "Ponytail":
                         {
-                            ((dynamic)cf).GCRE.Pon.Model = GCREsocm.Text;
+                            cf.GCRE.Pon.Model = GCREsocm.Text;
                             break;
                         }
 
                     case "Moustache":
                         {
-                            ((dynamic)cf).GCRE.Mus.Model = GCREsocm.Text;
+                            cf.GCRE.Mus.Model = GCREsocm.Text;
                             break;
                         }
 
                     case "Beard":
                         {
-                            ((dynamic)cf).GCRE.Bea.Model = GCREsocm.Text;
+                            cf.GCRE.Bea.Model = GCREsocm.Text;
                             break;
                         }
 
                     case "Eye":
                         {
-                            ((dynamic)cf).GCRE.Eye.Model = GCREsocm.Text;
+                            cf.GCRE.Eye.Model = GCREsocm.Text;
                             break;
                         }
 
                     case "Body":
                         {
-                            ((dynamic)cf).GCRE.Bod.Model = GCREsocm.Text;
+                            cf.GCRE.Bod.Model = GCREsocm.Text;
                             break;
                         }
 
                     case "Hand":
                         {
-                            ((dynamic)cf).GCRE.Han.Model = GCREsocm.Text;
+                            cf.GCRE.Han.Model = GCREsocm.Text;
                             break;
                         }
 
                     case "Feet":
                         {
-                            ((dynamic)cf).GCRE.Fee.Model = GCREsocm.Text;
+                            cf.GCRE.Fee.Model = GCREsocm.Text;
                             break;
                         }
 
                     case "Back":
                         {
-                            ((dynamic)cf).GCRE.Bac.Model = GCREsocm.Text;
+                            cf.GCRE.Bac.Model = GCREsocm.Text;
                             break;
                         }
 
                     case "Shoulder":
                         {
-                            ((dynamic)cf).GCRE.Sho.Model = GCREsocm.Text;
+                            cf.GCRE.Sho.Model = GCREsocm.Text;
                             break;
                         }
 
                     case "Vanity":
                         {
-                            ((dynamic)cf).GCRE.Van.Model = GCREsocm.Text;
+                            cf.GCRE.Van.Model = GCREsocm.Text;
                             break;
                         }
                 }
@@ -1566,73 +1555,73 @@ namespace VBLauncher
                 {
                     case "Head":
                         {
-                            ((dynamic)cf).GCRE.Hea.Tex = s;
+                            cf.GCRE.Hea.Tex = s;
                             break;
                         }
 
                     case "Hair":
                         {
-                            ((dynamic)cf).GCRE.Hai.Tex = s;
+                            cf.GCRE.Hai.Tex = s;
                             break;
                         }
 
                     case "Ponytail":
                         {
-                            ((dynamic)cf).GCRE.Pon.Tex = s;
+                            cf.GCRE.Pon.Tex = s;
                             break;
                         }
 
                     case "Moustache":
                         {
-                            ((dynamic)cf).GCRE.Mus.Tex = s;
+                            cf.GCRE.Mus.Tex = s;
                             break;
                         }
 
                     case "Beard":
                         {
-                            ((dynamic)cf).GCRE.Bea.Tex = s;
+                            cf.GCRE.Bea.Tex = s;
                             break;
                         }
 
                     case "Eye":
                         {
-                            ((dynamic)cf).GCRE.Eye.Tex = s;
+                            cf.GCRE.Eye.Tex = s;
                             break;
                         }
 
                     case "Body":
                         {
-                            ((dynamic)cf).GCRE.Bod.Tex = s;
+                            cf.GCRE.Bod.Tex = s;
                             break;
                         }
 
                     case "Hand":
                         {
-                            ((dynamic)cf).GCRE.Han.Tex = s;
+                            cf.GCRE.Han.Tex = s;
                             break;
                         }
 
                     case "Feet":
                         {
-                            ((dynamic)cf).GCRE.Fee.Tex = s;
+                            cf.GCRE.Fee.Tex = s;
                             break;
                         }
 
                     case "Back":
                         {
-                            ((dynamic)cf).GCRE.Bac.Tex = s;
+                            cf.GCRE.Bac.Tex = s;
                             break;
                         }
 
                     case "Shoulder":
                         {
-                            ((dynamic)cf).GCRE.Sho.Tex = s;
+                            cf.GCRE.Sho.Tex = s;
                             break;
                         }
 
                     case "Vanity":
                         {
-                            ((dynamic)cf).GCRE.Van.Tex = s;
+                            cf.GCRE.Van.Tex = s;
                             break;
                         }
                 }
@@ -1642,138 +1631,138 @@ namespace VBLauncher
         private void GCREdgv_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GCRE.Inventory = GCREdgv.GetStringArray();
+                cf.GCRE.Inventory = GCREdgv.GetStringArray();
         }
 
         private void GCHRn_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GCHR.name = GCHRn.Text;
+                cf.GCHR.name = GCHRn.Text;
         }
 
         private void GWAMani_ValueChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GCRE.GWAM[GWAMcb.SelectedIndex].Anim = (int)GWAMani.Value;
+                cf.GCRE.GWAM[GWAMcb.SelectedIndex].Anim = (int)GWAMani.Value;
         }
 
         private void GWAMdt_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GCRE.GWAM[GWAMcb.SelectedIndex].DmgType = GWAMdt.SelectedIndex;
+                cf.GCRE.GWAM[GWAMcb.SelectedIndex].DmgType = GWAMdt.SelectedIndex;
         }
 
         private void GWAMsf_ValueChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GCRE.GWAM[GWAMcb.SelectedIndex].ShotsFired = (int)GWAMsf.Value;
+                cf.GCRE.GWAM[GWAMcb.SelectedIndex].ShotsFired = (int)GWAMsf.Value;
         }
 
         private void GWAMr_ValueChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GCRE.GWAM[GWAMcb.SelectedIndex].Range = (int)GWAMr.Value;
+                cf.GCRE.GWAM[GWAMcb.SelectedIndex].Range = (int)GWAMr.Value;
         }
 
         private void GWAMmin_ValueChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GCRE.GWAM[GWAMcb.SelectedIndex].MinDmg = (int)GWAMmin.Value;
+                cf.GCRE.GWAM[GWAMcb.SelectedIndex].MinDmg = (int)GWAMmin.Value;
         }
 
         private void GWAMmax_ValueChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GCRE.GWAM[GWAMcb.SelectedIndex].MaxDmg = (int)GWAMmax.Value;
+                cf.GCRE.GWAM[GWAMcb.SelectedIndex].MaxDmg = (int)GWAMmax.Value;
         }
 
         private void GWAMap_ValueChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GCRE.GWAM[GWAMcb.SelectedIndex].AP = (int)GWAMap.Value;
+                cf.GCRE.GWAM[GWAMcb.SelectedIndex].AP = (int)GWAMap.Value;
         }
 
         private void GWAMef_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GCRE.GWAM[GWAMcb.SelectedIndex].VegName = GWAMef.Text;
+                cf.GCRE.GWAM[GWAMcb.SelectedIndex].VegName = GWAMef.Text;
         }
 
         private void GCREage_ValueChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GCRE.Age = (int)GCREage.Value;
+                cf.GCRE.Age = (int)GCREage.Value;
         }
 
         private void _2MWTcb_SelectedIndexChanged(object sender, EventArgs e)
         {
-            _2MWTx.Text = Convert.ToString(((dynamic)cf)._2MWT.chunks(_2MWTcb.SelectedIndex).loc.x);
-            _2MWTy.Text = Convert.ToString(((dynamic)cf)._2MWT.chunks(_2MWTcb.SelectedIndex).loc.y);
-            _2MWTz.Text = Convert.ToString(((dynamic)cf)._2MWT.chunks(_2MWTcb.SelectedIndex).loc.z);
+            _2MWTx.Text = Convert.ToString(cf._2MWT.chunks(_2MWTcb.SelectedIndex).loc.x);
+            _2MWTy.Text = Convert.ToString(cf._2MWT.chunks(_2MWTcb.SelectedIndex).loc.y);
+            _2MWTz.Text = Convert.ToString(cf._2MWT.chunks(_2MWTcb.SelectedIndex).loc.z);
             try
             {
-                _2MWTtex.Text = Convert.ToString(((dynamic)cf)._2MWT.chunks(_2MWTcb.SelectedIndex).tex.Substring(0, ((dynamic)cf)._2MWT.chunks(_2MWTcb.SelectedIndex).tex.LastIndexOf(".")));
+                _2MWTtex.Text = Convert.ToString(cf._2MWT.chunks(_2MWTcb.SelectedIndex).tex.Substring(0, cf._2MWT.chunks(_2MWTcb.SelectedIndex).tex.LastIndexOf(".")));
             }
             catch
             {
                 _2MWTtex.Text = "";
             }
-            _2MWTlmx.Text = Convert.ToString(((dynamic)cf)._2MWT.chunks(_2MWTcb.SelectedIndex).texloc.x);
-            _2MWTlmy.Text = Convert.ToString(((dynamic)cf)._2MWT.chunks(_2MWTcb.SelectedIndex).texloc.y);
+            _2MWTlmx.Text = Convert.ToString(cf._2MWT.chunks(_2MWTcb.SelectedIndex).texloc.x);
+            _2MWTlmy.Text = Convert.ToString(cf._2MWT.chunks(_2MWTcb.SelectedIndex).texloc.y);
         }
 
         private void _2MWTmpf_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf)._2MWT.mpf = _2MWTmpf.Text;
+                cf._2MWT.mpf = _2MWTmpf.Text;
         }
 
         private void _2MWTfr_CheckedChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf)._2MWT.frozen = ((dynamic)sender).@Checked;
+                cf._2MWT.frozen = ((dynamic)sender).Checked;
         }
 
         private void _2MWTdw_CheckedChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf)._2MWT.dark = ((dynamic)sender).@Checked;
+                cf._2MWT.dark = ((dynamic)sender).Checked;
         }
 
         private void _2MWTtex_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf)._2MWT.chunks(_2MWTcb.SelectedIndex).tex = _2MWTtex.Text + ".dds";
+                cf._2MWT.chunks(_2MWTcb.SelectedIndex).tex = _2MWTtex.Text + ".dds";
         }
 
         private void _2MWTx_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf)._2MWT.chunks(_2MWTcb.SelectedIndex).loc.x = string.IsNullOrEmpty(_2MWTx.Text) ? 0 : float.Parse(_2MWTx.Text);
+                cf._2MWT.chunks(_2MWTcb.SelectedIndex).loc.x = string.IsNullOrEmpty(_2MWTx.Text) ? 0 : float.Parse(_2MWTx.Text);
         }
 
         private void _2MWTy_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf)._2MWT.chunks(_2MWTcb.SelectedIndex).loc.y = string.IsNullOrEmpty(_2MWTy.Text) ? 0 : float.Parse(_2MWTy.Text);
+                cf._2MWT.chunks(_2MWTcb.SelectedIndex).loc.y = string.IsNullOrEmpty(_2MWTy.Text) ? 0 : float.Parse(_2MWTy.Text);
         }
 
         private void _2MWTz_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf)._2MWT.chunks(_2MWTcb.SelectedIndex).loc.z = string.IsNullOrEmpty(_2MWTz.Text) ? 0 : float.Parse(_2MWTz.Text);
+                cf._2MWT.chunks(_2MWTcb.SelectedIndex).loc.z = string.IsNullOrEmpty(_2MWTz.Text) ? 0 : float.Parse(_2MWTz.Text);
         }
 
         private void _2MWTlmx_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf)._2MWT.chunks(_2MWTcb.SelectedIndex).texloc.x = _2MWTlmx.Text;
+                cf._2MWT.chunks(_2MWTcb.SelectedIndex).texloc.x = _2MWTlmx.Text;
         }
 
         private void _2MWTlmy_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf)._2MWT.chunks(_2MWTcb.SelectedIndex).texloc.y = _2MWTlmy.Text;
+                cf._2MWT.chunks(_2MWTcb.SelectedIndex).texloc.y = _2MWTlmy.Text;
         }
 
         // Prevent invalid floats from being entered into text boxes (Add any float textboxes to the "Handles" section)
@@ -1881,7 +1870,7 @@ namespace VBLauncher
         {
             foreach (Control c in EMEPgb.Controls)
                 c.Enabled = true;
-            ((dynamic)cf).EMEP.Add(new EMEPc());
+            cf.EMEP.Add(new EMEPc());
             EMEPcb.Items.Add(EMEPcb.Items.Count + 1);
             EMEPcb.SelectedIndex = EMEPcb.Items.Count - 1;
         }
@@ -1889,9 +1878,9 @@ namespace VBLauncher
         private void EMEPm_Click(object sender, EventArgs e)
         {
             var i = EMEPcb.SelectedIndex;
-            if (Convert.ToBoolean(Operators.ConditionalCompareObjectEqual(((dynamic)cf).EMEP.Count, 1, false)))
+            if (Convert.ToBoolean(Operators.ConditionalCompareObjectEqual(cf.EMEP.Count, 1, false)))
             {
-                ((dynamic)cf).EMEP = new List<EMEPc>();
+                cf.EMEP = new List<EMEPc>();
                 var argcf = (Map)cf;
                 MapSetupUI(ref argcf);
                 cf = argcf;
@@ -1902,7 +1891,7 @@ namespace VBLauncher
             }
             else
             {
-                ((dynamic)cf).EMEP.RemoveAt(i);
+                cf.EMEP.RemoveAt(i);
                 EMEPcb.Items.RemoveAt(i);
                 EMEPcb.SelectedIndex = i == 0 ? 0 : i - 1;
             }
@@ -1912,7 +1901,7 @@ namespace VBLauncher
         {
             foreach (Control c in EME2gb.Controls)
                 c.Enabled = true;
-            ((dynamic)cf).EME2.Add(new EME2c());
+            cf.EME2.Add(new EME2c());
             EME2cb.Items.Add(EME2cb.Items.Count + 1);
             EME2cb.SelectedIndex = EME2cb.Items.Count - 1;
         }
@@ -1920,9 +1909,9 @@ namespace VBLauncher
         private void EME2m_Click(object sender, EventArgs e)
         {
             var i = EME2cb.SelectedIndex;
-            if (Convert.ToBoolean(Operators.ConditionalCompareObjectEqual(((dynamic)cf).EME2.Count, 1, false)))
+            if (Convert.ToBoolean(Operators.ConditionalCompareObjectEqual(cf.EME2.Count, 1, false)))
             {
-                ((dynamic)cf).EME2 = new List<EME2c>();
+                cf.EME2 = new List<EME2c>();
                 var argcf = (Map)cf;
                 MapSetupUI(ref argcf);
                 cf = argcf;
@@ -1933,7 +1922,7 @@ namespace VBLauncher
             }
             else
             {
-                ((dynamic)cf).EME2.RemoveAt(i);
+                cf.EME2.RemoveAt(i);
                 EME2cb.Items.RemoveAt(i);
                 EME2cb.SelectedIndex = i == 0 ? 0 : i - 1;
             }
@@ -1942,9 +1931,9 @@ namespace VBLauncher
         private void EMEFm_Click(object sender, EventArgs e)
         {
             var i = EMEFcb.SelectedIndex;
-            if (Convert.ToBoolean(Operators.ConditionalCompareObjectEqual(((dynamic)cf).EMEF.Count, 1, false)))
+            if (Convert.ToBoolean(Operators.ConditionalCompareObjectEqual(cf.EMEF.Count, 1, false)))
             {
-                ((dynamic)cf).EMEF = new List<EMEFc>();
+                cf.EMEF = new List<EMEFc>();
                 var argcf = (Map)cf;
                 MapSetupUI(ref argcf);
                 cf = argcf;
@@ -1955,7 +1944,7 @@ namespace VBLauncher
             }
             else
             {
-                ((dynamic)cf).EMEF.RemoveAt(i);
+                cf.EMEF.RemoveAt(i);
                 EMEFcb.Items.RemoveAt(i);
                 EMEFcb.SelectedIndex = i == 0 ? 0 : i - 1;
             }
@@ -1965,7 +1954,7 @@ namespace VBLauncher
         {
             foreach (Control c in EMEFgb.Controls)
                 c.Enabled = true;
-            ((dynamic)cf).EMEF.Add(new EMEFc());
+            cf.EMEF.Add(new EMEFc());
             EMEFcb.Items.Add(EMEFcb.Items.Count + 1);
             EMEFcb.SelectedIndex = EMEFcb.Items.Count - 1;
         }
@@ -1973,9 +1962,9 @@ namespace VBLauncher
         private void EMSDm_Click(object sender, EventArgs e)
         {
             var i = EMSDcb.SelectedIndex;
-            if (Convert.ToBoolean(Operators.ConditionalCompareObjectEqual(((dynamic)cf).EMSD.Count, 1, false)))
+            if (Convert.ToBoolean(Operators.ConditionalCompareObjectEqual(cf.EMSD.Count, 1, false)))
             {
-                ((dynamic)cf).EMSD = new List<EMSDc>();
+                cf.EMSD = new List<EMSDc>();
                 var argcf = (Map)cf;
                 MapSetupUI(ref argcf);
                 cf = argcf;
@@ -1986,7 +1975,7 @@ namespace VBLauncher
             }
             else
             {
-                ((dynamic)cf).EMSD.RemoveAt(i);
+                cf.EMSD.RemoveAt(i);
                 EMSDcb.Items.RemoveAt(i);
                 EMSDcb.SelectedIndex = i == 0 ? 0 : i - 1;
             }
@@ -1996,7 +1985,7 @@ namespace VBLauncher
         {
             foreach (Control c in EMSDgb.Controls)
                 c.Enabled = true;
-            ((dynamic)cf).EMSD.Add(new EMSDc());
+            cf.EMSD.Add(new EMSDc());
             EMSDcb.Items.Add(EMSDcb.Items.Count + 1);
             EMSDcb.SelectedIndex = EMSDcb.Items.Count - 1;
         }
@@ -2004,9 +1993,9 @@ namespace VBLauncher
         private void EPTHm_Click(object sender, EventArgs e)
         {
             var i = EPTHcb.SelectedIndex;
-            if (Convert.ToBoolean(Operators.ConditionalCompareObjectEqual(((dynamic)cf).EPTH.Count, 1, false)))
+            if (Convert.ToBoolean(Operators.ConditionalCompareObjectEqual(cf.EPTH.Count, 1, false)))
             {
-                ((dynamic)cf).EPTH = new List<EPTHc>();
+                cf.EPTH = new List<EPTHc>();
                 var argcf = (Map)cf;
                 MapSetupUI(ref argcf);
                 cf = argcf;
@@ -2017,7 +2006,7 @@ namespace VBLauncher
             }
             else
             {
-                ((dynamic)cf).EPTH.RemoveAt(i);
+                cf.EPTH.RemoveAt(i);
                 EPTHcb.Items.RemoveAt(i);
                 EPTHcb.SelectedIndex = i == 0 ? 0 : i - 1;
             }
@@ -2027,7 +2016,7 @@ namespace VBLauncher
         {
             foreach (Control c in EPTHGB.Controls)
                 c.Enabled = true;
-            ((dynamic)cf).EPTH.Add(new EPTHc());
+            cf.EPTH.Add(new EPTHc());
             EPTHcb.Items.Add(EPTHcb.Items.Count + 1);
             EPTHcb.SelectedIndex = EPTHcb.Items.Count - 1;
         }
@@ -2035,9 +2024,9 @@ namespace VBLauncher
         private void Triggerm_Click(object sender, EventArgs e)
         {
             var i = Triggercb.SelectedIndex;
-            if (Convert.ToBoolean(Operators.ConditionalCompareObjectEqual(((dynamic)cf).Triggers.Count, 1, false)))
+            if (Convert.ToBoolean(Operators.ConditionalCompareObjectEqual(cf.Triggers.Count, 1, false)))
             {
-                ((dynamic)cf).Triggers = new List<Trigger>();
+                cf.Triggers = new List<Trigger>();
                 var argcf = (Map)cf;
                 MapSetupUI(ref argcf);
                 cf = argcf;
@@ -2048,7 +2037,7 @@ namespace VBLauncher
             }
             else
             {
-                ((dynamic)cf).Triggers.RemoveAt(i);
+                cf.Triggers.RemoveAt(i);
                 Triggercb.Items.RemoveAt(i);
                 Triggercb.SelectedIndex = i == 0 ? 0 : i - 1;
             }
@@ -2058,7 +2047,7 @@ namespace VBLauncher
         {
             foreach (Control c in Triggergb.Controls)
                 c.Enabled = true;
-            ((dynamic)cf).Triggers.Add(new Trigger());
+            cf.Triggers.Add(new Trigger());
             Triggercb.Items.Add(Triggercb.Items.Count + 1);
             Triggercb.SelectedIndex = Triggercb.Items.Count - 1;
         }
@@ -2066,9 +2055,9 @@ namespace VBLauncher
         private void GWAMm_Click(object sender, EventArgs e)
         {
             var i = GWAMcb.SelectedIndex;
-            if (Convert.ToBoolean(Operators.ConditionalCompareObjectEqual(((dynamic)cf).GCRE.GWAM.Count, 1, false)))
+            if (Convert.ToBoolean(Operators.ConditionalCompareObjectEqual(cf.GCRE.GWAM.Count, 1, false)))
             {
-                ((dynamic)cf).GCRE.GWAM = new List<GWAMc>();
+                cf.GCRE.GWAM = new List<GWAMc>();
                 var argcf = (CRT)cf;
                 CRTSetupUI(ref argcf);
                 cf = argcf;
@@ -2079,7 +2068,7 @@ namespace VBLauncher
             }
             else
             {
-                ((dynamic)cf).GCRE.GWAM.RemoveAt(i);
+                cf.GCRE.GWAM.RemoveAt(i);
                 GWAMcb.Items.RemoveAt(i);
                 GWAMcb.SelectedIndex = i == 0 ? 0 : i - 1;
             }
@@ -2089,7 +2078,7 @@ namespace VBLauncher
         {
             foreach (Control c in GWAMgb.Controls)
                 c.Enabled = true;
-            ((dynamic)cf).GCRE.GWAM.Add(new GWAMc());
+            cf.GCRE.GWAM.Add(new GWAMc());
             GWAMcb.Items.Add(GWAMcb.Items.Count + 1);
             GWAMcb.SelectedIndex = GWAMcb.Items.Count - 1;
             GWAMToUI();
@@ -2097,11 +2086,11 @@ namespace VBLauncher
 
         private void _2MWTp_Click(object sender, EventArgs e)
         {
-            if (((dynamic)cf)._2MWT is null)
-                ((dynamic)cf)._2MWT = new _2MWTc();
+            if (cf._2MWT is null)
+                cf._2MWT = new _2MWTc();
             foreach (Control c in _2MWTgb.Controls)
                 c.Enabled = true;
-            ((dynamic)cf)._2MWT.chunks.Add(new _2MWTChunk("", new Point3(0f, 0f, 0f), new Point2(0f, 0f)));
+            cf._2MWT.chunks.Add(new _2MWTChunk("", new Point3(0f, 0f, 0f), new Point2(0f, 0f)));
             _2MWTcb.Items.Add(_2MWTcb.Items.Count + 1);
             _2MWTcb.SelectedIndex = _2MWTcb.Items.Count - 1;
         }
@@ -2109,10 +2098,10 @@ namespace VBLauncher
         private void _2MWTm_Click(object sender, EventArgs e)
         {
             var i = _2MWTcb.SelectedIndex;
-            int co = Convert.ToInt32(((dynamic)cf)._2MWT.chunks.Count);
+            int co = Convert.ToInt32(cf._2MWT.chunks.Count);
             if (co == 1)
             {
-                ((dynamic)cf)._2MWT.chunks = new List<_2MWTChunk>();
+                cf._2MWT.chunks = new List<_2MWTChunk>();
                 var argcf = (Map)cf;
                 MapSetupUI(ref argcf);
                 cf = argcf;
@@ -2123,7 +2112,7 @@ namespace VBLauncher
             }
             else
             {
-                ((dynamic)cf)._2MWT.chunks.RemoveAt(i);
+                cf._2MWT.chunks.RemoveAt(i);
                 _2MWTcb.Items.RemoveAt(i);
                 _2MWTcb.SelectedIndex = Math.Max(0, i - 1);
             }
@@ -2161,35 +2150,30 @@ namespace VBLauncher
 
         private bool CheckAndLoadStf()
         {
-            if (string.IsNullOrEmpty(My.MySettingsProperty.Settings.STFDir))
+            if (string.IsNullOrEmpty(MySettingsProperty.Settings.STFDir))
             {
                 if (DarkMessageBox.ShowInformation("English.STF Location not set, please locate it.", "English.stf Not Selected") == DialogResult.OK)
                 {
                     SetEngStfLocation();
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
-            else if (!File.Exists(My.MySettingsProperty.Settings.STFDir))
+
+            if (!File.Exists(MySettingsProperty.Settings.STFDir))
             {
                 if (DarkMessageBox.ShowInformation("Previous English.STF not found, please select a new one.", "English.stf Not Found") == DialogResult.OK)
                 {
                     SetEngStfLocation();
                     return true;
                 }
-                else
-                {
-                    return false;
-                }
+
+                return false;
             }
-            else
-            {
-                stf = (List<string>)Extensions.STFToTXT(File.ReadAllBytes(My.MySettingsProperty.Settings.STFDir));
-                return true;
-            }
+
+            stf = (List<string>)Extensions.STFToTXT(File.ReadAllBytes(MySettingsProperty.Settings.STFDir));
+            return true;
         }
 
         private void SetEngStfLocation()
@@ -2197,14 +2181,14 @@ namespace VBLauncher
             var ofd = new OpenFileDialog { Multiselect = false, CheckFileExists = true, Filter = "English.stf|*.stf" };
             if (ofd.ShowDialog() == DialogResult.OK)
             {
-                My.MySettingsProperty.Settings.STFDir = ofd.FileName;
+                MySettingsProperty.Settings.STFDir = ofd.FileName;
                 stf = (List<string>)Extensions.STFToTXT(File.ReadAllBytes(ofd.FileName));
             }
         }
 
         private void EnableEnglishstfEditingToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            My.MySettingsProperty.Settings.STFEditEnabled = EnableSTFEdit.Checked;
+            MySettingsProperty.Settings.STFEditEnabled = EnableSTFEdit.Checked;
         }
 
         #endregion
@@ -2393,25 +2377,25 @@ namespace VBLauncher
         private void GITMtype_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GITM.@type = ((dynamic)sender).SelectedIndex;
+                cf.GITM.type = ((dynamic)sender).SelectedIndex;
         }
 
         private void GITMeq_CheckedChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GITM.equip = ((dynamic)sender).@Checked;
+                cf.GITM.equip = ((dynamic)sender).Checked;
         }
 
         private void GITMslot_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GITM.eqslot = ((dynamic)sender).SelectedIndex;
+                cf.GITM.eqslot = ((dynamic)sender).SelectedIndex;
         }
 
         private void GITMrl_TextChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GITM.reload = int.Parse(((dynamic)sender).Text);
+                cf.GITM.reload = int.Parse(((dynamic)sender).Text);
         }
 
         private void GITMml_CheckedChanged(object sender, EventArgs e)
@@ -2422,37 +2406,37 @@ namespace VBLauncher
         private void GITMhhai_CheckedChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GITM.hHai = ((dynamic)sender).@Checked;
+                cf.GITM.hHai = ((dynamic)sender).Checked;
         }
 
         private void GITMhbea_CheckedChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GITM.hBea = ((dynamic)sender).@Checked;
+                cf.GITM.hBea = ((dynamic)sender).Checked;
         }
 
         private void GITMhmus_CheckedChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GITM.hMus = ((dynamic)sender).@Checked;
+                cf.GITM.hMus = ((dynamic)sender).Checked;
         }
 
         private void GITMheye_CheckedChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GITM.hEye = ((dynamic)sender).@Checked;
+                cf.GITM.hEye = ((dynamic)sender).Checked;
         }
 
         private void GITMhpon_CheckedChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GITM.hPon = ((dynamic)sender).@Checked;
+                cf.GITM.hPon = ((dynamic)sender).Checked;
         }
 
         private void GITMhvan_CheckedChanged(object sender, EventArgs e)
         {
             if (Convert.ToBoolean(((dynamic)sender).Enabled))
-                ((dynamic)cf).GITM.hVan = ((dynamic)sender).@Checked;
+                cf.GITM.hVan = ((dynamic)sender).Checked;
         }
 
         private void GITMsocgb_SelectedIndexChanged(object sender, EventArgs e)
@@ -2463,64 +2447,64 @@ namespace VBLauncher
                 {
                     case "Head":
                         {
-                            GITMsoct.Text = Convert.ToString(((dynamic)cf).GITM.Hea.Tex);
-                            GITMsocm.Text = Convert.ToString(((dynamic)cf).GITM.Hea.Model);
+                            GITMsoct.Text = Convert.ToString(cf.GITM.Hea.Tex);
+                            GITMsocm.Text = Convert.ToString(cf.GITM.Hea.Model);
                             break;
                         }
 
                     case "Eye":
                         {
-                            GITMsoct.Text = Convert.ToString(((dynamic)cf).GITM.Eye.Tex);
-                            GITMsocm.Text = Convert.ToString(((dynamic)cf).GITM.Eye.Model);
+                            GITMsoct.Text = Convert.ToString(cf.GITM.Eye.Tex);
+                            GITMsocm.Text = Convert.ToString(cf.GITM.Eye.Model);
                             break;
                         }
 
                     case "Body":
                         {
-                            GITMsoct.Text = Convert.ToString(((dynamic)cf).GITM.Bod.Tex);
-                            GITMsocm.Text = Convert.ToString(((dynamic)cf).GITM.Bod.Model);
+                            GITMsoct.Text = Convert.ToString(cf.GITM.Bod.Tex);
+                            GITMsocm.Text = Convert.ToString(cf.GITM.Bod.Model);
                             break;
                         }
 
                     case "Back":
                         {
-                            GITMsoct.Text = Convert.ToString(((dynamic)cf).GITM.Bac.Tex);
-                            GITMsocm.Text = Convert.ToString(((dynamic)cf).GITM.Bac.Model);
+                            GITMsoct.Text = Convert.ToString(cf.GITM.Bac.Tex);
+                            GITMsocm.Text = Convert.ToString(cf.GITM.Bac.Model);
                             break;
                         }
 
                     case "Hands":
                         {
-                            GITMsoct.Text = Convert.ToString(((dynamic)cf).GITM.Han.Tex);
-                            GITMsocm.Text = Convert.ToString(((dynamic)cf).GITM.Han.Model);
+                            GITMsoct.Text = Convert.ToString(cf.GITM.Han.Tex);
+                            GITMsocm.Text = Convert.ToString(cf.GITM.Han.Model);
                             break;
                         }
 
                     case "Feet":
                         {
-                            GITMsoct.Text = Convert.ToString(((dynamic)cf).GITM.Fee.Tex);
-                            GITMsocm.Text = Convert.ToString(((dynamic)cf).GITM.Fee.Model);
+                            GITMsoct.Text = Convert.ToString(cf.GITM.Fee.Tex);
+                            GITMsocm.Text = Convert.ToString(cf.GITM.Fee.Model);
                             break;
                         }
 
                     case "Shoes":
                         {
-                            GITMsoct.Text = Convert.ToString(((dynamic)cf).GITM.Sho.Tex);
-                            GITMsocm.Text = Convert.ToString(((dynamic)cf).GITM.Sho.Model);
+                            GITMsoct.Text = Convert.ToString(cf.GITM.Sho.Tex);
+                            GITMsocm.Text = Convert.ToString(cf.GITM.Sho.Model);
                             break;
                         }
 
                     case "Vanity":
                         {
-                            GITMsoct.Text = Convert.ToString(((dynamic)cf).GITM.Van.Tex);
-                            GITMsocm.Text = Convert.ToString(((dynamic)cf).GITM.Van.Model);
+                            GITMsoct.Text = Convert.ToString(cf.GITM.Van.Tex);
+                            GITMsocm.Text = Convert.ToString(cf.GITM.Van.Model);
                             break;
                         }
 
                     case "In-Hand":
                         {
-                            GITMsoct.Text = Convert.ToString(((dynamic)cf).GITM.IHS.Tex);
-                            GITMsocm.Text = Convert.ToString(((dynamic)cf).GITM.IHS.Model);
+                            GITMsoct.Text = Convert.ToString(cf.GITM.IHS.Tex);
+                            GITMsocm.Text = Convert.ToString(cf.GITM.IHS.Model);
                             break;
                         }
                 }
@@ -2535,55 +2519,55 @@ namespace VBLauncher
                 {
                     case "Head":
                         {
-                            ((dynamic)cf).GITM.Hea.Model = GITMsocm.Text;
+                            cf.GITM.Hea.Model = GITMsocm.Text;
                             break;
                         }
 
                     case "Eye":
                         {
-                            ((dynamic)cf).GITM.Eye.Model = GITMsocm.Text;
+                            cf.GITM.Eye.Model = GITMsocm.Text;
                             break;
                         }
 
                     case "Body":
                         {
-                            ((dynamic)cf).GITM.Bod.Model = GITMsocm.Text;
+                            cf.GITM.Bod.Model = GITMsocm.Text;
                             break;
                         }
 
                     case "Back":
                         {
-                            ((dynamic)cf).GITM.Bac.Model = GITMsocm.Text;
+                            cf.GITM.Bac.Model = GITMsocm.Text;
                             break;
                         }
 
                     case "Hands":
                         {
-                            ((dynamic)cf).GITM.Han.Model = GITMsocm.Text;
+                            cf.GITM.Han.Model = GITMsocm.Text;
                             break;
                         }
 
                     case "Feet":
                         {
-                            ((dynamic)cf).GITM.Fee.Model = GITMsocm.Text;
+                            cf.GITM.Fee.Model = GITMsocm.Text;
                             break;
                         }
 
                     case "Shoes":
                         {
-                            ((dynamic)cf).GITM.Sho.Model = GITMsocm.Text;
+                            cf.GITM.Sho.Model = GITMsocm.Text;
                             break;
                         }
 
                     case "Vanity":
                         {
-                            ((dynamic)cf).GITM.Van.Model = GITMsocm.Text;
+                            cf.GITM.Van.Model = GITMsocm.Text;
                             break;
                         }
 
                     case "In-Hand":
                         {
-                            ((dynamic)cf).GITM.IHS.Model = GITMsocm.Text;
+                            cf.GITM.IHS.Model = GITMsocm.Text;
                             break;
                         }
                 }
@@ -2598,55 +2582,55 @@ namespace VBLauncher
                 {
                     case "Head":
                         {
-                            ((dynamic)cf).GITM.Hea.Tex = GITMsoct.Text;
+                            cf.GITM.Hea.Tex = GITMsoct.Text;
                             break;
                         }
 
                     case "Eye":
                         {
-                            ((dynamic)cf).GITM.Eye.Tex = GITMsoct.Text;
+                            cf.GITM.Eye.Tex = GITMsoct.Text;
                             break;
                         }
 
                     case "Body":
                         {
-                            ((dynamic)cf).GITM.Bod.Tex = GITMsoct.Text;
+                            cf.GITM.Bod.Tex = GITMsoct.Text;
                             break;
                         }
 
                     case "Back":
                         {
-                            ((dynamic)cf).GITM.Bac.Tex = GITMsoct.Text;
+                            cf.GITM.Bac.Tex = GITMsoct.Text;
                             break;
                         }
 
                     case "Hands":
                         {
-                            ((dynamic)cf).GITM.Han.Tex = GITMsoct.Text;
+                            cf.GITM.Han.Tex = GITMsoct.Text;
                             break;
                         }
 
                     case "Feet":
                         {
-                            ((dynamic)cf).GITM.Fee.Tex = GITMsoct.Text;
+                            cf.GITM.Fee.Tex = GITMsoct.Text;
                             break;
                         }
 
                     case "Shoes":
                         {
-                            ((dynamic)cf).GITM.Sho.Tex = GITMsoct.Text;
+                            cf.GITM.Sho.Tex = GITMsoct.Text;
                             break;
                         }
 
                     case "Vanity":
                         {
-                            ((dynamic)cf).GITM.Van.Tex = GITMsoct.Text;
+                            cf.GITM.Van.Tex = GITMsoct.Text;
                             break;
                         }
 
                     case "In-Hand":
                         {
-                            ((dynamic)cf).GITM.IHS.Tex = GITMsoct.Text;
+                            cf.GITM.IHS.Tex = GITMsoct.Text;
                             break;
                         }
                 }

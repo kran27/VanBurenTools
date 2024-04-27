@@ -10,12 +10,55 @@ using static VBLauncher.VideoInfo;
 
 namespace VBLauncher
 {
-
     public partial class Options
     {
-        private readonly MainMenuDef[] MainMenus = new[] { MMD("mainmenu.map", 0.ToString(), 5.5d.ToString(), 0.ToString(), 2.ToString(), 0.75d.ToString(), 59.2d.ToString()), MMD("zz_TestMapsaarontemp2.map", 0.ToString(), 0.ToString(), 0.ToString(), 0.ToString(), 0.ToString(), 0.ToString()), MMD("zz_TestMapsTest_City_Building01.map", 0.ToString(), 5.5d.ToString(), 0.ToString(), 45.ToString(), (-2.5d).ToString(), 57.ToString()), MMD("zz_TestMapsTest_City_Building02.map", 0.ToString(), 5.5d.ToString(), 0.ToString(), 43.ToString(), (-2.5d).ToString(), 57.ToString()), MMD("zz_TestMapsTest_City_Building03.map", 0.ToString(), 5.5d.ToString(), 0.ToString(), 43.ToString(), (-5).ToString(), 57.ToString()), MMD("zz_TestMapsTest_City_Building04.map", 0.ToString(), 5.5d.ToString(), 0.ToString(), 43.ToString(), (-5.5d).ToString(), 57.ToString()), MMD("98_Canyon_Random_01.map", 50.ToString(), 5.ToString(), 10.ToString(), 61.ToString(), 0.ToString(), 45.ToString()), MMD("98_Canyon_Random_02.map", 55.ToString(), 5.ToString(), 10.ToString(), 36.ToString(), (-2.5d).ToString(), 50.ToString()), MMD("04_0202_Spelunking.map", 70.ToString(), 5.ToString(), 45.ToString(), 15.ToString(), 5.ToString(), 50.ToString()), MMD("zz_TestMapsTest_City_Fences.map", 0.ToString(), 40.ToString(), 0.ToString(), 42.ToString(), 35.ToString(), 50.ToString()), MMD("zz_TestMapsScottE_Test1.map", 85.ToString(), 30.ToString(), 30.ToString(), 255.ToString(), 39.ToString(), 60.ToString()), MMD("zz_TestMapsScottE_Test2.map", 145.ToString(), 80.ToString(), (-85).ToString(), 0.5d.ToString(), 25.ToString(), 75.ToString()), MMD("zz_TestMapsScottE_Test4.map", 0.ToString(), 7.5d.ToString(), 0.ToString(), 45.ToString(), 12.5d.ToString(), 50.ToString()), MMD("zz_TestMapsTest_Junktown_Shacks.map", 0.ToString(), 50.ToString(), (-10).ToString(), 42.ToString(), 39.ToString(), 50.ToString()), MMD("Default_StartMap.map", 60.ToString(), 7.5d.ToString(), 25.ToString(), 270.ToString(), 8.ToString(), 27.ToString()), MMD("00_03_Tutorial_Junktown.map", 80.ToString(), 7.5d.ToString(), 50.ToString(), 5.ToString(), 10.ToString(), 68.ToString()), MMD("00_04_Tutorial_Vault.map", 50.ToString(), 50.5d.ToString(), 0.ToString(), 36.ToString(), 25.ToString(), 68.ToString()) };
+        private readonly MainMenuDef[] MainMenus = new[]
+        {
+            MMD("mainmenu.map", 0.ToString(), 5.5d.ToString(), 0.ToString(), 2.ToString(), 0.75d.ToString(),
+                59.2d.ToString()),
+            MMD("zz_TestMapsaarontemp2.map", 0.ToString(), 0.ToString(), 0.ToString(), 0.ToString(), 0.ToString(),
+                0.ToString()),
+            MMD("zz_TestMapsTest_City_Building01.map", 0.ToString(), 5.5d.ToString(), 0.ToString(), 45.ToString(),
+                (-2.5d).ToString(), 57.ToString()),
+            MMD("zz_TestMapsTest_City_Building02.map", 0.ToString(), 5.5d.ToString(), 0.ToString(), 43.ToString(),
+                (-2.5d).ToString(), 57.ToString()),
+            MMD("zz_TestMapsTest_City_Building03.map", 0.ToString(), 5.5d.ToString(), 0.ToString(), 43.ToString(),
+                (-5).ToString(), 57.ToString()),
+            MMD("zz_TestMapsTest_City_Building04.map", 0.ToString(), 5.5d.ToString(), 0.ToString(), 43.ToString(),
+                (-5.5d).ToString(), 57.ToString()),
+            MMD("98_Canyon_Random_01.map", 50.ToString(), 5.ToString(), 10.ToString(), 61.ToString(), 0.ToString(),
+                45.ToString()),
+            MMD("98_Canyon_Random_02.map", 55.ToString(), 5.ToString(), 10.ToString(), 36.ToString(),
+                (-2.5d).ToString(), 50.ToString()),
+            MMD("04_0202_Spelunking.map", 70.ToString(), 5.ToString(), 45.ToString(), 15.ToString(), 5.ToString(),
+                50.ToString()),
+            MMD("zz_TestMapsTest_City_Fences.map", 0.ToString(), 40.ToString(), 0.ToString(), 42.ToString(),
+                35.ToString(), 50.ToString()),
+            MMD("zz_TestMapsScottE_Test1.map", 85.ToString(), 30.ToString(), 30.ToString(), 255.ToString(),
+                39.ToString(), 60.ToString()),
+            MMD("zz_TestMapsScottE_Test2.map", 145.ToString(), 80.ToString(), (-85).ToString(), 0.5d.ToString(),
+                25.ToString(), 75.ToString()),
+            MMD("zz_TestMapsScottE_Test4.map", 0.ToString(), 7.5d.ToString(), 0.ToString(), 45.ToString(),
+                12.5d.ToString(), 50.ToString()),
+            MMD("zz_TestMapsTest_Junktown_Shacks.map", 0.ToString(), 50.ToString(), (-10).ToString(), 42.ToString(),
+                39.ToString(), 50.ToString()),
+            MMD("Default_StartMap.map", 60.ToString(), 7.5d.ToString(), 25.ToString(), 270.ToString(), 8.ToString(),
+                27.ToString()),
+            MMD("00_03_Tutorial_Junktown.map", 80.ToString(), 7.5d.ToString(), 50.ToString(), 5.ToString(),
+                10.ToString(), 68.ToString()),
+            MMD("00_04_Tutorial_Vault.map", 50.ToString(), 50.5d.ToString(), 0.ToString(), 36.ToString(), 25.ToString(),
+                68.ToString())
+        };
 
-        private readonly string[] Maps = new[] { "mainmenu.map", "zz_TestMapsaarontemp2.map", "zz_TestMapsTest_City_Building01.map", "zz_TestMapsTest_City_Building02.map", "zz_TestMapsTest_City_Building03.map", "zz_TestMapsTest_City_Building04.map", "98_Canyon_Random_01.map", "98_Canyon_Random_02.map", "04_0202_Spelunking.map", "zz_TestMapsTest_City_Fences.map", "zz_TestMapsScottE_Test1.map", "zz_TestMapsScottE_Test2.map", "zz_TestMapsScottE_Test4.map", "zz_TestMapsTest_Junktown_Shacks.map", "Default_StartMap.map", "00_03_Tutorial_Junktown.map", "00_04_Tutorial_Vault.map" };
+        private readonly string[] Maps = new[]
+        {
+            "mainmenu.map", "zz_TestMapsaarontemp2.map", "zz_TestMapsTest_City_Building01.map",
+            "zz_TestMapsTest_City_Building02.map", "zz_TestMapsTest_City_Building03.map",
+            "zz_TestMapsTest_City_Building04.map", "98_Canyon_Random_01.map", "98_Canyon_Random_02.map",
+            "04_0202_Spelunking.map", "zz_TestMapsTest_City_Fences.map", "zz_TestMapsScottE_Test1.map",
+            "zz_TestMapsScottE_Test2.map", "zz_TestMapsScottE_Test4.map", "zz_TestMapsTest_Junktown_Shacks.map",
+            "Default_StartMap.map", "00_03_Tutorial_Junktown.map", "00_04_Tutorial_Vault.map"
+        };
 
         private string[] dgV2Conf;
         private readonly string[] AAModes = new[] { "off", "2x", "4x", "8x" };
@@ -42,7 +85,8 @@ namespace VBLauncher
             IniManager.Ini(ref IniManager.SysIni, "Mainmenu", "fov", MMD.FOV);
         }
 
-        private static MainMenuDef MMD(string MapName, string TargetX, string TargetY, string TargetZ, string Azimuth, string Elevation, string FOV)
+        private static MainMenuDef MMD(string MapName, string TargetX, string TargetY, string TargetZ, string Azimuth,
+            string Elevation, string FOV)
         {
             return new MainMenuDef
             {
@@ -59,10 +103,13 @@ namespace VBLauncher
         private void CheckOptions(object sender, EventArgs e)
         {
             DarkTabControl1.Invalidate();
-            IntrosCB.Checked = Conversions.ToDouble(IniManager.Ini(ref IniManager.F3Ini, "Graphics", "enable startup movies")) == 1d;
-            MainMenuCB.SelectedIndex = Array.IndexOf(Maps, IniManager.Ini(ref IniManager.SysIni, "Mainmenu", "map name"));
+            IntrosCB.Checked =
+                Conversions.ToDouble(IniManager.Ini(ref IniManager.F3Ini, "Graphics", "enable startup movies")) == 1d;
+            MainMenuCB.SelectedIndex =
+                Array.IndexOf(Maps, IniManager.Ini(ref IniManager.SysIni, "Mainmenu", "map name"));
             CameraCB.Checked = Conversions.ToDouble(IniManager.Ini(ref IniManager.SysIni, "Camera", "FOV Min")) == 0.5d;
-            AltCamCB.Checked = Conversions.ToDouble(IniManager.Ini(ref IniManager.SysIni, "Camera", "Distance Max")) == 70d;
+            AltCamCB.Checked = Conversions.ToDouble(IniManager.Ini(ref IniManager.SysIni, "Camera", "Distance Max")) ==
+                               70d;
             var Files = General.SearchForFiles("Override", new[] { "*.map" });
             foreach (var File in Files)
             {
@@ -70,8 +117,10 @@ namespace VBLauncher
                 if (!NewGameCB.Items.Contains(FI.Name))
                     NewGameCB.Items.Add(FI.Name);
             }
+
             NewGameCB.Text = IniManager.Ini(ref IniManager.SysIni, "Server", "Start map");
-            DarkNumericUpDown1.Value = Conversions.ToDecimal(IniManager.Ini(ref IniManager.SysIni, "Server", "Start map entry point"));
+            DarkNumericUpDown1.Value =
+                Conversions.ToDecimal(IniManager.Ini(ref IniManager.SysIni, "Server", "Start map entry point"));
             // Graphics
             TextureCB.BringToFront();
             SSFCB.BringToFront();
@@ -85,6 +134,7 @@ namespace VBLauncher
                 File.WriteAllText("dgVoodoo.conf", My.Resources.Resources.dgV2conf);
                 dgV2Conf = File.ReadAllLines("dgVoodoo.conf");
             }
+
             ResolutionCB.Items.Clear();
             ResolutionCB.Items.AddRange(GetResAsStrings());
             var inires = new Resolution
@@ -95,7 +145,8 @@ namespace VBLauncher
             };
             ResolutionCB.SelectedItem = ResToStr(inires);
             SetupSSCB(sender, e);
-            FullscreenCB.Checked = Conversions.ToDouble(IniManager.Ini(ref IniManager.F3Ini, "Graphics", "fullscreen")) == 1d;
+            FullscreenCB.Checked =
+                Conversions.ToDouble(IniManager.Ini(ref IniManager.F3Ini, "Graphics", "fullscreen")) == 1d;
             if (File.Exists("d3d11.dll"))
             {
                 APICB.SelectedIndex = 1;
@@ -104,6 +155,7 @@ namespace VBLauncher
             {
                 APICB.SelectedIndex = 0;
             }
+
             AACB.SelectedIndex = AAModes.ToList().IndexOf(IniManager.Ini(ref dgV2Conf, "DirectX", "Antialiasing"));
             TextureCB.SelectedIndex = FModes.ToList().IndexOf(IniManager.Ini(ref dgV2Conf, "DirectX", "Filtering"));
             SSFCB.SelectedIndex = SSModes.ToList().IndexOf(IniManager.Ini(ref dgV2Conf, "DirectX", "Resolution"));
@@ -113,16 +165,16 @@ namespace VBLauncher
             }
             catch
             {
-
             }
+
             try
             {
                 PhongCB.Checked = bool.Parse(IniManager.Ini(ref dgV2Conf, "DirectX", "PhongShadingWhenPossible"));
             }
             catch
             {
-
             }
+
             LoadKeybinds(sender, e);
         }
 
@@ -193,49 +245,65 @@ namespace VBLauncher
 
         private void ApplyChanges(object sender, EventArgs e)
         {
-            IniManager.Ini(ref IniManager.F3Ini, "Graphics", "enable startup movies", (IntrosCB.Checked ? 1 : 0).ToString(), IniManager.KeyType.Normal);
+            IniManager.Ini(ref IniManager.F3Ini, "Graphics", "enable startup movies",
+                (IntrosCB.Checked ? 1 : 0).ToString(), IniManager.KeyType.Normal);
             SetMainMenu(MainMenus[MainMenuCB.SelectedIndex]);
-            IniManager.Ini(ref IniManager.SysIni, "Camera", "Distance Max", (AltCamCB.Checked ? 70 : 350).ToString(), IniManager.KeyType.Normal);
-            IniManager.Ini(ref IniManager.SysIni, "Camera", "Distance Min", (AltCamCB.Checked ? 70 : 350).ToString(), IniManager.KeyType.Normal);
-            IniManager.Ini(ref IniManager.SysIni, "Camera", "FOV Speed", (CameraCB.Checked ? 10d : 32.5d).ToString(), IniManager.KeyType.Normal);
-            IniManager.Ini(ref IniManager.SysIni, "Camera", "Scroll Speed", (CameraCB.Checked ? 250 : 96).ToString(), IniManager.KeyType.Normal);
-            IniManager.Ini(ref IniManager.SysIni, "Camera", "FOV Min", (CameraCB.Checked ? 0.5d : AltCamCB.Checked ? 30 : 6).ToString(), IniManager.KeyType.Normal);
-            IniManager.Ini(ref IniManager.SysIni, "Camera", "FOV Max", (CameraCB.Checked ? 100 : AltCamCB.Checked ? 75 : 15).ToString(), IniManager.KeyType.Normal);
+            IniManager.Ini(ref IniManager.SysIni, "Camera", "Distance Max", (AltCamCB.Checked ? 70 : 350).ToString(),
+                IniManager.KeyType.Normal);
+            IniManager.Ini(ref IniManager.SysIni, "Camera", "Distance Min", (AltCamCB.Checked ? 70 : 350).ToString(),
+                IniManager.KeyType.Normal);
+            IniManager.Ini(ref IniManager.SysIni, "Camera", "FOV Speed", (CameraCB.Checked ? 10d : 32.5d).ToString(),
+                IniManager.KeyType.Normal);
+            IniManager.Ini(ref IniManager.SysIni, "Camera", "Scroll Speed", (CameraCB.Checked ? 250 : 96).ToString(),
+                IniManager.KeyType.Normal);
+            IniManager.Ini(ref IniManager.SysIni, "Camera", "FOV Min",
+                (CameraCB.Checked ? 0.5d : AltCamCB.Checked ? 30 : 6).ToString(), IniManager.KeyType.Normal);
+            IniManager.Ini(ref IniManager.SysIni, "Camera", "FOV Max",
+                (CameraCB.Checked ? 100 : AltCamCB.Checked ? 75 : 15).ToString(), IniManager.KeyType.Normal);
             IniManager.Ini(ref IniManager.SysIni, "Server", "Start map", NewGameCB.Text, IniManager.KeyType.Normal);
-            IniManager.Ini(ref IniManager.SysIni, "Server", "Start map entry point", DarkNumericUpDown1.Value.ToString(), IniManager.KeyType.Normal);
+            IniManager.Ini(ref IniManager.SysIni, "Server", "Start map entry point",
+                DarkNumericUpDown1.Value.ToString(), IniManager.KeyType.Normal);
             var res = StrToRes(ResolutionCB.Text);
-            IniManager.Ini(ref IniManager.F3Ini, "Graphics", "fullscreen", (FullscreenCB.Checked ? 1 : 0).ToString(), IniManager.KeyType.Normal);
+            IniManager.Ini(ref IniManager.F3Ini, "Graphics", "fullscreen", (FullscreenCB.Checked ? 1 : 0).ToString(),
+                IniManager.KeyType.Normal);
             IniManager.Ini(ref IniManager.F3Ini, "Graphics", "width", res.Width.ToString(), IniManager.KeyType.Normal);
-            IniManager.Ini(ref IniManager.F3Ini, "Graphics", "height", res.Height.ToString(), IniManager.KeyType.Normal);
+            IniManager.Ini(ref IniManager.F3Ini, "Graphics", "height", res.Height.ToString(),
+                IniManager.KeyType.Normal);
             switch (APICB.SelectedIndex)
             {
                 case 0:
-                    {
-                        File.Delete("d3d9.dll");
-                        File.Delete("d3d11.dll");
-                        File.Delete("dxgi.dll");
-                        File.Delete("wined3d.dll");
-                        File.WriteAllBytes("d3d8.dll", My.Resources.Resources.D3D8);
-                        break;
-                    }
+                {
+                    File.Delete("d3d9.dll");
+                    File.Delete("d3d11.dll");
+                    File.Delete("dxgi.dll");
+                    File.Delete("wined3d.dll");
+                    File.WriteAllBytes("d3d8.dll", My.Resources.Resources.D3D8);
+                    break;
+                }
                 case 1:
-                    {
-                        File.Delete("d3d9.dll");
-                        File.Delete("wined3d.dll");
-                        File.WriteAllBytes("d3d11.dll", My.Resources.Resources.d3d11);
-                        File.WriteAllBytes("dxgi.dll", My.Resources.Resources.dxgi);
-                        break;
-                    }
+                {
+                    File.Delete("d3d9.dll");
+                    File.Delete("wined3d.dll");
+                    File.WriteAllBytes("d3d11.dll", My.Resources.Resources.d3d11);
+                    File.WriteAllBytes("dxgi.dll", My.Resources.Resources.dxgi);
+                    break;
+                }
             }
-            IniManager.Ini(ref dgV2Conf, "DirectX", "Antialiasing", AAModes[AACB.SelectedIndex], IniManager.KeyType.Normal);
-            IniManager.Ini(ref dgV2Conf, "DirectX", "Filtering", FModes[TextureCB.SelectedIndex], IniManager.KeyType.Normal);
-            IniManager.Ini(ref dgV2Conf, "DirectX", "Resolution", SSModes[SSFCB.SelectedIndex], IniManager.KeyType.Normal);
-            IniManager.Ini(ref dgV2Conf, "DirectX", "DisableMipmapping", Conversions.ToString(!MipmapCB.Checked), IniManager.KeyType.Normal);
-            IniManager.Ini(ref dgV2Conf, "DirectX", "PhongShadingWhenPossible", Conversions.ToString(PhongCB.Checked), IniManager.KeyType.Normal);
+
+            IniManager.Ini(ref dgV2Conf, "DirectX", "Antialiasing", AAModes[AACB.SelectedIndex],
+                IniManager.KeyType.Normal);
+            IniManager.Ini(ref dgV2Conf, "DirectX", "Filtering", FModes[TextureCB.SelectedIndex],
+                IniManager.KeyType.Normal);
+            IniManager.Ini(ref dgV2Conf, "DirectX", "Resolution", SSModes[SSFCB.SelectedIndex],
+                IniManager.KeyType.Normal);
+            IniManager.Ini(ref dgV2Conf, "DirectX", "DisableMipmapping", Conversions.ToString(!MipmapCB.Checked),
+                IniManager.KeyType.Normal);
+            IniManager.Ini(ref dgV2Conf, "DirectX", "PhongShadingWhenPossible", Conversions.ToString(PhongCB.Checked),
+                IniManager.KeyType.Normal);
             IniManager.Ini(ref dgV2Conf, "GeneralExt", "FPSLimit", res.Hz.ToString(), IniManager.KeyType.Normal);
             IniManager.Ini(ref IniManager.F3Ini, "Graphics", "refresh", res.Hz.ToString(), IniManager.KeyType.Normal);
             var NewBinds = (from DataGridViewRow r in DataGridView1.Rows
-                            select RowToStr(r)).ToList();
+                select RowToStr(r)).ToList();
 
             var SectionStart = Array.FindIndex(IniManager.F3Ini, x => x.StartsWith($"[HotKeys]"));
             var SectionEnd = Array.FindIndex(IniManager.F3Ini, SectionStart + 1, x => x.StartsWith("[")) - 1;
@@ -258,7 +326,8 @@ namespace VBLauncher
             var index = SSFCB.SelectedIndex;
             var res = StrToRes(ResolutionCB.Text);
             SSFCB.Items.Clear();
-            var resolutions = new[] { ResToStr(res, false), ResToStr(res, false, 2), ResToStr(res, false, 3), ResToStr(res, false, 4) };
+            var resolutions = new[]
+                { ResToStr(res, false), ResToStr(res, false, 2), ResToStr(res, false, 3), ResToStr(res, false, 4) };
             SSFCB.Items.AddRange(resolutions);
             SSFCB.SelectedIndex = index;
         }
@@ -270,7 +339,9 @@ namespace VBLauncher
 
         private static string RowToStr(DataGridViewRow row)
         {
-            var ch = Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(row.Cells[3].Value, "Up", false)) ? "-" : "+";
+            var ch = Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(row.Cells[3].Value, "Up", false))
+                ? "-"
+                : "+";
             if (Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(row.Cells[0].Value, "", false)))
             {
                 return $"{ch}{row.Cells[1].Value} = {row.Cells[2].Value}";
@@ -289,33 +360,38 @@ namespace VBLauncher
             {
                 case 0:
                 case 1:
-                    {
-                        Row = e.RowIndex;
-                        DarkLabel1.Show();
-                        WantKey = true;
-                        break;
-                    }
+                {
+                    Row = e.RowIndex;
+                    DarkLabel1.Show();
+                    WantKey = true;
+                    break;
+                }
                 case 2:
-                    {
-                        DarkLabel1.Hide();
-                        WantKey = false;
-                        break;
-                    }
+                {
+                    DarkLabel1.Hide();
+                    WantKey = false;
+                    break;
+                }
                 case 3:
-                    {
-                        if (ReferenceEquals(DataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value, DBNull.Value))
-                            DataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "Up";
-                        DataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(DataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value, "Up", false)) ? "Down" : "Up";
-                        DarkLabel1.Hide();
-                        WantKey = false;
-                        break;
-                    }
+                {
+                    if (ReferenceEquals(DataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value, DBNull.Value))
+                        DataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "Up";
+                    DataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value =
+                        Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(
+                            DataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value, "Up", false))
+                            ? "Down"
+                            : "Up";
+                    DarkLabel1.Hide();
+                    WantKey = false;
+                    break;
+                }
             }
         }
 
         private void DataGridView1_ScrollChanged(object sender, EventArgs e)
         {
-            DarkScrollBar1.ScrollTo((int)Math.Round(DataGridView1.FirstDisplayedScrollingRowIndex / (double)(DataGridView1.Rows.Count - DataGridView1.DisplayedRowCount(false)) * DarkScrollBar1.Maximum));
+            DarkScrollBar1.ScrollTo((int)Math.Round(DataGridView1.FirstDisplayedScrollingRowIndex /
+                (double)(DataGridView1.Rows.Count - DataGridView1.DisplayedRowCount(false)) * DarkScrollBar1.Maximum));
         }
 
         private void DarkScrollBar1_Click(object sender, EventArgs e)
@@ -330,7 +406,8 @@ namespace VBLauncher
 
         private void Timer1_Tick(object sender, EventArgs e)
         {
-            DataGridView1.FirstDisplayedScrollingRowIndex = (int)Math.Round(DarkScrollBar1.Value / (double)DarkScrollBar1.Maximum * (DataGridView1.Rows.Count - DataGridView1.DisplayedRowCount(false)));
+            DataGridView1.FirstDisplayedScrollingRowIndex = (int)Math.Round(DarkScrollBar1.Value /
+                (double)DarkScrollBar1.Maximum * (DataGridView1.Rows.Count - DataGridView1.DisplayedRowCount(false)));
         }
 
         private void DataGridView1_KeyDown(object sender, KeyEventArgs e)
@@ -340,26 +417,32 @@ namespace VBLauncher
                 case Keys.ControlKey:
                 case Keys.Menu:
                 case Keys.ShiftKey:
-                    {
-                        break;
-                    }
+                {
+                    break;
+                }
 
                 default:
+                {
+                    if (WantKey)
                     {
-                        if (WantKey)
-                        {
-                            Modifier = e.Modifiers.ToString();
-                            Key = e.KeyCode.ToString();
-                            DataGridView1.Rows[Row].Cells[0].Value = ProperName[Modifier];
-                            DataGridView1.Rows[Row].Cells[1].Value = ProperName[Key];
-                        }
-
-                        break;
+                        Modifier = e.Modifiers.ToString();
+                        Key = e.KeyCode.ToString();
+                        DataGridView1.Rows[Row].Cells[0].Value = ProperName.ContainsKey(Modifier) ? ProperName[Modifier] : Modifier;
+                        DataGridView1.Rows[Row].Cells[1].Value = ProperName.ContainsKey(Key) ? ProperName[Key] : Key;
                     }
+
+                    break;
+                }
             }
         }
 
-        private Dictionary<string, string> ProperName = new() { { "D1", "1" }, { "D2", "2" }, { "D3", "3" }, { "D4", "4" }, { "D5", "5" }, { "D6", "6" }, { "D7", "7" }, { "D8", "8" }, { "D9", "9" }, { "D0", "0" }, { "Control", "Ctrl" }, { "None", "" }, { "Oemtilde", "`" }, { "Oemminus", "-" }, { "Oemplus", "+" }, { "OemOpenBrackets", "[" }, { "Oem6", "]" }, { "Oem5", @"\" }, { "Oem1", ";" }, { "Oem7", "\"" }, { "Oemcomma", "," }, { "Oemperiod", "." }, { "OemQuestion", "/" } };
+        private Dictionary<string, string> ProperName = new()
+        {
+            { "D1", "1" }, { "D2", "2" }, { "D3", "3" }, { "D4", "4" }, { "D5", "5" }, { "D6", "6" }, { "D7", "7" },
+            { "D8", "8" }, { "D9", "9" }, { "D0", "0" }, { "Control", "Ctrl" }, { "None", "" }, { "Oemtilde", "`" },
+            { "Oemminus", "-" }, { "Oemplus", "+" }, { "OemOpenBrackets", "[" }, { "Oem6", "]" }, { "Oem5", @"\" },
+            { "Oem1", ";" }, { "Oem7", "\"" }, { "Oemcomma", "," }, { "Oemperiod", "." }, { "OemQuestion", "/" }
+        };
     }
 
     public class MainMenuDef
