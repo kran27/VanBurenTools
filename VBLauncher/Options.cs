@@ -403,6 +403,7 @@ namespace VBLauncher
                         Key = e.KeyCode.ToString();
                         DataGridView1.Rows[Row].Cells[0].Value = ProperName.TryGetValue(Modifier, out var value) ? value : Modifier;
                         DataGridView1.Rows[Row].Cells[1].Value = ProperName.TryGetValue(Key, out var value1) ? value1 : Key;
+                        break;
                     }
             }
         }
