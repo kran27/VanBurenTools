@@ -669,7 +669,7 @@ namespace VB3DLib
                 //Console.WriteLine("TTextures");
                 Unknown1 = f.ReadByte();
                 Name = StringRead(f);
-                if (b3d.texName == "") {b3d.texName = new string(Name);}
+                if (string.IsNullOrEmpty(b3d.texName)) {b3d.texName = new string(Name);}
                 FileName = StringRead(f);
                 Width = f.ReadUInt32();
                 Height = f.ReadUInt32();
@@ -798,8 +798,7 @@ namespace VB3DLib
                 {
                     skipLine = false;
                     tmpList.AddRange(from ss in s.Split("      Triangles{Index( ")[1].Split(" ")
-                                     where ss != ""
-                                     select int.Parse(ss));
+                                     where !string.IsNullOrEmpty(ss)                                     select int.Parse(ss));
                 }
                 else if (!skipLine)
                 {
@@ -809,8 +808,7 @@ namespace VB3DLib
                         s = s.Split(" ) Edge( ")[0];
                     }
                     tmpList.AddRange(from ss in s.Split(" ")
-                                     where ss != ""
-                                     select int.Parse(ss));
+                                     where !string.IsNullOrEmpty(ss)                                     select int.Parse(ss));
                 }
             }
             //split tmplist into groups of 3 and add to faces
