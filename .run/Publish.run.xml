@@ -1,6 +1,6 @@
 ﻿<component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Publish" type="DotNetFolderPublish" factoryName="Publish to folder">
-    <riderPublish configuration="Release" platform="x64" produce_single_file="true" ready_to_run="true" runtime="win-x64" target_folder="$PROJECT_DIR$/VBLauncher/bin/Release" target_framework="net8.0-windows10.0.17763.0" uuid_high="-709251091559609400" uuid_low="4531081705452700857" />
+    <riderPublish configuration="Release" platform="x64" runtime="win-x64" target_folder="$PROJECT_DIR$/VBLauncher/bin/Release" target_framework="net8.0-windows10.0.17763.0" uuid_high="-3483744722355598752" uuid_low="-5134673089732340880" />
     <method v="2" />
   </configuration>
 </component>

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Numerics;
+
 #region Filetype Classes
 
 // Classes containing the headers used by that file type, in the order they should be put back into a new file.
@@ -12,18 +14,18 @@ namespace VBLauncher
 
     public class Map
     {
-        public EMAPc EMAP { get; set; }
-        public List<EME2c> EME2 { get; set; }
-        public List<EMEPc> EMEP { get; set; }
-        public ECAMc ECAM { get; set; }
-        public _2MWTc _2MWT { get; set; }
-        public List<Trigger> Triggers { get; set; }
-        public List<EPTHc> EPTH { get; set; }
-        public List<EMSDc> EMSD { get; set; }
-        public EMNPc EMNP { get; set; }
-        public EMFGc EMFG { get; set; }
-        public List<EMNOc> EMNO { get; set; } = new List<EMNOc>();
-        public List<EMEFc> EMEF { get; set; }
+        public EMAPc EMAP;
+        public List<EME2c> EME2;
+        public List<EMEPc> EMEP;
+        public ECAMc ECAM;
+        public _2MWTc _2MWT;
+        public List<Trigger> Triggers;
+        public List<EPTHc> EPTH;
+        public List<EMSDc> EMSD;
+        public EMNPc EMNP;
+        public EMFGc EMFG;
+        public List<EMNOc> EMNO = new List<EMNOc>();
+        public List<EMEFc> EMEF;
 
         public Map()
         {
@@ -65,10 +67,10 @@ namespace VBLauncher
 
     public class CRT
     {
-        public EEN2c EEN2 { get; set; } = new();
-        public GENTc GENT { get; set; } = new();
-        public GCREc GCRE { get; set; } = new();
-        public GCHRc GCHR { get; set; } = new();
+        public EEN2c EEN2 = new();
+        public GENTc GENT = new();
+        public GCREc GCRE = new();
+        public GCHRc GCHR = new();
 
         public IEnumerable<byte> ToByte()
         {
@@ -85,9 +87,9 @@ namespace VBLauncher
 
     public class ITM
     {
-        public EEN2c EEN2 { get; set; } = new();
-        public GENTc GENT { get; set; } = new();
-        public GITMc GITM { get; set; } = new();
+        public EEN2c EEN2 = new();
+        public GENTc GENT = new();
+        public GITMc GITM = new();
 
         public IEnumerable<byte> ToByte()
         {
@@ -102,10 +104,10 @@ namespace VBLauncher
 
     public class ARM
     {
-        public EEN2c EEN2 { get; set; } = new();
-        public GENTc GENT { get; set; } = new();
-        public GITMc GITM { get; set; } = new();
-        public GIARc GIAR { get; set; } = new();
+        public EEN2c EEN2 = new();
+        public GENTc GENT = new();
+        public GITMc GITM = new();
+        public GIARc GIAR = new();
 
         public IEnumerable<byte> ToByte()
         {
@@ -121,10 +123,10 @@ namespace VBLauncher
 
     public class AMO
     {
-        public EEN2c EEN2 { get; set; } = new();
-        public GENTc GENT { get; set; } = new();
+        public EEN2c EEN2 = new();
+        public GENTc GENT = new();
 
-        public GITMc GITM { get; set; } = new();
+        public GITMc GITM = new();
         // Property GIAM As GIAMc
 
         // GIAM = New GIAMc()
@@ -143,9 +145,9 @@ namespace VBLauncher
 
     public class USE // also encapsulates CON and DOR, which use static chunks that are not read from or written to, if/which chunk is used is controlled by GOBJ.
     {
-        public EEN2c EEN2 { get; set; } = new();
-        public GENTc GENT { get; set; } = new();
-        public GOBJc GOBJ { get; set; } = new();
+        public EEN2c EEN2 = new();
+        public GENTc GENT = new();
+        public GOBJc GOBJ = new();
 
         public IEnumerable<byte> ToByte()
         {
@@ -171,10 +173,10 @@ namespace VBLauncher
 
     public class WEA
     {
-        public EEN2c EEN2 { get; set; } = new();
-        public GENTc GENT { get; set; } = new();
+        public EEN2c EEN2 = new();
+        public GENTc GENT = new();
 
-        public GITMc GITM { get; set; } = new();
+        public GITMc GITM = new();
         // Property GIWP As GIWPc
 
         // GIWP = New GIWPc()
@@ -200,9 +202,9 @@ namespace VBLauncher
     {
 
         // Triggers are made of 3 different headers (separate, unlike EME2 and EEOV), so there is a class to hold both types so they aren't separated.
-        public EMTRc EMTR { get; set; } = new();
+        public EMTRc EMTR = new();
 
-        public ExTRc ExTR { get; set; } = new();
+        public ExTRc ExTR = new();
 
         public IEnumerable<byte> ToByte()
         {
@@ -216,12 +218,12 @@ namespace VBLauncher
 
     public class EMAPc
     {
-        public string s1 { get; set; } = "";
-        public string s2 { get; set; } = "";
-        public string s3 { get; set; } = "";
-        public Color col { get; set; } = Color.Black;
-        public bool il { get; set; } = false;
-        public int le { get; set; } = 0;
+        public string s1 = "";
+        public string s2 = "";
+        public string s3 = "";
+        public Color col = Color.Black;
+        public bool il = false;
+        public int le = 0;
 
         public IEnumerable<byte> ToByte()
         {
@@ -246,9 +248,9 @@ namespace VBLauncher
 
     public class EME2c
     {
-        public string name { get; set; } = "";
-        public Point4 l { get; set; } = new(0f, 0f, 0f, 0f);
-        public EEOVc EEOV { get; set; } = new();
+        public string name = "";
+        public Vector4 l = new(0f, 0f, 0f, 0f);
+        public EEOVc EEOV = new();
 
         public IEnumerable<byte> ToByte()
         {
@@ -268,13 +270,13 @@ namespace VBLauncher
 
     public class EEOVc
     {
-        public string s1 { get; set; } = "";
-        public string s2 { get; set; } = "";
-        public string s3 { get; set; } = "";
-        public string s4 { get; set; } = "";
-        public int ps4 { get; set; } = 0;
-        public string s5 { get; set; } = "";
-        public List<string> inv { get; set; } = new();
+        public string s1 = "";
+        public string s2 = "";
+        public string s3 = "";
+        public string s4 = "";
+        public int ps4 = 0;
+        public string s5 = "";
+        public string[] inv = [];
 
         public IEnumerable<byte> ToByte()
         {
@@ -296,7 +298,7 @@ namespace VBLauncher
             ret.Write(40 + s1.Length + s2.Length + s3.Length + s4.Length, ps4);
             ret.Write(41 + s1.Length + s2.Length + s3.Length + s4.Length + a, s5.Length);
             ret.Write(43 + s1.Length + s2.Length + s3.Length + s4.Length + a, s5);
-            ret.Write(43 + s1.Length + s2.Length + s3.Length + s4.Length + s5.Length + a, inv.Count);
+            ret.Write(43 + s1.Length + s2.Length + s3.Length + s4.Length + s5.Length + a, inv.Length);
             var i = 0;
             foreach (var e in inv)
             {
@@ -311,9 +313,9 @@ namespace VBLauncher
 
     public class EMEPc
     {
-        public int index { get; set; } = 0;
-        public Point3 p { get; set; } = new(0f, 0f, 0f);
-        public float r { get; set; } = 0f;
+        public int index = 0;
+        public Vector3 p = new(0f, 0f, 0f);
+        public float r = 0f;
 
         public IEnumerable<byte> ToByte()
         {
@@ -330,7 +332,7 @@ namespace VBLauncher
 
     public class ECAMc
     {
-        public Point4 p { get; set; } = new(0f, 0f, 0f, 0f);
+        public Vector4 p = new(0f, 0f, 0f, 0f);
 
         public IEnumerable<byte> ToByte()
         {
@@ -345,10 +347,10 @@ namespace VBLauncher
 
     public class EMEFc
     {
-        public string s1 { get; set; } = "";
-        public string s2 { get; set; } = "";
-        public Point4 l { get; set; } = new(0f, 0f, 0f, 0f);
-        public byte b { get; set; } = 0;
+        public string s1 = "";
+        public string s2 = "";
+        public Vector4 l = new(0f, 0f, 0f, 0f);
+        public byte b = 0;
 
         public IEnumerable<byte> ToByte()
         {
@@ -369,9 +371,9 @@ namespace VBLauncher
 
     public class EMSDc
     {
-        public string s1 { get; set; } = "";
-        public Point3 l { get; set; } = new(0f, 0f, 0f);
-        public string s2 { get; set; } = "";
+        public string s1 = "";
+        public Vector3 l = new(0f, 0f, 0f);
+        public string s2 = "";
 
         public IEnumerable<byte> ToByte()
         {
@@ -391,8 +393,8 @@ namespace VBLauncher
 
     public class EPTHc
     {
-        public string name { get; set; } = "";
-        public List<Point4> p { get; set; } = new() { new Point4(0f, 0f, 0f, 0f) };
+        public string name = "";
+        public List<Vector4> p = new() { new Vector4(0f, 0f, 0f, 0f) };
 
         public IEnumerable<byte> ToByte()
         {
@@ -415,8 +417,8 @@ namespace VBLauncher
 
     public class EMTRc
     {
-        public int n { get; set; } = 0;
-        public List<Point3> r { get; set; } = new() { new Point3(0f, 0f, 0f) };
+        public int n = 0;
+        public List<Vector3> r = new() { new Vector3(0f, 0f, 0f) };
 
         public IEnumerable<byte> ToByte()
         {
@@ -438,8 +440,8 @@ namespace VBLauncher
 
     public class ExTRc // Called ExTR instead of E(T/S/B)TR for easier handling within triggers
     {
-        public string @type { get; set; } = "T"; // So we know which file is being created, T, S, or B. (or M, but it's ignored if that happens)
-        public string s { get; set; } = "";
+        public string @type = "T"; // So we know which file is being created, T, S, or B. (or M, but it's ignored if that happens)
+        public string s = "";
 
         public IEnumerable<byte> ToByte()
         {
@@ -485,11 +487,11 @@ namespace VBLauncher
 
     public class EEN2c
     {
-        public string skl { get; set; } = "";
-        public string invtex { get; set; } = "";
-        public string acttex { get; set; } = "";
-        public bool sel { get; set; } = false;
-        public EEOVc EEOV { get; set; } = new();
+        public string skl = "";
+        public string invtex = "";
+        public string acttex = "";
+        public bool sel = false;
+        public EEOVc EEOV = new();
 
         public IEnumerable<byte> ToByte()
         {
@@ -512,12 +514,12 @@ namespace VBLauncher
 
     public class GENTc
     {
-        public int HoverSR { get; set; } = 0; // String used when moused over
-        public int LookSR { get; set; } = 0; // String used when "Look" option is used
-        public int NameSR { get; set; } = 0; // String of the entities' name
-        public int UnkwnSR { get; set; } = 0; // String used ???
-        public int MaxHealth { get; set; } = 0;
-        public int StartHealth { get; set; } = 0;
+        public int HoverSR = 0; // String used when moused over
+        public int LookSR = 0; // String used when "Look" option is used
+        public int NameSR = 0; // String of the entities' name
+        public int UnkwnSR = 0; // String used ???
+        public int MaxHealth = 0;
+        public int StartHealth = 0;
 
         public IEnumerable<byte> ToByte()
         {
@@ -538,26 +540,26 @@ namespace VBLauncher
 
     public class GCREc
     {
-        public int[] Special { get; set; } = new[] { 0, 0, 0, 0, 0, 0, 0 };
-        public int Age { get; set; } = 0;
-        public List<Skill> Skills { get; set; } = new();
-        public List<int> Traits { get; set; } = new();
-        public List<int> TagSkills { get; set; } = new();
-        public string PortStr { get; set; } = "";
-        public Socket Hea { get; set; } = new("", "");
-        public Socket Hai { get; set; } = new("", "");
-        public Socket Pon { get; set; } = new("", "");
-        public Socket Mus { get; set; } = new("", "");
-        public Socket Bea { get; set; } = new("", "");
-        public Socket Eye { get; set; } = new("", "");
-        public Socket Bod { get; set; } = new("", "");
-        public Socket Han { get; set; } = new("", "");
-        public Socket Fee { get; set; } = new("", "");
-        public Socket Bac { get; set; } = new("", "");
-        public Socket Sho { get; set; } = new("", "");
-        public Socket Van { get; set; } = new("", "");
-        public List<string> Inventory { get; set; } = new();
-        public List<GWAMc> GWAM { get; set; } = new();
+        public int[] Special = new[] { 0, 0, 0, 0, 0, 0, 0 };
+        public int Age = 0;
+        public List<Skill> Skills = new();
+        public List<int> Traits = new();
+        public List<int> TagSkills = new();
+        public string PortStr = "";
+        public Socket Hea = new("", "");
+        public Socket Hai = new("", "");
+        public Socket Pon = new("", "");
+        public Socket Mus = new("", "");
+        public Socket Bea = new("", "");
+        public Socket Eye = new("", "");
+        public Socket Bod = new("", "");
+        public Socket Han = new("", "");
+        public Socket Fee = new("", "");
+        public Socket Bac = new("", "");
+        public Socket Sho = new("", "");
+        public Socket Van = new("", "");
+        public string[] Inventory = [];
+        public List<GWAMc> GWAM = new();
 
         public IEnumerable<byte> ToByte()
         {
@@ -595,19 +597,19 @@ namespace VBLauncher
             ret.Write(36, Special[6]);
             ret.Write(56, Age);
             ret.Write(72, Skills.Count);
-            for (int i = 0, loopTo = Skills.Count - 1; i <= loopTo; i++)
+            for (int i = 0; i < Skills.Count; i++)
                 ret.Write(76 + i * 8, Skills[i].ToByte());
             ret.Write(80 + sl, Traits.Count);
-            for (int i = 0, loopTo1 = Traits.Count - 1; i <= loopTo1; i++)
+            for (int i = 0; i < Traits.Count; i++)
                 ret.Write(84 + sl + i * 4, Traits[i]);
             ret.Write(84 + sl + tl, TagSkills.Count);
-            for (int i = 0, loopTo2 = TagSkills.Count - 1; i <= loopTo2; i++)
+            for (int i = 0; i < TagSkills.Count; i++)
                 ret.Write(88 + sl + tl + i * 4, TagSkills[i]);
             ret.Write(92 + sl + tl + tsl, PortStr.Length);
             ret.Write(94 + sl + tl + tsl, PortStr);
             ret.Write(129 + sl + tl + tsl + PortStr.Length, sock);
             ret.Write(189 + sl + tl + tsl + PortStr.Length + socl, GWAM.Count);
-            ret.Write(273 + sl + tl + tsl + PortStr.Length + socl, Inventory.Count);
+            ret.Write(273 + sl + tl + tsl + PortStr.Length + socl, Inventory.Length);
             ret.Write(277 + sl + tl + tsl + PortStr.Length + socl, inv);
             ret.Write(277 + sl + tl + tsl + PortStr.Length + socl + il, GWAMb);
             return ret;
@@ -617,15 +619,15 @@ namespace VBLauncher
 
     public class GWAMc
     {
-        public int Anim { get; set; } = 0;
-        public int DmgType { get; set; } = 0;
-        public int ShotsFired { get; set; } = 0;
-        public int Range { get; set; } = 0;
-        public int MinDmg { get; set; } = 0;
-        public int MaxDmg { get; set; } = 0;
-        public int AP { get; set; } = 0;
-        public int NameSR { get; set; } = 0;
-        public string VegName { get; set; } = 0.ToString();
+        public int Anim = 0;
+        public int DmgType = 0;
+        public int ShotsFired = 0;
+        public int Range = 0;
+        public int MinDmg = 0;
+        public int MaxDmg = 0;
+        public int AP = 0;
+        public int NameSR = 0;
+        public string VegName = 0.ToString();
 
         public IEnumerable<byte> ToByte()
         {
@@ -650,7 +652,7 @@ namespace VBLauncher
 
     public class GCHRc
     {
-        public string name { get; set; } = "";
+        public string name = "";
 
         public IEnumerable<byte> ToByte()
         {
@@ -666,10 +668,10 @@ namespace VBLauncher
 
     public class _2MWTc
     {
-        public string mpf { get; set; } = "";
-        public bool frozen { get; set; }
-        public bool dark { get; set; }
-        public List<_2MWTChunk> chunks { get; set; } = new();
+        public string mpf = "";
+        public bool frozen;
+        public bool dark;
+        public List<_2MWTChunk> chunks = new();
 
         public IEnumerable<byte> ToByte()
         {
@@ -697,25 +699,25 @@ namespace VBLauncher
 
     public class GITMc            // "Missing" Sockets:
     {
-        public int @type { get; set; } = 0; // ? Hai
-        public bool equip { get; set; } = false; // ? Pon
-        public int eqslot { get; set; } = 0; // ? Mus
-        public Socket Hea { get; set; } = new("", ""); // ? Bea
-        public bool hHai { get; set; } = false;
-        public bool hBea { get; set; } = false;
-        public bool hMus { get; set; } = false;
-        public bool hEye { get; set; } = false;
-        public bool hPon { get; set; } = false;
-        public bool hVan { get; set; }
-        public Socket Eye { get; set; } = new("", "");
-        public Socket Bod { get; set; } = new("", "");
-        public Socket Bac { get; set; } = new("", "");
-        public Socket Han { get; set; } = new("", "");
-        public Socket Fee { get; set; } = new("", "");
-        public Socket Sho { get; set; } = new("", "");
-        public Socket Van { get; set; } = new("", "");
-        public Socket IHS { get; set; } = new("", "");
-        public int reload { get; set; } = 0;
+        public int @type = 0; // ? Hai
+        public bool equip = false; // ? Pon
+        public int eqslot = 0; // ? Mus
+        public Socket Hea = new("", ""); // ? Bea
+        public bool hHai = false;
+        public bool hBea = false;
+        public bool hMus = false;
+        public bool hEye = false;
+        public bool hPon = false;
+        public bool hVan = false;
+        public Socket Eye = new("", "");
+        public Socket Bod = new("", "");
+        public Socket Bac = new("", "");
+        public Socket Han = new("", "");
+        public Socket Fee = new("", "");
+        public Socket Sho = new("", "");
+        public Socket Van = new("", "");
+        public Socket IHS = new("", "");
+        public int reload = 0;
 
         public IEnumerable<byte> ToByte()
         {
@@ -756,12 +758,12 @@ namespace VBLauncher
 
     public class GIARc
     {
-        public int BallR { get; set; } = 0;
-        public int BioR { get; set; } = 0;
-        public int ElecR { get; set; } = 0;
-        public int EMPR { get; set; } = 0;
-        public int NormR { get; set; } = 0;
-        public int HeatR { get; set; } = 0;
+        public int BallR = 0;
+        public int BioR = 0;
+        public int ElecR = 0;
+        public int EMPR = 0;
+        public int NormR = 0;
+        public int HeatR = 0;
 
         public IEnumerable<byte> ToByte()
         {
@@ -781,7 +783,7 @@ namespace VBLauncher
 
     public class GOBJc
     {
-        public int Type { get; set; } = 0;
+        public int Type = 0;
 
         public IEnumerable<byte> ToByte()
         {
@@ -796,9 +798,10 @@ namespace VBLauncher
 
     public class EMNOc
     {
-        public Point2 l { get; set; } = new(0f, 0f); // technically XYZ Coordinates
-        public string tex { get; set; } = "";
-        public int sr { get; set; } = 0;
+        // TODO: what the fuck do i mean point2 is xyz coordinates
+        public Point2 l = new(0f, 0f); // technically XYZ Coordinates
+        public string tex = "";
+        public int sr = 0;
 
         public IEnumerable<byte> ToByte()
         {
@@ -817,16 +820,16 @@ namespace VBLauncher
 
     public class EMFGc
     {
-        public bool enabled { get; set; } = false;
-        public Color colour { get; set; } = Color.Black;
-        public float base_height { get; set; } = 0f;
-        public float anim1Speed { get; set; } = 0f;
-        public float anim1Height { get; set; } = 0f;
-        public float total_height { get; set; } = 0f;
-        public float anim2Speed { get; set; } = 0f;
-        public float anim2Height { get; set; } = 0f;
-        public float verticalOffset { get; set; } = 0f;
-        public float max_fog_density { get; set; } = 0f;
+        public bool enabled = false;
+        public Color colour = Color.Black;
+        public float base_height = 0f;
+        public float anim1Speed = 0f;
+        public float anim1Height = 0f;
+        public float total_height = 0f;
+        public float anim2Speed = 0f;
+        public float anim2Height = 0f;
+        public float verticalOffset = 0f;
+        public float max_fog_density = 0f;
 
         public IEnumerable<byte> ToByte()
         {
@@ -867,13 +870,13 @@ namespace VBLauncher
 
     public class EMNPChunk
     {
-        public byte @bool { get; set; } = 0;
-        public Point3 l { get; set; } = new(0f, 0f, 0f);
-        public byte b1 { get; set; } = 0;
-        public byte b2 { get; set; } = 0;
-        public byte b3 { get; set; } = 0;
-        public byte b4 { get; set; } = 0;
-        public byte b5 { get; set; } = 0;
+        public byte @bool = 0;
+        public Point3 l = new(0f, 0f, 0f);
+        public byte b1 = 0;
+        public byte b2 = 0;
+        public byte b3 = 0;
+        public byte b4 = 0;
+        public byte b5 = 0;
 
         public IEnumerable<byte> ToByte()
         {
@@ -892,7 +895,7 @@ namespace VBLauncher
 
     public class EMNPc
     {
-        public List<EMNPChunk> chunks { get; set; } = new();
+        public List<EMNPChunk> chunks = new();
 
         public IEnumerable<byte> ToByte()
         {
@@ -913,8 +916,8 @@ namespace VBLauncher
 
     public class Point2
     {
-        public float x { get; set; }
-        public float y { get; set; }
+        public float x;
+        public float y;
 
         public Point2(float x, float y)
         {
@@ -934,9 +937,9 @@ namespace VBLauncher
 
     public class Point3
     {
-        public float x { get; set; }
-        public float z { get; set; }
-        public float y { get; set; }
+        public float x;
+        public float z;
+        public float y;
 
         public Point3(float x, float z, float y)
         {
@@ -958,10 +961,10 @@ namespace VBLauncher
 
     public class Point4
     {
-        public float x { get; set; }
-        public float z { get; set; }
-        public float y { get; set; }
-        public float r { get; set; }
+        public float x;
+        public float z;
+        public float y;
+        public float r;
 
         public Point4(float x, float z, float y, float r)
         {
@@ -985,9 +988,8 @@ namespace VBLauncher
 
     public class Skill
     {
-        public int Index { get; set; }
-        public int Value { get; set; }
-
+        public int Index;
+        public int Value;
         public Skill(int Index, int Value)
         {
             this.Index = Index;
@@ -1006,8 +1008,8 @@ namespace VBLauncher
 
     public class Socket
     {
-        public string Model { get; set; }
-        public string Tex { get; set; }
+        public string Model;
+        public string Tex;
 
         /// <summary>
         /// Gets the length of both strings
@@ -1034,11 +1036,11 @@ namespace VBLauncher
 
     public class _2MWTChunk
     {
-        public string tex { get; set; }
-        public Point3 loc { get; set; }
-        public Point2 texloc { get; set; }
+        public string tex;
+        public Vector3 loc;
+        public Vector2 texloc;
 
-        public _2MWTChunk(string tex, Point3 loc, Point2 texloc)
+        public _2MWTChunk(string tex = "", Vector3 loc = new(), Vector2 texloc = new())
         {
             this.tex = tex;
             this.loc = loc;
@@ -1048,9 +1050,7 @@ namespace VBLauncher
         public IEnumerable<byte> ToByte()
         {
             var ret = new byte[21 + tex.Length + 1];
-            ret.Write(0, loc.x);
-            ret.Write(4, loc.z);
-            ret.Write(8, loc.y);
+            ret.Write(0, loc.ToByte());
             ret.Write(12, tex.Length);
             ret.Write(14, tex);
             ret.Write(14 + tex.Length, texloc.ToByte());

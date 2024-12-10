@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -35,9 +36,9 @@ namespace VBLauncher
 
         public static EMTRc ToEMTRc(this byte[] b)
         {
-            var l = new List<Point3>();
+            var l = new List<Vector3>();
             for (int i = 20, loopTo = b.Count() - 1; i <= loopTo; i += 12)
-                l.Add(new Point3(BitConverter.ToSingle(b, i), BitConverter.ToSingle(b, i + 4),
+                l.Add(new Vector3(BitConverter.ToSingle(b, i), BitConverter.ToSingle(b, i + 4),
                     BitConverter.ToSingle(b, i + 8)));
             return new EMTRc
             {
@@ -62,7 +63,7 @@ namespace VBLauncher
         {
             return new ECAMc
             {
-                p = new Point4(BitConverter.ToSingle(b, 12), BitConverter.ToSingle(b, 16), BitConverter.ToSingle(b, 20),
+                p = new Vector4(BitConverter.ToSingle(b, 12), BitConverter.ToSingle(b, 16), BitConverter.ToSingle(b, 20),
                     BitConverter.ToSingle(b, 24))
             };
         }
@@ -72,7 +73,7 @@ namespace VBLauncher
             return new EMEPc
             {
                 index = b[12],
-                p = new Point3(BitConverter.ToSingle(b, 73), BitConverter.ToSingle(b, 77),
+                p = new Vector3(BitConverter.ToSingle(b, 73), BitConverter.ToSingle(b, 77),
                     BitConverter.ToSingle(b, 81)),
                 r = BitConverter.ToSingle(b, 105)
             };
@@ -83,7 +84,7 @@ namespace VBLauncher
             return new EMEFc
             {
                 s1 = GetString(b, 14, b[12]),
-                l = new Point4(BitConverter.ToSingle(b, 14 + b[12]), BitConverter.ToSingle(b, 18 + b[12]),
+                l = new Vector4(BitConverter.ToSingle(b, 14 + b[12]), BitConverter.ToSingle(b, 18 + b[12]),
                     BitConverter.ToSingle(b, 22 + b[12]), BitConverter.ToSingle(b, 26 + b[12])),
                 s2 = GetString(b, 41 + b[12], b[39 + b[12]]),
                 b = b[41 + b[12] + b[39 + b[12]]]
@@ -96,16 +97,16 @@ namespace VBLauncher
             {
                 s1 = GetString(b, 14, b[12]),
                 s2 = GetString(b, 28 + b[12], b[26 + b[12]]),
-                l = new Point3(BitConverter.ToSingle(b, 14 + b[12]), BitConverter.ToSingle(b, 18 + b[12]),
+                l = new Vector3(BitConverter.ToSingle(b, 14 + b[12]), BitConverter.ToSingle(b, 18 + b[12]),
                     BitConverter.ToSingle(b, 22 + b[12]))
             };
         }
 
         public static EPTHc ToEPTHc(this byte[] b)
         {
-            var l = new List<Point4>();
+            var l = new List<Vector4>();
             for (int i = 18 + b[12], loopTo = b.Count() - 1; i <= loopTo; i += 24)
-                l.Add(new Point4(BitConverter.ToSingle(b, i), BitConverter.ToSingle(b, i + 4),
+                l.Add(new Vector4(BitConverter.ToSingle(b, i), BitConverter.ToSingle(b, i + 4),
                     BitConverter.ToSingle(b, i + 8), BitConverter.ToSingle(b, i + 12)));
             return new EPTHc
             {
@@ -120,7 +121,7 @@ namespace VBLauncher
             return new EME2c
             {
                 name = GetString(b, 14, b[12]),
-                l = new Point4(BitConverter.ToSingle(b, 14 + b[12]), BitConverter.ToSingle(b, 18 + b[12]),
+                l = new Vector4(BitConverter.ToSingle(b, 14 + b[12]), BitConverter.ToSingle(b, 18 + b[12]),
                     BitConverter.ToSingle(b, 22 + b[12]), BitConverter.ToSingle(b, 26 + b[12])),
                 EEOV = b.Skip(cl).Take(BitConverter.ToInt32(b, cl + 8)).ToArray().ToEEOVc()
             };
@@ -176,7 +177,7 @@ namespace VBLauncher
                 s4 = GetString(b.Skip(s4o).Take(s4l)),
                 s5 = ps4 > 0 ? GetString(b.Skip(s5o).Take(s5l)) : "",
                 ps4 = ps4,
-                inv = inv
+                inv = inv.ToArray()
             };
         }
 
@@ -343,7 +344,7 @@ namespace VBLauncher
                 Bac = new Socket(GetString(b, Bacmo, b[Bacmo - 2]), GetString(b, Bacto, b[Bacto - 2])),
                 Sho = new Socket(GetString(b, Shomo, b[Shomo - 2]), GetString(b, Shoto, b[Shoto - 2])),
                 Van = new Socket(GetString(b, Vanmo, b[Vanmo - 2]), GetString(b, Vanto, b[Vanto - 2])),
-                Inventory = inv,
+                Inventory = inv.ToArray(),
                 GWAM = (from i in gl
                     select ToGWAMc(b.Skip(i).Take(BitConverter.ToInt32(b, i + 8)).ToArray())).ToList()
             };
@@ -351,10 +352,10 @@ namespace VBLauncher
 
         private static _2MWTChunk Read2MWTChunk(this byte[] b, int offset)
         {
-            var p3 = new Point3(BitConverter.ToSingle(b, offset), BitConverter.ToSingle(b, offset + 4),
+            var p3 = new Vector3(BitConverter.ToSingle(b, offset), BitConverter.ToSingle(b, offset + 4),
                 BitConverter.ToSingle(b, offset + 8));
             var s = GetString(b, offset + 14, b[offset + 12]);
-            var p2 = new Point2(BitConverter.ToSingle(b, offset + 14 + s.Length),
+            var p2 = new Vector2(BitConverter.ToSingle(b, offset + 14 + s.Length),
                 BitConverter.ToSingle(b, offset + 18 + s.Length));
             return new _2MWTChunk(s, p3, p2);
         }
@@ -846,6 +847,33 @@ namespace VBLauncher
         public static byte[] ToByte(this Color color)
         {
             return new[] { color.R, color.G, color.B };
+        }
+
+        public static byte[] ToByte(this Vector4 vec)
+        {
+            var b = new List<byte>();
+            b.AddRange(BitConverter.GetBytes(vec.X));
+            b.AddRange(BitConverter.GetBytes(vec.Y));
+            b.AddRange(BitConverter.GetBytes(vec.Z));
+            b.AddRange(BitConverter.GetBytes(vec.W));
+            return b.ToArray();
+        }
+
+        public static byte[] ToByte(this Vector3 vec)
+        {
+            var b = new List<byte>();
+            b.AddRange(BitConverter.GetBytes(vec.X));
+            b.AddRange(BitConverter.GetBytes(vec.Y));
+            b.AddRange(BitConverter.GetBytes(vec.Z));
+            return b.ToArray();
+        }
+        
+        public static byte[] ToByte(this Vector2 vec)
+        {
+            var b = new List<byte>();
+            b.AddRange(BitConverter.GetBytes(vec.X));
+            b.AddRange(BitConverter.GetBytes(vec.Y));
+            return b.ToArray();
         }
     }
 }

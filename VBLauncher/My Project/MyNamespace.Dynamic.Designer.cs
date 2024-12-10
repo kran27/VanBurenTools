@@ -8,30 +8,6 @@ namespace VBLauncher.My
     {
         internal partial class MyForms
         {
-
-            [EditorBrowsable(EditorBrowsableState.Never)]
-            public Editor m_Editor;
-
-            public Editor Editor
-            {
-                [DebuggerHidden]
-                get
-                {
-                    m_Editor = Create__Instance__(m_Editor);
-                    return m_Editor;
-                }
-                [DebuggerHidden]
-                set
-                {
-                    if (ReferenceEquals(value, m_Editor))
-                        return;
-                    if (value is not null)
-                        throw new ArgumentException("Property can only be set to Nothing");
-                    Dispose__Instance__(ref m_Editor);
-                }
-            }
-
-
             [EditorBrowsable(EditorBrowsableState.Never)]
             public Main m_Main;
 

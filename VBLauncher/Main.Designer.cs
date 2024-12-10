@@ -58,8 +58,8 @@ namespace VBLauncher
             Background.MouseDown += new MouseEventHandler(Form1_MouseDown);
             EditorB = new PictureBox();
             EditorB.Click += new EventHandler(EditorB_Click);
-            EditorB.MouseDown += new MouseEventHandler(PlayButtonDown);
-            EditorB.MouseUp += new MouseEventHandler(PlayButtonUp);
+            //EditorB.MouseDown += new MouseEventHandler(PlayButtonDown);
+            //EditorB.MouseUp += new MouseEventHandler(PlayButtonUp);
             ModLoaderB = new PictureBox();
             ModLoaderB.MouseDown += new MouseEventHandler(PlayButtonDown);
             ModLoaderB.MouseUp += new MouseEventHandler(PlayButtonUp);

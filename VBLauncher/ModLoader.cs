@@ -34,17 +34,15 @@ namespace VBLauncher
                 {
                     if (entry.Name == "mod.info")
                     {
-                        using (var reader = new StreamReader(entry.Open()))
-                        {
-                            var iniData = reader.ReadToEnd().Split(Constants.vbCrLf);
-                            var mname = IniManager.Ini(ref iniData, "Info", "Name");
-                            var description = IniManager.Ini(ref iniData, "Info", "Description", IniManager.KeyType.Multiline);
-                            var version = IniManager.Ini(ref iniData, "Info", "Version");
-                            var entries = (from ent in zip.Entries
-                                           where ent.Name.ToLower() != "mod.info"
-                                           select ent.Name).ToList();
-                            modList.Add(new ModInfo(mname, description, version, new FileInfo(@file.FullName), entries));
-                        }
+                        using var reader = new StreamReader(entry.Open());
+                        var iniData = reader.ReadToEnd().Split(Constants.vbCrLf);
+                        var mname = IniManager.Ini(ref iniData, "Info", "Name");
+                        var description = IniManager.Ini(ref iniData, "Info", "Description", IniManager.KeyType.Multiline);
+                        var version = IniManager.Ini(ref iniData, "Info", "Version");
+                        var entries = (from ent in zip.Entries
+                            where ent.Name.ToLower() != "mod.info"
+                            select ent.Name).ToList();
+                        modList.Add(new ModInfo(mname, description, version, new FileInfo(file.FullName), entries));
                         break;
                     }
                 }
@@ -180,100 +178,91 @@ namespace VBLauncher
 
         private void ListView1_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
         {
-            using (var txtbrsh = new SolidBrush(Theme.Colors.LightText))
+            using var txtbrsh = new SolidBrush(Theme.Colors.LightText);
+            e.Graphics.FillRectangle(new SolidBrush(BackgroundColour), e.Bounds);
+            e.Graphics.DrawString(e.Header.Text, e.Font, txtbrsh, (int)Math.Round(e.Bounds.Left + e.Bounds.Width / 2d - (double)(e.Graphics.MeasureString(e.Header.Text, e.Font).Width / 2f)), e.Bounds.Top + 5);
+
+            e.Graphics.DrawLine(new Pen(Theme.Colors.GreySelection, 1f), e.Bounds.Left, e.Bounds.Top, e.Bounds.Right, e.Bounds.Top);
+
+            if (e.Header.DisplayIndex == 1)
             {
-                e.Graphics.FillRectangle(new SolidBrush(BackgroundColour), e.Bounds);
-                e.Graphics.DrawString(e.Header.Text, e.Font, txtbrsh, (int)Math.Round(e.Bounds.Left + e.Bounds.Width / 2d - (double)(e.Graphics.MeasureString(e.Header.Text, e.Font).Width / 2f)), e.Bounds.Top + 5);
-
-                e.Graphics.DrawLine(new Pen(Theme.Colors.GreySelection, 1f), e.Bounds.Left, e.Bounds.Top, e.Bounds.Right, e.Bounds.Top);
-
-                if (e.Header.DisplayIndex == 1)
-                {
-                    e.Graphics.DrawLine(new Pen(Theme.Colors.GreySelection, 1f), e.Bounds.Left, e.Bounds.Top + 3, e.Bounds.Left, e.Bounds.Bottom - 3);
-                    e.Graphics.DrawLine(new Pen(Theme.Colors.GreySelection, 1f), e.Bounds.Right - 1, e.Bounds.Top + 3, e.Bounds.Right - 1, e.Bounds.Bottom - 3);
-                }
+                e.Graphics.DrawLine(new Pen(Theme.Colors.GreySelection, 1f), e.Bounds.Left, e.Bounds.Top + 3, e.Bounds.Left, e.Bounds.Bottom - 3);
+                e.Graphics.DrawLine(new Pen(Theme.Colors.GreySelection, 1f), e.Bounds.Right - 1, e.Bounds.Top + 3, e.Bounds.Right - 1, e.Bounds.Bottom - 3);
             }
         }
 
         private void ListView1_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
         {
-            using (var txtbrsh = new SolidBrush(Theme.Colors.LightText))
+            using var txtbrsh = new SolidBrush(Theme.Colors.LightText);
+            if (ListView1.SelectedIndices.Contains(e.ItemIndex) & ListView1.Focused)
             {
-                if (ListView1.SelectedIndices.Contains(e.ItemIndex) & ListView1.Focused)
-                {
-                    e.Graphics.FillRectangle(new SolidBrush(Theme.Colors.BlueHighlight), e.Bounds);
-                }
-                else
-                {
-                    e.Graphics.FillRectangle(new SolidBrush(BackgroundColour), e.Bounds);
-                }
-                if (ReferenceEquals(e.Item.SubItems[0], e.SubItem))
-                {
-                    var g = e.Graphics;
-                    g.Clip = new Region(new Rectangle(e.Bounds.X, e.Bounds.Y, e.Bounds.Width, e.Bounds.Height));
-                    g.SmoothingMode = SmoothingMode.AntiAlias;
-                    var rect = e.Bounds;
+                e.Graphics.FillRectangle(new SolidBrush(Theme.Colors.BlueHighlight), e.Bounds);
+            }
+            else
+            {
+                e.Graphics.FillRectangle(new SolidBrush(BackgroundColour), e.Bounds);
+            }
+            if (ReferenceEquals(e.Item.SubItems[0], e.SubItem))
+            {
+                var g = e.Graphics;
+                g.Clip = new Region(new Rectangle(e.Bounds.X, e.Bounds.Y, e.Bounds.Width, e.Bounds.Height));
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                var rect = e.Bounds;
 
-                    var size = Theme.Sizes.CheckBoxSize;
+                var size = Theme.Sizes.CheckBoxSize;
 
-                    var textColor = Theme.Colors.LightText;
-                    var borderColor = Theme.Colors.GreySelection;
-                    var fillColor = e.Item.Checked ? Theme.Colors.LightestBackground : Theme.Colors.GreyBackground;
+                var textColor = Theme.Colors.LightText;
+                var borderColor = Theme.Colors.GreySelection;
+                var fillColor = e.Item.Checked ? Theme.Colors.LightestBackground : Theme.Colors.GreyBackground;
 
-                    using (var b = new SolidBrush(Theme.Colors.LightBackground))
-                    {
-                        var boxRect = new Rectangle(e.Bounds.Left + 2, (int)Math.Round(e.Bounds.Top + rect.Height / 2 - size / 2d), size, size);
-                        g.FillRoundedRectangle(b, boxRect, 2);
-                    }
-
-                    using (var p = new Pen(borderColor))
-                    {
-                        var boxRect = new Rectangle(e.Bounds.Left + 2, (int)Math.Round(e.Bounds.Top + rect.Height / 2 - size / 2d), size, size);
-                        g.DrawRoundedRectangle(p, boxRect, 2);
-                    }
-
-                    if (e.Item.Checked)
-                    {
-                        using (var p = new Pen(fillColor, 1f))
-                        {
-                            g.DrawLine(p, e.Bounds.Left + 5, e.Bounds.Top + 9, e.Bounds.Left + 7, e.Bounds.Top + 12);
-                            g.DrawLine(p, e.Bounds.Left + 7, e.Bounds.Top + 12, e.Bounds.Left + 11, e.Bounds.Top + 6);
-                        }
-                    }
-
-                    using (var b = new SolidBrush(textColor))
-                    {
-                        g.DrawString(e.Item.Text, e.Item.Font, b, e.Bounds.Left + size + 4, e.Bounds.Top + 1);
-                    }
-                }
-                else if (ReferenceEquals(e.Item.SubItems[1], e.SubItem))
+                using (var b = new SolidBrush(Theme.Colors.LightBackground))
                 {
-                    if (e.Item.Checked)
-                    {
-                        using (var sf = new StringFormat
-                               {
-                            Alignment = StringAlignment.Near,
-                            LineAlignment = StringAlignment.Center,
-                            FormatFlags = StringFormatFlags.NoWrap,
-                            Trimming = StringTrimming.EllipsisCharacter
-                        })
-                        {
-                            e.Graphics.DrawImage((Image)My.Resources.Resources.ResourceManager.GetObject($"conflict_{e.SubItem.Text.ToLower()}"), e.Bounds.Left + e.Bounds.Width / 2.0f - 8f, e.Bounds.Top, 16f, 16f);
-                        }
-                    }
-                }
-                else if (ReferenceEquals(e.Item.SubItems[2], e.SubItem))
-                {
-                    if (e.Item.Checked)
-                    {
-                        e.Graphics.DrawString(e.SubItem.Text, e.Item.Font, txtbrsh, (int)Math.Round(e.Bounds.Left + e.Bounds.Width / 2d) - e.Graphics.MeasureString(e.SubItem.Text, e.SubItem.Font).Width / 2f, e.Bounds.Top + 2);
-                    }
-                }
-                else
-                {
-                    e.DrawDefault = true;
+                    var boxRect = new Rectangle(e.Bounds.Left + 2, (int)Math.Round(e.Bounds.Top + rect.Height / 2 - size / 2d), size, size);
+                    g.FillRoundedRectangle(b, boxRect, 2);
                 }
 
+                using (var p = new Pen(borderColor))
+                {
+                    var boxRect = new Rectangle(e.Bounds.Left + 2, (int)Math.Round(e.Bounds.Top + rect.Height / 2 - size / 2d), size, size);
+                    g.DrawRoundedRectangle(p, boxRect, 2);
+                }
+
+                if (e.Item.Checked)
+                {
+                    using var p = new Pen(fillColor, 1f);
+                    g.DrawLine(p, e.Bounds.Left + 5, e.Bounds.Top + 9, e.Bounds.Left + 7, e.Bounds.Top + 12);
+                    g.DrawLine(p, e.Bounds.Left + 7, e.Bounds.Top + 12, e.Bounds.Left + 11, e.Bounds.Top + 6);
+                }
+
+                using (var b = new SolidBrush(textColor))
+                {
+                    g.DrawString(e.Item.Text, e.Item.Font, b, e.Bounds.Left + size + 4, e.Bounds.Top + 1);
+                }
+            }
+            else if (ReferenceEquals(e.Item.SubItems[1], e.SubItem))
+            {
+                if (e.Item.Checked)
+                {
+                    using var sf = new StringFormat
+                    {
+                        Alignment = StringAlignment.Near,
+                        LineAlignment = StringAlignment.Center,
+                        FormatFlags = StringFormatFlags.NoWrap,
+                        Trimming = StringTrimming.EllipsisCharacter
+                    };
+                    e.Graphics.DrawImage((Image)My.Resources.Resources.ResourceManager.GetObject($"conflict_{e.SubItem.Text.ToLower()}"), e.Bounds.Left + e.Bounds.Width / 2.0f - 8f, e.Bounds.Top, 16f, 16f);
+                }
+            }
+            else if (ReferenceEquals(e.Item.SubItems[2], e.SubItem))
+            {
+                if (e.Item.Checked)
+                {
+                    e.Graphics.DrawString(e.SubItem.Text, e.Item.Font, txtbrsh, (int)Math.Round(e.Bounds.Left + e.Bounds.Width / 2d) - e.Graphics.MeasureString(e.SubItem.Text, e.SubItem.Font).Width / 2f, e.Bounds.Top + 2);
+                }
+            }
+            else
+            {
+                e.DrawDefault = true;
             }
         }
 
@@ -551,32 +540,30 @@ namespace VBLauncher
                     {
                         if (entry.Name.ToLower() == "english.stf")
                         {
-                            using (var memoryStream = new MemoryStream())
+                            using var memoryStream = new MemoryStream();
+                            entry.Open().CopyTo(memoryStream);
+                            var stfData = memoryStream.ToArray();
+                            var stfArray = Extensions.STFToTXT(stfData);
+
+                            var tmp = MergeSTF(tmpArray, (string[])stfArray);
+                            tmpArray = tmp.Item1;
+
+                            var tmpDir = @"Mods\tmp";
+                            Directory.CreateDirectory(tmpDir);
+                            foreach (var entry2 in zip.Entries)
                             {
-                                entry.Open().CopyTo(memoryStream);
-                                var stfData = memoryStream.ToArray();
-                                var stfArray = Extensions.STFToTXT(stfData);
-
-                                var tmp = MergeSTF(tmpArray, (string[])stfArray);
-                                tmpArray = tmp.Item1;
-
-                                var tmpDir = @"Mods\tmp";
-                                Directory.CreateDirectory(tmpDir);
-                                foreach (var entry2 in zip.Entries)
+                                if (!(entry2.Name.ToLower() == "english.stf") && !(entry2.Name.ToLower() == "mod.info"))
                                 {
-                                    if (!(entry2.Name.ToLower() == "english.stf") && !(entry2.Name.ToLower() == "mod.info"))
-                                    {
-                                        entry2.ExtractToFile(Path.Combine(tmpDir, entry2.Name), true);
-                                    }
+                                    entry2.ExtractToFile(Path.Combine(tmpDir, entry2.Name), true);
                                 }
-                                foreach (var f in Directory.GetFiles(tmpDir))
-                                {
-                                    var fi = new FileInfo(f);
-                                    IncSTFRefs(f, tmp.Item2);
-                                    File.Move(f, $@"Overrides\Deployed\{fi.Name}", true);
-                                }
-                                break;
                             }
+                            foreach (var f in Directory.GetFiles(tmpDir))
+                            {
+                                var fi = new FileInfo(f);
+                                IncSTFRefs(f, tmp.Item2);
+                                File.Move(f, $@"Overrides\Deployed\{fi.Name}", true);
+                            }
+                            break;
                         }
                     }
                 }

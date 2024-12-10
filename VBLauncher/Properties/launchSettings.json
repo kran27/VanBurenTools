@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "VBLauncher": {
+      "commandName": "Project",
+      "workingDirectory": "D:\\Van Buren"
+    },
+    "Run Van Buren": {
+      "commandName": "Executable",
+      "executablePath": "D:\\Van Buren\\F3.exe",
+      "workingDirectory": "D:\\Van Buren"
+    }
+  }
+}

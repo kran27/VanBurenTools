@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
@@ -151,6 +150,132 @@ namespace VB3DLib
 
             return keyframes;
         }
+        
+        private static void ComputeBoneWorldTransforms(model parsedModel)
+        {
+            var bones = parsedModel.Skeleton.Bones;
+
+            // Compute world transforms for all root bones (ParentIndex == -1)
+            for (var i = 0; i < bones.Count; i++)
+            {
+                if (bones[i].ParentIndex == -1)
+                {
+                    ComputeWorldTransformRecursive(bones, i, Matrix4x4.Identity);
+                }
+            }
+        }
+
+        private static void ComputeWorldTransformRecursive(List<bone> bones, int boneIndex, Matrix4x4 parentWorld)
+        {
+            var bone = bones[boneIndex];
+
+            // Convert the LocalTransform to a Matrix4x4
+            var localMatrix = TransformToMatrix(bone.LocalTransform);
+            var worldMatrix = localMatrix * parentWorld;
+
+            // Store the actual position of the bone by transforming (0,0,0)
+            var position = Vector3.Transform(Vector3.Zero, worldMatrix);
+            bone.ActualPosition = position;
+
+            // If needed, you can also store worldMatrix in the bone if you want easy future reference:
+            // bone.WorldTransform = worldMatrix; // (Add this field if you like)
+
+            // Update the bone in the list
+            bones[boneIndex] = bone;
+
+            // Recurse for children
+            for (var i = 0; i < bones.Count; i++)
+            {
+                if (bones[i].ParentIndex == boneIndex)
+                {
+                    ComputeWorldTransformRecursive(bones, i, worldMatrix);
+                }
+            }
+        }
+
+        private static Matrix4x4 TransformToMatrix(transform t)
+        {
+            // Convert the ScaleShear[3x3], Orientation (Quaternion), and Position into a single world matrix
+            var scaleShearMat = new Matrix4x4(
+                t.ScaleShear[0][0], t.ScaleShear[0][1], t.ScaleShear[0][2], 0,
+                t.ScaleShear[1][0], t.ScaleShear[1][1], t.ScaleShear[1][2], 0,
+                t.ScaleShear[2][0], t.ScaleShear[2][1], t.ScaleShear[2][2], 0,
+                0,                 0,                 0,                 1
+            );
+
+            var rotationMat = Matrix4x4.CreateFromQuaternion(t.Orientation);
+
+            // The order can vary depending on how Granny data is defined, but typically:
+            // World = ScaleShear * Rotation, then set Position
+            var worldMat = rotationMat;
+            worldMat = scaleShearMat * worldMat; // apply scale/shear
+
+            worldMat.Translation = t.Position; // apply translation
+
+            return worldMat;
+        }
+        
+        private static void AdjustTransformTrackCurves(transform_track tt)
+        {
+            // Orientation adjustments:
+            // C++ snippet does:
+            // quat2.x = -ctrl[0], quat2.y = ctrl[2], quat2.z = ctrl[1], quat2.w = -ctrl[3]
+            // and then inverse the quaternion.
+            // In C# indexing: OrientationCurve[i] = [time, x, y, z, w]
+            // original ctrl[] mapping: ctrl[1]=x, ctrl[2]=y, ctrl[3]=z, ctrl[4]=w
+            // after reorder:
+            // x = -originalX
+            // y = originalZ
+            // z = originalY
+            // w = -originalW
+            // then q = inverse(q)
+            foreach (var t in tt.OrientationCurve)
+            {
+                var o = t;
+                var ox = o[1];
+                var oy = o[2];
+                var oz = o[3];
+                var ow = o[4];
+
+                var q = new Quaternion(-ox, oz, oy, -ow);
+                q = Quaternion.Inverse(q);
+
+                t[1] = q.X;
+                t[2] = q.Y;
+                t[3] = q.Z;
+                t[4] = q.W;
+            }
+
+            // Position adjustments:
+            // C++ snippet does:
+            // x = -ctrl[0]*3.0f, y = ctrl[2]*3.0f, z = ctrl[1]*3.0f
+            // In our indexing: PositionCurve[i] = [time, x, y, z]
+            // original: ctrl[1]=x, ctrl[2]=y, ctrl[3]=z
+            // newx = -x * 3.0f
+            // newy = z * 3.0f
+            // newz = y * 3.0f
+            foreach (var t in tt.PositionCurve)
+            {
+                var p = t;
+                var px = p[1];
+                var py = p[2];
+                var pz = p[3];
+
+                var newx = -px * 3.0f;
+                var newy = pz * 3.0f;
+                var newz = py * 3.0f;
+
+                t[1] = newx;
+                t[2] = newy;
+                t[3] = newz;
+            }
+
+            // Scale adjustments:
+            // The C++ code doesn't reorder or negate scale. It simply uses the values as-is.
+            // dimension=3: ScaleShearCurve[i] = [time, sx, sy, sz]
+            // No reordering needed, so we leave it as-is.
+        }
+
 
         private static void ParseAnimations(ref file_info parsedFile, unm_file_info fileInfo)
         {
@@ -172,8 +297,10 @@ namespace VB3DLib
                     var parsedTrackGroup = new track_group
                     {
                         Name = Marshal.PtrToStringAnsi(trackGroup.Name) ?? throw new ExternalException(),
-                        TransformTracks = new List<transform_track>()
+                        TransformTracks = new List<transform_track>(),
+                        InitialPlacement = CreateTransform(trackGroup.InitialPlacement)
                     };
+
                     for (var k = 0; k < trackGroup.TransformTrackCount; k++)
                     {
                         var transformTrack = ReadFromArray<unm_transform_track>(trackGroup.TransformTracks, k);
@@ -182,11 +309,14 @@ namespace VB3DLib
                             Name = Marshal.PtrToStringAnsi(transformTrack.Name) ?? throw new ExternalException(),
                             Flags = transformTrack.Flags,
                             OrientationCurve = ParseCurve(transformTrack.OrientationCurve).ToArray(),
-                            PositionCurve = ParseCurve(transformTrack.PositionCurve).ToArray()
+                            PositionCurve = ParseCurve(transformTrack.PositionCurve).ToArray(),
+                            ScaleShearCurve = ParseCurve(transformTrack.ScaleShearCurve).ToArray() // Parse scale/shear
                         };
 
+                        // Apply the same logic as the C++ snippet to reorder orientation and position data
+                        AdjustTransformTrackCurves(parsedTransformTrack);
+
                         parsedTrackGroup.TransformTracks.Add(parsedTransformTrack);
-                        parsedTrackGroup.InitialPlacement = CreateTransform(trackGroup.InitialPlacement);
                     }
 
                     parsedAnimation.TrackGroups.Add(parsedTrackGroup);
@@ -195,6 +325,7 @@ namespace VB3DLib
                 parsedFile.Animations.Add(parsedAnimation);
             }
         }
+
 
         public static file_info ReadFileFromMemory(byte[] rawData)
         {
@@ -781,7 +912,7 @@ namespace VB3DLib
         {
             public string Name;
             public int ParentIndex;
-            public Vector3 ActualPosition;
+            public Vector3 ActualPosition; // horrible naming, this is the bone's position used for previewing
             public transform LocalTransform;
             public Matrix4x4 InverseWorld4x4;
         }
@@ -811,50 +942,14 @@ namespace VB3DLib
             public transform InitialPlacement;
             //TODO: is more needed?
         }
-
+        
         public struct transform_track
         {
             public string Name;
             public int Flags;
             public float[][] OrientationCurve;
             public float[][] PositionCurve;
-            //public List<float[]> ScaleShearCurve; // unused, all dimensions are 0 and have no controls
-
-            private static int GetIndexAtTime(IReadOnlyList<float[]> array, double x)
-            {
-                if (array != null)
-                {
-                    x %= array.Last()[0];
-                    var index = 0;
-                    var minDiff = double.MaxValue;
-                    for (var i = 0; i < array.Count; i++)
-                    {
-                        var diff = Math.Abs(array[i][0] - x);
-                        if (diff > minDiff) continue;
-                        minDiff = diff;
-                        index = i;
-                    }
-
-                    return index;
-                }
-
-                return 0;
-            }
-            public Matrix4x4 CalculateMatrix(double time)
-            {
-
-                Matrix4x4 matRot, matPos;
-
-                var ctrl = OrientationCurve[GetIndexAtTime(OrientationCurve, time)]?? new float[] {1, 1, 1, 1};
-                var quat = new Quaternion(ctrl[1], ctrl[2], ctrl[3], ctrl[4]);
-                matRot = Matrix4x4.CreateFromQuaternion(quat);
-
-                ctrl = PositionCurve[GetIndexAtTime(PositionCurve, time)]?? new float[] {1, 1, 1, 1};
-                var pos = new Vector3(ctrl[1], ctrl[2], ctrl[3]);
-                matPos = Matrix4x4.CreateTranslation(pos);
-
-                return matRot * matPos;
-            }
+            public float[][] ScaleShearCurve;
         }
     }
 }

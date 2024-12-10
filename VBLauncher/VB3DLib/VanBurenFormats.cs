@@ -21,6 +21,7 @@ namespace VB3DLib
         public string texName = "";
         
         public List<string> Txs = new();
+        public List<TMaterials> Materials = new();
 
         public int Vertex_Type_Flag;
 
@@ -47,6 +48,7 @@ namespace VB3DLib
             Model_Faces_Mats = new();
 
             Txs = new();
+            Materials = new();
 
             Vertex_Type_Flag = 0;
 
@@ -64,6 +66,7 @@ namespace VB3DLib
                     case 0x07:
                         Console.WriteLine("Materials");
                         var Materials = new TMaterials(f);
+                        this.Materials.Add(Materials);
                         Materials.print();
                         Console.WriteLine(f.BaseStream.Position);
                         break;
@@ -315,7 +318,7 @@ namespace VB3DLib
                     if (Unknown2 == 1)
                     {
                         Zone = StringRead(f);
-                        b3d.Txs.Add(new string(Zone));
+                        b3d.Txs.Add(new string(Name));
                         Unknown2 = f.ReadInt32();
                         for (var j = 1; j <= Unknown2; j++)
                             StringRead(f);
@@ -328,14 +331,14 @@ namespace VB3DLib
             {
                 Console.Write("(TMaterial_Data44 Name:\"");
                 Console.Write(Name);
-                Console.Write("\" Mtl_ID:\"{Mtl_ID}");
-                Console.Write("\" Unknown1:{Unknown1} BLEND_STATE:\"");
+                Console.Write($@""" Mtl_ID:""{new string(Mtl_ID)}");
+                Console.Write($@""" Unknown1:{Unknown1} BLEND_STATE:""");
                 Console.Write(BLEND_STATE);
                 Console.Write("\" MATERIAL_TYPE:\"");
                 Console.Write(MATERIAL_TYPE);
-                Console.Write($"\" Unknown2:{Unknown2} Zone:\"");
+                Console.Write($@""" Unknown2:{Unknown2} Zone:""");
                 Console.Write(Zone);
-                Console.WriteLine($"\" Unknown3:{Unknown3})");
+                Console.WriteLine($@""" Unknown3:{Unknown3})");
             }
         }
 
@@ -367,7 +370,7 @@ namespace VB3DLib
                     Mtl_ID = StringRead(f);
                 }
 
-                b3d.Txs.Add(new string(Mtl_ID));
+                b3d.Txs.Add(new string(Name));
 
                 uint kk;
                 f.ReadByte();
@@ -588,11 +591,11 @@ namespace VB3DLib
 
             public TColor(BinaryReader f)
             {
-                //Console.WriteLine("TColor");
                 r = f.ReadSingle();
                 g = f.ReadSingle();
                 b = f.ReadSingle();
                 a = f.ReadSingle();
+                Console.WriteLine($"TColor: {r} {g} {b} {a}");
             }
         }
 
@@ -607,7 +610,7 @@ namespace VB3DLib
 
             public TMater(BinaryReader f)
             {
-                //Console.WriteLine("TMater");
+                Console.WriteLine("TMater");
                 Ambient = new TColor(f);
                 Diffuse = new TColor(f);
                 Emissive = new TColor(f);
@@ -1040,7 +1043,12 @@ namespace VB3DLib
                     break;
 
                 case "VTXD":
-                    f.ReadInt32();
+                    //f.ReadInt32();
+                    var rd = f.ReadByte();
+                    var gr = f.ReadByte();
+                    var bl = f.ReadByte();
+                    var al = f.ReadByte();
+                    GVD.Add(Color.FromArgb(al, rd, gr, bl));
                     header.size -= 4;
                     break;
 
@@ -1057,6 +1065,14 @@ namespace VB3DLib
 
                         return 0;
                     }
+                case "DIFU":
+                    var baits = new List<byte>();
+                    for (var i = 1; i <= header.size; i++)
+                    {
+                        baits.Add(f.ReadByte());
+                    }
+                    File.WriteAllBytes("difu.bin", baits.ToArray());
+                    break;
             }
 
             if (IsHeader(header.id))

@@ -53,6 +53,8 @@ namespace VBLauncher
                 File.WriteAllBytes(@"Mods\Fixes.zip", My.Resources.Resources.Fixes);
                 File.WriteAllBytes(@"Mods\SUMM.zip", My.Resources.Resources.SUMM);
                 File.WriteAllBytes("granny2_x64.dll", My.Resources.Resources.granny2_x64); // granny dll used for parsing game files
+                File.WriteAllBytes("SDL2.dll", My.Resources.Resources.SDL2); // SDL2 dll for veldrid
+                File.WriteAllBytes("cimgui.dll", My.Resources.Resources.cimgui); // native ImGui library for ImGui.NET
                 AddFontResource(@"Fonts\TT0807M_.TTF");
                 AddFontResource(@"Fonts\r_fallouty.ttf");
             }
@@ -61,10 +63,12 @@ namespace VBLauncher
                 ShowError("Please put the launcher in the same directory as the game so you can launch it!", "Game Executable Not Found!");
             }
 
-            #if DEBUG
-            var x = new GrpBrowser(new[] { "skl" }, true);
-            x.ShowDialog();
-            #endif
+#if DEBUG
+            var mw = new EditorWindow();
+            mw.Run();
+            //var x = new GrpBrowser(["8"], true);
+            //x.ShowDialog();
+#endif
             AllowTransparency = false;
             try
             {
@@ -124,7 +128,8 @@ namespace VBLauncher
         private void EditorB_Click(object sender, EventArgs e)
         {
             PlayButtonUp(sender, e);
-            My.MyProject.Forms.Editor.Show();
+            var mw = new EditorWindow();
+            mw.Run();
         }
 
         private void PlayButtonDown(object sender, EventArgs e)
