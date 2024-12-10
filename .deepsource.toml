@@ -8,6 +8,3 @@ name = "cxx"
 
 [[transformers]]
 name = "dotnet-format"
-
-[[transformers]]
-name = "clang-format"
