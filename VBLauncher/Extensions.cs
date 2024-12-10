@@ -326,7 +326,7 @@ namespace VBLauncher
 
             return new GCREc
             {
-                Special = new int[] { b[12], b[16], b[20], b[24], b[28], b[32], b[36] },
+                Special = [b[12], b[16], b[20], b[24], b[28], b[32], b[36]],
                 Age = b[56],
                 Skills = skills,
                 Traits = tr,
@@ -546,14 +546,14 @@ namespace VBLauncher
         public static byte[] TXTToSTF(IEnumerable<string> s)
         {
             var b = new List<byte>();
-            b.AddRange(new byte[] { 3, 0, 0, 0, 1, 0, 0, 0 });
+            b.AddRange([3, 0, 0, 0, 1, 0, 0, 0]);
             b.AddRange(BitConverter.GetBytes(s.Count()));
             var o = s.Count() * 16 + 12;
             for (int i = 0, loopTo = s.Count() - 1; i <= loopTo; i++)
             {
                 b.AddRange(BitConverter.GetBytes(o));
                 b.AddRange(BitConverter.GetBytes(s.ElementAtOrDefault(i).Length));
-                b.AddRange(new byte[] { 0x7E, 0xE3, 0x3, 0x0, 0x0, 0x0, 0x0, 0x0 });
+                b.AddRange([0x7E, 0xE3, 0x3, 0x0, 0x0, 0x0, 0x0, 0x0]);
                 o += s.ElementAtOrDefault(i).Length;
             }
 
@@ -565,21 +565,21 @@ namespace VBLauncher
         public static void PreParse(this byte[] b)
         {
             var strStart = BitConverter.ToInt32(b, 12);
-            var l = b.Locate(new byte[] { 0xD, 0xA });
+            var l = b.Locate([0xD, 0xA]);
             foreach (var m in l)
             {
                 if (m >= strStart)
                 {
-                    Write(b, m, new byte[] { 0x7C, 0x7E });
+                    Write(b, m, [0x7C, 0x7E]);
                 }
             }
 
-            l = b.Locate(new byte[] { 0x96 });
+            l = b.Locate([0x96]);
             foreach (var m in l)
             {
                 if (m >= strStart)
                 {
-                    Write(b, m, new byte[] { 0x2D });
+                    Write(b, m, [0x2D]);
                 }
             }
         }
@@ -591,9 +591,9 @@ namespace VBLauncher
             foreach (var stri in s)
                 bl.AddRange(Encoding.ASCII.GetBytes(stri));
             var b = bl;
-            var l = b.ToArray().Locate(new byte[] { 0x7C, 0x7E });
+            var l = b.ToArray().Locate([0x7C, 0x7E]);
             foreach (var m in l)
-                Write(b.ToArray(), m, new byte[] { 0xD, 0xA });
+                Write(b.ToArray(), m, [0xD, 0xA]);
             return b.ToArray();
         }
 
@@ -712,7 +712,7 @@ namespace VBLauncher
 
         #region Byte array search
 
-        private static readonly int[] Empty = Array.Empty<int>();
+        private static readonly int[] Empty = [];
 
         /// <summary>Searches for a byte array within another byte array.</summary>
         /// <returns>An integer array containing all locations of the given bytes</returns>
@@ -800,7 +800,7 @@ namespace VBLauncher
         /// </summary>
         public static void Write(this byte[] b, int offset, byte value)
         {
-            Write(b, offset, new[] { value });
+            Write(b, offset, [value]);
         }
 
         /// <summary>
@@ -808,7 +808,7 @@ namespace VBLauncher
         /// </summary>
         public static void Write(this byte[] b, int offset, bool value)
         {
-            Write(b, offset, new[] { (byte)(value ? 1 : 0) });
+            Write(b, offset, [(byte)(value ? 1 : 0)]);
         }
 
         /// <summary>
@@ -846,7 +846,7 @@ namespace VBLauncher
         /// <returns>An array of bytes with length 3.</returns>
         public static byte[] ToByte(this Color color)
         {
-            return new[] { color.R, color.G, color.B };
+            return [color.R, color.G, color.B];
         }
 
         public static byte[] ToByte(this Vector4 vec)

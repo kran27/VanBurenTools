@@ -16,7 +16,7 @@ namespace VBLauncher
 
     public partial class ModLoader
     {
-        private List<ModInfo> modList = new List<ModInfo>();
+        private List<ModInfo> modList = [];
         private string[] bArray;
 
         public ModLoader()
@@ -27,9 +27,9 @@ namespace VBLauncher
         public void LoadMods()
         {
             var directory = new DirectoryInfo("Mods");
-            foreach (var @file in directory.GetFiles("*.zip"))
+            foreach (var file in directory.GetFiles("*.zip"))
             {
-                var zip = ZipFile.OpenRead(@file.FullName);
+                var zip = ZipFile.OpenRead(file.FullName);
                 foreach (var entry in zip.Entries)
                 {
                     if (entry.Name == "mod.info")
@@ -77,7 +77,7 @@ namespace VBLauncher
             public string Description { get; set; }
             public string Version { get; set; }
             public FileInfo Zip { get; set; }
-            public List<string> Entries { get; set; } = new List<string>();
+            public List<string> Entries { get; set; } = [];
 
             public ModInfo(string Name, string Description, string Version, FileInfo Zip, List<string> Entries)
             {
@@ -241,17 +241,13 @@ namespace VBLauncher
             }
             else if (ReferenceEquals(e.Item.SubItems[1], e.SubItem))
             {
-                if (e.Item.Checked)
-                {
-                    using var sf = new StringFormat
-                    {
-                        Alignment = StringAlignment.Near,
-                        LineAlignment = StringAlignment.Center,
-                        FormatFlags = StringFormatFlags.NoWrap,
-                        Trimming = StringTrimming.EllipsisCharacter
-                    };
-                    e.Graphics.DrawImage((Image)My.Resources.Resources.ResourceManager.GetObject($"conflict_{e.SubItem.Text.ToLower()}"), e.Bounds.Left + e.Bounds.Width / 2.0f - 8f, e.Bounds.Top, 16f, 16f);
-                }
+                if (!e.Item.Checked) return;
+                using var sf = new StringFormat();
+                sf.Alignment = StringAlignment.Near;
+                sf.LineAlignment = StringAlignment.Center;
+                sf.FormatFlags = StringFormatFlags.NoWrap;
+                sf.Trimming = StringTrimming.EllipsisCharacter;
+                e.Graphics.DrawImage((Image)My.Resources.Resources.ResourceManager.GetObject($"conflict_{e.SubItem.Text.ToLower()}"), e.Bounds.Left + e.Bounds.Width / 2.0f - 8f, e.Bounds.Top, 16f, 16f);
             }
             else if (ReferenceEquals(e.Item.SubItems[2], e.SubItem))
             {
@@ -295,6 +291,12 @@ namespace VBLauncher
                 DoubleBuffered = true;
                 SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
                 SetStyle(ControlStyles.EnableNotifyMessage, true);
+            }
+
+            protected sealed override bool DoubleBuffered
+            {
+                get => base.DoubleBuffered;
+                set => base.DoubleBuffered = value;
             }
 
             protected override void OnNotifyMessage(Message m)
@@ -466,7 +468,7 @@ namespace VBLauncher
 
             var b = File.ReadAllBytes(fp);
 
-            var @file = default(object);
+            var file = default(object);
 
             switch (fp.GetExtension().ToLower() ?? "")
             {
@@ -487,7 +489,7 @@ namespace VBLauncher
                 // file = b.ReadCON()
                 case ".crt":
                     {
-                        @file = b.ReadCRT();
+                        file = b.ReadCRT();
                         break;
                     }
                 case ".dor":
@@ -497,7 +499,7 @@ namespace VBLauncher
                 // file = b.ReadDOR()
                 case ".itm":
                     {
-                        @file = b.ReadITM();
+                        file = b.ReadITM();
                         break;
                     }
                 case ".use":
@@ -512,19 +514,19 @@ namespace VBLauncher
                     // file = b.ReadWEA()
             }
 
-            if (@file is null)
+            if (file is null)
                 return;
 
-            if (Conversions.ToBoolean(Operators.ConditionalCompareObjectGreater(((dynamic)@file).GENT.HoverSR, 3281, false)))
-                ((dynamic)@file).GENT.HoverSR += incVal;
-            if (Conversions.ToBoolean(Operators.ConditionalCompareObjectGreater(((dynamic)@file).GENT.LookSR, 3281, false)))
-                ((dynamic)@file).GENT.LookSR += incVal;
-            if (Conversions.ToBoolean(Operators.ConditionalCompareObjectGreater(((dynamic)@file).GENT.NameSR, 3281, false)))
-                ((dynamic)@file).GENT.NameSR += incVal;
-            if (Conversions.ToBoolean(Operators.ConditionalCompareObjectGreater(((dynamic)@file).GENT.UnkwnSR, 3281, false)))
-                ((dynamic)@file).GENT.UnkwnSR += incVal;
+            if (Conversions.ToBoolean(Operators.ConditionalCompareObjectGreater(((dynamic)file).GENT.HoverSR, 3281, false)))
+                ((dynamic)file).GENT.HoverSR += incVal;
+            if (Conversions.ToBoolean(Operators.ConditionalCompareObjectGreater(((dynamic)file).GENT.LookSR, 3281, false)))
+                ((dynamic)file).GENT.LookSR += incVal;
+            if (Conversions.ToBoolean(Operators.ConditionalCompareObjectGreater(((dynamic)file).GENT.NameSR, 3281, false)))
+                ((dynamic)file).GENT.NameSR += incVal;
+            if (Conversions.ToBoolean(Operators.ConditionalCompareObjectGreater(((dynamic)file).GENT.UnkwnSR, 3281, false)))
+                ((dynamic)file).GENT.UnkwnSR += incVal;
 
-            File.WriteAllBytes(fp, (byte[])((dynamic)@file).ToByte());
+            File.WriteAllBytes(fp, (byte[])((dynamic)file).ToByte());
         }
 
         private void ToolStripLabel2_Click(object sender, EventArgs e)

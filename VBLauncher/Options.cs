@@ -12,8 +12,8 @@ namespace VBLauncher
 {
     public partial class Options
     {
-        private readonly MainMenuDef[] MainMenus = new[]
-        {
+        private readonly MainMenuDef[] MainMenus =
+        [
             MMD("mainmenu.map", 0.ToString(), 5.5d.ToString(), 0.ToString(), 2.ToString(), 0.75d.ToString(),
                 59.2d.ToString()),
             MMD("zz_TestMapsaarontemp2.map", 0.ToString(), 0.ToString(), 0.ToString(), 0.ToString(), 0.ToString(),
@@ -48,22 +48,22 @@ namespace VBLauncher
                 10.ToString(), 68.ToString()),
             MMD("00_04_Tutorial_Vault.map", 50.ToString(), 50.5d.ToString(), 0.ToString(), 36.ToString(), 25.ToString(),
                 68.ToString())
-        };
+        ];
 
-        private readonly string[] Maps = new[]
-        {
+        private readonly string[] Maps =
+        [
             "mainmenu.map", "zz_TestMapsaarontemp2.map", "zz_TestMapsTest_City_Building01.map",
             "zz_TestMapsTest_City_Building02.map", "zz_TestMapsTest_City_Building03.map",
             "zz_TestMapsTest_City_Building04.map", "98_Canyon_Random_01.map", "98_Canyon_Random_02.map",
             "04_0202_Spelunking.map", "zz_TestMapsTest_City_Fences.map", "zz_TestMapsScottE_Test1.map",
             "zz_TestMapsScottE_Test2.map", "zz_TestMapsScottE_Test4.map", "zz_TestMapsTest_Junktown_Shacks.map",
             "Default_StartMap.map", "00_03_Tutorial_Junktown.map", "00_04_Tutorial_Vault.map"
-        };
+        ];
 
         private string[] dgV2Conf;
-        private readonly string[] AAModes = new[] { "off", "2x", "4x", "8x" };
-        private readonly string[] FModes = new[] { "appdriven", "pointsampled", "Linearmip", "2", "4", "8", "16" };
-        private readonly string[] SSModes = new[] { "unforced", "2x", "3x", "4x" };
+        private readonly string[] AAModes = ["off", "2x", "4x", "8x"];
+        private readonly string[] FModes = ["appdriven", "pointsampled", "Linearmip", "2", "4", "8", "16"];
+        private readonly string[] SSModes = ["unforced", "2x", "3x", "4x"];
         private int Row;
         private string Key;
         private string Modifier;
@@ -110,12 +110,10 @@ namespace VBLauncher
             CameraCB.Checked = Conversions.ToDouble(IniManager.Ini(ref IniManager.SysIni, "Camera", "FOV Min")) == 0.5d;
             AltCamCB.Checked = Conversions.ToDouble(IniManager.Ini(ref IniManager.SysIni, "Camera", "Distance Max")) ==
                                70d;
-            var Files = General.SearchForFiles("Override", new[] { "*.map" });
-            foreach (var File in Files)
+            var files = General.SearchForFiles("Override", ["*.map"]);
+            foreach (var fi in files.Select(file => new FileInfo(file)).Where(fi => !NewGameCB.Items.Contains(fi.Name)))
             {
-                var FI = new FileInfo(File);
-                if (!NewGameCB.Items.Contains(FI.Name))
-                    NewGameCB.Items.Add(FI.Name);
+                NewGameCB.Items.Add(fi.Name);
             }
 
             NewGameCB.Text = IniManager.Ini(ref IniManager.SysIni, "Server", "Start map");
@@ -147,14 +145,7 @@ namespace VBLauncher
             SetupSSCB(sender, e);
             FullscreenCB.Checked =
                 Conversions.ToDouble(IniManager.Ini(ref IniManager.F3Ini, "Graphics", "fullscreen")) == 1d;
-            if (File.Exists("d3d11.dll"))
-            {
-                APICB.SelectedIndex = 1;
-            }
-            else
-            {
-                APICB.SelectedIndex = 0;
-            }
+            APICB.SelectedIndex = File.Exists("d3d11.dll") ? 1 : 0;
 
             AACB.SelectedIndex = AAModes.ToList().IndexOf(IniManager.Ini(ref dgV2Conf, "DirectX", "Antialiasing"));
             TextureCB.SelectedIndex = FModes.ToList().IndexOf(IniManager.Ini(ref dgV2Conf, "DirectX", "Filtering"));
@@ -165,6 +156,7 @@ namespace VBLauncher
             }
             catch
             {
+                // ignored
             }
 
             try
@@ -173,6 +165,7 @@ namespace VBLauncher
             }
             catch
             {
+                // ignored
             }
 
             LoadKeybinds(sender, e);
@@ -188,8 +181,8 @@ namespace VBLauncher
             {
                 if (s.StartsWith("+"))
                 {
-                    var keys = s.Substring(0, s.IndexOf("=") - 1).Trim().Split("+");
-                    var action = s.Substring(s.IndexOf("=") + 1).Trim();
+                    var keys = s[..(s.IndexOf("=") - 1)].Trim().Split("+");
+                    var action = s[(s.IndexOf("=") + 1)..].Trim();
                     if (keys.Length > 2)
                     {
                         Binds.Add(new Keybind(keys[2], keys[1], action));
@@ -201,8 +194,8 @@ namespace VBLauncher
                 }
                 else if (s.StartsWith("-"))
                 {
-                    var keys = s.Substring(0, s.IndexOf("=") - 1).Trim().Split("-");
-                    var action = s.Substring(s.IndexOf("=") + 1).Trim();
+                    var keys = s[..(s.IndexOf("=") - 1)].Trim().Split("-");
+                    var action = s[(s.IndexOf("=") + 1)..].Trim();
                     if (keys.Length > 2)
                     {
                         Binds.Add(new Keybind(keys[2], keys[1], action, false));
@@ -246,29 +239,23 @@ namespace VBLauncher
         private void ApplyChanges(object sender, EventArgs e)
         {
             IniManager.Ini(ref IniManager.F3Ini, "Graphics", "enable startup movies",
-                (IntrosCB.Checked ? 1 : 0).ToString(), IniManager.KeyType.Normal);
+                (IntrosCB.Checked ? 1 : 0).ToString());
             SetMainMenu(MainMenus[MainMenuCB.SelectedIndex]);
-            IniManager.Ini(ref IniManager.SysIni, "Camera", "Distance Max", (AltCamCB.Checked ? 70 : 350).ToString(),
-                IniManager.KeyType.Normal);
-            IniManager.Ini(ref IniManager.SysIni, "Camera", "Distance Min", (AltCamCB.Checked ? 70 : 350).ToString(),
-                IniManager.KeyType.Normal);
-            IniManager.Ini(ref IniManager.SysIni, "Camera", "FOV Speed", (CameraCB.Checked ? 10d : 32.5d).ToString(),
-                IniManager.KeyType.Normal);
-            IniManager.Ini(ref IniManager.SysIni, "Camera", "Scroll Speed", (CameraCB.Checked ? 250 : 96).ToString(),
-                IniManager.KeyType.Normal);
+            IniManager.Ini(ref IniManager.SysIni, "Camera", "Distance Max", (AltCamCB.Checked ? 70 : 350).ToString());
+            IniManager.Ini(ref IniManager.SysIni, "Camera", "Distance Min", (AltCamCB.Checked ? 70 : 350).ToString());
+            IniManager.Ini(ref IniManager.SysIni, "Camera", "FOV Speed", (CameraCB.Checked ? 10d : 32.5d).ToString());
+            IniManager.Ini(ref IniManager.SysIni, "Camera", "Scroll Speed", (CameraCB.Checked ? 250 : 96).ToString());
             IniManager.Ini(ref IniManager.SysIni, "Camera", "FOV Min",
-                (CameraCB.Checked ? 0.5d : AltCamCB.Checked ? 30 : 6).ToString(), IniManager.KeyType.Normal);
+                (CameraCB.Checked ? 0.5d : AltCamCB.Checked ? 30 : 6).ToString());
             IniManager.Ini(ref IniManager.SysIni, "Camera", "FOV Max",
-                (CameraCB.Checked ? 100 : AltCamCB.Checked ? 75 : 15).ToString(), IniManager.KeyType.Normal);
-            IniManager.Ini(ref IniManager.SysIni, "Server", "Start map", NewGameCB.Text, IniManager.KeyType.Normal);
+                (CameraCB.Checked ? 100 : AltCamCB.Checked ? 75 : 15).ToString());
+            IniManager.Ini(ref IniManager.SysIni, "Server", "Start map", NewGameCB.Text);
             IniManager.Ini(ref IniManager.SysIni, "Server", "Start map entry point",
-                DarkNumericUpDown1.Value.ToString(), IniManager.KeyType.Normal);
+                DarkNumericUpDown1.Value.ToString());
             var res = StrToRes(ResolutionCB.Text);
-            IniManager.Ini(ref IniManager.F3Ini, "Graphics", "fullscreen", (FullscreenCB.Checked ? 1 : 0).ToString(),
-                IniManager.KeyType.Normal);
-            IniManager.Ini(ref IniManager.F3Ini, "Graphics", "width", res.Width.ToString(), IniManager.KeyType.Normal);
-            IniManager.Ini(ref IniManager.F3Ini, "Graphics", "height", res.Height.ToString(),
-                IniManager.KeyType.Normal);
+            IniManager.Ini(ref IniManager.F3Ini, "Graphics", "fullscreen", (FullscreenCB.Checked ? 1 : 0).ToString());
+            IniManager.Ini(ref IniManager.F3Ini, "Graphics", "width", res.Width.ToString());
+            IniManager.Ini(ref IniManager.F3Ini, "Graphics", "height", res.Height.ToString());
             switch (APICB.SelectedIndex)
             {
                 case 0:
@@ -290,22 +277,17 @@ namespace VBLauncher
                 }
             }
 
-            IniManager.Ini(ref dgV2Conf, "DirectX", "Antialiasing", AAModes[AACB.SelectedIndex],
-                IniManager.KeyType.Normal);
-            IniManager.Ini(ref dgV2Conf, "DirectX", "Filtering", FModes[TextureCB.SelectedIndex],
-                IniManager.KeyType.Normal);
-            IniManager.Ini(ref dgV2Conf, "DirectX", "Resolution", SSModes[SSFCB.SelectedIndex],
-                IniManager.KeyType.Normal);
-            IniManager.Ini(ref dgV2Conf, "DirectX", "DisableMipmapping", Conversions.ToString(!MipmapCB.Checked),
-                IniManager.KeyType.Normal);
-            IniManager.Ini(ref dgV2Conf, "DirectX", "PhongShadingWhenPossible", Conversions.ToString(PhongCB.Checked),
-                IniManager.KeyType.Normal);
-            IniManager.Ini(ref dgV2Conf, "GeneralExt", "FPSLimit", res.Hz.ToString(), IniManager.KeyType.Normal);
-            IniManager.Ini(ref IniManager.F3Ini, "Graphics", "refresh", res.Hz.ToString(), IniManager.KeyType.Normal);
+            IniManager.Ini(ref dgV2Conf, "DirectX", "Antialiasing", AAModes[AACB.SelectedIndex]);
+            IniManager.Ini(ref dgV2Conf, "DirectX", "Filtering", FModes[TextureCB.SelectedIndex]);
+            IniManager.Ini(ref dgV2Conf, "DirectX", "Resolution", SSModes[SSFCB.SelectedIndex]);
+            IniManager.Ini(ref dgV2Conf, "DirectX", "DisableMipmapping", Conversions.ToString(!MipmapCB.Checked));
+            IniManager.Ini(ref dgV2Conf, "DirectX", "PhongShadingWhenPossible", Conversions.ToString(PhongCB.Checked));
+            IniManager.Ini(ref dgV2Conf, "GeneralExt", "FPSLimit", res.Hz.ToString());
+            IniManager.Ini(ref IniManager.F3Ini, "Graphics", "refresh", res.Hz.ToString());
             var NewBinds = (from DataGridViewRow r in DataGridView1.Rows
                 select RowToStr(r)).ToList();
 
-            var SectionStart = Array.FindIndex(IniManager.F3Ini, x => x.StartsWith($"[HotKeys]"));
+            var SectionStart = Array.FindIndex(IniManager.F3Ini, x => x.StartsWith("[HotKeys]"));
             var SectionEnd = Array.FindIndex(IniManager.F3Ini, SectionStart + 1, x => x.StartsWith("[")) - 1;
             if (SectionEnd < 0)
                 SectionEnd = IniManager.F3Ini.Length - 1;
@@ -326,8 +308,7 @@ namespace VBLauncher
             var index = SSFCB.SelectedIndex;
             var res = StrToRes(ResolutionCB.Text);
             SSFCB.Items.Clear();
-            var resolutions = new[]
-                { ResToStr(res, false), ResToStr(res, false, 2), ResToStr(res, false, 3), ResToStr(res, false, 4) };
+            object[] resolutions = [ResToStr(res, false), ResToStr(res, false, 2), ResToStr(res, false, 3), ResToStr(res, false, 4)];
             SSFCB.Items.AddRange(resolutions);
             SSFCB.SelectedIndex = index;
         }
@@ -342,14 +323,9 @@ namespace VBLauncher
             var ch = Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(row.Cells[3].Value, "Up", false))
                 ? "-"
                 : "+";
-            if (Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(row.Cells[0].Value, "", false)))
-            {
-                return $"{ch}{row.Cells[1].Value} = {row.Cells[2].Value}";
-            }
-            else
-            {
-                return $"{ch}{row.Cells[0].Value}{ch}{row.Cells[1].Value} = {row.Cells[2].Value}";
-            }
+            return Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(row.Cells[0].Value, "", false))
+                ? $"{ch}{row.Cells[1].Value} = {row.Cells[2].Value}"
+                : $"{ch}{row.Cells[0].Value}{ch}{row.Cells[1].Value} = {row.Cells[2].Value}";
         }
 
         private void DataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -427,8 +403,8 @@ namespace VBLauncher
                     {
                         Modifier = e.Modifiers.ToString();
                         Key = e.KeyCode.ToString();
-                        DataGridView1.Rows[Row].Cells[0].Value = ProperName.ContainsKey(Modifier) ? ProperName[Modifier] : Modifier;
-                        DataGridView1.Rows[Row].Cells[1].Value = ProperName.ContainsKey(Key) ? ProperName[Key] : Key;
+                        DataGridView1.Rows[Row].Cells[0].Value = ProperName.TryGetValue(Modifier, out var value) ? value : Modifier;
+                        DataGridView1.Rows[Row].Cells[1].Value = ProperName.TryGetValue(Key, out var value1) ? value1 : Key;
                     }
 
                     break;

@@ -11,17 +11,17 @@ namespace VB3DLib
     public class B3DModel
     {
         public int FormatVer;
-        public List<Vector3> Model_Vertex_Position = new();
-        public List<Vector2> Model_Vertex_Texcoords = new();
-        public List<Vector3> Model_Vertex_Normal = new();
-        public List<int[]> Model_Faces_Index = new();
-        public List<int> Model_Faces_Mats = new();
-        public List<TVertex_Node> Vertex_Nodes = new();
+        public List<Vector3> Model_Vertex_Position = [];
+        public List<Vector2> Model_Vertex_Texcoords = [];
+        public List<Vector3> Model_Vertex_Normal = [];
+        public List<int[]> Model_Faces_Index = [];
+        public List<int> Model_Faces_Mats = [];
+        public List<TVertex_Node> Vertex_Nodes = [];
 
         public string texName = "";
         
-        public List<string> Txs = new();
-        public List<TMaterials> Materials = new();
+        public List<string> Txs = [];
+        public List<TMaterials> Materials = [];
 
         public int Vertex_Type_Flag;
 
@@ -41,14 +41,14 @@ namespace VB3DLib
         {
             texName = "";
             FormatVer = 0;
-            Model_Vertex_Position = new();
-            Model_Vertex_Texcoords = new();
-            Model_Vertex_Normal = new();
-            Model_Faces_Index = new();
-            Model_Faces_Mats = new();
+            Model_Vertex_Position = [];
+            Model_Vertex_Texcoords = [];
+            Model_Vertex_Normal = [];
+            Model_Faces_Index = [];
+            Model_Faces_Mats = [];
 
-            Txs = new();
-            Materials = new();
+            Txs = [];
+            Materials = [];
 
             Vertex_Type_Flag = 0;
 
@@ -109,11 +109,11 @@ namespace VB3DLib
 
         public static char[] StringRead(BinaryReader f)
         {
-            if (f.BaseStream.Position >= f.BaseStream.Length - 2) { return new char[0]; }
+            if (f.BaseStream.Position >= f.BaseStream.Length - 2) { return []; }
             var s = new List<char>();
             int len = f.ReadInt16();
 
-            if (f.BaseStream.Position + len > f.BaseStream.Length) { return new char[0]; }
+            if (f.BaseStream.Position + len > f.BaseStream.Length) { return []; }
 
             for (var i = 0; i < len; i++)
             {
@@ -382,7 +382,7 @@ namespace VB3DLib
                     var a = f.ReadInt32();
                     var b = f.ReadInt32();
                     var c = f.ReadInt32();
-                    b3d.Model_Faces_Index.Add(new[] { b, a, c });
+                    b3d.Model_Faces_Index.Add([b, a, c]);
                     b3d.Model_Faces_Mats.Add(b3d.Txs.Count);
                 }
 
@@ -423,8 +423,8 @@ namespace VB3DLib
 
             public TVertex_Node(BinaryReader f, B3DModel b3d)
             {
-                Unknown3 = new List<float>();
-                Vert_Bones_Data = new List<TVert_Bones_Data>();
+                Unknown3 = [];
+                Vert_Bones_Data = [];
                 //Console.WriteLine("TVertex_Node");
                 Unknown1 = f.ReadByte();
                 Unknown2 = f.ReadByte();
@@ -512,7 +512,7 @@ namespace VB3DLib
                             int a = f.ReadUInt16();
                             int b = f.ReadUInt16();
                             int c = f.ReadUInt16();
-                            b3d.Model_Faces_Index.Add(new[] { c, b, a });
+                            b3d.Model_Faces_Index.Add([c, b, a]);
                             b3d.Model_Faces_Mats.Add(j);
                         }
                     }
@@ -747,9 +747,9 @@ namespace VB3DLib
 
     public class G3DModel
     {
-        public List<Vector3> Model_Vertex_Position = new();
-        public List<int[]> Model_Faces_Index = new();
-        public List<Vector2> Model_Vertex_Texcoords = new();
+        public List<Vector3> Model_Vertex_Position = [];
+        public List<int[]> Model_Faces_Index = [];
+        public List<Vector2> Model_Vertex_Texcoords = [];
 
         public G3DModel(string path)
         {
@@ -816,7 +816,7 @@ namespace VB3DLib
             //split tmplist into groups of 3 and add to faces
             for (var i = 0; i < tmpList.Count; i += 3)
             {
-                Model_Faces_Index.Add(new[] { tmpList[i], tmpList[i + 1], tmpList[i + 2] });
+                Model_Faces_Index.Add([tmpList[i], tmpList[i + 1], tmpList[i + 2]]);
             }
         }
     }
@@ -825,18 +825,18 @@ namespace VB3DLib
     {
         public string MapName = "defaultName";
 
-        public List<Vector3> GVP = new(); // vertex position
-        public List<Vector3> GVN = new(); // vertex normal
-        public List<Color> GVD = new(); // vertex diffuse color
-        public List<Vector2> GVT = new(); // texture coords
-        public List<Vector2> GVL = new(); // lightmap coords
+        public List<Vector3> GVP = []; // vertex position
+        public List<Vector3> GVN = []; // vertex normal
+        public List<Color> GVD = []; // vertex diffuse color
+        public List<Vector2> GVT = []; // texture coords
+        public List<Vector2> GVL = []; // lightmap coords
 
-        public List<int[]> IDX = new(); // face indexes
-        public List<int> MDX = new(); // mat index
-        public List<BitmapTexture> MAT = new(); // materials
+        public List<int[]> IDX = []; // face indexes
+        public List<int> MDX = []; // mat index
+        public List<BitmapTexture> MAT = []; // materials
 
         public int buffer_index;
-        public List<int> buffer_offset = new();
+        public List<int> buffer_offset = [];
 
         public int Flag = 1;
 
@@ -851,19 +851,19 @@ namespace VB3DLib
         public _8Model(byte[] file, bool flgs)
         {
             Flag = flgs ? 4 : 1;
-            GVP = new();
+            GVP = [];
 
-            GVN = new();
-            GVD = new();
-            GVT = new();
-            GVL = new();
+            GVN = [];
+            GVD = [];
+            GVT = [];
+            GVL = [];
 
-            IDX = new();
-            MDX = new();
-            MAT = new();
+            IDX = [];
+            MDX = [];
+            MAT = [];
 
             buffer_index = 0;
-            buffer_offset = new();
+            buffer_offset = [];
 
             var f = new BinaryReader(new MemoryStream(file));
             ReadTREE_Data(f);
@@ -1028,7 +1028,7 @@ namespace VB3DLib
                                 var b = buffer_offset[buffer_index] + f.ReadUInt16();
                                 var c = buffer_offset[buffer_index] + f.ReadUInt16();
 
-                                IDX.Add(new[] { a, c, b });
+                                IDX.Add([a, c, b]);
                                 MDX.Add(m == 0 ? 0 : m);
                             }
                         }

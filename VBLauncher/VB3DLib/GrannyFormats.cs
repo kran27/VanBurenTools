@@ -49,9 +49,9 @@ namespace VB3DLib
                 Orientation = new Quaternion(t.Orientation[0], t.Orientation[1], t.Orientation[2], t.Orientation[3]),
                 ScaleShear = new float[3][]
             };
-            otpt.ScaleShear[0] = new[] { t.ScaleShear[0], t.ScaleShear[1], t.ScaleShear[2] };
-            otpt.ScaleShear[1] = new[] { t.ScaleShear[3], t.ScaleShear[4], t.ScaleShear[5] };
-            otpt.ScaleShear[2] = new[] { t.ScaleShear[6], t.ScaleShear[7], t.ScaleShear[8] };
+            otpt.ScaleShear[0] = [t.ScaleShear[0], t.ScaleShear[1], t.ScaleShear[2]];
+            otpt.ScaleShear[1] = [t.ScaleShear[3], t.ScaleShear[4], t.ScaleShear[5]];
+            otpt.ScaleShear[2] = [t.ScaleShear[6], t.ScaleShear[7], t.ScaleShear[8]];
             return otpt;
         }
 
@@ -86,7 +86,7 @@ namespace VB3DLib
 
         private static void ParseModels(ref file_info parsedFile, unm_file_info fileInfo)
         {
-            parsedFile.Models = new List<model>();
+            parsedFile.Models = [];
             for (var i = 0; i < fileInfo.ModelCount; i++) 
             {
                 var model = ReadFromPointerArray<unm_model>(fileInfo.Models, i);
@@ -97,7 +97,7 @@ namespace VB3DLib
                 var skeleton = (unm_skeleton)(Marshal.PtrToStructure(model.Skeleton, typeof(unm_skeleton)) ??
                                               throw new ExternalException());
                 parsedModel.Skeleton.Name = Marshal.PtrToStringAnsi(skeleton.Name) ?? throw new ExternalException();
-                parsedModel.Skeleton.Bones = new List<bone>();
+                parsedModel.Skeleton.Bones = [];
                 for (var j = 0; j < skeleton.BoneCount; j++)
                 {
                     var bone = ReadFromArray<unm_bone>(skeleton.Bones, j);
@@ -279,7 +279,7 @@ namespace VB3DLib
 
         private static void ParseAnimations(ref file_info parsedFile, unm_file_info fileInfo)
         {
-            parsedFile.Animations = new List<animation>();
+            parsedFile.Animations = [];
             for (var i = 0; i < fileInfo.AnimationCount; i++)
             {
                 var animation = ReadFromPointerArray<unm_animation>(fileInfo.Animations, i);
@@ -289,7 +289,7 @@ namespace VB3DLib
                     Duration = animation.Duration,
                     TimeStep = animation.TimeStep,
                     Oversampling = animation.Oversampling,
-                    TrackGroups = new List<track_group>()
+                    TrackGroups = []
                 };
                 for (var j = 0; j < animation.TrackGroupCount; j++)
                 {
@@ -297,7 +297,7 @@ namespace VB3DLib
                     var parsedTrackGroup = new track_group
                     {
                         Name = Marshal.PtrToStringAnsi(trackGroup.Name) ?? throw new ExternalException(),
-                        TransformTracks = new List<transform_track>(),
+                        TransformTracks = [],
                         InitialPlacement = CreateTransform(trackGroup.InitialPlacement)
                     };
 

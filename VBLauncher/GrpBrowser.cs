@@ -229,17 +229,17 @@ namespace VBLauncher
             return buffer;
         }
 
-        private byte[] ExportModelToObj(Model3DGroup model, string filename)
+        private byte[] ExportModelToObj(Model3DGroup imodel, string filename)
         {
             var exporter = new ObjExporter { MaterialsFile = filename + ".mtl" };
             using var memoryStream = new MemoryStream();
-            exporter.Export(model, memoryStream);
+            exporter.Export(imodel, memoryStream);
             return memoryStream.ToArray();
         }
 
         public void readExtensions()
         {
-            extensions = new List<string>();
+            extensions = [];
             for (var i = 0; i < head.nEntries; i++)
             {
                 var packLoc = globalIndexToPackOffset[i];
@@ -281,7 +281,7 @@ namespace VBLauncher
 
             for (var i = 0; i < 24; i++)
             {
-                entries[i] = new List<Entry>();
+                entries[i] = [];
                 localIndexToGlobal[i] = new Dictionary<int, int>();
             }
 
@@ -522,18 +522,17 @@ namespace VBLauncher
             try
             {
                 var sklName = name.ToLower() + ".skl";
-                if (fullNameToGlobalIndex.ContainsKey(sklName))
-                {
-                    var gr2b = getFileBytes(fullNameToGlobalIndex[sklName]);
-                    var gr2 = GrannyFormats.ReadFileFromMemory(gr2b);
-                    if (gr2.Models.Any())
-                    {
-                        var skl = GetSkeletonModel(gr2.Models[0]);
-                        viewport.Children.Add(new ModelVisual3D { Content = skl });
-                    }
-                }
+                if (!fullNameToGlobalIndex.TryGetValue(sklName, out int value)) return;
+                var gr2b = getFileBytes(value);
+                var gr2 = GrannyFormats.ReadFileFromMemory(gr2b);
+                if (!gr2.Models.Any()) return;
+                var skl = GetSkeletonModel(gr2.Models[0]);
+                viewport.Children.Add(new ModelVisual3D { Content = skl });
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
         }
 
         private void PreviewMap(byte[] b, string name)
@@ -558,7 +557,10 @@ namespace VBLauncher
                 var _8m = new _8Model(mmb, Interaction.MsgBox("FLGS Size?", MsgBoxStyle.YesNo, "Option") == MsgBoxResult.Yes);
                 viewport.Children.Add(new ModelVisual3D { Content = _8ModelToUsableMesh(_8m) });
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
 
             foreach (var ent in map.EME2)
                 TryAddEntityToMap(ent);
@@ -728,7 +730,11 @@ namespace VBLauncher
             var nne = name.Split(".")[0];
             for (var i = 0; i < entries.Length; i++)
             {
-                foreach (var g in from ent in entries[i] let g = localIndexToGlobal[i][ent.number] where filenames[g] == nne && GetExtension(ent.type) == "image" select g)
+                var i1 = i;
+                foreach (var g in from ent in entries[i]
+                         let g = localIndexToGlobal[i1][ent.number]
+                         where filenames[g] == nne && GetExtension(ent.type) == "image"
+                         select g)
                 {
                     return TargaToBitmapImage(getFileBytes(g));
                 }
@@ -909,7 +915,7 @@ namespace VBLauncher
 
         #endregion
 
-        private HelixViewport3D viewport = new HelixViewport3D
+        private HelixViewport3D viewport = new()
         {
             CameraRotationMode = CameraRotationMode.Turntable,
             RotateAroundMouseDownPoint = true

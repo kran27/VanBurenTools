@@ -24,20 +24,20 @@ namespace VBLauncher
         public List<EMSDc> EMSD;
         public EMNPc EMNP;
         public EMFGc EMFG;
-        public List<EMNOc> EMNO = new List<EMNOc>();
+        public List<EMNOc> EMNO;
         public List<EMEFc> EMEF;
 
         public Map()
         {
             EMAP = new EMAPc();
-            EMEP = new List<EMEPc>();
-            EME2 = new List<EME2c>();
+            EMEP = [];
+            EME2 = [];
             EMFG = null;
-            EMNO = new List<EMNOc>();
-            EMEF = new List<EMEFc>();
-            EMSD = new List<EMSDc>();
-            EPTH = new List<EPTHc>();
-            Triggers = new List<Trigger>();
+            EMNO = [];
+            EMEF = [];
+            EMSD = [];
+            EPTH = [];
+            Triggers = [];
             ECAM = null;
             _2MWT = null;
         }
@@ -55,7 +55,7 @@ namespace VBLauncher
             b.AddRange(Triggers.SelectMany(x => x.ToByte()));
             b.AddRange(EPTH.SelectMany(x => x.ToByte()));
             b.AddRange(EMSD.SelectMany(x => x.ToByte()));
-            b.AddRange(new byte[] { 0x45, 0x4D, 0x4E, 0x50, 0x0, 0x0, 0x0, 0x0, 0x10, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }); // EMNP Chunk
+            b.AddRange([0x45, 0x4D, 0x4E, 0x50, 0x0, 0x0, 0x0, 0x0, 0x10, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]); // EMNP Chunk
             if (EMFG is not null)
                 b.AddRange(EMFG.ToByte());
             b.AddRange(EMNO.SelectMany(x => x.ToByte()));
@@ -160,11 +160,13 @@ namespace VBLauncher
             }
             else if (GOBJ.Type == 1)
             {
-                b.AddRange(new byte[] { 0x47, 0x44, 0x4F, 0x52, 0x1, 0x0, 0x0, 0x0, 0x18, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }); // GDOR chunk
+                b.AddRange([0x47, 0x44, 0x4F, 0x52, 0x1, 0x0, 0x0, 0x0, 0x18, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
+                ]); // GDOR chunk
             }
             else if (GOBJ.Type == 2)
             {
-                b.AddRange(new byte[] { 0x47, 0x43, 0x4F, 0x4E, 0x1, 0x0, 0x0, 0x0, 0x1A, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }); // GCON chunk
+                b.AddRange([0x47, 0x43, 0x4F, 0x4E, 0x1, 0x0, 0x0, 0x0, 0x1A, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
+                ]); // GCON chunk
             }
             return b;
         }
@@ -385,7 +387,7 @@ namespace VBLauncher
             ret.Write(14 + s1.Length, l.ToByte());
             ret.Write(26 + s1.Length, s2.Length);
             ret.Write(28 + s1.Length, s2);
-            ret.Write(28 + s1.Length + s2.Length, new byte[] { 1, 1 });
+            ret.Write(28 + s1.Length + s2.Length, [1, 1]);
             return ret;
         }
 
@@ -394,7 +396,7 @@ namespace VBLauncher
     public class EPTHc
     {
         public string name = "";
-        public List<Vector4> p = new() { new Vector4(0f, 0f, 0f, 0f) };
+        public List<Vector4> p = [new(0f, 0f, 0f, 0f)];
 
         public IEnumerable<byte> ToByte()
         {
@@ -418,7 +420,7 @@ namespace VBLauncher
     public class EMTRc
     {
         public int n = 0;
-        public List<Vector3> r = new() { new Vector3(0f, 0f, 0f) };
+        public List<Vector3> r = [new(0f, 0f, 0f)];
 
         public IEnumerable<byte> ToByte()
         {
@@ -472,7 +474,7 @@ namespace VBLauncher
                         ret.Write(8, 16 + s.Length);
                         ret.Write(12, s.Length);
                         ret.Write(14, s);
-                        ret.Write(14 + s.Length, new byte[] { 1, 1 });
+                        ret.Write(14 + s.Length, [1, 1]);
                         return ret;
                     }
 
@@ -540,11 +542,11 @@ namespace VBLauncher
 
     public class GCREc
     {
-        public int[] Special = new[] { 0, 0, 0, 0, 0, 0, 0 };
+        public int[] Special = [0, 0, 0, 0, 0, 0, 0];
         public int Age = 0;
-        public List<Skill> Skills = new();
-        public List<int> Traits = new();
-        public List<int> TagSkills = new();
+        public List<Skill> Skills = [];
+        public List<int> Traits = [];
+        public List<int> TagSkills = [];
         public string PortStr = "";
         public Socket Hea = new("", "");
         public Socket Hai = new("", "");
@@ -559,7 +561,7 @@ namespace VBLauncher
         public Socket Sho = new("", "");
         public Socket Van = new("", "");
         public string[] Inventory = [];
-        public List<GWAMc> GWAM = new();
+        public List<GWAMc> GWAM = [];
 
         public IEnumerable<byte> ToByte()
         {
@@ -573,7 +575,7 @@ namespace VBLauncher
             var inv = new List<byte>();
             foreach (var i in Inventory)
             {
-                inv.AddRange(new byte[] { (byte)i.Length, 0 });
+                inv.AddRange([(byte)i.Length, 0]);
                 inv.AddRange(Encoding.ASCII.GetBytes(i));
             }
 
@@ -671,7 +673,7 @@ namespace VBLauncher
         public string mpf = "";
         public bool frozen;
         public bool dark;
-        public List<_2MWTChunk> chunks = new();
+        public List<_2MWTChunk> chunks = [];
 
         public IEnumerable<byte> ToByte()
         {
@@ -895,7 +897,7 @@ namespace VBLauncher
 
     public class EMNPc
     {
-        public List<EMNPChunk> chunks = new();
+        public List<EMNPChunk> chunks = [];
 
         public IEnumerable<byte> ToByte()
         {

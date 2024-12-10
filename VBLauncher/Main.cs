@@ -41,7 +41,7 @@ namespace VBLauncher
         #endregion
 
         private bool _mouseDown;
-        private readonly SoundPlayer sound = new SoundPlayer();
+        private readonly SoundPlayer sound = new();
 
         private void Startup(object sender, EventArgs e)
         {

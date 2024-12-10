@@ -38,18 +38,18 @@ namespace VBLauncher
                 if (KeyIndex > SectionEnd)
                     return null;
                 var KeyLine = IniArray[KeyIndex];
-                var KeyValue = KeyLine.Substring(KeyLine.IndexOf("=", StringComparison.Ordinal) + 1).Trim();
+                var KeyValue = KeyLine[(KeyLine.IndexOf("=", StringComparison.Ordinal) + 1)..].Trim();
                 // Find comment, if any
                 object Comment = null;
                 try
                 {
-                    Comment = KeyValue.Substring(KeyValue.IndexOf(";", StringComparison.Ordinal));
+                    Comment = KeyValue[KeyValue.IndexOf(";", StringComparison.Ordinal)..];
                 }
                 catch
                 {
                 }
                 if (Comment is not null)
-                    KeyValue = KeyValue.Substring(0, KeyValue.LastIndexOf(";", StringComparison.Ordinal)).Trim();
+                    KeyValue = KeyValue[..KeyValue.LastIndexOf(";", StringComparison.Ordinal)].Trim();
                 // Return read value
                 return KeyValue;
             }
@@ -82,12 +82,12 @@ namespace VBLauncher
                 if (KeyIndex > SectionEnd)
                     return;
                 var KeyLine = IniArray[KeyIndex];
-                var KeyValue = KeyLine.Substring(KeyLine.IndexOf("=") + 1).Trim();
+                var KeyValue = KeyLine[(KeyLine.IndexOf("=") + 1)..].Trim();
                 // Find comment, if any
                 object Comment = null;
                 try
                 {
-                    Comment = KeyValue.Substring(KeyValue.IndexOf(";"));
+                    Comment = KeyValue[KeyValue.IndexOf(";")..];
                 }
                 catch
                 {
@@ -191,27 +191,13 @@ namespace VBLauncher
         public static string RemoveExtension(this string fileName)
         {
             var lastDotIndex = fileName.LastIndexOf(".");
-            if (lastDotIndex == -1)
-            {
-                return fileName;
-            }
-            else
-            {
-                return fileName.Substring(0, lastDotIndex);
-            }
+            return lastDotIndex == -1 ? fileName : fileName[..lastDotIndex];
         }
 
         public static string GetExtension(this string fileName)
         {
             var lastDotIndex = fileName.LastIndexOf(".");
-            if (lastDotIndex == -1)
-            {
-                return "";
-            }
-            else
-            {
-                return fileName.Substring(lastDotIndex + 1);
-            }
+            return lastDotIndex == -1 ? "" : fileName[(lastDotIndex + 1)..];
         }
 
 
@@ -280,13 +266,13 @@ namespace VBLauncher
         [DllImport("user32.dll", EntryPoint = "EnumDisplaySettingsExW")]
         private static extern bool EnumDisplaySettingsExW([MarshalAs(UnmanagedType.LPWStr)] string DeviceName, int ModeNum, ref DevModeW DevMode, uint Flags);
 
-        public static string[] GetResAsStrings()
+        public static object[] GetResAsStrings()
         {
             return (from S in GetResolution()
                     select $"{S.Width}x{S.Height}@{S.Hz}").ToArray();
         }
 
-        public static Resolution[] GetResolution()
+        private static Resolution[] GetResolution()
         {
             var DM = new DevModeW();
             var Index = 0;
@@ -304,7 +290,9 @@ namespace VBLauncher
                     }
                     catch
                     {
+                        // ignored
                     }
+
                     SizeList.Add(Resolution);
                 }
                 Index += 1;
@@ -316,8 +304,8 @@ namespace VBLauncher
         {
             try
             {
-                var a = str.Split(new[] { 'x' });
-                var b = a[1].Split(new[] { '@' });
+                var a = str.Split(['x']);
+                var b = a[1].Split(['@']);
                 return new Resolution
                 {
                     Width = Conversions.ToInteger(a[0]),
