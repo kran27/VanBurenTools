@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -259,22 +259,22 @@ namespace VBLauncher
             switch (APICB.SelectedIndex)
             {
                 case 0:
-                {
-                    File.Delete("d3d9.dll");
-                    File.Delete("d3d11.dll");
-                    File.Delete("dxgi.dll");
-                    File.Delete("wined3d.dll");
-                    File.WriteAllBytes("d3d8.dll", My.Resources.Resources.D3D8);
-                    break;
-                }
+                    {
+                        File.Delete("d3d9.dll");
+                        File.Delete("d3d11.dll");
+                        File.Delete("dxgi.dll");
+                        File.Delete("wined3d.dll");
+                        File.WriteAllBytes("d3d8.dll", My.Resources.Resources.D3D8);
+                        break;
+                    }
                 case 1:
-                {
-                    File.Delete("d3d9.dll");
-                    File.Delete("wined3d.dll");
-                    File.WriteAllBytes("d3d11.dll", My.Resources.Resources.d3d11);
-                    File.WriteAllBytes("dxgi.dll", My.Resources.Resources.dxgi);
-                    break;
-                }
+                    {
+                        File.Delete("d3d9.dll");
+                        File.Delete("wined3d.dll");
+                        File.WriteAllBytes("d3d11.dll", My.Resources.Resources.d3d11);
+                        File.WriteAllBytes("dxgi.dll", My.Resources.Resources.dxgi);
+                        break;
+                    }
             }
 
             IniManager.Ini(ref dgV2Conf, "DirectX", "Antialiasing", AAModes[AACB.SelectedIndex]);
@@ -285,7 +285,7 @@ namespace VBLauncher
             IniManager.Ini(ref dgV2Conf, "GeneralExt", "FPSLimit", res.Hz.ToString());
             IniManager.Ini(ref IniManager.F3Ini, "Graphics", "refresh", res.Hz.ToString());
             var NewBinds = (from DataGridViewRow r in DataGridView1.Rows
-                select RowToStr(r)).ToList();
+                            select RowToStr(r)).ToList();
 
             var SectionStart = Array.FindIndex(IniManager.F3Ini, x => x.StartsWith("[HotKeys]"));
             var SectionEnd = Array.FindIndex(IniManager.F3Ini, SectionStart + 1, x => x.StartsWith("[")) - 1;
@@ -336,31 +336,31 @@ namespace VBLauncher
             {
                 case 0:
                 case 1:
-                {
-                    Row = e.RowIndex;
-                    DarkLabel1.Show();
-                    WantKey = true;
-                    break;
-                }
+                    {
+                        Row = e.RowIndex;
+                        DarkLabel1.Show();
+                        WantKey = true;
+                        break;
+                    }
                 case 2:
-                {
-                    DarkLabel1.Hide();
-                    WantKey = false;
-                    break;
-                }
+                    {
+                        DarkLabel1.Hide();
+                        WantKey = false;
+                        break;
+                    }
                 case 3:
-                {
-                    if (ReferenceEquals(DataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value, DBNull.Value))
-                        DataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "Up";
-                    DataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value =
-                        Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(
-                            DataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value, "Up", false))
-                            ? "Down"
-                            : "Up";
-                    DarkLabel1.Hide();
-                    WantKey = false;
-                    break;
-                }
+                    {
+                        if (ReferenceEquals(DataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value, DBNull.Value))
+                            DataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "Up";
+                        DataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value =
+                            Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(
+                                DataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value, "Up", false))
+                                ? "Down"
+                                : "Up";
+                        DarkLabel1.Hide();
+                        WantKey = false;
+                        break;
+                    }
             }
         }
 
@@ -393,31 +393,45 @@ namespace VBLauncher
                 case Keys.ControlKey:
                 case Keys.Menu:
                 case Keys.ShiftKey:
-                {
-                    break;
-                }
+                    {
+                        break;
+                    }
 
                 default:
-                {
-                    if (WantKey)
                     {
                         Modifier = e.Modifiers.ToString();
                         Key = e.KeyCode.ToString();
                         DataGridView1.Rows[Row].Cells[0].Value = ProperName.TryGetValue(Modifier, out var value) ? value : Modifier;
                         DataGridView1.Rows[Row].Cells[1].Value = ProperName.TryGetValue(Key, out var value1) ? value1 : Key;
                     }
-
-                    break;
-                }
             }
         }
 
         private Dictionary<string, string> ProperName = new()
         {
-            { "D1", "1" }, { "D2", "2" }, { "D3", "3" }, { "D4", "4" }, { "D5", "5" }, { "D6", "6" }, { "D7", "7" },
-            { "D8", "8" }, { "D9", "9" }, { "D0", "0" }, { "Control", "Ctrl" }, { "None", "" }, { "Oemtilde", "`" },
-            { "Oemminus", "-" }, { "Oemplus", "+" }, { "OemOpenBrackets", "[" }, { "Oem6", "]" }, { "Oem5", @"\" },
-            { "Oem1", ";" }, { "Oem7", "\"" }, { "Oemcomma", "," }, { "Oemperiod", "." }, { "OemQuestion", "/" }
+            { "D1", "1" },
+            { "D2", "2" },
+            { "D3", "3" },
+            { "D4", "4" },
+            { "D5", "5" },
+            { "D6", "6" },
+            { "D7", "7" },
+            { "D8", "8" },
+            { "D9", "9" },
+            { "D0", "0" },
+            { "Control", "Ctrl" },
+            { "None", "" },
+            { "Oemtilde", "`" },
+            { "Oemminus", "-" },
+            { "Oemplus", "+" },
+            { "OemOpenBrackets", "[" },
+            { "Oem6", "]" },
+            { "Oem5", @"\" },
+            { "Oem1", ";" },
+            { "Oem7", "\"" },
+            { "Oemcomma", "," },
+            { "Oemperiod", "." },
+            { "OemQuestion", "/" }
         };
     }
 

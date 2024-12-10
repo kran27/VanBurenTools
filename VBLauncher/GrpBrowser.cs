@@ -47,10 +47,10 @@ namespace VBLauncher
 
         internal struct Entry
         {
-            public int one; 
-            public int number; 
-            public int type; 
-            public int offset; 
+            public int one;
+            public int number;
+            public int type;
+            public int offset;
             public int pack;
         }
 
@@ -84,14 +84,71 @@ namespace VBLauncher
 
         private readonly Dictionary<int, int> packOffsetToIndex = new()
         {
-            {0, 0},{6,1},{16,2},{25,3},{32,4},{42,5},{50,6},{55,7},{63,8},{68,9},{74,10},{81,11},{87,12},{92,13},{97,14},{102,15},{107,16},{112,17},{117,18},{122,19},{127,20},{132,21},{137,22},{142,23}
+            { 0, 0 },
+            { 6, 1 },
+            { 16, 2 },
+            { 25, 3 },
+            { 32, 4 },
+            { 42, 5 },
+            { 50, 6 },
+            { 55, 7 },
+            { 63, 8 },
+            { 68, 9 },
+            { 74, 10 },
+            { 81, 11 },
+            { 87, 12 },
+            { 92, 13 },
+            { 97, 14 },
+            { 102, 15 },
+            { 107, 16 },
+            { 112, 17 },
+            { 117, 18 },
+            { 122, 19 },
+            { 127, 20 },
+            { 132, 21 },
+            { 137, 22 },
+            { 142, 23 }
         };
 
         private readonly Dictionary<int, string> extensionMap = new()
         {
-            {1900, "psf"},{1600,"int"},{1700,"rle"},{1800,"itm"},{1500,"veg"},{1400,"crt"},{1300,"map"},{1100,"wav"},{1200,"amx"},{1000,"rtd"},{900,"rlz"},{800,"ini"},
-            {600,"skl"},{700,"gr2"},{500,"skn"},{400,"8"},{300,"dlg"},{100,"model"},{200,"image"},{2900,"str"},{2800,"sst"},{2700,"use"},{2500,"arm"},{2600,"dor"},
-            {2400,"wea"},{2300,"pce"},{2200,"sco"},{2000,"gsf"},{2100,"gls"},{3400,"fnt"},{3300,"spl"},{3200,"pro"},{3000,"enc"},{3100,"wmp"},{3500,"amo"},{3600,"con"},{3700,"tok"}
+            { 1900, "psf" },
+            { 1600, "int" },
+            { 1700, "rle" },
+            { 1800, "itm" },
+            { 1500, "veg" },
+            { 1400, "crt" },
+            { 1300, "map" },
+            { 1100, "wav" },
+            { 1200, "amx" },
+            { 1000, "rtd" },
+            { 900, "rlz" },
+            { 800, "ini" },
+            { 600, "skl" },
+            { 700, "gr2" },
+            { 500, "skn" },
+            { 400, "8" },
+            { 300, "dlg" },
+            { 100, "model" },
+            { 200, "image" },
+            { 2900, "str" },
+            { 2800, "sst" },
+            { 2700, "use" },
+            { 2500, "arm" },
+            { 2600, "dor" },
+            { 2400, "wea" },
+            { 2300, "pce" },
+            { 2200, "sco" },
+            { 2000, "gsf" },
+            { 2100, "gls" },
+            { 3400, "fnt" },
+            { 3300, "spl" },
+            { 3200, "pro" },
+            { 3000, "enc" },
+            { 3100, "wmp" },
+            { 3500, "amo" },
+            { 3600, "con" },
+            { 3700, "tok" }
         };
         #endregion
 
@@ -196,7 +253,7 @@ namespace VBLauncher
                 ext = (buffer[0] == 'B' && buffer[1] == '3' && buffer[2] == 'D' && buffer[3] == ' ') ? "b3d" : "g3d";
             else if (ext == "image")
                 ext = (buffer[0] == 'B' && buffer[1] == 'M') ? "bmp" : "tga";
-            
+
             return ext;
         }
 

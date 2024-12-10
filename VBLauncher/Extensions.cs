@@ -346,7 +346,7 @@ namespace VBLauncher
                 Van = new Socket(GetString(b, Vanmo, b[Vanmo - 2]), GetString(b, Vanto, b[Vanto - 2])),
                 Inventory = inv.ToArray(),
                 GWAM = (from i in gl
-                    select ToGWAMc(b.Skip(i).Take(BitConverter.ToInt32(b, i + 8)).ToArray())).ToList()
+                        select ToGWAMc(b.Skip(i).Take(BitConverter.ToInt32(b, i + 8)).ToArray())).ToList()
             };
         }
 
@@ -626,9 +626,9 @@ namespace VBLauncher
             {
                 EMAP = b.GetRegions("EMAP")[0].ToEMAPc(),
                 EME2 = (from x in b.GetRegions("EME2")
-                    select x.ToEME2c()).ToList(),
+                        select x.ToEME2c()).ToList(),
                 EMEP = (from x in b.GetRegions("EMEP")
-                    select x.ToEMEPc()).ToList()
+                        select x.ToEMEPc()).ToList()
             };
             try
             {
@@ -648,9 +648,9 @@ namespace VBLauncher
 
             cf.Triggers = b.GetTriggers();
             cf.EPTH = (from x in b.GetRegions("EPTH")
-                select x.ToEPTHc()).ToList();
+                       select x.ToEPTHc()).ToList();
             cf.EMSD = (from x in b.GetRegions("EMSD")
-                select x.ToEMSDc()).ToList();
+                       select x.ToEMSDc()).ToList();
             try
             {
                 cf.EMNP = b.GetRegions("EMNP")[0].ToEMNPc();
@@ -668,9 +668,9 @@ namespace VBLauncher
             }
 
             cf.EMNO = (from x in b.GetRegions("EMNO")
-                select x.ToEMNOc()).ToList();
+                       select x.ToEMNOc()).ToList();
             cf.EMEF = (from x in b.GetRegions("EMEF")
-                select x.ToEMEFc()).ToList();
+                       select x.ToEMEFc()).ToList();
             return cf;
         }
 
@@ -764,8 +764,8 @@ namespace VBLauncher
             var hn = Encoding.ASCII.GetBytes(hs);
             var hc = b.Locate(hn);
             return (from l in hc
-                let tl = BitConverter.ToInt32(b, l + 8)
-                select b.Skip(l).Take(tl).ToArray()).ToArray();
+                    let tl = BitConverter.ToInt32(b, l + 8)
+                    select b.Skip(l).Take(tl).ToArray()).ToArray();
         }
 
         // Finds all triggers for .map files, and the subsequent trigger info chunk
@@ -773,10 +773,10 @@ namespace VBLauncher
         {
             var hc = b.Locate("EMTR"u8.ToArray());
             return (from l in hc
-                let tl = BitConverter.ToInt32(b, l + 8)
-                let h1 = b.Skip(l).Take(tl).ToArray()
-                let h2 = b.Skip(l + tl).Take(b[l + tl + 8]).ToArray()
-                select new Trigger { EMTR = h1.ToEMTRc(), ExTR = h2.ToExTRc() }).ToList();
+                    let tl = BitConverter.ToInt32(b, l + 8)
+                    let h1 = b.Skip(l).Take(tl).ToArray()
+                    let h2 = b.Skip(l + tl).Take(b[l + tl + 8]).ToArray()
+                    select new Trigger { EMTR = h1.ToEMTRc(), ExTR = h2.ToExTRc() }).ToList();
         }
 
         /// <summary>
@@ -838,8 +838,8 @@ namespace VBLauncher
         public static List<string> GetStringArray(this DataGridView dgv)
         {
             return (from DataGridViewRow r in dgv.Rows
-                where r.Cells[0].Value != null
-                select r.Cells[0].Value).Cast<string>().ToList();
+                    where r.Cells[0].Value != null
+                    select r.Cells[0].Value).Cast<string>().ToList();
         }
 
         /// <summary>Returns the specified color as an array of bytes.</summary>
@@ -867,7 +867,7 @@ namespace VBLauncher
             b.AddRange(BitConverter.GetBytes(vec.Z));
             return b.ToArray();
         }
-        
+
         public static byte[] ToByte(this Vector2 vec)
         {
             var b = new List<byte>();
