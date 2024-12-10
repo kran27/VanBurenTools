@@ -19,7 +19,7 @@ namespace VB3DLib
         public List<TVertex_Node> Vertex_Nodes = new();
 
         public string texName = "";
-        
+
         public List<string> Txs = new();
         public List<TMaterials> Materials = new();
 
@@ -669,7 +669,7 @@ namespace VB3DLib
                 //Console.WriteLine("TTextures");
                 Unknown1 = f.ReadByte();
                 Name = StringRead(f);
-                if (b3d.texName == "") {b3d.texName = new string(Name);}
+                if (b3d.texName == "") { b3d.texName = new string(Name); }
                 FileName = StringRead(f);
                 Width = f.ReadUInt32();
                 Height = f.ReadUInt32();
