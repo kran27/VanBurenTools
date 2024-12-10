@@ -26,7 +26,7 @@ public partial class EditorWindow
         _filename = grpb.FileName;
         LoadFile(grpb.FileBytes, "." + grpb.Extension);
     }
-
+    
     private void SaveFile()
     {
         var sfd = new SaveFileDialog { Filter = $"Van Buren Data File|*{_extension}", ValidateNames = true, DefaultExt = _extension };
@@ -37,7 +37,7 @@ public partial class EditorWindow
             File.WriteAllBytes(sfd.FileName, (byte[])_currentFile.ToByte().ToArray());
         }
     }
-
+    
     private void SetEngStfLocation()
     {
         var ofd = new OpenFileDialog { Multiselect = false, CheckFileExists = true, Filter = "English.stf|*.stf" };
@@ -45,7 +45,7 @@ public partial class EditorWindow
         MySettingsProperty.Settings.STFDir = ofd.FileName;
         _stf = Extensions.STFToTXT(File.ReadAllBytes(ofd.FileName)).ToArray();
     }
-
+    
     private bool CheckAndLoadStf()
     {
         if (string.IsNullOrEmpty(MySettingsProperty.Settings.STFDir))
@@ -69,7 +69,7 @@ public partial class EditorWindow
         _stf = Extensions.STFToTXT(File.ReadAllBytes(MySettingsProperty.Settings.STFDir)).ToArray();
         return true;
     }
-
+    
     private void FullSTFToText()
     {
         var ofd = new OpenFileDialog { Filter = "String Table File|*.stf", Multiselect = false };
@@ -82,7 +82,7 @@ public partial class EditorWindow
             }
         }
     }
-
+    
     private void FullTextToSTF()
     {
         var ofd = new OpenFileDialog { Filter = "Text File|*.txt", Multiselect = false };
@@ -104,69 +104,69 @@ public partial class EditorWindow
         grpb.extractFile(-1, conv);
         DarkMessageBox.ShowInformation("Done Extracting", "Finished");
     }
-
+    
     private void LoadFile(byte[] fb, string ext)
-    {
-        if (CheckAndLoadStf())
         {
-            switch (ext ?? "")
+            if (CheckAndLoadStf())
             {
-                case ".amo":
-                    {
-                        DarkMessageBox.ShowMessage("Not yet implemented", "Not Implemented");
-                        break;
-                    }
-                case ".arm":
-                    {
-                        DarkMessageBox.ShowMessage("Not yet implemented", "Not Implemented");
-                        break;
-                    }
-                case ".con":
-                    {
-                        DarkMessageBox.ShowMessage("Not yet implemented", "Not Implemented");
-                        break;
-                    }
-                case ".crt":
-                    {
-                        _currentFile = fb.ReadCRT();
-                        break;
-                    }
-                case ".dor":
-                    {
-                        DarkMessageBox.ShowMessage("Not yet implemented", "Not Implemented");
-                        break;
-                    }
-                case ".int":
-                    {
-                        DarkMessageBox.ShowMessage("Not yet implemented", "Not Implemented");
-                        break;
-                    }
-                case ".itm":
-                    {
-                        _currentFile = fb.ReadITM();
-                        break;
-                    }
-                case ".map":
-                    {
-                        _currentFile = fb.ReadMap();
-                        break;
-                    }
-                case ".use":
-                    {
-                        DarkMessageBox.ShowMessage("Not yet implemented", "Not Implemented");
-                        break;
-                    }
-                case ".wea":
-                    {
-                        DarkMessageBox.ShowMessage("Not yet implemented", "Not Implemented");
-                        break;
-                    }
+                switch (ext ?? "")
+                {
+                    case ".amo":
+                        {
+                            DarkMessageBox.ShowMessage("Not yet implemented", "Not Implemented");
+                            break;
+                        }
+                    case ".arm":
+                        {
+                            DarkMessageBox.ShowMessage("Not yet implemented", "Not Implemented");
+                            break;
+                        }
+                    case ".con":
+                        {
+                            DarkMessageBox.ShowMessage("Not yet implemented", "Not Implemented");
+                            break;
+                        }
+                    case ".crt":
+                        {
+                            _currentFile = fb.ReadCRT();
+                            break;
+                        }
+                    case ".dor":
+                        {
+                            DarkMessageBox.ShowMessage("Not yet implemented", "Not Implemented");
+                            break;
+                        }
+                    case ".int":
+                        {
+                            DarkMessageBox.ShowMessage("Not yet implemented", "Not Implemented");
+                            break;
+                        }
+                    case ".itm":
+                        {
+                            _currentFile = fb.ReadITM();
+                            break;
+                        }
+                    case ".map":
+                        {
+                            _currentFile = fb.ReadMap();
+                            break;
+                        }
+                    case ".use":
+                        {
+                            DarkMessageBox.ShowMessage("Not yet implemented", "Not Implemented");
+                            break;
+                        }
+                    case ".wea":
+                        {
+                            DarkMessageBox.ShowMessage("Not yet implemented", "Not Implemented");
+                            break;
+                        }
+                }
+            }
+            else
+            {
+                DarkMessageBox.ShowError($".STF Not selected, loading of {_filename} aborted", ".STF Not Selected");
             }
         }
-        else
-        {
-            DarkMessageBox.ShowError($".STF Not selected, loading of {_filename} aborted", ".STF Not Selected");
-        }
-    }
 }
 
