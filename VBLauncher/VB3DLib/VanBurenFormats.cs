@@ -19,7 +19,7 @@ namespace VB3DLib
         public List<TVertex_Node> Vertex_Nodes = [];
 
         public string texName = "";
-        
+
         public List<string> Txs = [];
         public List<TMaterials> Materials = [];
 
@@ -383,716 +383,718 @@ namespace VB3DLib
                     var b = f.ReadInt32();
                     var c = f.ReadInt32();
                     b3d.Model_Faces_Index.Add([b, a, c]);
-                    b3d.Model_Faces_Mats.Add(b3d.Txs.Count);
-                }
+                b3d.Model_Faces_Mats.Add(b3d.Txs.Count);
+            }
 
                 for (uint i = 1; i <= kk; i++)
                 {
                     Unknown2 = f.ReadByte();
                 }
-            }
+    }
 
-            public void print()
-            {
-                Console.Write("(TMaterial_Data Name:\"");
-                Console.Write(Name);
-                Console.Write("\" Mtl_ID:\"");
-                Console.Write(Mtl_ID);
-                Console.Write($"\" Unknown1:{Unknown1} BLEND_STATE:\"");
-                Console.Write(BLEND_STATE);
-                Console.Write("\" MATERIAL_TYPE:\"");
-                Console.Write(MATERIAL_TYPE);
-                Console.Write($"\" Unknown2:{Unknown2} Zone:\"");
-                Console.Write(Zone);
-                Console.WriteLine($"\" Unknown3:{Unknown3})");
-            }
+    public void print()
+    {
+        Console.Write("(TMaterial_Data Name:\"");
+        Console.Write(Name);
+        Console.Write("\" Mtl_ID:\"");
+        Console.Write(Mtl_ID);
+        Console.Write($"\" Unknown1:{Unknown1} BLEND_STATE:\"");
+        Console.Write(BLEND_STATE);
+        Console.Write("\" MATERIAL_TYPE:\"");
+        Console.Write(MATERIAL_TYPE);
+        Console.Write($"\" Unknown2:{Unknown2} Zone:\"");
+        Console.Write(Zone);
+        Console.WriteLine($"\" Unknown3:{Unknown3})");
+    }
+}
+
+public struct TVertex_Node
+{
+    public int Unknown1;
+    public int Unknown2;
+    public int VertexTypeFlag;
+    public int NumberVerts;
+    public int SizeOfVerts;
+    public List<float> Unknown3;
+    public int IsBones;
+    public int BonesPerVert;
+    public int NumberMaterial;
+    public List<TVert_Bones_Data> Vert_Bones_Data;
+
+    public TVertex_Node(BinaryReader f, B3DModel b3d)
+    {
+        Unknown3 = [];
+        Vert_Bones_Data = [];
+        //Console.WriteLine("TVertex_Node");
+        Unknown1 = f.ReadByte();
+        Unknown2 = f.ReadByte();
+        Console.WriteLine($"VertNode U1 {Unknown1} U2 {Unknown2}");
+
+        if (b3d.FormatVer == 0)
+        {
+            VertexTypeFlag = f.ReadByte();
+            b3d.Vertex_Type_Flag = VertexTypeFlag;
+        }
+        else
+        {
+            b3d.Vertex_Type_Flag = 0;
         }
 
-        public struct TVertex_Node
+        NumberVerts = f.ReadInt32();
+        Console.WriteLine($"Vertex count - {NumberVerts}");
+        Console.WriteLine($"Vertex_Type_Flag - {VertexTypeFlag}");
+        if (b3d.Vertex_Type_Flag == 1)
         {
-            public int Unknown1;
-            public int Unknown2;
-            public int VertexTypeFlag;
-            public int NumberVerts;
-            public int SizeOfVerts;
-            public List<float> Unknown3;
-            public int IsBones;
-            public int BonesPerVert;
-            public int NumberMaterial;
-            public List<TVert_Bones_Data> Vert_Bones_Data;
-
-            public TVertex_Node(BinaryReader f, B3DModel b3d)
+            SizeOfVerts = f.ReadInt32();
+            Console.WriteLine($"SizeOfVerts - {SizeOfVerts}");
+            for (var i = 0; i < NumberVerts; i++)
             {
-                Unknown3 = [];
-                Vert_Bones_Data = [];
-                //Console.WriteLine("TVertex_Node");
-                Unknown1 = f.ReadByte();
-                Unknown2 = f.ReadByte();
-                Console.WriteLine($"VertNode U1 {Unknown1} U2 {Unknown2}");
+                var Vertex44 = new TVertex44(f, b3d);
+            }
 
-                if (b3d.FormatVer == 0)
+            for (var i = 0; i < 6; i++)
+            {
+                Unknown3.Add(f.ReadSingle());
+            }
+
+            IsBones = f.ReadByte();
+
+            if (IsBones == 1)
+            {
+                BonesPerVert = f.ReadInt32();
+                Console.WriteLine($"BonesPerVert - {BonesPerVert}");
+                for (var i = 0; i < NumberVerts * BonesPerVert; i++)
                 {
-                    VertexTypeFlag = f.ReadByte();
-                    b3d.Vertex_Type_Flag = VertexTypeFlag;
+                    var VBD = new TVert_Bones_Data(f);
+                    Vert_Bones_Data.Add(VBD);
                 }
+            }
+
+            NumberMaterial = f.ReadInt32();
+            Console.WriteLine($"NumberMaterial - {NumberMaterial}");
+            for (var i = 0; i < NumberMaterial; i++)
+            {
+                var MD = new TMaterial_Data44(f, b3d);
+                MD.print();
+            }
+
+            for (var i = 0; i < NumberMaterial; i++)
+            {
+                StringRead(f);
+            }
+
+            var Mat_list = new List<int>();
+
+            var NumVert = 0;
+            var NumTri = 0;
+
+            for (var i = 0; i < NumberMaterial; i++)
+            {
+                var a = f.ReadInt32();
+                Mat_list.Add(a);
+            }
+
+            for (var i = 0; i < NumberMaterial; i++)
+            {
+                var a = f.ReadInt32();
+                NumVert += a;
+            }
+
+            Console.WriteLine("NumVert");
+            Console.WriteLine(NumVert);
+            Console.WriteLine("NumTri");
+            Console.WriteLine(NumTri);
+
+            for (var j = 0; j < NumberMaterial; j++)
+            {
+                for (var i = 0; i < (Mat_list[j] / 3); i++)
+                {
+                    int a = f.ReadUInt16();
+                    int b = f.ReadUInt16();
+                    int c = f.ReadUInt16();
+                    b3d.Model_Faces_Index.Add([c, b, a]);
+            b3d.Model_Faces_Mats.Add(j);
+        }
+    }
+}
                 else
-                {
-                    b3d.Vertex_Type_Flag = 0;
-                }
+{
+    for (var i = 0; i < NumberVerts; i++)
+    {
+        var Vertex64 = new TVertex64(f, b3d);
+    }
 
-                NumberVerts = f.ReadInt32();
-                Console.WriteLine($"Vertex count - {NumberVerts}");
-                Console.WriteLine($"Vertex_Type_Flag - {VertexTypeFlag}");
-                if (b3d.Vertex_Type_Flag == 1)
-                {
-                    SizeOfVerts = f.ReadInt32();
-                    Console.WriteLine($"SizeOfVerts - {SizeOfVerts}");
-                    for (var i = 0; i < NumberVerts; i++)
-                    {
-                        var Vertex44 = new TVertex44(f, b3d);
-                    }
+    Console.WriteLine(f.BaseStream.Position);
 
-                    for (var i = 0; i < 6; i++)
-                    {
-                        Unknown3.Add(f.ReadSingle());
-                    }
-
-                    IsBones = f.ReadByte();
-
-                    if (IsBones == 1)
-                    {
-                        BonesPerVert = f.ReadInt32();
-                        Console.WriteLine($"BonesPerVert - {BonesPerVert}");
-                        for (var i = 0; i < NumberVerts * BonesPerVert; i++)
-                        {
-                            var VBD = new TVert_Bones_Data(f);
-                            Vert_Bones_Data.Add(VBD);
-                        }
-                    }
-
-                    NumberMaterial = f.ReadInt32();
-                    Console.WriteLine($"NumberMaterial - {NumberMaterial}");
-                    for (var i = 0; i < NumberMaterial; i++)
-                    {
-                        var MD = new TMaterial_Data44(f, b3d);
-                        MD.print();
-                    }
-
-                    for (var i = 0; i < NumberMaterial; i++)
-                    {
-                        StringRead(f);
-                    }
-
-                    var Mat_list = new List<int>();
-
-                    var NumVert = 0;
-                    var NumTri = 0;
-
-                    for (var i = 0; i < NumberMaterial; i++)
-                    {
-                        var a = f.ReadInt32();
-                        Mat_list.Add(a);
-                    }
-
-                    for (var i = 0; i < NumberMaterial; i++)
-                    {
-                        var a = f.ReadInt32();
-                        NumVert += a;
-                    }
-
-                    Console.WriteLine("NumVert");
-                    Console.WriteLine(NumVert);
-                    Console.WriteLine("NumTri");
-                    Console.WriteLine(NumTri);
-
-                    for (var j = 0; j < NumberMaterial; j++)
-                    {
-                        for (var i = 0; i < (Mat_list[j] / 3); i++)
-                        {
-                            int a = f.ReadUInt16();
-                            int b = f.ReadUInt16();
-                            int c = f.ReadUInt16();
-                            b3d.Model_Faces_Index.Add([c, b, a]);
-                            b3d.Model_Faces_Mats.Add(j);
-                        }
-                    }
-                }
-                else
-                {
-                    for (var i = 0; i < NumberVerts; i++)
-                    {
-                        var Vertex64 = new TVertex64(f, b3d);
-                    }
-
-                    Console.WriteLine(f.BaseStream.Position);
-
-                    NumberMaterial = f.ReadInt32();
-                    Console.WriteLine($"NumberMaterial - {NumberMaterial}");
-                    for (var i = 0; i < NumberMaterial; i++)
-                    {
-                        var MD = new TMaterial_Data(f, b3d);
-                        MD.print();
-                    }
-                }
+    NumberMaterial = f.ReadInt32();
+    Console.WriteLine($"NumberMaterial - {NumberMaterial}");
+    for (var i = 0; i < NumberMaterial; i++)
+    {
+        var MD = new TMaterial_Data(f, b3d);
+        MD.print();
+    }
+}
             }
         }
 
         public struct TBone
+{
+    public char[] Name;
+    public ushort Unknown1;
+    public byte Flag;
+    public Vector3 Translation;
+    public Quaternion Rotation;
+
+    public TBone(BinaryReader reader)
+    {
+        //Console.WriteLine("TBone");
+        Name = StringRead(reader);
+        Unknown1 = reader.ReadUInt16();
+        Flag = reader.ReadByte();
+
+        if (Flag != 0)
         {
-            public char[] Name;
-            public ushort Unknown1;
-            public byte Flag;
-            public Vector3 Translation;
-            public Quaternion Rotation;
+            Translation.X = reader.ReadSingle();
+            Translation.Z = reader.ReadSingle();
+            Translation.Y = reader.ReadSingle();
 
-            public TBone(BinaryReader reader)
+            if (Flag == 3)
             {
-                //Console.WriteLine("TBone");
-                Name = StringRead(reader);
-                Unknown1 = reader.ReadUInt16();
-                Flag = reader.ReadByte();
-
-                if (Flag != 0)
-                {
-                    Translation.X = reader.ReadSingle();
-                    Translation.Z = reader.ReadSingle();
-                    Translation.Y = reader.ReadSingle();
-
-                    if (Flag == 3)
-                    {
-                        Rotation.X = reader.ReadSingle();
-                        Rotation.Z = reader.ReadSingle();
-                        Rotation.Y = reader.ReadSingle();
-                        Rotation.W = reader.ReadSingle();
-                    }
-
-                    if (Flag == 2)
-                    {
-                        reader.ReadSingle();
-                    }
-                }
+                Rotation.X = reader.ReadSingle();
+                Rotation.Z = reader.ReadSingle();
+                Rotation.Y = reader.ReadSingle();
+                Rotation.W = reader.ReadSingle();
             }
 
-            public void print()
+            if (Flag == 2)
             {
-                Console.Write("(TBone Name:\"");
-                Console.Write(Name);
-                Console.WriteLine(
-                    $"\" Unknown1:{Unknown1} Flag:{Flag} Translation:[{Translation.X} {Translation.Y} {Translation.Z}] Rotation:(quat {Rotation.X} {Rotation.Y} {Rotation.Z} {Rotation.W}))");
+                reader.ReadSingle();
             }
         }
+    }
 
-        public class TColor
-        {
-            public float r;
-            public float g;
-            public float b;
-            public float a;
+    public void print()
+    {
+        Console.Write("(TBone Name:\"");
+        Console.Write(Name);
+        Console.WriteLine(
+            $"\" Unknown1:{Unknown1} Flag:{Flag} Translation:[{Translation.X} {Translation.Y} {Translation.Z}] Rotation:(quat {Rotation.X} {Rotation.Y} {Rotation.Z} {Rotation.W}))");
+    }
+}
 
-            public TColor(BinaryReader f)
-            {
-                r = f.ReadSingle();
-                g = f.ReadSingle();
-                b = f.ReadSingle();
-                a = f.ReadSingle();
-                Console.WriteLine($"TColor: {r} {g} {b} {a}");
-            }
-        }
+public class TColor
+{
+    public float r;
+    public float g;
+    public float b;
+    public float a;
 
-        public struct TMater
-        {
-            public TColor Ambient;
-            public TColor Diffuse;
-            public TColor Emissive;
-            public TColor Specular;
-            public float Shininess;
-            public float Alpha;
+    public TColor(BinaryReader f)
+    {
+        r = f.ReadSingle();
+        g = f.ReadSingle();
+        b = f.ReadSingle();
+        a = f.ReadSingle();
+        Console.WriteLine($"TColor: {r} {g} {b} {a}");
+    }
+}
 
-            public TMater(BinaryReader f)
-            {
-                Console.WriteLine("TMater");
-                Ambient = new TColor(f);
-                Diffuse = new TColor(f);
-                Emissive = new TColor(f);
-                Specular = new TColor(f);
-                Shininess = f.ReadSingle();
-                Alpha = f.ReadSingle();
-            }
-        }
+public struct TMater
+{
+    public TColor Ambient;
+    public TColor Diffuse;
+    public TColor Emissive;
+    public TColor Specular;
+    public float Shininess;
+    public float Alpha;
 
-        public class TMaterials
-        {
-            public char[] Mtl_ID;
-            public char[] Name;
-            public TMater Mater;
-            public char[] BLEND_STATE;
-            public char[] MATERIAL_TYPE;
-            public int Flag_1;
-            public int Flag_2;
+    public TMater(BinaryReader f)
+    {
+        Console.WriteLine("TMater");
+        Ambient = new TColor(f);
+        Diffuse = new TColor(f);
+        Emissive = new TColor(f);
+        Specular = new TColor(f);
+        Shininess = f.ReadSingle();
+        Alpha = f.ReadSingle();
+    }
+}
 
-            public TMaterials(BinaryReader f)
-            {
-                //Console.WriteLine("TMaterials");
-                Mtl_ID = StringRead(f);
-                Name = StringRead(f);
-                Mater = new TMater(f);
-                BLEND_STATE = StringRead(f);
-                MATERIAL_TYPE = StringRead(f);
-                Flag_1 = f.ReadInt32();
-                Flag_2 = f.ReadInt32();
-            }
+public class TMaterials
+{
+    public char[] Mtl_ID;
+    public char[] Name;
+    public TMater Mater;
+    public char[] BLEND_STATE;
+    public char[] MATERIAL_TYPE;
+    public int Flag_1;
+    public int Flag_2;
 
-            public void print()
-            {
-                Console.Write("(TMaterials Mtl_ID:\"");
-                Console.Write(Mtl_ID);
-                Console.Write("\" Name:\"");
-                Console.Write(Name);
-                Console.Write("\" BLEND_STATE:\"");
-                Console.Write(BLEND_STATE);
-                Console.Write("\" MATERIAL_TYPE:\"");
-                Console.Write(MATERIAL_TYPE);
-                Console.WriteLine($"\" Flag_1:{Flag_1} Flag_2:{Flag_2})");
-            }
-        }
+    public TMaterials(BinaryReader f)
+    {
+        //Console.WriteLine("TMaterials");
+        Mtl_ID = StringRead(f);
+        Name = StringRead(f);
+        Mater = new TMater(f);
+        BLEND_STATE = StringRead(f);
+        MATERIAL_TYPE = StringRead(f);
+        Flag_1 = f.ReadInt32();
+        Flag_2 = f.ReadInt32();
+    }
 
-        public struct TTextures
-        {
-            public byte Unknown1;
-            public char[] Name;
-            public char[] FileName;
-            public uint Width;
-            public uint Height;
+    public void print()
+    {
+        Console.Write("(TMaterials Mtl_ID:\"");
+        Console.Write(Mtl_ID);
+        Console.Write("\" Name:\"");
+        Console.Write(Name);
+        Console.Write("\" BLEND_STATE:\"");
+        Console.Write(BLEND_STATE);
+        Console.Write("\" MATERIAL_TYPE:\"");
+        Console.Write(MATERIAL_TYPE);
+        Console.WriteLine($"\" Flag_1:{Flag_1} Flag_2:{Flag_2})");
+    }
+}
 
-            public TTextures(BinaryReader f, B3DModel b3d)
-            {
-                //Console.WriteLine("TTextures");
-                Unknown1 = f.ReadByte();
-                Name = StringRead(f);
-                if (string.IsNullOrEmpty(b3d.texName)) {b3d.texName = new string(Name);}
-                FileName = StringRead(f);
-                Width = f.ReadUInt32();
-                Height = f.ReadUInt32();
-            }
+public struct TTextures
+{
+    public byte Unknown1;
+    public char[] Name;
+    public char[] FileName;
+    public uint Width;
+    public uint Height;
 
-            public void print()
-            {
-                Console.Write("(TTextures Unknown1:{Unknown1} Name:\"");
-                Console.Write(Name);
-                Console.Write("\" FileName:\"");
-                Console.Write(FileName);
-                Console.WriteLine($"\" Width:{Width} Height:{Height})");
-            }
-        }
+    public TTextures(BinaryReader f, B3DModel b3d)
+    {
+        //Console.WriteLine("TTextures");
+        Unknown1 = f.ReadByte();
+        Name = StringRead(f);
+        if (string.IsNullOrEmpty(b3d.texName)) { b3d.texName = new string(Name); }
+        FileName = StringRead(f);
+        Width = f.ReadUInt32();
+        Height = f.ReadUInt32();
+    }
 
-        public class TNodes
-        {
-            public byte Unknown1; //: byte;
-            public char[] Name; //: TCharArray;
+    public void print()
+    {
+        Console.Write("(TTextures Unknown1:{Unknown1} Name:\"");
+        Console.Write(Name);
+        Console.Write("\" FileName:\"");
+        Console.Write(FileName);
+        Console.WriteLine($"\" Width:{Width} Height:{Height})");
+    }
+}
 
-            public TNodes(BinaryReader f)
-            {
-                //Console.WriteLine("TNodes");
-                Unknown1 = f.ReadByte();
-                Name = StringRead(f);
-            }
+public class TNodes
+{
+    public byte Unknown1; //: byte;
+    public char[] Name; //: TCharArray;
 
-            public void print()
-            {
-                Console.Write($"(TNodes Unknown1:{Unknown1} Name:\"");
-                Console.Write(Name);
-                Console.WriteLine("\")");
-            }
-        }
+    public TNodes(BinaryReader f)
+    {
+        //Console.WriteLine("TNodes");
+        Unknown1 = f.ReadByte();
+        Name = StringRead(f);
+    }
 
-        public struct TMat_Data
-        {
-            public byte[] Unknown1; // array[0..2]of byte;
-            public char[] Name; // TCharArray;
-            public uint TextureOn; // intword;
-            public char[] Texture; // TCharArray;
-            public uint Unknown3; // intword;
-            public byte Unknown4; // byte;
-            public uint NumOfPoints; // intword;
+    public void print()
+    {
+        Console.Write($"(TNodes Unknown1:{Unknown1} Name:\"");
+        Console.Write(Name);
+        Console.WriteLine("\")");
+    }
+}
 
-            public TMat_Data(BinaryReader f)
-            {
-                //Console.WriteLine("TMat_Data");
-                Unknown1 = f.ReadBytes(3);
-                Name = StringRead(f);
-                Console.WriteLine(Name);
-                TextureOn = f.ReadUInt32();
-                if (TextureOn != 0) Texture = StringRead(f);
-                Unknown3 = f.ReadUInt32();
-                Unknown4 = f.ReadByte();
-                NumOfPoints = f.ReadUInt32();
-                Console.WriteLine(NumOfPoints);
-            }
-        }
+public struct TMat_Data
+{
+    public byte[] Unknown1; // array[0..2]of byte;
+    public char[] Name; // TCharArray;
+    public uint TextureOn; // intword;
+    public char[] Texture; // TCharArray;
+    public uint Unknown3; // intword;
+    public byte Unknown4; // byte;
+    public uint NumOfPoints; // intword;
 
-        public struct TMaterial_Node
-        {
-            public uint NumberMaterialNodes; //: intword;
-            public byte Unknown1; //: byte;
+    public TMat_Data(BinaryReader f)
+    {
+        //Console.WriteLine("TMat_Data");
+        Unknown1 = f.ReadBytes(3);
+        Name = StringRead(f);
+        Console.WriteLine(Name);
+        TextureOn = f.ReadUInt32();
+        if (TextureOn != 0) Texture = StringRead(f);
+        Unknown3 = f.ReadUInt32();
+        Unknown4 = f.ReadByte();
+        NumOfPoints = f.ReadUInt32();
+        Console.WriteLine(NumOfPoints);
+    }
+}
 
-            public TMaterial_Node(BinaryReader f)
-            {
-                //Console.WriteLine("TMaterial_Node");
-                NumberMaterialNodes = f.ReadUInt32();
-                Unknown1 = f.ReadByte(); //Unknown4 in maxscript? somehow? idfk
-                Console.WriteLine($"MaterialNode - NumberMaterialNodes = {NumberMaterialNodes}");
-            }
-        }
+public struct TMaterial_Node
+{
+    public uint NumberMaterialNodes; //: intword;
+    public byte Unknown1; //: byte;
+
+    public TMaterial_Node(BinaryReader f)
+    {
+        //Console.WriteLine("TMaterial_Node");
+        NumberMaterialNodes = f.ReadUInt32();
+        Unknown1 = f.ReadByte(); //Unknown4 in maxscript? somehow? idfk
+        Console.WriteLine($"MaterialNode - NumberMaterialNodes = {NumberMaterialNodes}");
+    }
+}
     }
 
     public class G3DModel
+{
+    public List<Vector3> Model_Vertex_Position = [];
+    public List<int[]> Model_Faces_Index = [];
+    public List<Vector2> Model_Vertex_Texcoords = [];
+
+    public G3DModel(string path)
     {
-        public List<Vector3> Model_Vertex_Position = [];
-        public List<int[]> Model_Faces_Index = [];
-        public List<Vector2> Model_Vertex_Texcoords = [];
+        var s = File.ReadAllLines(path);
+        ReadG3D(s);
+    }
 
-        public G3DModel(string path)
+    public G3DModel(byte[] file)
+    {
+        var s = Encoding.UTF8.GetString(file);
+        // split into array at every CrLf
+        s = s.Replace("\r\n", "\n");
+        var sa = s.Split('\n');
+        ReadG3D(sa);
+    }
+
+    // there's only one so a lot of this will be hardcoded
+    // if you want to fix it, be my guest.
+    // if not, it works so i don't care.
+    private void ReadG3D(string[] f)
+    {
+        for (var i = 73; i < 3645; i++)
         {
-            var s = File.ReadAllLines(path);
-            ReadG3D(s);
+            //example line
+            //      Vertex{ Coordinate(0 565 36) Normal(0 -264 989) Color(586 80 80 512) TexCoord(156 141) Bone(7 1.000000) }
+            var x = f[i].Split("      Vertex{ Coordinate(")[1].Split(' ')[0];
+            var y = f[i].Split("      Vertex{ Coordinate(")[1].Split(' ')[1];
+            var z = f[i].Split("      Vertex{ Coordinate(")[1].Split(' ')[2].Split(')')[0];
+            Model_Vertex_Position.Add(new Vector3(float.Parse(x), float.Parse(y), float.Parse(z)));
+            var u = f[i].Split("TexCoord(")[1].Split(' ')[0];
+            var v = f[i].Split("TexCoord(")[1].Split(' ')[1].Split(')')[0];
+            Model_Vertex_Texcoords.Add(new Vector2(float.Parse(u) / 1024.0f, float.Parse(v) / 1024.0f)); //divide by 1024 to normalize UV
         }
 
-        public G3DModel(byte[] file)
-        {
-            var s = Encoding.UTF8.GetString(file);
-            // split into array at every CrLf
-            s = s.Replace("\r\n", "\n");
-            var sa = s.Split('\n');
-            ReadG3D(sa);
-        }
+        var tmpList = new List<int>();
+        var skipLine = false;
 
-        // there's only one so a lot of this will be hardcoded
-        // if you want to fix it, be my guest.
-        // if not, it works so i don't care.
-        private void ReadG3D(string[] f)
+        for (var i = 3648; i < 4123; i++)
         {
-            for (var i = 73; i < 3645; i++)
+            //example lines
+            //      Triangles{Index( 2976 2977 2978 2979 2976 2978 2980 2981 2982 2983 2981 2980 2984 2985 2986 2987 2988 2989 2990 2987 2989 2991 2992 2993 2993 2994 2995 2996 2997 2998 2999 3000
+            //        3001 3002 3003 3004 3005 3006 3007 3008 3009 3010 3011 3009 3008 3012 2999 3013 2987 2995 2988 3014 3015 3016 3015 3017 3016 3018 3019 3020 2994 3019 3018 3021
+            //        3449 3446 ) Edge( 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+            var s = f[i];
+            if (s.StartsWith("      Triangles{Index( "))
             {
-                //example line
-                //      Vertex{ Coordinate(0 565 36) Normal(0 -264 989) Color(586 80 80 512) TexCoord(156 141) Bone(7 1.000000) }
-                var x = f[i].Split("      Vertex{ Coordinate(")[1].Split(' ')[0];
-                var y = f[i].Split("      Vertex{ Coordinate(")[1].Split(' ')[1];
-                var z = f[i].Split("      Vertex{ Coordinate(")[1].Split(' ')[2].Split(')')[0];
-                Model_Vertex_Position.Add(new Vector3(float.Parse(x), float.Parse(y), float.Parse(z)));
-                var u = f[i].Split("TexCoord(")[1].Split(' ')[0];
-                var v = f[i].Split("TexCoord(")[1].Split(' ')[1].Split(')')[0];
-                Model_Vertex_Texcoords.Add(new Vector2(float.Parse(u) / 1024.0f, float.Parse(v) / 1024.0f)); //divide by 1024 to normalize UV
+                skipLine = false;
+                tmpList.AddRange(from ss in s.Split("      Triangles{Index( ")[1].Split(" ")
+                                 where !string.IsNullOrEmpty(ss)
+                                 select int.Parse(ss));
             }
-
-            var tmpList = new List<int>();
-            var skipLine = false;
-
-            for (var i = 3648; i < 4123; i++)
+            else if (!skipLine)
             {
-                //example lines
-                //      Triangles{Index( 2976 2977 2978 2979 2976 2978 2980 2981 2982 2983 2981 2980 2984 2985 2986 2987 2988 2989 2990 2987 2989 2991 2992 2993 2993 2994 2995 2996 2997 2998 2999 3000
-                //        3001 3002 3003 3004 3005 3006 3007 3008 3009 3010 3011 3009 3008 3012 2999 3013 2987 2995 2988 3014 3015 3016 3015 3017 3016 3018 3019 3020 2994 3019 3018 3021
-                //        3449 3446 ) Edge( 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
-                var s = f[i];
-                if (s.StartsWith("      Triangles{Index( "))
+                if (s.Contains("Edge"))
                 {
-                    skipLine = false;
-                    tmpList.AddRange(from ss in s.Split("      Triangles{Index( ")[1].Split(" ")
-                                     where !string.IsNullOrEmpty(ss)                                     select int.Parse(ss));
+                    skipLine = true;
+                    s = s.Split(" ) Edge( ")[0];
                 }
-                else if (!skipLine)
-                {
-                    if (s.Contains("Edge"))
-                    {
-                        skipLine = true;
-                        s = s.Split(" ) Edge( ")[0];
-                    }
-                    tmpList.AddRange(from ss in s.Split(" ")
-                                     where !string.IsNullOrEmpty(ss)                                     select int.Parse(ss));
-                }
-            }
-            //split tmplist into groups of 3 and add to faces
-            for (var i = 0; i < tmpList.Count; i += 3)
-            {
-                Model_Faces_Index.Add([tmpList[i], tmpList[i + 1], tmpList[i + 2]]);
+                tmpList.AddRange(from ss in s.Split(" ")
+                                 where !string.IsNullOrEmpty(ss)
+                                 select int.Parse(ss));
             }
         }
+        //split tmplist into groups of 3 and add to faces
+        for (var i = 0; i < tmpList.Count; i += 3)
+        {
+            Model_Faces_Index.Add([tmpList[i], tmpList[i + 1], tmpList[i + 2]]);
+    }
+}
     }
 
     public class _8Model
+{
+    public string MapName = "defaultName";
+
+    public List<Vector3> GVP = []; // vertex position
+    public List<Vector3> GVN = []; // vertex normal
+    public List<Color> GVD = []; // vertex diffuse color
+    public List<Vector2> GVT = []; // texture coords
+    public List<Vector2> GVL = []; // lightmap coords
+
+    public List<int[]> IDX = []; // face indexes
+    public List<int> MDX = []; // mat index
+    public List<BitmapTexture> MAT = []; // materials
+
+    public int buffer_index;
+    public List<int> buffer_offset = [];
+
+    public int Flag = 1;
+
+    public _8Model(string path, bool flgs)
     {
-        public string MapName = "defaultName";
+        Flag = flgs ? 4 : 1;
 
-        public List<Vector3> GVP = []; // vertex position
-        public List<Vector3> GVN = []; // vertex normal
-        public List<Color> GVD = []; // vertex diffuse color
-        public List<Vector2> GVT = []; // texture coords
-        public List<Vector2> GVL = []; // lightmap coords
+        var f = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read));
+        ReadTREE_Data(f);
+    }
 
-        public List<int[]> IDX = []; // face indexes
-        public List<int> MDX = []; // mat index
-        public List<BitmapTexture> MAT = []; // materials
+    public _8Model(byte[] file, bool flgs)
+    {
+        Flag = flgs ? 4 : 1;
+        GVP = [];
 
-        public int buffer_index;
-        public List<int> buffer_offset = [];
+        GVN = [];
+        GVD = [];
+        GVT = [];
+        GVL = [];
 
-        public int Flag = 1;
+        IDX = [];
+        MDX = [];
+        MAT = [];
 
-        public _8Model(string path, bool flgs)
+        buffer_index = 0;
+        buffer_offset = [];
+
+        var f = new BinaryReader(new MemoryStream(file));
+        ReadTREE_Data(f);
+    }
+
+    public static string String4Read(BinaryReader f)
+    {
+        var s = new byte[4];
+        for (var i = 0; i < 4; ++i)
         {
-            Flag = flgs ? 4 : 1;
-
-            var f = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read));
-            ReadTREE_Data(f);
+            var t = f.BaseStream.Position;
+            s[i] = f.ReadByte();
         }
 
-        public _8Model(byte[] file, bool flgs)
+        try
         {
-            Flag = flgs ? 4 : 1;
-            GVP = [];
-
-            GVN = [];
-            GVD = [];
-            GVT = [];
-            GVL = [];
-
-            IDX = [];
-            MDX = [];
-            MAT = [];
-
-            buffer_index = 0;
-            buffer_offset = [];
-
-            var f = new BinaryReader(new MemoryStream(file));
-            ReadTREE_Data(f);
+            return Encoding.ASCII.GetString(s);
         }
-
-        public static string String4Read(BinaryReader f)
+        catch
         {
-            var s = new byte[4];
-            for (var i = 0; i < 4; ++i)
-            {
-                var t = f.BaseStream.Position;
-                s[i] = f.ReadByte();
-            }
-
-            try
-            {
-                return Encoding.ASCII.GetString(s);
-            }
-            catch
-            {
-                Console.WriteLine("ERRO");
-                return "    ";
-            }
+            Console.WriteLine("ERRO");
+            return "    ";
         }
+    }
 
-        public struct TSectionHeader
+    public struct TSectionHeader
+    {
+        public string id; // name
+        public int size;
+
+        public TSectionHeader(BinaryReader f)
         {
-            public string id; // name
-            public int size;
-
-            public TSectionHeader(BinaryReader f)
-            {
-                id = String4Read(f);
-                size = f.ReadInt32();
-            }
+            id = String4Read(f);
+            size = f.ReadInt32();
         }
+    }
 
-        public struct BitmapTexture
+    public struct BitmapTexture
+    {
+        public string FileName;
+        public int AlphaSource;
+    }
+
+    public static bool IsHeader(string s)
+    {
+        return s switch
         {
-            public string FileName;
-            public int AlphaSource;
-        }
+            "NODE" or "LEAF" or "INFO" or "IDXD" or "IDXS" or "FLGS" or "TREE" or "LVL0" or "XYZ " or "MATR"
+                or "MATD" or "TXTD" or "VTXD" or "VTXB" or "TXUV" or "LMUV" or "DIFU" or "NRML" or "LVLD"
+                or "HEAD" or "8TRE" or "LGTD" or "LGTR" => true,
+            _ => false,
+        };
+    }
 
-        public static bool IsHeader(string s)
+    public void ReadTREE_Data(BinaryReader f)
+    {
+        ReadBlock(f, 0);
+    }
+
+    public int ReadBlock(BinaryReader f, int size)
+    {
+        var header = new TSectionHeader(f);
+
+        Console.WriteLine(header.id);
+
+        switch (header.id)
         {
-            return s switch
-            {
-                "NODE" or "LEAF" or "INFO" or "IDXD" or "IDXS" or "FLGS" or "TREE" or "LVL0" or "XYZ " or "MATR"
-                    or "MATD" or "TXTD" or "VTXD" or "VTXB" or "TXUV" or "LMUV" or "DIFU" or "NRML" or "LVLD"
-                    or "HEAD" or "8TRE" or "LGTD" or "LGTR" => true,
-                _ => false,
-            };
-        }
+            case "FLGS":
+                f.BaseStream.Seek(header.size * Flag, SeekOrigin.Current);
+                return 0;
 
-        public void ReadTREE_Data(BinaryReader f)
-        {
-            ReadBlock(f, 0);
-        }
+            case "IDXD":
+                f.BaseStream.Seek(-16, SeekOrigin.Current);
+                var t = f.ReadInt32();
+                if (t >= 0 && t <= buffer_offset.Count - 1) // maybe if (t >= 1 && t <= buffer_offset.Count)
+                    buffer_index = t;
+                f.BaseStream.Seek(12, SeekOrigin.Current);
+                break;
 
-        public int ReadBlock(BinaryReader f, int size)
-        {
-            var header = new TSectionHeader(f);
+            case "TXTD":
+                Console.WriteLine(f.ReadInt32());
+                Console.WriteLine(f.ReadInt32());
+                break;
 
-            Console.WriteLine(header.id);
+            case "TXUV":
+                {
+                    for (var i = 1; i <= header.size / 8; i++)
+                    {
+                        var u = f.ReadSingle();
+                        var v = f.ReadSingle();
+                        GVT.Add(new Vector2(u, v));
+                    }
 
-            switch (header.id)
-            {
-                case "FLGS":
-                    f.BaseStream.Seek(header.size * Flag, SeekOrigin.Current);
+                    break;
+                }
+            //case "LMUV":
+            //{
+            //    for (int i = 1; i <= header.size / 8; i++)
+            //    {
+            //        float u = f.ReadSingle();
+            //        float v = f.ReadSingle();
+            //        GVL.Add(new Vector2(u, v));
+            //    }
+            //
+            //    break;
+            //}
+            case "TXTR":
+                {
+                    var s = "";
+                    for (var i = 1; i <= header.size; i++)
+                        s += f.ReadChar();
+
+                    if (s.IndexOf("ctx", StringComparison.Ordinal) != -1) return 0;
+
+                    var tm = new BitmapTexture
+                    {
+                        AlphaSource = 2,
+                        FileName = s
+                    };
+                    Console.WriteLine(s);
+                    MAT.Add(tm);
+
                     return 0;
+                }
+            case "IDXS":
+                {
+                    var end = (f.BaseStream.Position) + header.size;
+                    var m = 0;
+                    var mp = 0;
 
-                case "IDXD":
-                    f.BaseStream.Seek(-16, SeekOrigin.Current);
-                    var t = f.ReadInt32();
-                    if (t >= 0 && t <= buffer_offset.Count - 1) // maybe if (t >= 1 && t <= buffer_offset.Count)
-                        buffer_index = t;
-                    f.BaseStream.Seek(12, SeekOrigin.Current);
-                    break;
-
-                case "TXTD":
-                    Console.WriteLine(f.ReadInt32());
-                    Console.WriteLine(f.ReadInt32());
-                    break;
-
-                case "TXUV":
+                    while ((f.BaseStream.Position + 12) < end)
                     {
-                        for (var i = 1; i <= header.size / 8; i++)
+                        var tmp = f.ReadUInt16();
+                        if (tmp == 0)
                         {
-                            var u = f.ReadSingle();
-                            var v = f.ReadSingle();
-                            GVT.Add(new Vector2(u, v));
+                            tmp = f.ReadUInt16();
                         }
 
-                        break;
-                    }
-                //case "LMUV":
-                //{
-                //    for (int i = 1; i <= header.size / 8; i++)
-                //    {
-                //        float u = f.ReadSingle();
-                //        float v = f.ReadSingle();
-                //        GVL.Add(new Vector2(u, v));
-                //    }
-                //
-                //    break;
-                //}
-                case "TXTR":
-                    {
-                        var s = "";
-                        for (var i = 1; i <= header.size; i++)
-                            s += f.ReadChar();
-
-                        if (s.IndexOf("ctx", StringComparison.Ordinal) != -1) return 0;
-
-                        var tm = new BitmapTexture
+                        if ((tmp & 0xFF00) == 0x8000)
                         {
-                            AlphaSource = 2,
-                            FileName = s
-                        };
-                        Console.WriteLine(s);
-                        MAT.Add(tm);
-
-                        return 0;
-                    }
-                case "IDXS":
-                    {
-                        var end = (f.BaseStream.Position) + header.size;
-                        var m = 0;
-                        var mp = 0;
-
-                        while ((f.BaseStream.Position + 12) < end)
-                        {
-                            var tmp = f.ReadUInt16();
-                            if (tmp == 0)
-                            {
-                                tmp = f.ReadUInt16();
-                            }
-
-                            if ((tmp & 0xFF00) == 0x8000)
-                            {
-                                f.ReadUInt16();
-                                var t1 = (f.ReadUInt16()) - 0x4000;
-                                f.ReadUInt16();
-                                var t2 = f.ReadUInt16();
-                                m = t2;
-                            }
-
-                            if ((tmp & 0xFF00) == 0x4000)
-                            {
-                                f.ReadUInt16();
-                                var t1 = f.ReadUInt16();
-                                m = t1;
-                            }
-
-                            if ((tmp & 0xFF00) == 0) m = tmp;
-
-                            var sz = f.ReadUInt16();
-
-                            for (var i = 1; i <= (sz / 3); i++)
-                            {
-                                var a = buffer_offset[buffer_index] + f.ReadUInt16();
-                                var b = buffer_offset[buffer_index] + f.ReadUInt16();
-                                var c = buffer_offset[buffer_index] + f.ReadUInt16();
-
-                                IDX.Add([a, c, b]);
-                                MDX.Add(m == 0 ? 0 : m);
-                            }
+                            f.ReadUInt16();
+                            var t1 = (f.ReadUInt16()) - 0x4000;
+                            f.ReadUInt16();
+                            var t2 = f.ReadUInt16();
+                            m = t2;
                         }
 
-                        f.BaseStream.Seek(end, SeekOrigin.Begin);
-                        return 0;
+                        if ((tmp & 0xFF00) == 0x4000)
+                        {
+                            f.ReadUInt16();
+                            var t1 = f.ReadUInt16();
+                            m = t1;
+                        }
+
+                        if ((tmp & 0xFF00) == 0) m = tmp;
+
+                        var sz = f.ReadUInt16();
+
+                        for (var i = 1; i <= (sz / 3); i++)
+                        {
+                            var a = buffer_offset[buffer_index] + f.ReadUInt16();
+                            var b = buffer_offset[buffer_index] + f.ReadUInt16();
+                            var c = buffer_offset[buffer_index] + f.ReadUInt16();
+
+                            IDX.Add([a, c, b]);
+                        MDX.Add(m == 0 ? 0 : m);
                     }
+                }
+
+                f.BaseStream.Seek(end, SeekOrigin.Begin);
+                return 0;
+        }
                 case "VTXB":
                     f.ReadInt32();
-                    header.size -= 4;
-                    buffer_offset.Add(GVP.Count);
-                    break;
+        header.size -= 4;
+        buffer_offset.Add(GVP.Count);
+        break;
 
                 case "VTXD":
                     //f.ReadInt32();
                     var rd = f.ReadByte();
-                    var gr = f.ReadByte();
-                    var bl = f.ReadByte();
-                    var al = f.ReadByte();
-                    GVD.Add(Color.FromArgb(al, rd, gr, bl));
-                    header.size -= 4;
-                    break;
+        var gr = f.ReadByte();
+        var bl = f.ReadByte();
+        var al = f.ReadByte();
+        GVD.Add(Color.FromArgb(al, rd, gr, bl));
+        header.size -= 4;
+        break;
 
                 case "XYZ ":
                     {
-                        for (var i = 1; i <= header.size / 12; i++)
-                        {
-                            var x = f.ReadSingle();
-                            var y = f.ReadSingle();
-                            var z = f.ReadSingle();
+            for (var i = 1; i <= header.size / 12; i++)
+            {
+                var x = f.ReadSingle();
+                var y = f.ReadSingle();
+                var z = f.ReadSingle();
 
-                            GVP.Add(new Vector3(x, z, y));
-                        }
+                GVP.Add(new Vector3(x, z, y));
+            }
 
-                        return 0;
-                    }
+            return 0;
+        }
                 case "DIFU":
                     var baits = new List<byte>();
-                    for (var i = 1; i <= header.size; i++)
-                    {
-                        baits.Add(f.ReadByte());
-                    }
-                    File.WriteAllBytes("difu.bin", baits.ToArray());
-                    break;
-            }
+        for (var i = 1; i <= header.size; i++)
+        {
+            baits.Add(f.ReadByte());
+        }
+        File.WriteAllBytes("difu.bin", baits.ToArray());
+        break;
+    }
 
             if (IsHeader(header.id))
             {
                 var end = (f.BaseStream.Position + header.size);
-                while (f.BaseStream.Position < end)
+                while (f.BaseStream.Position<end)
                 {
                     ReadBlock(f, header.size);
-                }
+}
             }
             else
-            {
-                f.BaseStream.Seek(-8, SeekOrigin.Current);
-                if ((size < 4 && (size != 0)))
-                {
-                    size = 4;
-                }
+{
+    f.BaseStream.Seek(-8, SeekOrigin.Current);
+    if ((size < 4 && (size != 0)))
+    {
+        size = 4;
+    }
 
-                f.BaseStream.Seek(size, SeekOrigin.Current);
-            }
+    f.BaseStream.Seek(size, SeekOrigin.Current);
+}
 
-            return 0;
+return 0;
         }
     }
 }
