@@ -87,7 +87,7 @@ namespace VB3DLib
         private static void ParseModels(ref file_info parsedFile, unm_file_info fileInfo)
         {
             parsedFile.Models = [];
-            for (var i = 0; i < fileInfo.ModelCount; i++) 
+            for (var i = 0; i < fileInfo.ModelCount; i++)
             {
                 var model = ReadFromPointerArray<unm_model>(fileInfo.Models, i);
                 var parsedModel = new model
@@ -136,7 +136,7 @@ namespace VB3DLib
             for (var i = 0; i < curveData.KnotCount; i++)
             {
                 var knot = ReadFromArray<float>(curveData.Knots, i);
-                var control = new float[dimension+1];
+                var control = new float[dimension + 1];
                 control[0] = knot;
                 for (var j = 1; j <= dimension; j++)
                 {
@@ -150,7 +150,7 @@ namespace VB3DLib
 
             return keyframes;
         }
-        
+
         private static void ComputeBoneWorldTransforms(model parsedModel)
         {
             var bones = parsedModel.Skeleton.Bones;
@@ -200,7 +200,7 @@ namespace VB3DLib
                 t.ScaleShear[0][0], t.ScaleShear[0][1], t.ScaleShear[0][2], 0,
                 t.ScaleShear[1][0], t.ScaleShear[1][1], t.ScaleShear[1][2], 0,
                 t.ScaleShear[2][0], t.ScaleShear[2][1], t.ScaleShear[2][2], 0,
-                0,                 0,                 0,                 1
+                0, 0, 0, 1
             );
 
             var rotationMat = Matrix4x4.CreateFromQuaternion(t.Orientation);
@@ -214,7 +214,7 @@ namespace VB3DLib
 
             return worldMat;
         }
-        
+
         private static void AdjustTransformTrackCurves(transform_track tt)
         {
             // Orientation adjustments:
@@ -942,7 +942,7 @@ namespace VB3DLib
             public transform InitialPlacement;
             //TODO: is more needed?
         }
-        
+
         public struct transform_track
         {
             public string Name;
