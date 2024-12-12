@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Threading;
+using System.Windows.Forms;
 using AltUI.Config;
 using ImGuiNET;
 using VBLauncher.My.Resources;
@@ -188,6 +189,7 @@ namespace VBLauncher
         }
 
         private Vector4 ColToVec(Color col) => new(col.R / 255f, col.G / 255f, col.B / 255f, col.A / 255f);
+        private Vector3 ColToVec3(Color col) => new(col.R / 255f, col.G / 255f, col.B / 255f);
 
         // TODO: ensure all used colors are set from ThemeProvider
         private void ApplyAltUIColours()
@@ -273,10 +275,21 @@ namespace VBLauncher
                         var t = new[] { ".amo", ".arm", ".con", ".crt", ".dor", ".int", ".itm", ".map", ".use", ".wea" };
                         foreach (var s in t)
                         {
-                            if (ImGui.MenuItem(s))
+                            if (!ImGui.MenuItem(s)) continue;
+                            ResetTempValues();
+                            _currentFile = s switch
                             {
-                                // Handle new file creation
-                            }
+                                ".amo" => new AMO(),
+                                ".arm" => new ARM(),
+                                ".con" => new USE(USEType.CON),
+                                ".crt" => new CRT(),
+                                ".dor" => new USE(USEType.DOR),
+                                ".itm" => new ITM(),
+                                ".map" => new Map(),
+                                ".use" => new USE(),
+                                ".wea" => new WEA(),
+                                _ => throw new ArgumentOutOfRangeException()
+                            };
                         }
                         ImGui.EndMenu();
                     }
@@ -307,6 +320,26 @@ namespace VBLauncher
                     if (ImGui.MenuItem("Show .grp Browser"))
                         using (var grpb = new GrpBrowser(null, true))
                             grpb.ShowDialog();
+                    if (ImGui.MenuItem(".png to .rle"))
+                    {
+                        var ofd = new OpenFileDialog
+                        {
+                            Filter = "PNG Files|*.png",
+                            Title = "Select a PNG file to convert to RLE"
+                        };
+                        if (ofd.ShowDialog() == DialogResult.OK)
+                        {
+                            var bmp = new Bitmap(ofd.FileName);
+                            var rle = GrpBrowser.EncodeRLE(bmp);
+                            var sfd = new SaveFileDialog
+                            {
+                                Filter = "RLE Files|*.rle",
+                                Title = "Save the RLE file"
+                            };
+                            if (sfd.ShowDialog() == DialogResult.OK)
+                                File.WriteAllBytes(sfd.FileName, rle);
+                        }
+                    }
                     ImGui.EndMenu();
                 }
                 ImGui.EndMainMenuBar();
@@ -326,7 +359,50 @@ namespace VBLauncher
                 case Map:
                     DrawMap();
                     break;
+                case USE:
+                    DrawUSE();
+                    break;
+                case ARM:
+                    DrawARM();
+                    break;
+                case AMO:
+                    DrawAMO();
+                    break;
+                case WEA:
+                    DrawWEA();
+                    break;
             }
+        }
+
+        // reset all temporary values used in the editor (indexes, lists, etc.)
+        private void ResetTempValues()
+        {
+            _eeovSelected = -1;
+            _eeovTemp = "";
+            _gcreSpecial = 0;
+            _gcreSkill = 0;
+            _gcreTrait = 0;
+            _gcreTag = 0;
+            _gcreSocket = 0;
+            _gcreEquipped = -1;
+            _gcreTemp = "";
+            _gwamIndex = 0;
+            _gwamNames = [];
+            _eme2Index = 0;
+            _eme2Names = [];
+            _emepIndex = 0;
+            _emepNames = [];
+            _emefIndex = 0;
+            _emefNames = [];
+            _emsdIndex = 0;
+            _emsdNames = [];
+            _epthIndex = 0;
+            _epthNames = [];
+            _epthPoint = 0;
+            _triggerIndex = 0;
+            _triggerNames = [];
+            _triggerPoint = 0;
+            _2mwtChunk = 0;
         }
 
         private void STFBox(string text, ref int sr)
@@ -367,6 +443,33 @@ namespace VBLauncher
             DrawEPTH();
             DrawTrigger();
             Draw2MWT();
+            DrawEMFG();
+            DrawEMNO();
+        }
+        
+        private void DrawUSE()
+        {
+            DrawEEN2();
+            DrawGENT();
+            DrawGOBJ();
+        }
+        
+        private void DrawARM()
+        {
+            DrawITM();
+            DrawGIAR();
+        }
+        
+        private void DrawAMO()
+        {
+            DrawITM();
+            DrawGIAM();
+        }
+        
+        private void DrawWEA()
+        {
+            DrawITM();
+            DrawGIWP();
         }
 
         private void DrawEEN2()
@@ -568,7 +671,7 @@ namespace VBLauncher
         }
 
         private readonly string[] _gwamDamageTypes = ["Ballistic", "Bio", "Electric", "EMP", "General", "Heat"];
-        private string[] _gwamNames;
+        private string[] _gwamNames = [];
         private int _gwamIndex;
         private void DrawGWAM()
         {
@@ -583,16 +686,16 @@ namespace VBLauncher
                 _gwamIndex = gcre.GWAM.Count - 1;
             }
             ImGui.SameLine();
-            if (ImGui.Button(" - "))
+            if (ImGui.Button(" - ") && gcre.GWAM.Count > 0)
                 gcre.GWAM.RemoveAt(_gwamIndex);
             if (_gwamIndex >= gcre.GWAM.Count)
                 _gwamIndex = gcre.GWAM.Count - 1;
-            if (_gwamNames.Length == 0)
+            if (gcre.GWAM.Count == 0)
             {
                 ImGui.End();
                 return;
             }
-            GWAMc gwam = gcre.GWAM[_gwamIndex];
+            var gwam = gcre.GWAM[_gwamIndex];
             // .wea also has GWAM but isn't implemented yet. get later.
             ImGui.Columns(3, "gwamColumns");
             ImGui.Text("Animation");
@@ -678,11 +781,11 @@ namespace VBLauncher
             ImGui.End();
         }
 
-        private Vector3 _tempColor = new(1f, 1f, 1f);
+        private Vector3 _emapColor = new(1f, 1f, 1f);
         private void DrawEMAP()
         {
             if (_currentFile.EMAP is not EMAPc emap) return;
-            _tempColor = new Vector3(emap.col.R / 255f, emap.col.G / 255f, emap.col.B / 255f);
+            _emapColor = ColToVec3(emap.col);
             ImGui.Begin("EMAP");
             ImGui.PushItemWidth(-1);
             ImGui.Text("Map Mesh");
@@ -692,8 +795,8 @@ namespace VBLauncher
             ImGui.Text("Minimap Texture");
             ImGui.InputText("##MinimapTexture", ref emap.s3, 100u);
             ImGui.Text("Lighting Colour");
-            ImGui.ColorEdit3("Lighting Colour", ref _tempColor);
-            emap.col = Color.FromArgb(255, (int)(_tempColor.X * 255), (int)(_tempColor.Y * 255), (int)(_tempColor.Z * 255));
+            ImGui.ColorEdit3("Lighting Colour", ref _emapColor);
+            emap.col = Color.FromArgb(255, (int)(_emapColor.X * 255), (int)(_emapColor.Y * 255), (int)(_emapColor.Z * 255));
             ImGui.Checkbox("Ignore Lighting", ref emap.il);
             ImGui.End();
             if (_currentFile is not Map map) return;
@@ -715,7 +818,7 @@ namespace VBLauncher
         }
 
         private int _eme2Index;
-        private string[] _eme2Names;
+        private string[] _eme2Names = [];
         private void DrawEME2()
         {
             if (_currentFile is not Map map) return;
@@ -728,11 +831,11 @@ namespace VBLauncher
                 _eme2Index = map.EME2.Count - 1;
             }
             ImGui.SameLine();
-            if (ImGui.Button(" - "))
+            if (ImGui.Button(" - ") && map.EME2.Count > 0)
                 map.EME2.RemoveAt(_eme2Index);
             if (_eme2Index >= map.EME2.Count)
                 _eme2Index = map.EME2.Count - 1;
-            if (_eme2Names.Length == 0)
+            if (map.EME2.Count == 0)
             {
                 ImGui.End();
                 return;
@@ -755,7 +858,7 @@ namespace VBLauncher
         }
 
         private int _emepIndex;
-        private string[] _emepNames;
+        private string[] _emepNames = [];
         private void DrawEMEP()
         {
             if (_currentFile is not Map map) return;
@@ -768,11 +871,11 @@ namespace VBLauncher
                 _emepIndex = map.EMEP.Count - 1;
             }
             ImGui.SameLine();
-            if (ImGui.Button(" - "))
+            if (ImGui.Button(" - ") && map.EMEP.Count > 0)
                 map.EMEP.RemoveAt(_emepIndex);
             if (_emepIndex >= map.EMEP.Count)
                 _emepIndex = map.EMEP.Count - 1;
-            if (_emepNames.Length == 0)
+            if (map.EMEP.Count == 0)
             {
                 ImGui.End();
                 return;
@@ -788,7 +891,7 @@ namespace VBLauncher
         }
 
         private int _emefIndex;
-        private string[] _emefNames;
+        private string[] _emefNames = [];
         private void DrawEMEF()
         {
             if (_currentFile is not Map map) return;
@@ -801,11 +904,11 @@ namespace VBLauncher
                 _emefIndex = map.EMEF.Count - 1;
             }
             ImGui.SameLine();
-            if (ImGui.Button(" - "))
+            if (ImGui.Button(" - ") && map.EMEF.Count > 0)
                 map.EMEF.RemoveAt(_emefIndex);
             if (_emefIndex >= map.EMEF.Count)
                 _emefIndex = map.EMEF.Count - 1;
-            if (_emefNames.Length == 0)
+            if (map.EMEF.Count == 0)
             {
                 ImGui.End();
                 return;
@@ -821,7 +924,7 @@ namespace VBLauncher
         }
 
         private int _emsdIndex;
-        private string[] _emsdNames;
+        private string[] _emsdNames = [];
         private void DrawEMSD()
         {
             if (_currentFile is not Map map) return;
@@ -834,11 +937,11 @@ namespace VBLauncher
                 _emsdIndex = map.EMSD.Count - 1;
             }
             ImGui.SameLine();
-            if (ImGui.Button(" - "))
+            if (ImGui.Button(" - ") && map.EMSD.Count > 0)
                 map.EMSD.RemoveAt(_emsdIndex);
             if (_emsdIndex >= map.EMSD.Count)
                 _emsdIndex = map.EMSD.Count - 1;
-            if (_emsdNames.Length == 0)
+            if (map.EMSD.Count == 0)
             {
                 ImGui.End();
                 return;
@@ -852,9 +955,45 @@ namespace VBLauncher
             ImGui.InputFloat3("##XYZ", ref emsd.l);
             ImGui.End();
         }
+        
+        private int _emnoIndex;
+        private string[] _emnoNames = [];
+        private void DrawEMNO()
+        {
+            if (_currentFile is not Map map) return;
+            ImGui.Begin("EMNO");
+            // get all the names of the EMNOs (use string references)
+            _emnoNames = map.EMNO.Select(e => e.sr == 0 ? map.EMNO.IndexOf(e).ToString() : _stf[e.sr - 1]).ToArray();
+            ImGui.Combo("##EMNO", ref _emnoIndex, _emnoNames, _emnoNames.Length);
+            ImGui.PushItemWidth(-1);
+            ImGui.SameLine();
+            if (ImGui.Button(" + "))
+            {
+                map.EMNO.Add(new EMNOc());
+                _emnoIndex = map.EMNO.Count - 1;
+            }
+            ImGui.SameLine();
+            if (ImGui.Button(" - ") && map.EMNO.Count > 0)
+                map.EMNO.RemoveAt(_emnoIndex);
+            if (_emnoIndex >= map.EMNO.Count)
+                _emnoIndex = map.EMNO.Count - 1;
+            if (map.EMNO.Count == 0)
+            {
+                ImGui.End();
+                return;
+            }
+            var emno = map.EMNO[_emnoIndex];
+            ImGui.Text("Position");
+            ImGui.InputFloat2("##XY", ref emno.l);
+            ImGui.Text("Icon Texture");
+            ImGui.InputText("##IconTexture", ref emno.tex, 100u);
+            ImGui.PopItemWidth();
+            STFBox("Name", ref emno.sr);
+            ImGui.End();
+        }
 
         private int _epthIndex;
-        private string[] _epthNames;
+        private string[] _epthNames = [];
         private int _epthPoint;
         private void DrawEPTH()
         {
@@ -868,16 +1007,19 @@ namespace VBLauncher
                 _epthIndex = map.EPTH.Count - 1;
             }
             ImGui.SameLine();
-            if (ImGui.Button(" - "))
+            if (ImGui.Button(" - ") && map.EPTH.Count > 0)
+            {
                 map.EPTH.RemoveAt(_epthIndex);
+                _epthPoint = 0;
+            }
             if (_epthIndex >= map.EPTH.Count)
                 _epthIndex = map.EPTH.Count - 1;
-            if (_epthNames.Length == 0)
+            if (map.EPTH.Count == 0)
             {
                 ImGui.End();
                 return;
             }
-            EPTHc epth = map.EPTH[_epthIndex];
+            var epth = map.EPTH[_epthIndex];
             ImGui.Text("Path ID");
             ImGui.InputText("##PathID", ref epth.name, 100u);
             ImGui.Text("Point");
@@ -893,23 +1035,30 @@ namespace VBLauncher
                 _epthPoint = epth.p.Count - 1;
             }
             ImGui.SameLine();
-            if (ImGui.Button(" - ##Point"))
+            if (ImGui.Button(" - ##Point") && epth.p.Count > 0)
                 epth.p.RemoveAt(_epthPoint);
             if (_epthPoint >= epth.p.Count)
                 _epthPoint = epth.p.Count - 1;
+            if (epth.p.Count == 0)
+            {
+                ImGui.End();
+                return;
+            }
             var point = epth.p[_epthPoint];
             ImGui.Text("Position");
             ImGui.InputFloat4("##XYZR", ref point);
+            epth.p[_epthPoint] = point; // can't pass by ref so we must reassign
+            ImGui.End();
         }
 
         private int _triggerIndex;
-        private string[] _triggerNames;
-        private readonly string[] _triggerTypes = ["B (?)", "Script", "Level Transition"];
+        private string[] _triggerNames = [];
+        private readonly string[] _triggerTypes = ["Building", "Script", "Transition"];
         private int _triggerPoint;
         private void DrawTrigger()
         {
             if (_currentFile is not Map map) return;
-            ImGui.Begin("Trigger");
+            ImGui.Begin("EMTR");
             ImGui.Combo("##Trigger", ref _triggerIndex, _triggerNames, _triggerNames.Length);
             ImGui.SameLine();
             if (ImGui.Button(" + "))
@@ -918,11 +1067,14 @@ namespace VBLauncher
                 _triggerIndex = map.Triggers.Count - 1;
             }
             ImGui.SameLine();
-            if (ImGui.Button(" - "))
+            if (ImGui.Button(" - ") && map.Triggers.Count > 0)
+            {
                 map.Triggers.RemoveAt(_triggerIndex);
+                _triggerPoint = 0;
+            }
             if (_triggerIndex >= map.Triggers.Count)
                 _triggerIndex = map.Triggers.Count - 1;
-            if (_triggerNames.Length == 0)
+            if (map.Triggers.Count == 0)
             {
                 ImGui.End();
                 return;
@@ -963,13 +1115,19 @@ namespace VBLauncher
                 _triggerPoint = trigger.EMTR.r.Count - 1;
             }
             ImGui.SameLine();
-            if (ImGui.Button(" - ##Point"))
+            if (ImGui.Button(" - ##Point") && trigger.EMTR.r.Count > 0)
                 trigger.EMTR.r.RemoveAt(_triggerPoint);
             if (_triggerPoint >= trigger.EMTR.r.Count)
                 _triggerPoint = trigger.EMTR.r.Count - 1;
+            if (trigger.EMTR.r.Count == 0)
+            {
+                ImGui.End();
+                return;
+            }
             var point = trigger.EMTR.r[_triggerPoint];
             ImGui.Text("Position");
             ImGui.InputFloat3("##XYZR", ref point);
+            trigger.EMTR.r[_triggerPoint] = point; // can't pass by ref so we must reassign
             ImGui.End();
         }
 
@@ -977,7 +1135,11 @@ namespace VBLauncher
         private int _2mwtChunk;
         private void Draw2MWT()
         {
-            if (_currentFile._2MWT is not _2MWTc _2mwt) return;
+            if (_currentFile._2MWT is not _2MWTc) {
+                _currentFile._2MWT = new _2MWTc();
+                return;
+            }
+            _2MWTc _2mwt = _currentFile._2MWT;
             ImGui.Begin("2MWT");
             ImGui.PushItemWidth(-1);
             ImGui.Text("Water Mesh"); // i think?
@@ -990,7 +1152,9 @@ namespace VBLauncher
             for (var i = 0; i < _2mwt.chunks.Count; i++)
                 chunks[i] = i.ToString();
             ImGui.Text("Water Chunk");
+            ImGui.PushItemWidth(250);
             ImGui.Combo("##Chunk", ref _2mwtChunk, chunks, chunks.Length);
+            ImGui.PopItemWidth();
             ImGui.SameLine();
             if (ImGui.Button(" + "))
             {
@@ -998,10 +1162,15 @@ namespace VBLauncher
                 _2mwtChunk = _2mwt.chunks.Count - 1;
             }
             ImGui.SameLine();
-            if (ImGui.Button(" - "))
+            if (ImGui.Button(" - ") && _2mwt.chunks.Count > 0)
                 _2mwt.chunks.RemoveAt(_2mwtChunk);
             if (_2mwtChunk >= _2mwt.chunks.Count)
                 _2mwtChunk = _2mwt.chunks.Count - 1;
+            if (_2mwt.chunks.Count == 0)
+            {
+                ImGui.End();
+                return;
+            }
             var chunk = _2mwt.chunks[_2mwtChunk];
             ImGui.Text("Water Lightmap");
             ImGui.InputText("##WaterTexture", ref chunk.tex, 100u);
@@ -1009,6 +1178,88 @@ namespace VBLauncher
             ImGui.InputFloat3("##XYZ", ref chunk.loc);
             ImGui.Text("Lightmap UV");
             ImGui.InputFloat2("##UV", ref chunk.texloc);
+            ImGui.End();
+        }
+
+        private readonly string[] _gobjTypes = [".use", ".dor", ".con"];
+        private void DrawGOBJ()
+        {
+            if (_currentFile.GOBJ is not GOBJc gobj) return;
+            ImGui.Begin("GOBJ");
+            ImGui.PushItemWidth(-1);
+            ImGui.Text("Type");
+            if (ImGui.Combo("##Type", ref gobj.Type, _gobjTypes, _gobjTypes.Length))
+                _extension = _gobjTypes[gobj.Type]; // update the extension (used when saving)
+            ImGui.End();
+        }
+
+        private void DrawGIAR()
+        {
+            if (_currentFile.GIAR is not GIARc giar) return;
+            ImGui.Begin("GIAR");
+            ImGui.PushItemWidth(-1);
+            ImGui.Text("Ballistic Resistance");
+            ImGui.InputInt("##BallisticResistance", ref giar.BallR);
+            ImGui.Text("Bio Resistance");
+            ImGui.InputInt("##BioResistance", ref giar.BioR);
+            ImGui.Text("Electric Resistance");
+            ImGui.InputInt("##ElectricResistance", ref giar.ElecR);
+            ImGui.Text("EMP Resistance");
+            ImGui.InputInt("##EMPResistance", ref giar.EMPR);
+            ImGui.Text("Normal Resistance");
+            ImGui.InputInt("##NormalResistance", ref giar.NormR);
+            ImGui.Text("Heat Resistance");
+            ImGui.InputInt("##HeatResistance", ref giar.HeatR);
+            ImGui.End();
+        }
+
+        private void DrawGIAM()
+        {
+            ImGui.Begin("GIAM");
+            ImGui.Text("GIAM not implemented yet.");
+            ImGui.End();
+        }
+        
+        private void DrawGIWP()
+        {
+            ImGui.Begin("GIWP");
+            ImGui.Text("GIWP not implemented yet.");
+            ImGui.End();
+        }
+        
+        private Vector3 _emfgColor = new(1f, 1f, 1f);
+        private void DrawEMFG()
+        {
+            if (_currentFile.EMFG is not EMFGc)
+            {
+                _currentFile.EMFG = new EMFGc();
+                return;
+            }
+            EMFGc emfg = _currentFile.EMFG;
+            _emfgColor = ColToVec3(emfg.colour);
+            ImGui.Begin("EMFG");
+            ImGui.Checkbox("Enabled", ref emfg.enabled);
+            ImGui.PushItemWidth(-1);
+            ImGui.Text("Colour");
+            ImGui.ColorEdit3("##Colour", ref _emfgColor);
+            emfg.colour = Color.FromArgb(255, (int)(_emfgColor.X * 255), (int)(_emfgColor.Y * 255), (int)(_emfgColor.Z * 255));
+            ImGui.Text("Base Height");
+            ImGui.InputFloat("##BaseHeight", ref emfg.base_height);
+            ImGui.Text("Anim1 Speed");
+            ImGui.InputFloat("##Anim1Speed", ref emfg.anim1Speed);
+            ImGui.Text("Anim1 Height");
+            ImGui.InputFloat("##Anim1Height", ref emfg.anim1Height);
+            ImGui.Text("Total Height");
+            ImGui.InputFloat("##TotalHeight", ref emfg.total_height);
+            ImGui.Text("Anim2 Speed");
+            ImGui.InputFloat("##Anim2Speed", ref emfg.anim2Speed);
+            ImGui.Text("Anim2 Height");
+            ImGui.InputFloat("##Anim2Height", ref emfg.anim2Height);
+            ImGui.Text("Vertical Offset");
+            ImGui.InputFloat("##VerticalOffset", ref emfg.verticalOffset);
+            ImGui.Text("Max Fog Density");
+            ImGui.InputFloat("##MaxFogDensity", ref emfg.max_fog_density);
+            ImGui.PopItemWidth();
             ImGui.End();
         }
     }

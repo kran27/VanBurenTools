@@ -143,11 +143,23 @@ namespace VBLauncher
 
     }
 
+    public enum USEType
+    {
+        USE,
+        DOR,
+        CON
+    }
+    
     public class USE // also encapsulates CON and DOR, which use static chunks that are not read from or written to, if/which chunk is used is controlled by GOBJ.
     {
         public EEN2c EEN2 = new();
         public GENTc GENT = new();
         public GOBJc GOBJ = new();
+        
+        public USE(USEType type = USEType.USE)
+        {
+            GOBJ.Type = (int)type;
+        }
 
         public IEnumerable<byte> ToByte()
         {
@@ -161,12 +173,12 @@ namespace VBLauncher
             else if (GOBJ.Type == 1)
             {
                 b.AddRange([0x47, 0x44, 0x4F, 0x52, 0x1, 0x0, 0x0, 0x0, 0x18, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
-                ]); // GDOR chunk
+                ]); // GDOR chunk (static in all Van Buren files)
             }
             else if (GOBJ.Type == 2)
             {
                 b.AddRange([0x47, 0x43, 0x4F, 0x4E, 0x1, 0x0, 0x0, 0x0, 0x1A, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
-                ]); // GCON chunk
+                ]); // GCON chunk (static in all Van Buren files)
             }
             return b;
         }
@@ -677,6 +689,8 @@ namespace VBLauncher
 
         public IEnumerable<byte> ToByte()
         {
+            if (chunks.Count == 0)
+                return Array.Empty<byte>();
             var sl = chunks.Sum(x => x.tex.Length) + mpf.Length; // length of strings
             var wl = chunks.Count * 22; // added length for each water chunk
 
@@ -800,8 +814,7 @@ namespace VBLauncher
 
     public class EMNOc
     {
-        // TODO: what the fuck do i mean point2 is xyz coordinates
-        public Point2 l = new(0f, 0f); // technically XYZ Coordinates
+        public Vector2 l = new(0f, 0f);
         public string tex = "";
         public int sr = 0;
 
@@ -810,8 +823,8 @@ namespace VBLauncher
             var ret = new byte[29 + tex.Length + 1];
             ret.Write(0, "EMNO");
             ret.Write(8, 30 + tex.Length);
-            ret.Write(12, l.x);
-            ret.Write(20, l.y);
+            ret.Write(12, l.X);
+            ret.Write(20, l.Y);
             ret.Write(24, tex.Length);
             ret.Write(26, tex);
             ret.Write(26 + tex.Length, sr);
@@ -832,9 +845,26 @@ namespace VBLauncher
         public float anim2Height = 0f;
         public float verticalOffset = 0f;
         public float max_fog_density = 0f;
-
+        
+        // implement == operator
+        private bool _isNull()
+        {
+            return !enabled &&
+                   base_height == 0f &&
+                   anim1Speed == 0f &&
+                   anim1Height == 0f &&
+                   total_height == 0f &&
+                   anim2Speed == 0f &&
+                   anim2Height == 0f &&
+                   verticalOffset == 0f &&
+                   max_fog_density == 0f;
+        }
+        
         public IEnumerable<byte> ToByte()
         {
+            // return empty array if blank (editor adds chunk by default)
+            if (_isNull())
+                return [];
             // using in-game errors to prevent saving broken map
             if (base_height <= 0f)
             {
@@ -960,34 +990,7 @@ namespace VBLauncher
         }
 
     }
-
-    public class Point4
-    {
-        public float x;
-        public float z;
-        public float y;
-        public float r;
-
-        public Point4(float x, float z, float y, float r)
-        {
-            this.x = x;
-            this.z = z;
-            this.y = y;
-            this.r = r;
-        }
-
-        public IEnumerable<byte> ToByte()
-        {
-            var ret = new byte[16];
-            ret.Write(0, x);
-            ret.Write(4, z);
-            ret.Write(8, y);
-            ret.Write(12, r);
-            return ret;
-        }
-
-    }
-
+    
     public class Skill
     {
         public int Index;

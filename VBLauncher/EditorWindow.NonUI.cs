@@ -10,7 +10,8 @@ public partial class EditorWindow
 {
     private void OpenFile()
     {
-        // Loads all regions of a given file into their respective classes, and from there into the UI
+        ResetTempValues();
+        // Loads all regions of a given file into their respective classes
         var ofd = new OpenFileDialog { Filter = "Van Buren Data File|*.amo;*.arm;*.con;*.crt;*.dor;*.int;*.itm;*.map;*.use;*.wea", Multiselect = false, ValidateNames = true };
         if (ofd.ShowDialog() != DialogResult.OK) return;
         _filename = ofd.FileName;
@@ -21,6 +22,7 @@ public partial class EditorWindow
 
     private void OpenFromGRP()
     {
+        ResetTempValues();
         using var grpb = new GrpBrowser(["amo", "arm", "con", "crt", "dor", "int", "itm", "map", "use", "wea"]);
         grpb.ShowDialog();
         _filename = grpb.FileName;
@@ -29,13 +31,11 @@ public partial class EditorWindow
 
     private void SaveFile()
     {
-        var sfd = new SaveFileDialog { Filter = $"Van Buren Data File|*{_extension}", ValidateNames = true, DefaultExt = _extension };
-        if (sfd.ShowDialog() == DialogResult.OK)
-        {
-            if (MySettingsProperty.Settings.STFEditEnabled && _stf is not null)
-                File.WriteAllBytes(MySettingsProperty.Settings.STFDir, Extensions.TXTToSTF(_stf.ToArray()));
-            File.WriteAllBytes(sfd.FileName, (byte[])_currentFile.ToByte().ToArray());
-        }
+        var sfd = new SaveFileDialog { Filter = $"Van Buren Data File|*{_extension}", ValidateNames = true, DefaultExt = _extension, FileName = _filename };
+        if (sfd.ShowDialog() != DialogResult.OK) return;
+        if (MySettingsProperty.Settings.STFEditEnabled && _stf is not null)
+            File.WriteAllBytes(MySettingsProperty.Settings.STFDir, Extensions.TXTToSTF(_stf.ToArray()));
+        File.WriteAllBytes(sfd.FileName, (byte[])_currentFile.ToByte().ToArray());
     }
 
     private void SetEngStfLocation()
@@ -113,27 +113,17 @@ public partial class EditorWindow
             {
                 case ".amo":
                     {
-                        DarkMessageBox.ShowMessage("Not yet implemented", "Not Implemented");
+                        _currentFile = fb.ReadAMO();
                         break;
                     }
                 case ".arm":
                     {
-                        DarkMessageBox.ShowMessage("Not yet implemented", "Not Implemented");
-                        break;
-                    }
-                case ".con":
-                    {
-                        DarkMessageBox.ShowMessage("Not yet implemented", "Not Implemented");
+                        _currentFile = fb.ReadARM();
                         break;
                     }
                 case ".crt":
                     {
                         _currentFile = fb.ReadCRT();
-                        break;
-                    }
-                case ".dor":
-                    {
-                        DarkMessageBox.ShowMessage("Not yet implemented", "Not Implemented");
                         break;
                     }
                 case ".int":
@@ -151,14 +141,18 @@ public partial class EditorWindow
                         _currentFile = fb.ReadMap();
                         break;
                     }
+                // .con, .dor, .use are all the same format since the only different chunk is static and GOBJ
+                // dictates type.
+                case ".con":
+                case ".dor":
                 case ".use":
                     {
-                        DarkMessageBox.ShowMessage("Not yet implemented", "Not Implemented");
+                        _currentFile = fb.ReadUSE();
                         break;
                     }
                 case ".wea":
                     {
-                        DarkMessageBox.ShowMessage("Not yet implemented", "Not Implemented");
+                        _currentFile = fb.ReadWEA();
                         break;
                     }
             }

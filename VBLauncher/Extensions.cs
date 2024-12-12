@@ -346,7 +346,7 @@ namespace VBLauncher
                 Van = new Socket(GetString(b, Vanmo, b[Vanmo - 2]), GetString(b, Vanto, b[Vanto - 2])),
                 Inventory = inv.ToArray(),
                 GWAM = (from i in gl
-                        select ToGWAMc(b.Skip(i).Take(BitConverter.ToInt32(b, i + 8)).ToArray())).ToList()
+                        select b.Skip(i).Take(BitConverter.ToInt32(b, i + 8)).ToArray().ToGWAMc()).ToList()
             };
         }
 
@@ -396,7 +396,7 @@ namespace VBLauncher
                                    Fee.Length + Sho.Length + Van.Length);
             return new GITMc
             {
-                @type = b[12 + a],
+                @type = b[12],
                 equip = b[16 + a] != 0,
                 eqslot = b[20 + a],
                 Hea = Hea,
@@ -414,7 +414,7 @@ namespace VBLauncher
                 Sho = Sho,
                 Van = Van,
                 IHS = IHS,
-                reload = BitConverter.ToInt32(b, BitConverter.ToInt32(b, 8) - 5)
+                reload = BitConverter.ToInt32(b, BitConverter.ToInt32(b, 8) - 4)
             };
         }
 
@@ -476,7 +476,7 @@ namespace VBLauncher
 
         public static EMNOc ToEMNOc(this byte[] b)
         {
-            var l = new Point2(BitConverter.ToSingle(b, 12), BitConverter.ToSingle(b, 20));
+            var l = new Vector2(BitConverter.ToSingle(b, 12), BitConverter.ToSingle(b, 20));
             var tex = GetString(b, 26, b[24]);
             var sr = BitConverter.ToInt32(b, 26 + tex.Length);
 
@@ -605,13 +605,13 @@ namespace VBLauncher
     {
         var cf = new CRT
         {
-            EEN2 = ToEEN2c(b.GetRegions("EEN2")[0]),
-            GENT = ToGENTc(b.GetRegions("GENT")[0]),
+            EEN2 =  b.GetRegions("EEN2")[0].ToEEN2c(),
+            GENT =  b.GetRegions("GENT")[0].ToGENTc(),
             GCRE = b.GetRegions("GCRE")[0].ToGCREc()
         };
         try
         {
-            cf.GCHR = ToGCHRc(b.GetRegions("GCHR")[0]);
+            cf.GCHR = b.GetRegions("GCHR")[0].ToGCHRc();
         }
         catch
         {
@@ -678,8 +678,8 @@ namespace VBLauncher
     {
         var cf = new ITM
         {
-            EEN2 = ToEEN2c(b.GetRegions("EEN2")[0]),
-            GENT = ToGENTc(b.GetRegions("GENT")[0]),
+            EEN2 = b.GetRegions("EEN2")[0].ToEEN2c(),
+            GENT = b.GetRegions("GENT")[0].ToGENTc(),
             GITM = b.GetRegions("GITM")[0].ToGITMc()
         };
         return cf;
@@ -689,8 +689,8 @@ namespace VBLauncher
     {
         var cf = new ARM
         {
-            EEN2 = ToEEN2c(b.GetRegions("EEN2")[0]),
-            GENT = ToGENTc(b.GetRegions("GENT")[0]),
+            EEN2 = b.GetRegions("EEN2")[0].ToEEN2c(),
+            GENT = b.GetRegions("GENT")[0].ToGENTc(),
             GITM = b.GetRegions("GITM")[0].ToGITMc(),
             GIAR = b.GetRegions("GIAR")[0].ToGIARc()
         };
@@ -701,9 +701,33 @@ namespace VBLauncher
     {
         var cf = new USE
         {
-            EEN2 = ToEEN2c(b.GetRegions("EEN2")[0]),
-            GENT = ToGENTc(b.GetRegions("GENT")[0]),
+            EEN2 =  b.GetRegions("EEN2")[0].ToEEN2c(),
+            GENT =  b.GetRegions("GENT")[0].ToGENTc(),
             GOBJ = b.GetRegions("GOBJ")[0].ToGOBJc()
+        };
+        return cf;
+    }
+    
+    public static WEA ReadWEA(this byte[] b)
+    {
+        var cf = new WEA
+        {
+            EEN2 = b.GetRegions("EEN2")[0].ToEEN2c(),
+            GENT = b.GetRegions("GENT")[0].ToGENTc(),
+            GITM = b.GetRegions("GITM")[0].ToGITMc(),
+            //GIWP = b.GetRegions("GIWP")[0].ToGIWPc()
+        };
+        return cf;
+    }
+    
+    public static AMO ReadAMO(this byte[] b)
+    {
+        var cf = new AMO
+        {
+            EEN2 = b.GetRegions("EEN2")[0].ToEEN2c(),
+            GENT = b.GetRegions("GENT")[0].ToGENTc(),
+            GITM = b.GetRegions("GITM")[0].ToGITMc(),
+            //GIAM = b.GetRegions("GIAM")[0].ToGIAMc()
         };
         return cf;
     }
@@ -784,7 +808,8 @@ namespace VBLauncher
     /// </summary>
     public static void Write(this byte[] b, int offset, IEnumerable<byte> value)
     {
-        Buffer.BlockCopy(value.ToArray(), 0, b, offset, value.Count());
+        var enumerable = value as byte[] ?? value.ToArray();
+        Buffer.BlockCopy(enumerable.ToArray(), 0, b, offset, enumerable.Length);
     }
 
     /// <summary>

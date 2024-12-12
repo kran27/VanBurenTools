@@ -1007,5 +1007,34 @@ namespace VBLauncher
             }
             return bmp;
         }
+
+        public static byte[] EncodeRLE(Bitmap b)
+        {
+            var ms = new MemoryStream();
+            var bw = new BinaryWriter(ms);
+            bw.Write(b.Width);
+            bw.Write(b.Height);
+            var count = 0; // count of pixels with the same color, maximum of b.Width
+            for (var y = b.Height - 1; y >= 0; y--)
+            {
+                var last = b.GetPixel(0, y);
+                for (var x = 0; x < b.Width; x++)
+                {
+                    var c = b.GetPixel(x, y);
+                    if (c == last && count < b.Width)
+                    {
+                        count++;
+                    }
+                    else
+                    {
+                        bw.Write(count);
+                        bw.Write((byte)((last.R + last.G + last.B) / 3));
+                        last = c;
+                        count = 1;
+                    }
+                }
+            }
+            return ms.ToArray();
+        }
     }
 }

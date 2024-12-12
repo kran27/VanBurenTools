@@ -507,7 +507,7 @@ public struct TVertex_Node
 
             for (var j = 0; j < NumberMaterial; j++)
             {
-                for (var i = 0; i < (Mat_list[j] / 3); i++)
+                for (var i = 0; i < Mat_list[j] / 3; i++)
                 {
                     int a = f.ReadUInt16();
                     int b = f.ReadUInt16();
@@ -990,11 +990,11 @@ public struct TMaterial_Node
                 }
             case "IDXS":
                 {
-                    var end = (f.BaseStream.Position) + header.size;
+                    var end = f.BaseStream.Position + header.size;
                     var m = 0;
                     var mp = 0;
 
-                    while ((f.BaseStream.Position + 12) < end)
+                    while (f.BaseStream.Position + 12 < end)
                     {
                         var tmp = f.ReadUInt16();
                         if (tmp == 0)
@@ -1005,7 +1005,7 @@ public struct TMaterial_Node
                         if ((tmp & 0xFF00) == 0x8000)
                         {
                             f.ReadUInt16();
-                            var t1 = (f.ReadUInt16()) - 0x4000;
+                            var t1 = f.ReadUInt16() - 0x4000;
                             f.ReadUInt16();
                             var t2 = f.ReadUInt16();
                             m = t2;
@@ -1022,7 +1022,7 @@ public struct TMaterial_Node
 
                         var sz = f.ReadUInt16();
 
-                        for (var i = 1; i <= (sz / 3); i++)
+                        for (var i = 1; i <= sz / 3; i++)
                         {
                             var a = buffer_offset[buffer_index] + f.ReadUInt16();
                             var b = buffer_offset[buffer_index] + f.ReadUInt16();
@@ -1077,24 +1077,24 @@ public struct TMaterial_Node
 
             if (IsHeader(header.id))
             {
-                var end = (f.BaseStream.Position + header.size);
+                var end = f.BaseStream.Position + header.size;
                 while (f.BaseStream.Position<end)
                 {
                     ReadBlock(f, header.size);
-}
+                }
             }
             else
-{
-    f.BaseStream.Seek(-8, SeekOrigin.Current);
-    if ((size < 4 && (size != 0)))
-    {
-        size = 4;
-    }
+            {
+                f.BaseStream.Seek(-8, SeekOrigin.Current);
+                if (size < 4 && size != 0)
+                {
+                    size = 4;
+                }
 
-    f.BaseStream.Seek(size, SeekOrigin.Current);
-}
+                f.BaseStream.Seek(size, SeekOrigin.Current);
+            }
 
-return 0;
+            return 0;
         }
     }
 }

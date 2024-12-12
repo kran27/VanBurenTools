@@ -283,7 +283,7 @@ namespace VBLauncher
             e.Graphics.DrawLine(new Pen(Theme.Colors.GreySelection, 1f), 0, 0, ((dynamic)sender).Width, 0);
         }
 
-        public class DoubleBufferedListView : ListView
+        public partial class DoubleBufferedListView : ListView
         {
 
             public DoubleBufferedListView()
