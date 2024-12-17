@@ -2,7 +2,7 @@
 [![](https://dyna-badge.vercel.app/api/discord?guild=470671750087180289)](https://discord.gg/tzF3YFu)
 Various tools and code relating to reverse engineering Fallout Van Buren
 - You can get the latest version of the launcher [here](https://github.com/kran27/VanBurenLauncher/raw/main/VBLauncher/bin/Release/VBLauncher.exe)
-- You can get Van Buren [here](https://archive.org/details/f3demo)
+- You can get Van Buren [here](https://vb.kran.gg/F3_Demo.rar)
 
 ## Repo Content:
 ### VBLauncher
