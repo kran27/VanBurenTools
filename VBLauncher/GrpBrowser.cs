@@ -15,9 +15,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
 using AltUI.Config;
 using AltUI.Controls;
+using AltUI.Forms;
 using Be.Windows.Forms;
 using HelixToolkit.Wpf;
-using Microsoft.VisualBasic;
 using Pfim;
 using VB3DLib;
 using Color = System.Windows.Media.Color;
@@ -375,7 +375,7 @@ namespace VBLauncher
                     sb.Clear();
                 }
                 else if (c == -1) break;
-                else sb.Append(Strings.ChrW(c));
+                else sb.Append(char.ConvertFromUtf32(c));
             }
             return result;
         }
@@ -521,7 +521,7 @@ namespace VBLauncher
                     AddModelControl(mesh);
                     break;
                 case "8":
-                    var _8m = new _8Model(b, Interaction.MsgBox("FLGS Size?", MsgBoxStyle.YesNo, "Option") == MsgBoxResult.Yes);
+                    var _8m = new _8Model(b, DarkMessageBox.ShowInformation("FLGS Size?", "Option", DarkDialogButton.YesNo) == DialogResult.Yes);
                     AddModelControl(_8ModelToUsableMesh(_8m));
                     break;
                 case "map":
@@ -611,7 +611,7 @@ namespace VBLauncher
                 var mmn = map.EMAP.s1.ToLower();
                 var mgi = fullNameToGlobalIndex[mmn];
                 var mmb = getFileBytes(mgi);
-                var _8m = new _8Model(mmb, Interaction.MsgBox("FLGS Size?", MsgBoxStyle.YesNo, "Option") == MsgBoxResult.Yes);
+                var _8m = new _8Model(mmb, DarkMessageBox.ShowInformation("FLGS Size?", "Option", DarkDialogButton.YesNo) == DialogResult.Yes);
                 viewport.Children.Add(new ModelVisual3D { Content = _8ModelToUsableMesh(_8m) });
             }
             catch

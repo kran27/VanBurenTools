@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -14,33 +14,18 @@ namespace VBLauncher
 
     public class Map
     {
-        public EMAPc EMAP;
-        public List<EME2c> EME2;
-        public List<EMEPc> EMEP;
-        public ECAMc ECAM;
-        public _2MWTc _2MWT;
-        public List<Trigger> Triggers;
-        public List<EPTHc> EPTH;
-        public List<EMSDc> EMSD;
-        public EMNPc EMNP;
-        public EMFGc EMFG;
-        public List<EMNOc> EMNO;
-        public List<EMEFc> EMEF;
-
-        public Map()
-        {
-            EMAP = new EMAPc();
-            EMEP = [];
-            EME2 = [];
-            EMFG = null;
-            EMNO = [];
-            EMEF = [];
-            EMSD = [];
-            EPTH = [];
-            Triggers = [];
-            ECAM = null;
-            _2MWT = null;
-        }
+        public EMAPc EMAP = new();
+        public List<EME2c> EME2 = [];
+        public List<EMEPc> EMEP = [];
+        public ECAMc ECAM = null;
+        public _2MWTc _2MWT = null;
+        public List<Trigger> Triggers = [];
+        public List<EPTHc> EPTH = [];
+        public List<EMSDc> EMSD = [];
+        public EMNPc EMNP = null;
+        public EMFGc EMFG = null;
+        public List<EMNOc> EMNO = [];
+        public List<EMEFc> EMEF = [];
 
         public IEnumerable<byte> ToByte()
         {
@@ -55,7 +40,8 @@ namespace VBLauncher
             b.AddRange(Triggers.SelectMany(x => x.ToByte()));
             b.AddRange(EPTH.SelectMany(x => x.ToByte()));
             b.AddRange(EMSD.SelectMany(x => x.ToByte()));
-            b.AddRange([0x45, 0x4D, 0x4E, 0x50, 0x0, 0x0, 0x0, 0x0, 0x10, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]); // EMNP Chunk
+            b.AddRange(EMNP.ToByte());
+            //b.AddRange([0x45, 0x4D, 0x4E, 0x50, 0x0, 0x0, 0x0, 0x0, 0x10, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]); // EMNP Chunk
             if (EMFG is not null)
                 b.AddRange(EMFG.ToByte());
             b.AddRange(EMNO.SelectMany(x => x.ToByte()));
@@ -125,11 +111,8 @@ namespace VBLauncher
     {
         public EEN2c EEN2 = new();
         public GENTc GENT = new();
-
         public GITMc GITM = new();
-        // Property GIAM As GIAMc
-
-        // GIAM = New GIAMc()
+        public GIAMc GIAM = new();
 
         public IEnumerable<byte> ToByte()
         {
@@ -189,19 +172,16 @@ namespace VBLauncher
     {
         public EEN2c EEN2 = new();
         public GENTc GENT = new();
-
         public GITMc GITM = new();
-        // Property GIWP As GIWPc
-
-        // GIWP = New GIWPc()
-
+        public GIWPc GIWP = new();
+        
         public IEnumerable<byte> ToByte()
         {
             var b = new List<byte>();
             b.AddRange(EEN2.ToByte());
             b.AddRange(GENT.ToByte());
             b.AddRange(GITM.ToByte());
-            // b.AddRange(GIWP.ToByte())
+            b.AddRange(GIWP.ToByte());
             return b;
         }
 
@@ -903,7 +883,7 @@ namespace VBLauncher
     public class EMNPChunk
     {
         public byte @bool = 0;
-        public Point3 l = new(0f, 0f, 0f);
+        public Vector3 l = new(0f, 0f, 0f);
         public byte b1 = 0;
         public byte b2 = 0;
         public byte b3 = 0;
@@ -1062,6 +1042,43 @@ namespace VBLauncher
             return ret;
         }
 
+    }
+
+    public class GIAMc
+    {
+        public int ammoType = 0;
+        public int minDmg = 0;
+        public int maxDmg = 0;
+        public int unk1 = 0; // Ammo30.amo is 10, Ammo12_ga.amo is -25, .22 Injector is 24, .22/9mm is 5
+        public int critChance = 0; // guessed field, AmmoBB.amo is 20
+        public int engUnk1 = 0; // all energy weapons have a value of 5
+        public int unk2 = 0; // Small Energy Cell is 3, Microfusion Cell is 2, Naphate is 1
+        public int unk3 = 0; // 1 for cartridge based ammo, 5 for shotgun shells, 0 for explosive, bb, rivet, and energy (possibly bullets per shot?)
+        
+        public IEnumerable<byte> ToByte()
+        {
+            var ret = new byte[36];
+            ret.Write(0, "GIAM");
+            ret.Write(4, 2);
+            ret.Write(8, 48);
+            ret.Write(12, ammoType);
+            ret.Write(16, minDmg);
+            ret.Write(20, maxDmg);
+            ret.Write(24, unk1);
+            ret.Write(28, critChance);
+            ret.Write(32, engUnk1);
+            ret.Write(36, unk2);
+            ret.Write(40, unk3);
+            return ret;
+        }
+    }
+
+    public class GIWPc
+    {
+        public IEnumerable<byte> ToByte()
+        {
+            return [];
+        }
     }
 }
 

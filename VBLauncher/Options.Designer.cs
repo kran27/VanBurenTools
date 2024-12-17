@@ -5,12 +5,10 @@ using System.Drawing;
 using System.Windows.Forms;
 using AltUI.Controls;
 using AltUI.Forms;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace VBLauncher
 {
 
-    [DesignerGenerated()]
     public partial class Options : DarkForm
     {
 

@@ -430,6 +430,26 @@ namespace VBLauncher
                 HeatR = BitConverter.ToInt32(b, 32)
             };
         }
+        
+        public static GIAMc ToGIAMc(this byte[] b)
+        {
+            return new GIAMc
+            {
+                ammoType = BitConverter.ToInt32(b, 12),
+                minDmg = BitConverter.ToInt32(b, 16),
+                maxDmg = BitConverter.ToInt32(b, 20),
+                unk1 = BitConverter.ToInt32(b, 24),
+                critChance = BitConverter.ToInt32(b, 28),
+                engUnk1 = BitConverter.ToInt32(b, 32),
+                unk2 = BitConverter.ToInt32(b, 36),
+                unk3 = BitConverter.ToInt32(b, 40)
+            };
+        }
+
+        public static GIWPc ToGIWPc(this byte[] b)
+        {
+            return new GIWPc();
+        }
 
         public static Socket ReadSocket(this byte[] b, int i)
         {
@@ -441,7 +461,7 @@ namespace VBLauncher
         public static EMNPChunk ReadEMNPChunk(this byte[] b, int offset)
         {
             var @bool = b[offset] != 0;
-            var p3 = new Point3(BitConverter.ToSingle(b, offset + 1), BitConverter.ToSingle(b, offset + 5),
+            var p3 = new Vector3(BitConverter.ToSingle(b, offset + 1), BitConverter.ToSingle(b, offset + 5),
                 BitConverter.ToSingle(b, offset + 9));
             var b1 = b[offset + 13];
             var b2 = b[offset + 14];
@@ -715,7 +735,7 @@ namespace VBLauncher
             EEN2 = b.GetRegions("EEN2")[0].ToEEN2c(),
             GENT = b.GetRegions("GENT")[0].ToGENTc(),
             GITM = b.GetRegions("GITM")[0].ToGITMc(),
-            //GIWP = b.GetRegions("GIWP")[0].ToGIWPc()
+            GIWP = b.GetRegions("GIWP")[0].ToGIWPc()
         };
         return cf;
     }
@@ -727,7 +747,7 @@ namespace VBLauncher
             EEN2 = b.GetRegions("EEN2")[0].ToEEN2c(),
             GENT = b.GetRegions("GENT")[0].ToGENTc(),
             GITM = b.GetRegions("GITM")[0].ToGITMc(),
-            //GIAM = b.GetRegions("GIAM")[0].ToGIAMc()
+            GIAM = b.GetRegions("GIAM")[0].ToGIAMc()
         };
         return cf;
     }
@@ -845,7 +865,7 @@ namespace VBLauncher
     }
 
     /// <summary>
-    /// This function copies a single precision float into a byte array
+    /// This function copies a 32-bit integer into a byte array
     /// </summary>
     public static void Write(this byte[] b, int offset, int value)
     {

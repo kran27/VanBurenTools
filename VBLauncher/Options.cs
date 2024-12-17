@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using AltUI.Config;
-using Microsoft.VisualBasic.CompilerServices;
 using static VBLauncher.VideoInfo;
 
 namespace VBLauncher
@@ -13,42 +12,25 @@ namespace VBLauncher
     public partial class Options
     {
         private readonly MainMenuDef[] MainMenus =
-        [
-            MMD("mainmenu.map", 0.ToString(), 5.5d.ToString(), 0.ToString(), 2.ToString(), 0.75d.ToString(),
-                59.2d.ToString()),
-            MMD("zz_TestMapsaarontemp2.map", 0.ToString(), 0.ToString(), 0.ToString(), 0.ToString(), 0.ToString(),
-                0.ToString()),
-            MMD("zz_TestMapsTest_City_Building01.map", 0.ToString(), 5.5d.ToString(), 0.ToString(), 45.ToString(),
-                (-2.5d).ToString(), 57.ToString()),
-            MMD("zz_TestMapsTest_City_Building02.map", 0.ToString(), 5.5d.ToString(), 0.ToString(), 43.ToString(),
-                (-2.5d).ToString(), 57.ToString()),
-            MMD("zz_TestMapsTest_City_Building03.map", 0.ToString(), 5.5d.ToString(), 0.ToString(), 43.ToString(),
-                (-5).ToString(), 57.ToString()),
-            MMD("zz_TestMapsTest_City_Building04.map", 0.ToString(), 5.5d.ToString(), 0.ToString(), 43.ToString(),
-                (-5.5d).ToString(), 57.ToString()),
-            MMD("98_Canyon_Random_01.map", 50.ToString(), 5.ToString(), 10.ToString(), 61.ToString(), 0.ToString(),
-                45.ToString()),
-            MMD("98_Canyon_Random_02.map", 55.ToString(), 5.ToString(), 10.ToString(), 36.ToString(),
-                (-2.5d).ToString(), 50.ToString()),
-            MMD("04_0202_Spelunking.map", 70.ToString(), 5.ToString(), 45.ToString(), 15.ToString(), 5.ToString(),
-                50.ToString()),
-            MMD("zz_TestMapsTest_City_Fences.map", 0.ToString(), 40.ToString(), 0.ToString(), 42.ToString(),
-                35.ToString(), 50.ToString()),
-            MMD("zz_TestMapsScottE_Test1.map", 85.ToString(), 30.ToString(), 30.ToString(), 255.ToString(),
-                39.ToString(), 60.ToString()),
-            MMD("zz_TestMapsScottE_Test2.map", 145.ToString(), 80.ToString(), (-85).ToString(), 0.5d.ToString(),
-                25.ToString(), 75.ToString()),
-            MMD("zz_TestMapsScottE_Test4.map", 0.ToString(), 7.5d.ToString(), 0.ToString(), 45.ToString(),
-                12.5d.ToString(), 50.ToString()),
-            MMD("zz_TestMapsTest_Junktown_Shacks.map", 0.ToString(), 50.ToString(), (-10).ToString(), 42.ToString(),
-                39.ToString(), 50.ToString()),
-            MMD("Default_StartMap.map", 60.ToString(), 7.5d.ToString(), 25.ToString(), 270.ToString(), 8.ToString(),
-                27.ToString()),
-            MMD("00_03_Tutorial_Junktown.map", 80.ToString(), 7.5d.ToString(), 50.ToString(), 5.ToString(),
-                10.ToString(), 68.ToString()),
-            MMD("00_04_Tutorial_Vault.map", 50.ToString(), 50.5d.ToString(), 0.ToString(), 36.ToString(), 25.ToString(),
-                68.ToString())
-        ];
+        {
+            new MainMenuDef("mainmenu.map", "0", "5.5", "0", "2", "0.75", "59.2"),
+            new MainMenuDef("zz_TestMapsaarontemp2.map", "0", "0", "0", "0", "0", "0"),
+            new MainMenuDef("zz_TestMapsTest_City_Building01.map", "0", "5.5", "0", "45", "-2.5", "57"),
+            new MainMenuDef("zz_TestMapsTest_City_Building02.map", "0", "5.5", "0", "43", "-2.5", "57"),
+            new MainMenuDef("zz_TestMapsTest_City_Building03.map", "0", "5.5", "0", "43", "-5", "57"),
+            new MainMenuDef("zz_TestMapsTest_City_Building04.map", "0", "5.5", "0", "43", "-5.5", "57"),
+            new MainMenuDef("98_Canyon_Random_01.map", "50", "5", "10", "61", "0", "45"),
+            new MainMenuDef("98_Canyon_Random_02.map", "55", "5", "10", "36", "-2.5", "50"),
+            new MainMenuDef("04_0202_Spelunking.map", "70", "5", "45", "15", "5", "50"),
+            new MainMenuDef("zz_TestMapsTest_City_Fences.map", "0", "40", "0", "42", "35", "50"),
+            new MainMenuDef("zz_TestMapsScottE_Test1.map", "85", "30", "30", "255", "39", "60"),
+            new MainMenuDef("zz_TestMapsScottE_Test2.map", "145", "80", "-85", "0.5", "25", "75"),
+            new MainMenuDef("zz_TestMapsScottE_Test4.map", "0", "7.5", "0", "45", "12.5", "50"),
+            new MainMenuDef("zz_TestMapsTest_Junktown_Shacks.map", "0", "50", "-10", "42", "39", "50"),
+            new MainMenuDef("Default_StartMap.map", "60", "7.5", "25", "270", "8", "27"),
+            new MainMenuDef("00_03_Tutorial_Junktown.map", "80", "7.5", "50", "5", "10", "68"),
+            new MainMenuDef("00_04_Tutorial_Vault.map", "50", "50.5", "0", "36", "25", "68")
+        };
 
         private readonly string[] Maps =
         [
@@ -85,31 +67,13 @@ namespace VBLauncher
             IniManager.Ini(ref IniManager.SysIni, "Mainmenu", "fov", MMD.FOV);
         }
 
-        private static MainMenuDef MMD(string MapName, string TargetX, string TargetY, string TargetZ, string Azimuth,
-            string Elevation, string FOV)
-        {
-            return new MainMenuDef
-            {
-                MapName = MapName,
-                TargetX = TargetX,
-                TargetY = TargetY,
-                TargetZ = TargetZ,
-                Azimuth = Azimuth,
-                Elevation = Elevation,
-                FOV = FOV
-            };
-        }
-
         private void CheckOptions(object sender, EventArgs e)
         {
             DarkTabControl1.Invalidate();
-            IntrosCB.Checked =
-                Conversions.ToDouble(IniManager.Ini(ref IniManager.F3Ini, "Graphics", "enable startup movies")) == 1d;
-            MainMenuCB.SelectedIndex =
-                Array.IndexOf(Maps, IniManager.Ini(ref IniManager.SysIni, "Mainmenu", "map name"));
-            CameraCB.Checked = Conversions.ToDouble(IniManager.Ini(ref IniManager.SysIni, "Camera", "FOV Min")) == 0.5d;
-            AltCamCB.Checked = Conversions.ToDouble(IniManager.Ini(ref IniManager.SysIni, "Camera", "Distance Max")) ==
-                               70d;
+            IntrosCB.Checked = IniManager.Ini(ref IniManager.F3Ini, "Graphics", "enable startup movies") == "1";
+            MainMenuCB.SelectedIndex = Array.IndexOf(Maps, IniManager.Ini(ref IniManager.SysIni, "Mainmenu", "map name"));
+            CameraCB.Checked = IniManager.Ini(ref IniManager.SysIni, "Camera", "FOV Min") == "0.5";
+            AltCamCB.Checked = IniManager.Ini(ref IniManager.SysIni, "Camera", "Distance Max") == "70";
             var files = General.SearchForFiles("Override", ["*.map"]);
             foreach (var fi in files.Select(file => new FileInfo(file)).Where(fi => !NewGameCB.Items.Contains(fi.Name)))
             {
@@ -117,8 +81,7 @@ namespace VBLauncher
             }
 
             NewGameCB.Text = IniManager.Ini(ref IniManager.SysIni, "Server", "Start map");
-            DarkNumericUpDown1.Value =
-                Conversions.ToDecimal(IniManager.Ini(ref IniManager.SysIni, "Server", "Start map entry point"));
+            DarkNumericUpDown1.Value = int.Parse(IniManager.Ini(ref IniManager.SysIni, "Server", "Start map entry point"));
             // Graphics
             TextureCB.BringToFront();
             SSFCB.BringToFront();
@@ -137,14 +100,13 @@ namespace VBLauncher
             ResolutionCB.Items.AddRange(GetResAsStrings());
             var inires = new Resolution
             {
-                Width = Conversions.ToInteger(IniManager.Ini(ref IniManager.F3Ini, "Graphics", "width")),
-                Height = Conversions.ToInteger(IniManager.Ini(ref IniManager.F3Ini, "Graphics", "height")),
-                Hz = Conversions.ToInteger(IniManager.Ini(ref IniManager.F3Ini, "Graphics", "refresh"))
+                Width = int.Parse(IniManager.Ini(ref IniManager.F3Ini, "Graphics", "width")),
+                Height = int.Parse(IniManager.Ini(ref IniManager.F3Ini, "Graphics", "height")),
+                Hz = int.Parse(IniManager.Ini(ref IniManager.F3Ini, "Graphics", "refresh"))
             };
             ResolutionCB.SelectedItem = ResToStr(inires);
             SetupSSCB(sender, e);
-            FullscreenCB.Checked =
-                Conversions.ToDouble(IniManager.Ini(ref IniManager.F3Ini, "Graphics", "fullscreen")) == 1d;
+            FullscreenCB.Checked = IniManager.Ini(ref IniManager.F3Ini, "Graphics", "fullscreen") == "1";
             APICB.SelectedIndex = File.Exists("d3d11.dll") ? 1 : 0;
 
             AACB.SelectedIndex = AAModes.ToList().IndexOf(IniManager.Ini(ref dgV2Conf, "DirectX", "Antialiasing"));
@@ -280,8 +242,8 @@ namespace VBLauncher
             IniManager.Ini(ref dgV2Conf, "DirectX", "Antialiasing", AAModes[AACB.SelectedIndex]);
             IniManager.Ini(ref dgV2Conf, "DirectX", "Filtering", FModes[TextureCB.SelectedIndex]);
             IniManager.Ini(ref dgV2Conf, "DirectX", "Resolution", SSModes[SSFCB.SelectedIndex]);
-            IniManager.Ini(ref dgV2Conf, "DirectX", "DisableMipmapping", Conversions.ToString(!MipmapCB.Checked));
-            IniManager.Ini(ref dgV2Conf, "DirectX", "PhongShadingWhenPossible", Conversions.ToString(PhongCB.Checked));
+            IniManager.Ini(ref dgV2Conf, "DirectX", "DisableMipmapping", !MipmapCB.Checked ? "true" : "false");
+            IniManager.Ini(ref dgV2Conf, "DirectX", "PhongShadingWhenPossible", PhongCB.Checked ? "true" : "false");
             IniManager.Ini(ref dgV2Conf, "GeneralExt", "FPSLimit", res.Hz.ToString());
             IniManager.Ini(ref IniManager.F3Ini, "Graphics", "refresh", res.Hz.ToString());
             var NewBinds = (from DataGridViewRow r in DataGridView1.Rows
@@ -317,13 +279,12 @@ namespace VBLauncher
         {
             ToolTip1.SetToolTip(NewGameCB, NewGameCB.Text);
         }
-
         private static string RowToStr(DataGridViewRow row)
         {
-            var ch = Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(row.Cells[3].Value, "Up", false))
+            var ch = (string)row.Cells[3].Value == "Up"
                 ? "-"
                 : "+";
-            return Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(row.Cells[0].Value, "", false))
+            return (string)row.Cells[0].Value == ""
                 ? $"{ch}{row.Cells[1].Value} = {row.Cells[2].Value}"
                 : $"{ch}{row.Cells[0].Value}{ch}{row.Cells[1].Value} = {row.Cells[2].Value}";
         }
@@ -353,8 +314,7 @@ namespace VBLauncher
                         if (ReferenceEquals(DataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value, DBNull.Value))
                             DataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = "Up";
                         DataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value =
-                            Conversions.ToBoolean(Operators.ConditionalCompareObjectEqual(
-                                DataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value, "Up", false))
+                            (string)DataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex].Value == "Up"
                                 ? "Down"
                                 : "Up";
                         DarkLabel1.Hide();
@@ -450,6 +410,18 @@ namespace VBLauncher
         public string Azimuth { get; set; }
         public string Elevation { get; set; }
         public string FOV { get; set; }
+        
+        public MainMenuDef(string mapName, string targetX, string targetY, string targetZ, string azimuth,
+            string elevation, string fov)
+        {
+            MapName = mapName;
+            TargetX = targetX;
+            TargetY = targetY;
+            TargetZ = targetZ;
+            Azimuth = azimuth;
+            Elevation = elevation;
+            FOV = fov;
+        }
     }
 
     public class Keybind

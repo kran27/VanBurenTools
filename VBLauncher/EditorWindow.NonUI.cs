@@ -3,6 +3,7 @@ using System.Linq;
 using System.Windows.Forms;
 using AltUI.Forms;
 using VBLauncher.My;
+using VBLauncher.Properties;
 
 namespace VBLauncher;
 
@@ -14,9 +15,9 @@ public partial class EditorWindow
         // Loads all regions of a given file into their respective classes
         var ofd = new OpenFileDialog { Filter = "Van Buren Data File|*.amo;*.arm;*.con;*.crt;*.dor;*.int;*.itm;*.map;*.use;*.wea", Multiselect = false, ValidateNames = true };
         if (ofd.ShowDialog() != DialogResult.OK) return;
-        _filename = ofd.FileName;
-        _extension = _filename.Substring(_filename.LastIndexOf('.'), 4).ToLower();
-        var fb = File.ReadAllBytes(_filename);
+        _filename = ofd.FileName.Split('\\').Last().Split('.')[0];
+        _extension = "." + ofd.FileName.Split('.').Last();
+        var fb = File.ReadAllBytes(ofd.FileName);
         LoadFile(fb, _extension);
     }
 
@@ -33,8 +34,8 @@ public partial class EditorWindow
     {
         var sfd = new SaveFileDialog { Filter = $"Van Buren Data File|*{_extension}", ValidateNames = true, DefaultExt = _extension, FileName = _filename };
         if (sfd.ShowDialog() != DialogResult.OK) return;
-        if (MySettingsProperty.Settings.STFEditEnabled && _stf is not null)
-            File.WriteAllBytes(MySettingsProperty.Settings.STFDir, Extensions.TXTToSTF(_stf.ToArray()));
+        if (Settings.Default.STFEditEnabled && _stf is not null)
+            File.WriteAllBytes(Settings.Default.STFDir, Extensions.TXTToSTF(_stf.ToArray()));
         File.WriteAllBytes(sfd.FileName, (byte[])_currentFile.ToByte().ToArray());
     }
 
@@ -42,13 +43,14 @@ public partial class EditorWindow
     {
         var ofd = new OpenFileDialog { Multiselect = false, CheckFileExists = true, Filter = "English.stf|*.stf" };
         if (ofd.ShowDialog() != DialogResult.OK) return;
-        MySettingsProperty.Settings.STFDir = ofd.FileName;
+        Settings.Default.STFDir = ofd.FileName;
+        Settings.Default.Save();
         _stf = Extensions.STFToTXT(File.ReadAllBytes(ofd.FileName)).ToArray();
     }
 
     private bool CheckAndLoadStf()
     {
-        if (string.IsNullOrEmpty(MySettingsProperty.Settings.STFDir))
+        if (string.IsNullOrEmpty(Settings.Default.STFDir))
         {
             if (DarkMessageBox.ShowInformation("English.STF Location not set, please locate it.",
                     "English.stf Not Selected") != DialogResult.OK) return false;
@@ -57,7 +59,7 @@ public partial class EditorWindow
 
         }
 
-        if (!File.Exists(MySettingsProperty.Settings.STFDir))
+        if (!File.Exists(Settings.Default.STFDir))
         {
             if (DarkMessageBox.ShowInformation("Previous English.STF not found, please select a new one.",
                     "English.stf Not Found") != DialogResult.OK) return false;
@@ -66,7 +68,7 @@ public partial class EditorWindow
 
         }
 
-        _stf = Extensions.STFToTXT(File.ReadAllBytes(MySettingsProperty.Settings.STFDir)).ToArray();
+        _stf = Extensions.STFToTXT(File.ReadAllBytes(Settings.Default.STFDir)).ToArray();
         return true;
     }
 
@@ -112,49 +114,33 @@ public partial class EditorWindow
             switch (ext ?? "")
             {
                 case ".amo":
-                    {
-                        _currentFile = fb.ReadAMO();
-                        break;
-                    }
+                    _currentFile = fb.ReadAMO();
+                    break;
                 case ".arm":
-                    {
-                        _currentFile = fb.ReadARM();
-                        break;
-                    }
+                    _currentFile = fb.ReadARM();
+                    break;
                 case ".crt":
-                    {
-                        _currentFile = fb.ReadCRT();
-                        break;
-                    }
+                    _currentFile = fb.ReadCRT();
+                    break;
                 case ".int":
-                    {
-                        DarkMessageBox.ShowMessage("Not yet implemented", "Not Implemented");
-                        break;
-                    }
+                    DarkMessageBox.ShowMessage("Not yet implemented", "Not Implemented");
+                    break;
                 case ".itm":
-                    {
-                        _currentFile = fb.ReadITM();
-                        break;
-                    }
+                    _currentFile = fb.ReadITM();
+                    break;
                 case ".map":
-                    {
-                        _currentFile = fb.ReadMap();
-                        break;
-                    }
+                    _currentFile = fb.ReadMap();
+                    break;
                 // .con, .dor, .use are all the same format since the only different chunk is static and GOBJ
-                // dictates type.
+                // (shared between all) dictates type.
                 case ".con":
                 case ".dor":
                 case ".use":
-                    {
-                        _currentFile = fb.ReadUSE();
-                        break;
-                    }
+                    _currentFile = fb.ReadUSE();
+                    break;
                 case ".wea":
-                    {
-                        _currentFile = fb.ReadWEA();
-                        break;
-                    }
+                    _currentFile = fb.ReadWEA();
+                    break;
             }
         }
         else

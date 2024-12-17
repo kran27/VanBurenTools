@@ -7,9 +7,8 @@ using System.IO.Compression;
 using System.Linq;
 using System.Windows.Forms;
 using AltUI.Config;
+using VBLauncher.Properties;
 using static AltUI.Config.ThemeProvider;
-using Microsoft.VisualBasic;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace VBLauncher
 {
@@ -24,7 +23,7 @@ namespace VBLauncher
             InitializeComponent();
         }
 
-        public void LoadMods()
+        private void LoadMods()
         {
             var directory = new DirectoryInfo("Mods");
             foreach (var file in directory.GetFiles("*.zip"))
@@ -32,19 +31,17 @@ namespace VBLauncher
                 var zip = ZipFile.OpenRead(file.FullName);
                 foreach (var entry in zip.Entries)
                 {
-                    if (entry.Name == "mod.info")
-                    {
-                        using var reader = new StreamReader(entry.Open());
-                        var iniData = reader.ReadToEnd().Split(Constants.vbCrLf);
-                        var mname = IniManager.Ini(ref iniData, "Info", "Name");
-                        var description = IniManager.Ini(ref iniData, "Info", "Description", IniManager.KeyType.Multiline);
-                        var version = IniManager.Ini(ref iniData, "Info", "Version");
-                        var entries = (from ent in zip.Entries
-                                       where ent.Name.ToLower() != "mod.info"
-                                       select ent.Name).ToList();
-                        modList.Add(new ModInfo(mname, description, version, new FileInfo(file.FullName), entries));
-                        break;
-                    }
+                    if (entry.Name != "mod.info") continue;
+                    using var reader = new StreamReader(entry.Open());
+                    var iniData = reader.ReadToEnd().Split("\r\n");
+                    var mname = IniManager.Ini(ref iniData, "Info", "Name");
+                    var description = IniManager.Ini(ref iniData, "Info", "Description", IniManager.KeyType.Multiline);
+                    var version = IniManager.Ini(ref iniData, "Info", "Version");
+                    var entries = (from ent in zip.Entries
+                        where !ent.Name.Equals("mod.info", StringComparison.CurrentCultureIgnoreCase)
+                                   select ent.Name).ToList();
+                    modList.Add(new ModInfo(mname, description, version, new FileInfo(file.FullName), entries));
+                    break;
                 }
             }
 
@@ -180,7 +177,7 @@ namespace VBLauncher
         {
             using var txtbrsh = new SolidBrush(Theme.Colors.LightText);
             e.Graphics.FillRectangle(new SolidBrush(BackgroundColour), e.Bounds);
-            e.Graphics.DrawString(e.Header.Text, e.Font, txtbrsh, (int)Math.Round(e.Bounds.Left + e.Bounds.Width / 2d - (double)(e.Graphics.MeasureString(e.Header.Text, e.Font).Width / 2f)), e.Bounds.Top + 5);
+            e.Graphics.DrawString(e.Header.Text, e.Font, txtbrsh, (int)Math.Round(e.Bounds.Left + e.Bounds.Width / 2d - e.Graphics.MeasureString(e.Header.Text, e.Font).Width / 2f), e.Bounds.Top + 5);
 
             e.Graphics.DrawLine(new Pen(Theme.Colors.GreySelection, 1f), e.Bounds.Left, e.Bounds.Top, e.Bounds.Right, e.Bounds.Top);
 
@@ -352,15 +349,15 @@ namespace VBLauncher
                 // get all entries of checked mods
                 try
                 {
-                    foreach (var j in ListView1.CheckedIndices)
+                    foreach (int j in ListView1.CheckedIndices)
                     {
-                        if (Conversions.ToBoolean(Operators.ConditionalCompareObjectLess(j, i, false)))
+                        if (j < i)
                         {
-                            lpe.AddRange(modList[Conversions.ToInteger(j)].Entries);
+                            lpe.AddRange(modList[j].Entries);
                         }
-                        else if (Conversions.ToBoolean(Operators.ConditionalCompareObjectGreater(j, i, false)))
+                        else if (j > i)
                         {
-                            hpe.AddRange(modList[Conversions.ToInteger(j)].Entries);
+                            hpe.AddRange(modList[j].Entries);
                         }
                     }
                 }
@@ -372,31 +369,19 @@ namespace VBLauncher
                 object cfs;
                 var overwrites = modList[i].Entries.Any(s => s.Equals("English.stf", StringComparison.OrdinalIgnoreCase) && lpe.Contains(s));
                 var overwritten = modList[i].Entries.Any(s => s.Equals("English.stf", StringComparison.OrdinalIgnoreCase) && hpe.Contains(s));
-                if (overwrites && overwritten)
+                cfs = overwrites switch
                 {
-                    cfs = ConflictStatus.Mixed;
-                    modList[i].Conflict = (ConflictStatus)Conversions.ToInteger(cfs);
-                }
-                else if (overwrites)
-                {
-                    cfs = ConflictStatus.Overwrite;
-                    modList[i].Conflict = (ConflictStatus)Conversions.ToInteger(cfs);
-                }
-                else if (overwritten)
-                {
-                    cfs = ConflictStatus.Overwritten;
-                    modList[i].Conflict = (ConflictStatus)Conversions.ToInteger(cfs);
-                }
-                else
-                {
-                    cfs = ConflictStatus.Clear;
-                    modList[i].Conflict = (ConflictStatus)Conversions.ToInteger(cfs);
-                }
+                    true when overwritten => ConflictStatus.Mixed,
+                    true => ConflictStatus.Overwrite,
+                    _ => overwritten ? ConflictStatus.Overwritten : ConflictStatus.Clear
+                };
+
+                modList[i].Conflict = (ConflictStatus)cfs;
                 var redundant = modList[i].Entries.Where(s => s.Equals("English.stf", StringComparison.OrdinalIgnoreCase)).All(s => hpe.Contains(s));
                 if (redundant)
                 {
                     cfs = ConflictStatus.Redundant;
-                    modList[i].Conflict = (ConflictStatus)Conversions.ToInteger(cfs);
+                    modList[i].Conflict = (ConflictStatus)cfs;
                 }
                 ListView1.Items[i].SubItems[1].Text = cfs.ToString();
                 modList[i].Priority = ListView1.CheckedItems.IndexOf(ListView1.Items[i]);
@@ -422,7 +407,7 @@ namespace VBLauncher
             Close();
         }
 
-        public (string[], int) MergeSTF(string[] lArray, string[] hArray)
+        private (string[], int) MergeSTF(string[] lArray, string[] hArray)
         {
             var oArray = new string[3282];
             var additionalStrings = 0;
@@ -468,106 +453,72 @@ namespace VBLauncher
 
             var b = File.ReadAllBytes(fp);
 
-            var file = default(object);
-
-            switch (fp.GetExtension().ToLower() ?? "")
+            var file = (fp.GetExtension().ToLower()) switch
             {
-                case ".amo":
-                    {
-                        break;
-                    }
-                // file = b.ReadAMO()
-                case ".arm":
-                    {
-                        break;
-                    }
-                // file = b.ReadARM()
-                case ".con":
-                    {
-                        break;
-                    }
-                // file = b.ReadCON()
-                case ".crt":
-                    {
-                        file = b.ReadCRT();
-                        break;
-                    }
-                case ".dor":
-                    {
-                        break;
-                    }
-                // file = b.ReadDOR()
-                case ".itm":
-                    {
-                        file = b.ReadITM();
-                        break;
-                    }
-                case ".use":
-                    {
-                        break;
-                    }
-                // file = b.ReadUSE()
-                case ".wea":
-                    {
-                        break;
-                    }
-                    // file = b.ReadWEA()
-            }
+                ".amo" => b.ReadAMO(),
+                ".arm" => b.ReadARM(),
+                ".con" => b.ReadUSE(),
+                ".crt" => b.ReadCRT(),
+                ".dor" => b.ReadUSE(),
+                ".itm" => b.ReadITM(),
+                ".use" => b.ReadUSE(),
+                ".wea" => b.ReadWEA(),
+                _ => default(object)
+            };
 
             if (file is null)
                 return;
+            
+            if (((dynamic)file).GENT is not GENTc gent)
+                return;
 
-            if (Conversions.ToBoolean(Operators.ConditionalCompareObjectGreater(((dynamic)file).GENT.HoverSR, 3281, false)))
-                ((dynamic)file).GENT.HoverSR += incVal;
-            if (Conversions.ToBoolean(Operators.ConditionalCompareObjectGreater(((dynamic)file).GENT.LookSR, 3281, false)))
-                ((dynamic)file).GENT.LookSR += incVal;
-            if (Conversions.ToBoolean(Operators.ConditionalCompareObjectGreater(((dynamic)file).GENT.NameSR, 3281, false)))
-                ((dynamic)file).GENT.NameSR += incVal;
-            if (Conversions.ToBoolean(Operators.ConditionalCompareObjectGreater(((dynamic)file).GENT.UnkwnSR, 3281, false)))
-                ((dynamic)file).GENT.UnkwnSR += incVal;
+            if (gent.HoverSR > 3281)
+                gent.HoverSR += incVal;
+            if (gent.LookSR > 3281)
+                gent.LookSR += incVal;
+            if (gent.NameSR > 3281)
+                gent.NameSR += incVal;
+            if (gent.UnkwnSR > 3281)
+                gent.UnkwnSR += incVal;
 
             File.WriteAllBytes(fp, (byte[])((dynamic)file).ToByte());
         }
 
         private void ToolStripLabel2_Click(object sender, EventArgs e)
         {
-            bArray = (string[])Extensions.STFToTXT(File.ReadAllBytes(My.MySettingsProperty.Settings.STFDir));
+            bArray = (string[])Extensions.STFToTXT(File.ReadAllBytes(Settings.Default.STFDir));
             var tmpArray = bArray;
-            foreach (var i in ListView1.CheckedIndices)
+            foreach (int i in ListView1.CheckedIndices)
             {
-                if (modList[Conversions.ToInteger(i)].Entries.Any(x => x.Equals("English.stf", StringComparison.OrdinalIgnoreCase)))
+                if (!modList[i].Entries.Any(x => x.Equals("English.stf", StringComparison.OrdinalIgnoreCase))) continue;
+                var zip = ZipFile.OpenRead(modList[i].Zip.FullName);
+                foreach (var entry in zip.Entries)
                 {
-                    var zip = ZipFile.OpenRead(modList[Conversions.ToInteger(i)].Zip.FullName);
-                    foreach (var entry in zip.Entries)
+                    if (entry.Name.ToLower() != "english.stf") continue;
+                    using var memoryStream = new MemoryStream();
+                    entry.Open().CopyTo(memoryStream);
+                    var stfData = memoryStream.ToArray();
+                    var stfArray = Extensions.STFToTXT(stfData);
+
+                    var tmp = MergeSTF(tmpArray, (string[])stfArray);
+                    tmpArray = tmp.Item1;
+
+                    var tmpDir = @"Mods\tmp";
+                    Directory.CreateDirectory(tmpDir);
+                    foreach (var entry2 in zip.Entries)
                     {
-                        if (entry.Name.ToLower() == "english.stf")
+                        if (entry2.Name.ToLower() != "english.stf" && entry2.Name.ToLower() != "mod.info")
                         {
-                            using var memoryStream = new MemoryStream();
-                            entry.Open().CopyTo(memoryStream);
-                            var stfData = memoryStream.ToArray();
-                            var stfArray = Extensions.STFToTXT(stfData);
-
-                            var tmp = MergeSTF(tmpArray, (string[])stfArray);
-                            tmpArray = tmp.Item1;
-
-                            var tmpDir = @"Mods\tmp";
-                            Directory.CreateDirectory(tmpDir);
-                            foreach (var entry2 in zip.Entries)
-                            {
-                                if (!(entry2.Name.ToLower() == "english.stf") && !(entry2.Name.ToLower() == "mod.info"))
-                                {
-                                    entry2.ExtractToFile(Path.Combine(tmpDir, entry2.Name), true);
-                                }
-                            }
-                            foreach (var f in Directory.GetFiles(tmpDir))
-                            {
-                                var fi = new FileInfo(f);
-                                IncSTFRefs(f, tmp.Item2);
-                                File.Move(f, $@"Overrides\Deployed\{fi.Name}", true);
-                            }
-                            break;
+                            entry2.ExtractToFile(Path.Combine(tmpDir, entry2.Name), true);
                         }
                     }
+                    foreach (var f in Directory.GetFiles(tmpDir))
+                    {
+                        var fi = new FileInfo(f);
+                        IncSTFRefs(f, tmp.Item2);
+                        File.Move(f, $@"Overrides\Deployed\{fi.Name}", true);
+                    }
+                    break;
                 }
             }
         }

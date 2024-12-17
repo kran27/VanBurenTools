@@ -5,7 +5,6 @@ using System.Windows.Forms;
 
 namespace VBLauncher
 {
-    [Microsoft.VisualBasic.CompilerServices.DesignerGenerated()]
     public partial class GrpBrowser : AltUI.Forms.DarkForm
     {
 

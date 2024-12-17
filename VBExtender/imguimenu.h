@@ -354,11 +354,11 @@ static long __stdcall detour_present(IDXGISwapChain* p_swap_chain, UINT sync_int
 			setuptext"Game Speed" setupcontrol
 				if (ImGui::SliderFloat("", &speed, 0.5f, 10.0f, "%.1f")) setAllToSpeed(speed);
 			setuptext"Object X" setupcontrol
-				ImGui::SliderFloat("\u200B", &objX, 0.0f, 500.0f, "%.1f");
+				ImGui::InputFloat("\u200B", &objX, 0.0f, 500.0f, "%.1f");
 			setuptext"Object Y" setupcontrol
-				ImGui::SliderFloat("\u200B\u200B", &objY, 0.0f, 500.0f, "%.1f");
+				ImGui::InputFloat("\u200B\u200B", &objZ, 0.0f, 500.0f, "%.1f");
 			setuptext"Object Z" setupcontrol
-				ImGui::SliderFloat("\u200B\u200B\u200B", &objZ, 0.0f, 500.0f, "%.1f");
+				ImGui::InputFloat("\u200B\u200B\u200B", &objY, 0.0f, 500.0f, "%.1f");
 			break;
 		}
 		case 3:

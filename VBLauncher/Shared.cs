@@ -4,12 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using Microsoft.VisualBasic;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace VBLauncher
 {
-
     public static class IniManager
     {
         public static string F3Dir = $@"{Environment.GetFolderPath(Environment.SpecialFolder.Personal)}\F3\F3.ini";
@@ -93,7 +90,7 @@ namespace VBLauncher
                 {
                 }
                 // Set to new value
-                IniArray[KeyIndex] = Strings.Trim($"{IniKey} = {Value} {Comment}");
+                IniArray[KeyIndex] = $"{IniKey} = {Value} {Comment}".Trim();
             }
             else
             {
@@ -308,9 +305,9 @@ namespace VBLauncher
                 var b = a[1].Split(['@']);
                 return new Resolution
                 {
-                    Width = Conversions.ToInteger(a[0]),
-                    Height = Conversions.ToInteger(b[0]),
-                    Hz = Conversions.ToInteger(b[1])
+                    Width = int.Parse(a[0]),
+                    Height = int.Parse(b[0]),
+                    Hz = int.Parse(b[1])
                 };
             }
             catch
