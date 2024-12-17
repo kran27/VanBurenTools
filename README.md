@@ -1,5 +1,5 @@
 # VanBurenTools
-[![](https://dyna-badge.vercel.app/api/discord?guild=470671750087180289)](https://discord.gg/tzF3YFu)
+[![](https://dyna-badge.vercel.app/api/discord?guild=470671750087180289)](https://discord.gg/tzF3YFu)<br>
 Various tools and code relating to reverse engineering Fallout Van Buren
 - You can get the latest version of the launcher [here](https://github.com/kran27/VanBurenLauncher/raw/main/VBLauncher/bin/Release/VBLauncher.exe)
 - You can get Van Buren [here](https://vb.kran.gg/F3_Demo.rar)
@@ -19,12 +19,14 @@ A DLL loaded by the game. includes some patches and utilities, and an .ASI loade
 Put the launcher in the game directory, and open the options menu(s) and apply your desired tweaks before launching.
 ## 3rd Party Libraries:
 ### VBLauncher:
-- [AltUI](https://github.com/kran27/AltUI) for UI elements
+- [AltUI](https://github.com/kran27/AltUI) for (most) UI elements
 - [dgVoodoo2](http://dege.fw.hu) for in-game graphical improvements
 - [DXVK](https://github.com/doitsujin/dxvk) for no good reason
 - [Helix Toolkit](https://github.com/helix-toolkit/helix-toolkit) for 3D rendering/previews
 - [HexBox](https://sourceforge.net/projects/hexbox/) for preview of some files
 - [Pfim](https://github.com/nickbabcock/Pfim) for loading of .tga images
+- [ImGui.NET](https://github.com/ImGuiNET/ImGui.NET) for editor UI
+- [Veldrid](https://github.com/veldrid/veldrid) for ImGui.NET backend
 ### VBExtender:
 - [Detours](https://github.com/microsoft/Detours) for hooking functions
 - [discord-rpc](https://github.com/discord/discord-rpc) for Discord integration
