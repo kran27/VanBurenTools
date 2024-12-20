@@ -27,6 +27,7 @@ Put the launcher in the game directory, and open the options menu(s) and apply y
 - [Pfim](https://github.com/nickbabcock/Pfim) for loading of .tga images
 - [ImGui.NET](https://github.com/ImGuiNET/ImGui.NET) for editor UI
 - [Veldrid](https://github.com/veldrid/veldrid) for ImGui.NET backend
+- [ImGuiColorTextEditNet](https://github.com/kran27/ImGuiColorTextEditNet) for textual editors
 ### VBExtender:
 - [Detours](https://github.com/microsoft/Detours) for hooking functions
 - [discord-rpc](https://github.com/discord/discord-rpc) for Discord integration
