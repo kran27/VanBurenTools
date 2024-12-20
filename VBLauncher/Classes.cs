@@ -435,38 +435,38 @@ public class ExTRc // Called ExTR instead of E(T/S/B)TR for easier handling with
         switch (type ?? "")
         {
             case "B":
-            {
-                var ret = new byte[19];
-                ret.Write(0, "EBTR");
-                ret.Write(8, 19);
-                ret.Write(12, s);
-                ret.Write(16, "FFF");
-                return ret;
-            }
+                {
+                    var ret = new byte[19];
+                    ret.Write(0, "EBTR");
+                    ret.Write(8, 19);
+                    ret.Write(12, s);
+                    ret.Write(16, "FFF");
+                    return ret;
+                }
             case "S":
-            {
-                var ret = new byte[17 + s.Length + 1];
-                ret.Write(0, "ESTR");
-                ret.Write(8, 18 + s.Length);
-                ret.Write(12, s.Length);
-                ret.Write(14, s);
-                return ret;
-            }
+                {
+                    var ret = new byte[17 + s.Length + 1];
+                    ret.Write(0, "ESTR");
+                    ret.Write(8, 18 + s.Length);
+                    ret.Write(12, s.Length);
+                    ret.Write(14, s);
+                    return ret;
+                }
             case "T":
-            {
-                var ret = new byte[15 + s.Length + 1];
-                ret.Write(0, "ETTR");
-                ret.Write(8, 16 + s.Length);
-                ret.Write(12, s.Length);
-                ret.Write(14, s);
-                ret.Write(14 + s.Length, [1, 1]);
-                return ret;
-            }
+                {
+                    var ret = new byte[15 + s.Length + 1];
+                    ret.Write(0, "ETTR");
+                    ret.Write(8, 16 + s.Length);
+                    ret.Write(12, s.Length);
+                    ret.Write(14, s);
+                    ret.Write(14 + s.Length, [1, 1]);
+                    return ret;
+                }
 
             default:
-            {
-                return Array.Empty<byte>();
-            }
+                {
+                    return Array.Empty<byte>();
+                }
         }
     }
 }
@@ -1062,212 +1062,212 @@ public class VEG
     public string Text = "";
 
     public byte[] Compile()
-{
-    // Parse the Text form. We'll assume we have it as a single string `Text`.
-    // Steps:
-    // 1. Extract lines inside the "VEG { ... }" block.
-    // 2. Parse each line of the form: "<type> <name> = <value>;"
-    // 3. Convert them into binary.
-
-    using var ms = new MemoryStream();
-    using var bw = new BinaryWriter(ms, Encoding.UTF8);
-
-    // Write the "VEG v1.1" header (8 bytes)
-    var vegHeader = "VEG V1.1";
-    bw.Write(Encoding.ASCII.GetBytes(vegHeader));
-
-    // Extract lines from Text
-    var lines = Text.Replace("\r", "").Split('\n');
-    // Find the block starting line "VEG {" and ending line "}";
-    var startIndex = Array.FindIndex(lines, l => l.Trim() == "VEG {");
-    var endIndex = Array.LastIndexOf(lines, "\t};");
-
-    if (startIndex < 0 || endIndex < 0 || endIndex <= startIndex)
-        throw new Exception("Invalid VEG format");
-
-    var propertyLines = lines
-        .Skip(startIndex + 1)
-        .Take(endIndex - startIndex)
-        .Select(l => l.Trim())
-        .Where(l => !string.IsNullOrWhiteSpace(l))
-        .ToList();
-
-    // Split properties into chunks based on VFX delimiters
-    var vfxChunks = new List<List<string>>();
-    List<string> currentChunk = new();
-
-    foreach (var line in propertyLines)
     {
-        if (line.StartsWith("VFX {"))
+        // Parse the Text form. We'll assume we have it as a single string `Text`.
+        // Steps:
+        // 1. Extract lines inside the "VEG { ... }" block.
+        // 2. Parse each line of the form: "<type> <name> = <value>;"
+        // 3. Convert them into binary.
+
+        using var ms = new MemoryStream();
+        using var bw = new BinaryWriter(ms, Encoding.UTF8);
+
+        // Write the "VEG v1.1" header (8 bytes)
+        var vegHeader = "VEG V1.1";
+        bw.Write(Encoding.ASCII.GetBytes(vegHeader));
+
+        // Extract lines from Text
+        var lines = Text.Replace("\r", "").Split('\n');
+        // Find the block starting line "VEG {" and ending line "}";
+        var startIndex = Array.FindIndex(lines, l => l.Trim() == "VEG {");
+        var endIndex = Array.LastIndexOf(lines, "\t};");
+
+        if (startIndex < 0 || endIndex < 0 || endIndex <= startIndex)
+            throw new Exception("Invalid VEG format");
+
+        var propertyLines = lines
+            .Skip(startIndex + 1)
+            .Take(endIndex - startIndex)
+            .Select(l => l.Trim())
+            .Where(l => !string.IsNullOrWhiteSpace(l))
+            .ToList();
+
+        // Split properties into chunks based on VFX delimiters
+        var vfxChunks = new List<List<string>>();
+        List<string> currentChunk = new();
+
+        foreach (var line in propertyLines)
         {
-            if (currentChunk.Count > 0) vfxChunks.Add(currentChunk);
-            currentChunk = new List<string>();
+            if (line.StartsWith("VFX {"))
+            {
+                if (currentChunk.Count > 0) vfxChunks.Add(currentChunk);
+                currentChunk = new List<string>();
+            }
+            currentChunk.Add(line);
         }
-        currentChunk.Add(line);
-    }
 
-    if (currentChunk.Count > 0) vfxChunks.Add(currentChunk);
+        if (currentChunk.Count > 0) vfxChunks.Add(currentChunk);
 
-    var vfx_count = vfxChunks.Count;
+        var vfx_count = vfxChunks.Count;
 
-    // Write vfx_count (int32) at offset 8
-    bw.Write(vfx_count);
+        // Write vfx_count (int32) at offset 8
+        bw.Write(vfx_count);
 
-    // Write 12 unknown bytes as 0
-    bw.Write(new byte[12]);
+        // Write 12 unknown bytes as 0
+        bw.Write(new byte[12]);
 
-    void ProcessProperties(List<string> props)
-    {
-        foreach (var line in props) // Skip "VFX {" and "}" lines
+        void ProcessProperties(List<string> props)
         {
-            // Parse the line
-            var trimmedLine = line.EndsWith(";") ? line.Substring(0, line.Length - 1) : line;
-
-            var eqParts = trimmedLine.Split('=');
-            if (eqParts.Length != 2) continue;
-            var leftPart = eqParts[0].Trim();
-            var rightPart = eqParts[1].Trim();
-
-            var leftTokens = leftPart.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
-            if (leftTokens.Length < 2) throw new Exception("Invalid property definition: " + line);
-
-            var typeToken = leftTokens[0];
-            string name;
-            var fullType = typeToken;
-
-            if (enums.Contains(typeToken))
+            foreach (var line in props) // Skip "VFX {" and "}" lines
             {
-                name = leftTokens[1];
-                fullType = "enum " + typeToken;
-            }
-            else
-            {
-                var secondTokenParts = leftTokens[1].Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
-                name = secondTokenParts[^1];
-            }
+                // Parse the line
+                var trimmedLine = line.EndsWith(";") ? line.Substring(0, line.Length - 1) : line;
 
-            bw.Write((short)name.Length);
-            bw.Write(Encoding.ASCII.GetBytes(name));
+                var eqParts = trimmedLine.Split('=');
+                if (eqParts.Length != 2) continue;
+                var leftPart = eqParts[0].Trim();
+                var rightPart = eqParts[1].Trim();
 
-            if (fullType == "enum VFX_Target") fullType = "VFX_Target";
+                var leftTokens = leftPart.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+                if (leftTokens.Length < 2) throw new Exception("Invalid property definition: " + line);
 
-            bw.Write((short)fullType.Length);
-            bw.Write(Encoding.ASCII.GetBytes(fullType));
+                var typeToken = leftTokens[0];
+                string name;
+                var fullType = typeToken;
 
-            bw.Write(0xFFFFFFFF);
+                if (enums.Contains(typeToken))
+                {
+                    name = leftTokens[1];
+                    fullType = "enum " + typeToken;
+                }
+                else
+                {
+                    var secondTokenParts = leftTokens[1].Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+                    name = secondTokenParts[^1];
+                }
 
-            switch (typeToken)
-            {
-                case "int":
-                case "VFX_TriggeredEffect":
-                    bw.Write(4);
-                    bw.Write(int.Parse(rightPart));
-                    break;
-                case "float":
-                    bw.Write(4);
-                    bw.Write(float.Parse(rightPart.TrimEnd('f')));
-                    break;
-                case "bool":
-                    bw.Write(1);
-                    bw.Write(rightPart == "true" ? (byte)0xDC : (byte)0); // idk why bool is 0xDC
-                    break;
-                case "VFX_Byte":
-                    bw.Write(1);
-                    bw.Write(byte.Parse(rightPart));
-                    break;
-                case "VFX_Vector":
-                case "VFX_Rotation":
-                    bw.Write(12);
-                    var vecParts = rightPart.Trim('(', ')').Split(',');
-                    bw.Write(float.Parse(vecParts[0].Trim().TrimEnd('f')));
-                    bw.Write(float.Parse(vecParts[1].Trim().TrimEnd('f')));
-                    bw.Write(float.Parse(vecParts[2].Trim().TrimEnd('f')));
-                    break;
-                case "VFX_Vector2":
-                    bw.Write(8);
-                    var v2 = rightPart.Trim('(', ')').Split(',');
-                    bw.Write(float.Parse(v2[0].Trim().TrimEnd('f')));
-                    bw.Write(float.Parse(v2[1].Trim().TrimEnd('f')));
-                    break;
-                case "VFX_TextureUVs":
-                    bw.Write(16);
-                    var uv = rightPart.Trim('(', ')').Split(',');
-                    bw.Write(float.Parse(uv[0].Trim().TrimEnd('f')));
-                    bw.Write(float.Parse(uv[1].Trim().TrimEnd('f')));
-                    bw.Write(float.Parse(uv[2].Trim().TrimEnd('f')));
-                    bw.Write(float.Parse(uv[3].Trim().TrimEnd('f')));
-                    break;
-                case "VFX_Color":
-                    bw.Write(3);
-                    var col = rightPart.Trim('(', ')').Split(',');
-                    bw.Write(byte.Parse(col[0].Trim()));
-                    bw.Write(byte.Parse(col[1].Trim()));
-                    bw.Write(byte.Parse(col[2].Trim()));
-                    break;
-                case "VFX_Resource":
-                    var openParen = rightPart.IndexOf('(');
-                    var closeParen = rightPart.LastIndexOf(')');
-                    var resTypeName = rightPart.Substring(0, openParen).Trim();
-                    var fileNameQuoted = rightPart.Substring(openParen + 1, closeParen - openParen - 1).Trim();
+                bw.Write((short)name.Length);
+                bw.Write(Encoding.ASCII.GetBytes(name));
 
-                    if (!fileNameQuoted.StartsWith("\"") || !fileNameQuoted.EndsWith("\""))
-                        throw new Exception("Resource filename not quoted properly: " + rightPart);
+                if (fullType == "enum VFX_Target") fullType = "VFX_Target";
 
-                    var filenameInner = fileNameQuoted.Substring(1, fileNameQuoted.Length - 2);
+                bw.Write((short)fullType.Length);
+                bw.Write(Encoding.ASCII.GetBytes(fullType));
 
-                    bw.Write(4 + resTypeName.Length + filenameInner.Length);
+                bw.Write(0xFFFFFFFF);
 
-                    bw.Write((short)resTypeName.Length);
-                    bw.Write(Encoding.ASCII.GetBytes(resTypeName));
+                switch (typeToken)
+                {
+                    case "int":
+                    case "VFX_TriggeredEffect":
+                        bw.Write(4);
+                        bw.Write(int.Parse(rightPart));
+                        break;
+                    case "float":
+                        bw.Write(4);
+                        bw.Write(float.Parse(rightPart.TrimEnd('f')));
+                        break;
+                    case "bool":
+                        bw.Write(1);
+                        bw.Write(rightPart == "true" ? (byte)0xDC : (byte)0); // idk why bool is 0xDC
+                        break;
+                    case "VFX_Byte":
+                        bw.Write(1);
+                        bw.Write(byte.Parse(rightPart));
+                        break;
+                    case "VFX_Vector":
+                    case "VFX_Rotation":
+                        bw.Write(12);
+                        var vecParts = rightPart.Trim('(', ')').Split(',');
+                        bw.Write(float.Parse(vecParts[0].Trim().TrimEnd('f')));
+                        bw.Write(float.Parse(vecParts[1].Trim().TrimEnd('f')));
+                        bw.Write(float.Parse(vecParts[2].Trim().TrimEnd('f')));
+                        break;
+                    case "VFX_Vector2":
+                        bw.Write(8);
+                        var v2 = rightPart.Trim('(', ')').Split(',');
+                        bw.Write(float.Parse(v2[0].Trim().TrimEnd('f')));
+                        bw.Write(float.Parse(v2[1].Trim().TrimEnd('f')));
+                        break;
+                    case "VFX_TextureUVs":
+                        bw.Write(16);
+                        var uv = rightPart.Trim('(', ')').Split(',');
+                        bw.Write(float.Parse(uv[0].Trim().TrimEnd('f')));
+                        bw.Write(float.Parse(uv[1].Trim().TrimEnd('f')));
+                        bw.Write(float.Parse(uv[2].Trim().TrimEnd('f')));
+                        bw.Write(float.Parse(uv[3].Trim().TrimEnd('f')));
+                        break;
+                    case "VFX_Color":
+                        bw.Write(3);
+                        var col = rightPart.Trim('(', ')').Split(',');
+                        bw.Write(byte.Parse(col[0].Trim()));
+                        bw.Write(byte.Parse(col[1].Trim()));
+                        bw.Write(byte.Parse(col[2].Trim()));
+                        break;
+                    case "VFX_Resource":
+                        var openParen = rightPart.IndexOf('(');
+                        var closeParen = rightPart.LastIndexOf(')');
+                        var resTypeName = rightPart.Substring(0, openParen).Trim();
+                        var fileNameQuoted = rightPart.Substring(openParen + 1, closeParen - openParen - 1).Trim();
 
-                    bw.Write((short)filenameInner.Length);
-                    bw.Write(Encoding.ASCII.GetBytes(filenameInner));
+                        if (!fileNameQuoted.StartsWith("\"") || !fileNameQuoted.EndsWith("\""))
+                            throw new Exception("Resource filename not quoted properly: " + rightPart);
 
-                    break;
-                default:
-                    if (enums.Contains(typeToken))
-                    {
-                        bw.Write(2 + rightPart.Length);
-                        bw.Write((short)rightPart.Length);
-                        bw.Write(Encoding.ASCII.GetBytes(rightPart));
-                    }
-                    else
-                    {
-                        var strVal = rightPart.Substring(1, rightPart.Length - 2);
-                        bw.Write(2 + strVal.Length);
-                        bw.Write((short)strVal.Length);
-                        bw.Write(Encoding.ASCII.GetBytes(strVal));
-                    }
-                    break;
+                        var filenameInner = fileNameQuoted.Substring(1, fileNameQuoted.Length - 2);
+
+                        bw.Write(4 + resTypeName.Length + filenameInner.Length);
+
+                        bw.Write((short)resTypeName.Length);
+                        bw.Write(Encoding.ASCII.GetBytes(resTypeName));
+
+                        bw.Write((short)filenameInner.Length);
+                        bw.Write(Encoding.ASCII.GetBytes(filenameInner));
+
+                        break;
+                    default:
+                        if (enums.Contains(typeToken))
+                        {
+                            bw.Write(2 + rightPart.Length);
+                            bw.Write((short)rightPart.Length);
+                            bw.Write(Encoding.ASCII.GetBytes(rightPart));
+                        }
+                        else
+                        {
+                            var strVal = rightPart.Substring(1, rightPart.Length - 2);
+                            bw.Write(2 + strVal.Length);
+                            bw.Write((short)strVal.Length);
+                            bw.Write(Encoding.ASCII.GetBytes(strVal));
+                        }
+                        break;
+                }
             }
         }
+
+        // Process each chunk
+        foreach (var chunk in vfxChunks)
+        {
+            // Write "VFX v1.0" at offset 24
+            var vfxHeader = "VFX V1.0";
+            bw.Write(Encoding.ASCII.GetBytes(vfxHeader));
+
+            // Write 8 unknown bytes after "VFX v1.0"
+            bw.Write(new byte[8]);
+            // Write the number of properties in the chunk (4 bytes)
+            var propertyCount = chunk.Count - 2; // Exclude "VFX {" and "}" lines
+            bw.Write(propertyCount);
+
+            ProcessProperties(chunk.Skip(1).Take(chunk.Count - 2).ToList());
+        }
+
+        // get number of lines after the last VFX block (excluding the last "};")
+        var rootValCount = lines.Length - vfxChunks.Sum(c => c.Count) - 3;
+        bw.Write(rootValCount);
+        var rootLines = lines.Skip(endIndex + 1).Take(rootValCount).ToList();
+
+        ProcessProperties(rootLines);
+
+        return ms.ToArray();
     }
-
-    // Process each chunk
-    foreach (var chunk in vfxChunks)
-    {
-        // Write "VFX v1.0" at offset 24
-        var vfxHeader = "VFX V1.0";
-        bw.Write(Encoding.ASCII.GetBytes(vfxHeader));
-
-        // Write 8 unknown bytes after "VFX v1.0"
-        bw.Write(new byte[8]);
-        // Write the number of properties in the chunk (4 bytes)
-        var propertyCount = chunk.Count - 2; // Exclude "VFX {" and "}" lines
-        bw.Write(propertyCount);
-
-        ProcessProperties(chunk.Skip(1).Take(chunk.Count - 2).ToList());
-    }
-    
-    // get number of lines after the last VFX block (excluding the last "};")
-    var rootValCount = lines.Length - vfxChunks.Sum(c => c.Count) - 3;
-    bw.Write(rootValCount);
-    var rootLines = lines.Skip(endIndex + 1).Take(rootValCount).ToList();
-    
-    ProcessProperties(rootLines);
-
-    return ms.ToArray();
-}
 
 
 
@@ -1294,7 +1294,7 @@ public class VEG
             var typel = br.ReadInt16();
             var typename = new string(br.ReadChars(typel));
             br.BaseStream.Seek(8, SeekOrigin.Current);
-            
+
             var enum_name = "";
             if (typename.StartsWith("enum"))
             {
@@ -1381,7 +1381,7 @@ public class VEG
         ms.Close();
         Text = sb.ToString();
     }
-    
+
     public static string[] enums =
     [
         "VFX_EffectType",
@@ -1401,7 +1401,7 @@ public class VEG
         "VFX_WindType",
         "VFX_Target"
     ];
-    
+
     public static string[] GFX_BONE_ID =
     [
         "BONE_NONE",
