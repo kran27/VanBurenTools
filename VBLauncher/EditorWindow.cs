@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -6,9 +7,11 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using AltUI.Config;
+using ImGuiColorTextEditNet;
 using ImGuiNET;
 using VBLauncher.My.Resources;
 using VBLauncher.Properties;
@@ -25,6 +28,7 @@ namespace VBLauncher
         private CommandList _commandList;
         private ImGuiRenderer _imguiRenderer;
         private ImFontPtr? _font;
+        private ImFontPtr? _consoleFont;
 
         private string _filename;
         private string _extension;
@@ -66,6 +70,11 @@ namespace VBLauncher
             if (File.Exists(@"C:\Windows\Fonts\segoeui.ttf"))
             {
                 _font = io.Fonts.AddFontFromFileTTF(@"C:\Windows\Fonts\segoeui.ttf", 17f);
+                _imguiRenderer.RecreateFontDeviceTexture();
+            }
+            if (File.Exists(@"C:\Windows\Fonts\CascadiaCode.ttf"))
+            {
+                _consoleFont = io.Fonts.AddFontFromFileTTF(@"C:\Windows\Fonts\CascadiaCode.ttf", 16f);
                 _imguiRenderer.RecreateFontDeviceTexture();
             }
 
@@ -259,7 +268,7 @@ namespace VBLauncher
                 {
                     if (ImGui.BeginMenu("New"))
                     {
-                        var t = new[] { ".amo", ".arm", ".con", ".crt", ".dor", ".int", ".itm", ".map", ".use", ".wea" };
+                        var t = new[] { ".amo", ".arm", ".con", ".crt", ".dor", ".int", ".itm", ".map", ".use", ".veg", ".wea" };
                         foreach (var s in t)
                         {
                             if (!ImGui.MenuItem(s)) continue;
@@ -274,9 +283,11 @@ namespace VBLauncher
                                 ".itm" => new ITM(),
                                 ".map" => new Map(),
                                 ".use" => new USE(),
+                                ".veg" => new VEG([]),
                                 ".wea" => new WEA(),
                                 _ => throw new ArgumentOutOfRangeException()
                             };
+                            if (s == ".veg") InitVEG();
                         }
                         ImGui.EndMenu();
                     }
@@ -365,6 +376,9 @@ namespace VBLauncher
                 case WEA:
                     DrawWEA();
                     break;
+                case VEG:
+                    DrawVEG();
+                    break;
             }
         }
 
@@ -408,6 +422,11 @@ namespace VBLauncher
             ImGui.PushItemWidth(-1);
             if (!Settings.Default.STFEditEnabled)
                 ImGui.BeginDisabled();
+            if (sr == _stf.Length)
+            {
+                Array.Resize(ref _stf, _stf.Length + 1);
+                _stf[sr] = "";
+            }
             ImGui.InputText("##" + text + "in", ref _stf[sr - 1], 100u);
             if (!Settings.Default.STFEditEnabled)
                 ImGui.EndDisabled();
@@ -480,6 +499,74 @@ namespace VBLauncher
         {
             DrawITM();
             DrawGIWP();
+        }
+
+        private void InitVEG()
+        {
+            var pushed = false;
+            if (_consoleFont is { } font)
+            {
+                ImGui.PushFont(font);
+                pushed = true;
+            }
+            _vegTextEditor = new TextEditor
+            {
+                Options =
+                {
+                    IsColorizerEnabled = true
+                },
+                Renderer =
+                {
+                    IsShowingWhitespace = false,
+                    Palette = _vegPalette
+                },
+                SyntaxHighlighter = new VEGSyntaxHighlighter()
+            };
+            if (pushed) ImGui.PopFont();
+        }
+        
+        private TextEditor _vegTextEditor;
+        private static readonly uint[] _vegPalette =
+        [
+            //AABBGGRR
+            0xff7f7f7f, // Default
+            0xffeb956c, // Keyword (Done)
+            0xffc094ed, // Number (Done)
+            0xff6da2c9, // String (Done)
+            0xff6da2c9, // Char literal (Done)
+            0xffbdbdbd, // Punctuation (Done)
+            0xff408080, // Preprocessor
+            0xffaaaaaa, // Identifier
+            0xffffbfe1, // Known identifier (Done)
+            0xffc040a0, // Preproc identifier
+            0xff6cc485, // Comment (single line) (Done)
+            0xff6cc485, // Comment (multi line) (Done)
+            0xff101010, // Background
+            0xffe0e0e0, // Cursor
+            0x80a06020, // Selection
+            0x800020ff, // ErrorMarker
+            0x40f08000, // Breakpoint
+            0xff707000, // Line number
+            0x40000000, // Current line fill
+            0x40808080, // Current line fill (inactive)
+            0x40a0a0a0, // Current line edge
+            0xa0a0a0a0, // Executing Line
+            0xffccc366, // Custom (enum value)
+            0xffff91c1, // Custom 2 (header)
+            0xff9bcc39, // Custom 3 (func)
+        ];
+        private void DrawVEG()
+        {
+            ImGui.Begin("VEG Editor"); 
+            // VEG is stored as binary but edited in a custom textual language (based on .G3D)
+            var pushed = false;
+            if (_consoleFont is { } font)
+            {
+                ImGui.PushFont(font);
+                pushed = true;
+            }
+            _vegTextEditor.Render("VEG Editor", new Vector2(0, 0));
+            if (pushed) ImGui.PopFont();
         }
 
         private void DrawEEN2()
@@ -676,7 +763,7 @@ namespace VBLauncher
                 gcre.Inventory = tmp.ToArray();
                 _gcreEquipped = -1;
             }
-            _gwamNames = gcre.GWAM.Select(i => _stf[i.NameSR - 1]).ToArray();
+            _gwamNames = gcre.GWAM.Select(i => i.NameSR == 0 ? "" : _stf[i.NameSR - 1]).ToArray();
             ImGui.End();
         }
 

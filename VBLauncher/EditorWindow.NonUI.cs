@@ -1,5 +1,6 @@
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Windows.Forms;
 using AltUI.Forms;
 using VBLauncher.My;
@@ -13,7 +14,7 @@ public partial class EditorWindow
     {
         ResetTempValues();
         // Loads all regions of a given file into their respective classes
-        var ofd = new OpenFileDialog { Filter = "Van Buren Data File|*.amo;*.arm;*.con;*.crt;*.dor;*.int;*.itm;*.map;*.use;*.wea", Multiselect = false, ValidateNames = true };
+        var ofd = new OpenFileDialog { Filter = "Van Buren Data File|*.amo;*.arm;*.con;*.crt;*.dor;*.int;*.itm;*.map;*.use;*.wea;*.veg", Multiselect = false, ValidateNames = true };
         if (ofd.ShowDialog() != DialogResult.OK) return;
         _filename = ofd.FileName.Split('\\').Last().Split('.')[0];
         _extension = "." + ofd.FileName.Split('.').Last();
@@ -24,7 +25,7 @@ public partial class EditorWindow
     private void OpenFromGRP()
     {
         ResetTempValues();
-        using var grpb = new GrpBrowser(["amo", "arm", "con", "crt", "dor", "int", "itm", "map", "use", "wea"]);
+        using var grpb = new GrpBrowser(["amo", "arm", "con", "crt", "dor", "int", "itm", "map", "use", "wea", "veg"]);
         grpb.ShowDialog();
         _filename = grpb.FileName;
         LoadFile(grpb.FileBytes, "." + grpb.Extension);
@@ -36,7 +37,12 @@ public partial class EditorWindow
         if (sfd.ShowDialog() != DialogResult.OK) return;
         if (Settings.Default.STFEditEnabled && _stf is not null)
             File.WriteAllBytes(Settings.Default.STFDir, Extensions.TXTToSTF(_stf.ToArray()));
-        File.WriteAllBytes(sfd.FileName, (byte[])_currentFile.ToByte().ToArray());
+        if (_extension.EndsWith("veg")) {
+            _currentFile.Text = _vegTextEditor.AllText;
+            File.WriteAllBytes(sfd.FileName, _currentFile.Compile());
+        }
+        else
+            File.WriteAllBytes(sfd.FileName, (byte[])_currentFile.ToByte().ToArray());
     }
 
     private void SetEngStfLocation()
@@ -141,6 +147,13 @@ public partial class EditorWindow
                 case ".wea":
                     _currentFile = fb.ReadWEA();
                     break;
+                case ".veg":
+                {
+                    InitVEG();
+                    _currentFile = new VEG(fb);
+                    _vegTextEditor.AllText = _currentFile.Text;
+                    break;
+                }
             }
         }
         else

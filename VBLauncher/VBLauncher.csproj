@@ -31,6 +31,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AltUI\AltUI\AltUI.csproj" />
+    <ProjectReference Include="..\ImGuiColorTextEditNet\src\TextEdit\ImGuiColorTextEditNet.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Settings.Designer.cs">
