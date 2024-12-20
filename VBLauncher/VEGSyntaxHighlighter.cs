@@ -83,13 +83,13 @@ public class VEGSyntaxHighlighter : ISyntaxHighlighter
 
         int result;
         if ((result = TokenizeMultiLineComment(span, ref state)) != -1) return result;
-        if ((result = TokenizeSingleLineComment(span))      != -1) return result;
-        if ((result = TokenizePreprocessorDirective(span))  != -1) return result;
-        if ((result = TokenizeCStyleString(span))           != -1) return result;
+        if ((result = TokenizeSingleLineComment(span)) != -1) return result;
+        if ((result = TokenizePreprocessorDirective(span)) != -1) return result;
+        if ((result = TokenizeCStyleString(span)) != -1) return result;
         if ((result = TokenizeCStyleCharacterLiteral(span)) != -1) return result;
-        if ((result = TokenizeCStyleIdentifier(span))       != -1) return result;
-        if ((result = TokenizeCStyleNumber(span))           != -1) return result;
-        if ((result = TokenizeCStylePunctuation(span))      != -1) return result;
+        if ((result = TokenizeCStyleIdentifier(span)) != -1) return result;
+        if ((result = TokenizeCStyleNumber(span)) != -1) return result;
+        if ((result = TokenizeCStylePunctuation(span)) != -1) return result;
         return -1;
     }
 
@@ -155,8 +155,9 @@ public class VEGSyntaxHighlighter : ISyntaxHighlighter
             var c = input[i].Char;
 
             if (c != '"' || input[i - 1].Char == '\\') continue;
-            
-            for (var j = 0; j <= i; j++) {
+
+            for (var j = 0; j <= i; j++)
+            {
                 input[j] = new Glyph(input[j].Char, PaletteIndex.String);
             }
 
@@ -311,7 +312,7 @@ public class VEGSyntaxHighlighter : ISyntaxHighlighter
             while (i < input.Length && input[i].Char is 'u' or 'U' or 'l' or 'L')
                 i++;
         }
-        
+
         for (var j = 0; j < i; j++)
             input[j] = new Glyph(input[j].Char, PaletteIndex.Number);
 
@@ -322,18 +323,30 @@ public class VEGSyntaxHighlighter : ISyntaxHighlighter
     {
         switch (input[0].Char)
         {
-            case '[': case ']':
-            case '{': case '}':
-            case '(': case ')':
-            case '-': case '+':
-            case '<': case '>':
-            case '?': case ':': case ';':
-            case '!': case '%': case '^':
-            case '&': case '|':
-            case '*': case '/':
+            case '[':
+            case ']':
+            case '{':
+            case '}':
+            case '(':
+            case ')':
+            case '-':
+            case '+':
+            case '<':
+            case '>':
+            case '?':
+            case ':':
+            case ';':
+            case '!':
+            case '%':
+            case '^':
+            case '&':
+            case '|':
+            case '*':
+            case '/':
             case '=':
             case '~':
-            case ',': case '.':
+            case ',':
+            case '.':
                 input[0] = new Glyph(input[0].Char, PaletteIndex.Punctuation);
                 return 1;
             default:

@@ -37,7 +37,8 @@ public partial class EditorWindow
         if (sfd.ShowDialog() != DialogResult.OK) return;
         if (Settings.Default.STFEditEnabled && _stf is not null)
             File.WriteAllBytes(Settings.Default.STFDir, Extensions.TXTToSTF(_stf.ToArray()));
-        if (_extension.EndsWith("veg")) {
+        if (_extension.EndsWith("veg"))
+        {
             _currentFile.Text = _vegTextEditor.AllText;
             File.WriteAllBytes(sfd.FileName, _currentFile.Compile());
         }
@@ -148,12 +149,12 @@ public partial class EditorWindow
                     _currentFile = fb.ReadWEA();
                     break;
                 case ".veg":
-                {
-                    InitVEG();
-                    _currentFile = new VEG(fb);
-                    _vegTextEditor.AllText = _currentFile.Text;
-                    break;
-                }
+                    {
+                        InitVEG();
+                        _currentFile = new VEG(fb);
+                        _vegTextEditor.AllText = _currentFile.Text;
+                        break;
+                    }
             }
         }
         else
