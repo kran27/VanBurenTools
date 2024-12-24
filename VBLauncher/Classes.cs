@@ -1756,7 +1756,7 @@ public class INT
         TileY,
         TileBoth,
     }
-    
+
     public struct fragment
     {
         public int width;
