@@ -895,7 +895,7 @@ public class EMNPc
         ret.Write(12, chunks.Count);
         for (int i = 0, loopTo = chunks.Count - 1; i <= loopTo; i++)
             ret.Write(16 + i * 30, chunks[i].ToByte());
-        return default;
+        return ret;
     }
 }
 
@@ -1268,8 +1268,6 @@ public class VEG
 
         return ms.ToArray();
     }
-
-
 
     public VEG(byte[] b)
     {
@@ -1746,6 +1744,43 @@ public class VEG
             .Concat(VFX_CollisionType).Concat(VFX_EffectType).Concat(VFX_EmitterShape).Concat(VFX_LightningWidthStyle)
             .Concat(VFX_LightType).Concat(VFX_ParticleTrailType).Concat(VFX_ShadowVolumeType).Concat(VFX_WaterMotionType)
             .Concat(VFX_WaveType).Concat(VFX_WindType).Concat(VFX_Target).ToArray();
+    }
+}
+
+public class INT
+{
+    enum flags
+    {
+        Stretch,
+        TileX,
+        TileY,
+        TileBoth,
+    }
+    
+    public struct fragment
+    {
+        public int width;
+        public int height;
+        public string texture;
+        public int x1;
+        public int y1;
+        public int x2;
+        public int y2;
+    }
+
+    public struct obj
+    {
+        public List<fragment> fragments;
+    }
+
+    public INT(byte[] b)
+    {
+        var ms = new MemoryStream();
+        ms.Write(b, 0, b.Length);
+        var br = new BinaryReader(ms);
+
+        var twofont = false;
+        var ret = new obj();
     }
 }
 

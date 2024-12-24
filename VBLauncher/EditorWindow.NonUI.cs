@@ -130,7 +130,7 @@ public partial class EditorWindow
                     _currentFile = fb.ReadCRT();
                     break;
                 case ".int":
-                    DarkMessageBox.ShowMessage("Not yet implemented", "Not Implemented");
+                    //_currentFile = INT.Parse(fb);
                     break;
                 case ".itm":
                     _currentFile = fb.ReadITM();
@@ -149,12 +149,10 @@ public partial class EditorWindow
                     _currentFile = fb.ReadWEA();
                     break;
                 case ".veg":
-                    {
-                        InitVEG();
-                        _currentFile = new VEG(fb);
-                        _vegTextEditor.AllText = _currentFile.Text;
-                        break;
-                    }
+                    InitVEG();
+                    _currentFile = new VEG(fb);
+                    _vegTextEditor.AllText = _currentFile.Text;
+                    break;
             }
         }
         else
