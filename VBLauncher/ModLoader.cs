@@ -37,8 +37,8 @@ public partial class ModLoader
                 var description = IniManager.Ini(ref iniData, "Info", "Description", IniManager.KeyType.Multiline);
                 var version = IniManager.Ini(ref iniData, "Info", "Version");
                 var entries = (from ent in zip.Entries
-                    where !ent.Name.Equals("mod.info", StringComparison.CurrentCultureIgnoreCase)
-                    select ent.Name).ToList();
+                               where !ent.Name.Equals("mod.info", StringComparison.CurrentCultureIgnoreCase)
+                               select ent.Name).ToList();
                 modList.Add(new ModInfo(mname, description, version, new FileInfo(file.FullName), entries));
                 break;
             }
@@ -467,7 +467,7 @@ public partial class ModLoader
 
         if (file is null)
             return;
-            
+
         if (((dynamic)file).GENT is not GENTc gent)
             return;
 

@@ -789,9 +789,9 @@ public partial class GrpBrowser
         {
             var i1 = i;
             foreach (var g in from ent in entries[i]
-                     let g = localIndexToGlobal[i1][ent.number]
-                     where filenames[g] == nne && GetExtension(ent.type) == "image"
-                     select g)
+                              let g = localIndexToGlobal[i1][ent.number]
+                              where filenames[g] == nne && GetExtension(ent.type) == "image"
+                              select g)
             {
                 return TargaToBitmapImage(getFileBytes(g));
             }

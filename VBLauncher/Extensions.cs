@@ -346,7 +346,7 @@ public static class Extensions
             Van = new Socket(GetString(b, Vanmo, b[Vanmo - 2]), GetString(b, Vanto, b[Vanto - 2])),
             Inventory = inv.ToArray(),
             GWAM = (from i in gl
-                select b.Skip(i).Take(BitConverter.ToInt32(b, i + 8)).ToArray().ToGWAMc()).ToList()
+                    select b.Skip(i).Take(BitConverter.ToInt32(b, i + 8)).ToArray().ToGWAMc()).ToList()
         };
     }
 
@@ -430,7 +430,7 @@ public static class Extensions
             HeatR = BitConverter.ToInt32(b, 32)
         };
     }
-        
+
     public static GIAMc ToGIAMc(this byte[] b)
     {
         return new GIAMc
@@ -574,350 +574,350 @@ public static class Extensions
             b.AddRange(BitConverter.GetBytes(o));
             b.AddRange(BitConverter.GetBytes(s.ElementAtOrDefault(i).Length));
             b.AddRange([0x7E, 0xE3, 0x3, 0x0, 0x0, 0x0, 0x0, 0x0]);
-            o += s.ElementAtOrDefault(i).Length;
-        }
+        o += s.ElementAtOrDefault(i).Length;
+    }
 
-        b.AddRange(ToFixedBytes(ref s));
+    b.AddRange(ToFixedBytes(ref s));
         return b.ToArray();
     }
 
-    // Replace CrLf with "|~" and replace em dash with minus/hyphen
-    public static void PreParse(this byte[] b)
+// Replace CrLf with "|~" and replace em dash with minus/hyphen
+public static void PreParse(this byte[] b)
+{
+    var strStart = BitConverter.ToInt32(b, 12);
+    var l = b.Locate([0xD, 0xA]);
+    foreach (var m in l)
     {
-        var strStart = BitConverter.ToInt32(b, 12);
-        var l = b.Locate([0xD, 0xA]);
-        foreach (var m in l)
+        if (m >= strStart)
         {
-            if (m >= strStart)
-            {
-                Write(b, m, [0x7C, 0x7E]);
-            }
-        }
-
-        l = b.Locate([0x96]);
-        foreach (var m in l)
-        {
-            if (m >= strStart)
-            {
-                Write(b, m, [0x2D]);
-            }
+            Write(b, m, [0x7C, 0x7E]);
         }
     }
 
-    // Turn the string array into the chunk of bytes, replacing "|~" with CrLf
-    public static byte[] ToFixedBytes(ref IEnumerable<string> s)
+    l = b.Locate([0x96]);
+    foreach (var m in l)
     {
-        var bl = new List<byte>();
-        foreach (var stri in s)
-            bl.AddRange(Encoding.ASCII.GetBytes(stri));
-        var b = bl;
-        var l = b.ToArray().Locate([0x7C, 0x7E]);
-        foreach (var m in l)
-            Write(b.ToArray(), m, [0xD, 0xA]);
-        return b.ToArray();
+        if (m >= strStart)
+        {
+            Write(b, m, [0x2D]);
+        }
+    }
+}
+
+// Turn the string array into the chunk of bytes, replacing "|~" with CrLf
+public static byte[] ToFixedBytes(ref IEnumerable<string> s)
+{
+    var bl = new List<byte>();
+    foreach (var stri in s)
+        bl.AddRange(Encoding.ASCII.GetBytes(stri));
+    var b = bl;
+    var l = b.ToArray().Locate([0x7C, 0x7E]);
+    foreach (var m in l)
+        Write(b.ToArray(), m, [0xD, 0xA]);
+    return b.ToArray();
+}
+
+#endregion
+
+#region Read Classes From Bytes
+
+public static CRT ReadCRT(this byte[] b)
+{
+    var cf = new CRT
+    {
+        EEN2 = b.GetRegions("EEN2")[0].ToEEN2c(),
+        GENT = b.GetRegions("GENT")[0].ToGENTc(),
+        GCRE = b.GetRegions("GCRE")[0].ToGCREc()
+    };
+    try
+    {
+        cf.GCHR = b.GetRegions("GCHR")[0].ToGCHRc();
+    }
+    catch
+    {
     }
 
-    #endregion
+    return cf;
+}
 
-    #region Read Classes From Bytes
-
-    public static CRT ReadCRT(this byte[] b)
+public static Map ReadMap(this byte[] b)
+{
+    var cf = new Map
     {
-        var cf = new CRT
-        {
-            EEN2 =  b.GetRegions("EEN2")[0].ToEEN2c(),
-            GENT =  b.GetRegions("GENT")[0].ToGENTc(),
-            GCRE = b.GetRegions("GCRE")[0].ToGCREc()
-        };
-        try
-        {
-            cf.GCHR = b.GetRegions("GCHR")[0].ToGCHRc();
-        }
-        catch
-        {
-        }
-
-        return cf;
-    }
-
-    public static Map ReadMap(this byte[] b)
-    {
-        var cf = new Map
-        {
-            EMAP = b.GetRegions("EMAP")[0].ToEMAPc(),
-            EME2 = (from x in b.GetRegions("EME2")
+        EMAP = b.GetRegions("EMAP")[0].ToEMAPc(),
+        EME2 = (from x in b.GetRegions("EME2")
                 select x.ToEME2c()).ToList(),
-            EMEP = (from x in b.GetRegions("EMEP")
+        EMEP = (from x in b.GetRegions("EMEP")
                 select x.ToEMEPc()).ToList()
-        };
-        try
-        {
-            cf.ECAM = b.GetRegions("ECAM")[0].ToECAMc();
-        }
-        catch
-        {
-        }
-
-        try
-        {
-            cf._2MWT = b.GetRegions("2MWT")[0].To2MWTc();
-        }
-        catch
-        {
-        }
-
-        cf.Triggers = b.GetTriggers();
-        cf.EPTH = (from x in b.GetRegions("EPTH")
-            select x.ToEPTHc()).ToList();
-        cf.EMSD = (from x in b.GetRegions("EMSD")
-            select x.ToEMSDc()).ToList();
-        try
-        {
-            cf.EMNP = b.GetRegions("EMNP")[0].ToEMNPc();
-        }
-        catch
-        {
-        }
-
-        try
-        {
-            cf.EMFG = b.GetRegions("EMFG")[0].ToEMFGc();
-        }
-        catch
-        {
-        }
-
-        cf.EMNO = (from x in b.GetRegions("EMNO")
-            select x.ToEMNOc()).ToList();
-        cf.EMEF = (from x in b.GetRegions("EMEF")
-            select x.ToEMEFc()).ToList();
-        return cf;
+    };
+    try
+    {
+        cf.ECAM = b.GetRegions("ECAM")[0].ToECAMc();
+    }
+    catch
+    {
     }
 
-    public static ITM ReadITM(this byte[] b)
+    try
     {
-        var cf = new ITM
-        {
-            EEN2 = b.GetRegions("EEN2")[0].ToEEN2c(),
-            GENT = b.GetRegions("GENT")[0].ToGENTc(),
-            GITM = b.GetRegions("GITM")[0].ToGITMc()
-        };
-        return cf;
+        cf._2MWT = b.GetRegions("2MWT")[0].To2MWTc();
+    }
+    catch
+    {
     }
 
-    public static ARM ReadARM(this byte[] b)
+    cf.Triggers = b.GetTriggers();
+    cf.EPTH = (from x in b.GetRegions("EPTH")
+               select x.ToEPTHc()).ToList();
+    cf.EMSD = (from x in b.GetRegions("EMSD")
+               select x.ToEMSDc()).ToList();
+    try
     {
-        var cf = new ARM
-        {
-            EEN2 = b.GetRegions("EEN2")[0].ToEEN2c(),
-            GENT = b.GetRegions("GENT")[0].ToGENTc(),
-            GITM = b.GetRegions("GITM")[0].ToGITMc(),
-            GIAR = b.GetRegions("GIAR")[0].ToGIARc()
-        };
-        return cf;
+        cf.EMNP = b.GetRegions("EMNP")[0].ToEMNPc();
+    }
+    catch
+    {
     }
 
-    public static USE ReadUSE(this byte[] b)
+    try
     {
-        var cf = new USE
-        {
-            EEN2 =  b.GetRegions("EEN2")[0].ToEEN2c(),
-            GENT =  b.GetRegions("GENT")[0].ToGENTc(),
-            GOBJ = b.GetRegions("GOBJ")[0].ToGOBJc()
-        };
-        return cf;
+        cf.EMFG = b.GetRegions("EMFG")[0].ToEMFGc();
     }
-    
-    public static WEA ReadWEA(this byte[] b)
+    catch
     {
-        var cf = new WEA
-        {
-            EEN2 = b.GetRegions("EEN2")[0].ToEEN2c(),
-            GENT = b.GetRegions("GENT")[0].ToGENTc(),
-            GITM = b.GetRegions("GITM")[0].ToGITMc(),
-            GIWP = b.GetRegions("GIWP")[0].ToGIWPc()
-        };
-        return cf;
-    }
-    
-    public static AMO ReadAMO(this byte[] b)
-    {
-        var cf = new AMO
-        {
-            EEN2 = b.GetRegions("EEN2")[0].ToEEN2c(),
-            GENT = b.GetRegions("GENT")[0].ToGENTc(),
-            GITM = b.GetRegions("GITM")[0].ToGITMc(),
-            GIAM = b.GetRegions("GIAM")[0].ToGIAMc()
-        };
-        return cf;
     }
 
-    #endregion
+    cf.EMNO = (from x in b.GetRegions("EMNO")
+               select x.ToEMNOc()).ToList();
+    cf.EMEF = (from x in b.GetRegions("EMEF")
+               select x.ToEMEFc()).ToList();
+    return cf;
+}
 
-    #region Byte array search
-
-    private static readonly int[] Empty = [];
-
-    /// <summary>Searches for a byte array within another byte array.</summary>
-    /// <returns>An integer array containing all locations of the given bytes</returns>
-    public static int[] Locate(this byte[] self, byte[] candidate)
+public static ITM ReadITM(this byte[] b)
+{
+    var cf = new ITM
     {
-        if (self is null | candidate is null | !self.Any() | !candidate.Any() |
-            candidate.Count() > self.Count())
+        EEN2 = b.GetRegions("EEN2")[0].ToEEN2c(),
+        GENT = b.GetRegions("GENT")[0].ToGENTc(),
+        GITM = b.GetRegions("GITM")[0].ToGITMc()
+    };
+    return cf;
+}
+
+public static ARM ReadARM(this byte[] b)
+{
+    var cf = new ARM
+    {
+        EEN2 = b.GetRegions("EEN2")[0].ToEEN2c(),
+        GENT = b.GetRegions("GENT")[0].ToGENTc(),
+        GITM = b.GetRegions("GITM")[0].ToGITMc(),
+        GIAR = b.GetRegions("GIAR")[0].ToGIARc()
+    };
+    return cf;
+}
+
+public static USE ReadUSE(this byte[] b)
+{
+    var cf = new USE
+    {
+        EEN2 = b.GetRegions("EEN2")[0].ToEEN2c(),
+        GENT = b.GetRegions("GENT")[0].ToGENTc(),
+        GOBJ = b.GetRegions("GOBJ")[0].ToGOBJc()
+    };
+    return cf;
+}
+
+public static WEA ReadWEA(this byte[] b)
+{
+    var cf = new WEA
+    {
+        EEN2 = b.GetRegions("EEN2")[0].ToEEN2c(),
+        GENT = b.GetRegions("GENT")[0].ToGENTc(),
+        GITM = b.GetRegions("GITM")[0].ToGITMc(),
+        GIWP = b.GetRegions("GIWP")[0].ToGIWPc()
+    };
+    return cf;
+}
+
+public static AMO ReadAMO(this byte[] b)
+{
+    var cf = new AMO
+    {
+        EEN2 = b.GetRegions("EEN2")[0].ToEEN2c(),
+        GENT = b.GetRegions("GENT")[0].ToGENTc(),
+        GITM = b.GetRegions("GITM")[0].ToGITMc(),
+        GIAM = b.GetRegions("GIAM")[0].ToGIAMc()
+    };
+    return cf;
+}
+
+#endregion
+
+#region Byte array search
+
+private static readonly int[] Empty = [];
+
+/// <summary>Searches for a byte array within another byte array.</summary>
+/// <returns>An integer array containing all locations of the given bytes</returns>
+public static int[] Locate(this byte[] self, byte[] candidate)
+{
+    if (self is null | candidate is null | !self.Any() | !candidate.Any() |
+        candidate.Count() > self.Count())
+    {
+        return Empty;
+    }
+
+    var list = new ConcurrentBag<int>();
+    Parallel.For(0, self.Count() - candidate.Count(), (i) =>
+    {
+        var match = true;
+        for (int j = 0, loopTo = candidate.Count() - 1; j <= loopTo; j++)
         {
-            return Empty;
+            if (self[i + j] == candidate[j]) continue;
+            match = false;
+            break;
         }
 
-        var list = new ConcurrentBag<int>();
-        Parallel.For(0, self.Count() - candidate.Count(), (i) =>
+        if (match)
         {
-            var match = true;
-            for (int j = 0, loopTo = candidate.Count() - 1; j <= loopTo; j++)
-            {
-                if (self[i + j] == candidate[j]) continue;
-                match = false;
-                break;
-            }
+            list.Add(i);
+        }
+    });
+    var sortedList =
+        list.OrderBy(i => i)
+            .ToArray(); // ensure list is in order of location for (hopefully) identical file output
+    return sortedList.Length == 0 ? Empty : sortedList;
+}
 
-            if (match)
-            {
-                list.Add(i);
-            }
-        });
-        var sortedList =
-            list.OrderBy(i => i)
-                .ToArray(); // ensure list is in order of location for (hopefully) identical file output
-        return sortedList.Length == 0 ? Empty : sortedList;
-    }
+#endregion
 
-    #endregion
+public static string GetString(IEnumerable<byte> b)
+{
+    return Encoding.ASCII.GetString(b.ToArray());
+}
 
-    public static string GetString(IEnumerable<byte> b)
-    {
-        return Encoding.ASCII.GetString(b.ToArray());
-    }
+public static string GetString(byte[] b, int i1, int i2)
+{
+    return Encoding.ASCII.GetString(b.ToArray(), i1, i2);
+}
 
-    public static string GetString(byte[] b, int i1, int i2)
-    {
-        return Encoding.ASCII.GetString(b.ToArray(), i1, i2);
-    }
-
-    // Finds all locations of a given header, reads size, copies that section into byte array, puts array in list.
-    public static byte[][] GetRegions(this byte[] b, string hs)
-    {
-        var hn = Encoding.ASCII.GetBytes(hs);
-        var hc = b.Locate(hn);
-        return (from l in hc
+// Finds all locations of a given header, reads size, copies that section into byte array, puts array in list.
+public static byte[][] GetRegions(this byte[] b, string hs)
+{
+    var hn = Encoding.ASCII.GetBytes(hs);
+    var hc = b.Locate(hn);
+    return (from l in hc
             let tl = BitConverter.ToInt32(b, l + 8)
             select b.Skip(l).Take(tl).ToArray()).ToArray();
-    }
+}
 
-    // Finds all triggers for .map files, and the subsequent trigger info chunk
-    public static List<Trigger> GetTriggers(this byte[] b)
-    {
-        var hc = b.Locate("EMTR"u8.ToArray());
-        return (from l in hc
+// Finds all triggers for .map files, and the subsequent trigger info chunk
+public static List<Trigger> GetTriggers(this byte[] b)
+{
+    var hc = b.Locate("EMTR"u8.ToArray());
+    return (from l in hc
             let tl = BitConverter.ToInt32(b, l + 8)
             let h1 = b.Skip(l).Take(tl).ToArray()
             let h2 = b.Skip(l + tl).Take(b[l + tl + 8]).ToArray()
             select new Trigger { EMTR = h1.ToEMTRc(), ExTR = h2.ToExTRc() }).ToList();
-    }
+}
 
-    /// <summary>
-    /// This function copies a byte array into another
-    /// </summary>
-    public static void Write(this byte[] b, int offset, IEnumerable<byte> value)
-    {
-        var enumerable = value as byte[] ?? value.ToArray();
-        Buffer.BlockCopy(enumerable.ToArray(), 0, b, offset, enumerable.Length);
-    }
+/// <summary>
+/// This function copies a byte array into another
+/// </summary>
+public static void Write(this byte[] b, int offset, IEnumerable<byte> value)
+{
+    var enumerable = value as byte[] ?? value.ToArray();
+    Buffer.BlockCopy(enumerable.ToArray(), 0, b, offset, enumerable.Length);
+}
 
-    /// <summary>
-    /// This function copies a string as ascii bytes into a byte array
-    /// </summary>
-    public static void Write(this byte[] b, int offset, string value)
-    {
-        Write(b, offset, Encoding.ASCII.GetBytes(value));
-    }
+/// <summary>
+/// This function copies a string as ascii bytes into a byte array
+/// </summary>
+public static void Write(this byte[] b, int offset, string value)
+{
+    Write(b, offset, Encoding.ASCII.GetBytes(value));
+}
 
-    /// <summary>
-    /// This function copies a byte into a byte array
-    /// </summary>
-    public static void Write(this byte[] b, int offset, byte value)
-    {
-        Write(b, offset, [value]);
-    }
+/// <summary>
+/// This function copies a byte into a byte array
+/// </summary>
+public static void Write(this byte[] b, int offset, byte value)
+{
+    Write(b, offset, [value]);
+}
 
-    /// <summary>
-    /// This function copies a boolean into a byte array
-    /// </summary>
-    public static void Write(this byte[] b, int offset, bool value)
-    {
-        Write(b, offset, [(byte)(value ? 1 : 0)]);
-    }
+/// <summary>
+/// This function copies a boolean into a byte array
+/// </summary>
+public static void Write(this byte[] b, int offset, bool value)
+{
+    Write(b, offset, [(byte)(value ? 1 : 0)]);
+}
 
-    /// <summary>
-    /// This function copies a single precision float into a byte array
-    /// </summary>
-    public static void Write(this byte[] b, int offset, float value)
+/// <summary>
+/// This function copies a single precision float into a byte array
+/// </summary>
+public static void Write(this byte[] b, int offset, float value)
+{
+    Write(b, offset, BitConverter.GetBytes(value));
+}
+
+/// <summary>
+/// This function copies a 32-bit integer into a byte array
+/// </summary>
+public static void Write(this byte[] b, int offset, int value)
+{
+    if (value > 255)
     {
         Write(b, offset, BitConverter.GetBytes(value));
     }
-
-    /// <summary>
-    /// This function copies a 32-bit integer into a byte array
-    /// </summary>
-    public static void Write(this byte[] b, int offset, int value)
+    else
     {
-        if (value > 255)
-        {
-            Write(b, offset, BitConverter.GetBytes(value));
-        }
-        else
-        {
-            Write(b, offset, (byte)value);
-        }
+        Write(b, offset, (byte)value);
     }
+}
 
-    /// <summary>This function reads the values in a DataGridView control into a string array</summary>
-    public static List<string> GetStringArray(this DataGridView dgv)
-    {
-        return (from DataGridViewRow r in dgv.Rows
+/// <summary>This function reads the values in a DataGridView control into a string array</summary>
+public static List<string> GetStringArray(this DataGridView dgv)
+{
+    return (from DataGridViewRow r in dgv.Rows
             where r.Cells[0].Value != null
             select r.Cells[0].Value).Cast<string>().ToList();
-    }
+}
 
-    /// <summary>Returns the specified color as an array of bytes.</summary>
-    /// <returns>An array of bytes with length 3.</returns>
-    public static byte[] ToByte(this Color color)
-    {
-        return [color.R, color.G, color.B];
-    }
+/// <summary>Returns the specified color as an array of bytes.</summary>
+/// <returns>An array of bytes with length 3.</returns>
+public static byte[] ToByte(this Color color)
+{
+    return [color.R, color.G, color.B];
+}
 
-    public static byte[] ToByte(this Vector4 vec)
-    {
-        var b = new List<byte>();
-        b.AddRange(BitConverter.GetBytes(vec.X));
-        b.AddRange(BitConverter.GetBytes(vec.Y));
-        b.AddRange(BitConverter.GetBytes(vec.Z));
-        b.AddRange(BitConverter.GetBytes(vec.W));
-        return b.ToArray();
-    }
+public static byte[] ToByte(this Vector4 vec)
+{
+    var b = new List<byte>();
+    b.AddRange(BitConverter.GetBytes(vec.X));
+    b.AddRange(BitConverter.GetBytes(vec.Y));
+    b.AddRange(BitConverter.GetBytes(vec.Z));
+    b.AddRange(BitConverter.GetBytes(vec.W));
+    return b.ToArray();
+}
 
-    public static byte[] ToByte(this Vector3 vec)
-    {
-        var b = new List<byte>();
-        b.AddRange(BitConverter.GetBytes(vec.X));
-        b.AddRange(BitConverter.GetBytes(vec.Y));
-        b.AddRange(BitConverter.GetBytes(vec.Z));
-        return b.ToArray();
-    }
+public static byte[] ToByte(this Vector3 vec)
+{
+    var b = new List<byte>();
+    b.AddRange(BitConverter.GetBytes(vec.X));
+    b.AddRange(BitConverter.GetBytes(vec.Y));
+    b.AddRange(BitConverter.GetBytes(vec.Z));
+    return b.ToArray();
+}
 
-    public static byte[] ToByte(this Vector2 vec)
-    {
-        var b = new List<byte>();
-        b.AddRange(BitConverter.GetBytes(vec.X));
-        b.AddRange(BitConverter.GetBytes(vec.Y));
-        return b.ToArray();
-    }
+public static byte[] ToByte(this Vector2 vec)
+{
+    var b = new List<byte>();
+    b.AddRange(BitConverter.GetBytes(vec.X));
+    b.AddRange(BitConverter.GetBytes(vec.Y));
+    return b.ToArray();
+}
 }
