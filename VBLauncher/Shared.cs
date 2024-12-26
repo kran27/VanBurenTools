@@ -266,7 +266,7 @@ public class VideoInfo
     public static object[] GetResAsStrings()
     {
         return (from S in GetResolution()
-            select $"{S.Width}x{S.Height}@{S.Hz}").ToArray();
+                select $"{S.Width}x{S.Height}@{S.Hz}").ToArray();
     }
 
     private static Resolution[] GetResolution()
