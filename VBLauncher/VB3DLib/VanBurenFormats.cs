@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using System.Windows.Media;
-using Color = System.Drawing.Color;
 
-namespace VB3DLib;
+namespace VBLauncher.VB3DLib;
 
 public class B3DModel
 {
@@ -803,42 +802,68 @@ public class G3DModel
 public class _8Model
 {
     public int buffer_index;
-    public List<int> buffer_offset = new();
+    public List<int> buffer_offset = [];
 
     public int Flag = 1;
+    public List<Color> GVD = []; // vertex diffuse color
+    public List<Vector2> GVL = []; // lightmap coords
+    public List<Vector3> GVN = []; // vertex normal
 
-    // Vertex attributes
-    public List<Color> GVD = new(); // vertex diffuse color
-    public List<Vector2> GVL = new(); // lightmap coords
-    public List<Vector3> GVN = new(); // vertex normals
-    public List<Vector3> GVP = new(); // vertex positions
-    public List<Vector2> GVT = new(); // texture coords
+    public List<Vector3> GVP = []; // vertex position
+    public List<Vector2> GVT = []; // texture coords
 
-    // Indices and Materials
-    public List<int[]> IDX = new();  // face indexes
-    public List<int> MDX = new();    // material indices per face
-    public List<BitmapTexture> MAT = new(); 
-
+    public List<int[]> IDX = []; // face indexes
     public string MapName = "defaultName";
+    public List<BitmapTexture> MAT = []; // materials
+    public List<int> MDX = []; // mat index
 
     public _8Model(string path, bool flgs)
     {
         Flag = flgs ? 4 : 1;
-        using var f = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read));
+
+        var f = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read));
         ReadTREE_Data(f);
     }
 
     public _8Model(byte[] file, bool flgs)
     {
         Flag = flgs ? 4 : 1;
-        using var f = new BinaryReader(new MemoryStream(file));
+        GVP = [];
+
+        GVN = [];
+        GVD = [];
+        GVT = [];
+        GVL = [];
+
+        IDX = [];
+        MDX = [];
+        MAT = [];
+
+        buffer_index = 0;
+        buffer_offset = [];
+
+        var f = new BinaryReader(new MemoryStream(file));
         ReadTREE_Data(f);
     }
 
     public static string String4Read(BinaryReader f)
     {
-        var s = f.ReadBytes(4);
-        return Encoding.ASCII.GetString(s);
+        var s = new byte[4];
+        for (var i = 0; i < 4; ++i)
+        {
+            var t = f.BaseStream.Position;
+            s[i] = f.ReadByte();
+        }
+
+        try
+        {
+            return Encoding.ASCII.GetString(s);
+        }
+        catch
+        {
+            Console.WriteLine("ERRO");
+            return "    ";
+        }
     }
 
     public static bool IsHeader(string s)
@@ -854,233 +879,169 @@ public class _8Model
 
     public void ReadTREE_Data(BinaryReader f)
     {
-        // The top-level read, start from the file’s beginning
-        while (f.BaseStream.Position < f.BaseStream.Length)
-        {
-            if (!ReadBlock(f, 0))
-                break;
-        }
+        ReadBlock(f, 0);
     }
 
-    // Returns true if successfully processed, false if we reached EOF or no more data
-    public bool ReadBlock(BinaryReader f, int parentSize)
+    public int ReadBlock(BinaryReader f, int size)
     {
-        if (f.BaseStream.Position + 8 > f.BaseStream.Length)
-            return false; // not enough for a header
-
         var header = new TSectionHeader(f);
 
-        // If size is invalid or goes beyond file length, stop
-        if (header.size < 0 || f.BaseStream.Position + header.size > f.BaseStream.Length)
-            return false;
-
-        Console.WriteLine("Reading chunk: " + header.id + " Size: " + header.size);
+        Console.WriteLine(header.id);
 
         switch (header.id)
         {
             case "FLGS":
-                // Skip data * Flag
                 f.BaseStream.Seek(header.size * Flag, SeekOrigin.Current);
-                return true;
+                return 0;
 
-            case "HEAD":
-            case "8TRE":
-            case "TREE":
-            case "NODE":
-            case "LEAF":
-            case "INFO":
-            case "LVLD":
-            case "MATD":
-            case "LGTD":
-            case "LGTR":
-                // These are structural headers. They may contain sub-blocks.
-                // We'll dive into sub-blocks after reading their data if any.
-
-                // If we know HEAD, TREE, NODE, etc. have some immediate data (based on original C++),
-                // read that here if needed. If not known, just proceed:
+            case "IDXD":
+                f.BaseStream.Seek(-16, SeekOrigin.Current);
+                var t = f.ReadInt32();
+                if (t >= 0 && t <= buffer_offset.Count - 1) // maybe if (t >= 1 && t <= buffer_offset.Count)
+                    buffer_index = t;
+                f.BaseStream.Seek(12, SeekOrigin.Current);
                 break;
 
             case "TXTD":
-                // As seen in code, TXTD typically has at least 8 bytes: number_of_textures or something similar
-                // Let's read 2 ints:
-                var txCount = f.ReadInt32();
-                var anotherVal = f.ReadInt32();
-                Console.WriteLine($"TXTD: Count={txCount}, Val={anotherVal}");
-                header.size -= 8;
+                Console.WriteLine(f.ReadInt32());
+                Console.WriteLine(f.ReadInt32());
                 break;
 
-            case "MATR":
-            case "TXTR":
-                // Reading texture filename strings or material info
-                {
-                    var data = f.ReadBytes(header.size);
-                    var s = Encoding.ASCII.GetString(data).Trim('\0');
-                    // Possibly a texture filename:
-                    if (!string.IsNullOrEmpty(s))
-                    {
-                        MAT.Add(new BitmapTexture { FileName = s, AlphaSource = 2 });
-                    }
-                    return true;
-                }
-
-            case "XYZ ":
-                // Positions: 3 floats per vertex, total size / 12 = vertex count
-                {
-                    var vertexCount = header.size / 12;
-                    for (var i = 0; i < vertexCount; i++)
-                    {
-                        var x = f.ReadSingle();
-                        var y = f.ReadSingle();
-                        var z = f.ReadSingle();
-                        // Adjust if needed (like swapping y and z if discovered)
-                        GVP.Add(new Vector3(x, y, z));
-                    }
-                    return true;
-                }
-
-            case "NRML":
-                // Normals: 3 floats per vertex, total size/12 = count
-                {
-                    var count = header.size / 12;
-                    for (var i = 0; i < count; i++)
-                    {
-                        var nx = f.ReadSingle();
-                        var ny = f.ReadSingle();
-                        var nz = f.ReadSingle();
-                        GVN.Add(new Vector3(nx, ny, nz));
-                    }
-                    return true;
-                }
-
-            case "DIFU":
-                // Diffuse: 4 bytes per vertex (int) or something similar
-                {
-                    var count = header.size / 4;
-                    for (var i = 0; i < count; i++)
-                    {
-                        var col = f.ReadInt32();
-                        // ARGB or RGBA? If known, adjust order. Assuming ARGB:
-                        var a = (byte)((col >> 24) & 0xFF);
-                        var r = (byte)((col >> 16) & 0xFF);
-                        var g = (byte)((col >> 8) & 0xFF);
-                        var b = (byte)(col & 0xFF);
-                        GVD.Add(Color.FromArgb(a, r, g, b));
-                    }
-                    return true;
-                }
-
             case "TXUV":
-                // Primary UV: 2 floats per vertex, size/8 = count
+            {
+                for (var i = 1; i <= header.size / 8; i++)
                 {
-                    var count = header.size / 8;
-                    for (var i = 0; i < count; i++)
-                    {
-                        var u = f.ReadSingle();
-                        var v = f.ReadSingle();
-                        GVT.Add(new Vector2(u, v));
-                    }
-                    return true;
+                    var u = f.ReadSingle();
+                    var v = f.ReadSingle();
+                    GVT.Add(new Vector2(u, v));
                 }
 
-            case "LMUV":
-                // Lightmap UV: 2 floats per vertex, size/8 = count
+                break;
+            }
+            //case "LMUV":
+            //{
+            //    for (int i = 1; i <= header.size / 8; i++)
+            //    {
+            //        float u = f.ReadSingle();
+            //        float v = f.ReadSingle();
+            //        GVL.Add(new Vector2(u, v));
+            //    }
+            //
+            //    break;
+            //}
+            case "TXTR":
+            {
+                var s = "";
+                for (var i = 1; i <= header.size; i++)
+                    s += f.ReadChar();
+
+                if (s.IndexOf("ctx", StringComparison.Ordinal) != -1) return 0;
+
+                var tm = new BitmapTexture
                 {
-                    var count = header.size / 8;
-                    for (var i = 0; i < count; i++)
+                    AlphaSource = 2,
+                    FileName = s
+                };
+                Console.WriteLine(s);
+                MAT.Add(tm);
+
+                return 0;
+            }
+            case "IDXS":
+            {
+                var end = f.BaseStream.Position + header.size;
+                var m = 0;
+                var mp = 0;
+
+                while (f.BaseStream.Position + 12 < end)
+                {
+                    var tmp = f.ReadUInt16();
+                    if (tmp == 0) tmp = f.ReadUInt16();
+
+                    if ((tmp & 0xFF00) == 0x8000)
                     {
-                        var u = f.ReadSingle();
-                        var v = f.ReadSingle();
-                        GVL.Add(new Vector2(u, v));
+                        f.ReadUInt16();
+                        var t1 = f.ReadUInt16() - 0x4000;
+                        f.ReadUInt16();
+                        var t2 = f.ReadUInt16();
+                        m = t2;
                     }
-                    return true;
+
+                    if ((tmp & 0xFF00) == 0x4000)
+                    {
+                        f.ReadUInt16();
+                        var t1 = f.ReadUInt16();
+                        m = t1;
+                    }
+
+                    if ((tmp & 0xFF00) == 0) m = tmp;
+
+                    var sz = f.ReadUInt16();
+
+                    for (var i = 1; i <= sz / 3; i++)
+                    {
+                        var a = buffer_offset[buffer_index] + f.ReadUInt16();
+                        var b = buffer_offset[buffer_index] + f.ReadUInt16();
+                        var c = buffer_offset[buffer_index] + f.ReadUInt16();
+
+                        IDX.Add([a, c, b]);
+                        MDX.Add(m == 0 ? 0 : m);
+                    }
                 }
 
+                f.BaseStream.Seek(end, SeekOrigin.Begin);
+                return 0;
+            }
             case "VTXB":
-                // Possibly a vertex buffer block. According to code:
-                // first 4 bytes might define something, then data
-                {
-                    var val = f.ReadInt32(); 
-                    header.size -= 4;
-                    buffer_offset.Add(GVP.Count);
-                    // Additional data might be nested sub-blocks
-                    break;
-                }
+                f.ReadInt32();
+                header.size -= 4;
+                buffer_offset.Add(GVP.Count);
+                break;
 
             case "VTXD":
-                // Possibly diffuse colors inline (4 bytes per entry)
+                //f.ReadInt32();
+                var rd = f.ReadByte();
+                var gr = f.ReadByte();
+                var bl = f.ReadByte();
+                var al = f.ReadByte();
+                GVD.Add(Color.FromArgb(al, rd, gr, bl));
+                header.size -= 4;
+                break;
+
+            case "XYZ ":
+            {
+                for (var i = 1; i <= header.size / 12; i++)
                 {
-                    var count = header.size / 4;
-                    for (var i = 0; i < count; i++)
-                    {
-                        var r = f.ReadByte();
-                        var g = f.ReadByte();
-                        var b = f.ReadByte();
-                        var a = f.ReadByte();
-                        GVD.Add(Color.FromArgb(a, r, g, b));
-                    }
-                    return true;
+                    var x = f.ReadSingle();
+                    var y = f.ReadSingle();
+                    var z = f.ReadSingle();
+
+                    GVP.Add(new Vector3(x, z, y));
                 }
 
-            case "IDXD":
-                // Index data definition start. Might set buffer_index.
-                {
-                    // According to the original code, this might read an int (index),
-                    // then skip some bytes. Adjust if needed:
-                    f.BaseStream.Seek(-16, SeekOrigin.Current);
-                    var idx = f.ReadInt32();
-                    // Validate idx
-                    if (idx >= 0 && idx < buffer_offset.Count)
-                        buffer_index = idx;
-                    f.BaseStream.Seek(12, SeekOrigin.Current);
-                    // Adjust header.size if needed, or rely on sub-blocks.
-                    break;
-                }
-
-            case "IDXS":
-                // Complex index block. Parse polygon indices:
-                // The user code here attempts to parse a custom format.
-                // Since original code is complex and user might rely on discovered logic, keep as-is:
-                {
-                    var end = f.BaseStream.Position + header.size;
-                    while (f.BaseStream.Position + 12 <= end)
-                    {
-                        var tmp = f.ReadUInt16();
-                        // The logic for IDXS is complex. Just replicate the known logic:
-                        // ... (Your existing logic for reading IDXS continues)
-                        // Due to complexity, we won't fully rewrite this here.
-                        // Just ensure we don't read beyond 'end'.
-                        // ...
-                    }
-                    f.BaseStream.Seek(end, SeekOrigin.Begin);
-                    return true;
-                }
-
-            default:
-                return false;
+                return 0;
+            }
+            case "DIFU":
+                var baits = new List<byte>();
+                for (var i = 1; i <= header.size; i++) baits.Add(f.ReadByte());
+                File.WriteAllBytes("difu.bin", baits.ToArray());
+                break;
         }
 
-        // If the header is known and may contain sub-blocks, read them until we exhaust its size:
         if (IsHeader(header.id))
         {
-            var endPos = f.BaseStream.Position + header.size;
-            while (f.BaseStream.Position < endPos)
-            {
-                if (!ReadBlock(f, (int)(endPos - f.BaseStream.Position)))
-                    break;
-            }
+            var end = f.BaseStream.Position + header.size;
+            while (f.BaseStream.Position < end) ReadBlock(f, header.size);
         }
         else
         {
-            // repeat until we reach a known header
-            while (f.BaseStream.Position < f.BaseStream.Length)
-            {
-                if (!IsHeader(String4Read(f))) continue;
-                f.BaseStream.Seek(-4, SeekOrigin.Current);
-                break;
-            }
+            f.BaseStream.Seek(-8, SeekOrigin.Current);
+            if (size < 4 && size != 0) size = 4;
+
+            f.BaseStream.Seek(size, SeekOrigin.Current);
         }
 
-        return true;
+        return 0;
     }
 
     public struct TSectionHeader

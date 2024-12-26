@@ -5,8 +5,8 @@ namespace VBLauncher;
 
 public class VEGSyntaxHighlighter : ISyntaxHighlighter
 {
-    private static readonly object DefaultState = new();
-    private static readonly object MultiLineCommentState = new();
+    private static readonly object _defaultState = new();
+    private static readonly object _multiLineCommentState = new();
     private readonly SimpleTrie<Identifier> _identifiers;
 
     private record Identifier(PaletteIndex Color)
@@ -67,7 +67,7 @@ public class VEGSyntaxHighlighter : ISyntaxHighlighter
             else i += result;
         }
 
-        return state ?? DefaultState;
+        return state ?? _defaultState;
     }
 
     private int Tokenize(Span<Glyph> span, ref object? state)
@@ -96,17 +96,17 @@ public class VEGSyntaxHighlighter : ISyntaxHighlighter
     private static int TokenizeMultiLineComment(Span<Glyph> span, ref object? state)
     {
         var i = 0;
-        if (state != MultiLineCommentState && (span[i].Char != '/' || 1 >= span.Length || span[1].Char != '*'))
+        if (state != _multiLineCommentState && (span[i].Char != '/' || 1 >= span.Length || span[1].Char != '*'))
             return -1;
 
-        state = MultiLineCommentState;
+        state = _multiLineCommentState;
         for (; i < span.Length; i++)
         {
             span[i] = new Glyph(span[i].Char, PaletteIndex.MultiLineComment);
             if (span[i].Char != '*' || i + 1 >= span.Length || span[i + 1].Char != '/') continue;
             i++;
             span[i] = new Glyph(span[i].Char, PaletteIndex.MultiLineComment);
-            state = DefaultState;
+            state = _defaultState;
             return i;
         }
 

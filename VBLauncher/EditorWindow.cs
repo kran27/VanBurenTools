@@ -87,11 +87,11 @@ public partial class EditorWindow
     private readonly string[] _gwamDamageTypes = ["Ballistic", "Bio", "Electric", "EMP", "General", "Heat"];
     private readonly string[] _triggerTypes = ["Building", "Script", "Transition"];
 
-// ReSharper disable once InconsistentNaming - 2 is part of the abbreviation
+    // ReSharper disable once InconsistentNaming - 2 is part of the abbreviation
     private int _2mwtChunk;
-    private CommandList _commandList;
+    private CommandList _commandList = null!;
     private ImFontPtr? _consoleFont;
-    private dynamic _currentFile;
+    private dynamic _currentFile = null!;
 
     private int _eeovSelected = -1;
     private string _eeovTemp = "";
@@ -121,9 +121,9 @@ public partial class EditorWindow
     private int _epthIndex;
     private string[] _epthNames = [];
     private int _epthPoint;
-    private string _extension;
+    private string _extension = null!;
 
-    private string _filename;
+    private string _filename = null!;
     private ImFontPtr? _font;
     private int _gcreEquipped;
     private int _gcreSkill;
@@ -135,18 +135,18 @@ public partial class EditorWindow
     private int _gcreTrait;
 
     private int _gitmSocket;
-    private GraphicsDevice _graphicsDevice;
+    private GraphicsDevice _graphicsDevice = null!;
     private int _gwamIndex;
     private string[] _gwamNames = [];
-    private ImGuiRenderer _imguiRenderer;
-    private string[] _stf;
+    private ImGuiRenderer _imguiRenderer = null!;
+    private string[] _stf = null!;
 
     private int _triggerIndex;
     private string[] _triggerNames = [];
     private int _triggerPoint;
 
-    private TextEditor _vegTextEditor;
-    private Sdl2Window _window;
+    private TextEditor _vegTextEditor = null!;
+    private Sdl2Window _window = null!;
 
     public void Run()
     {
@@ -347,7 +347,7 @@ public partial class EditorWindow
         style.FrameBorderSize = 1f;
     }
 
-    private string GetColourCode()
+    private static string GetColourCode()
     {
         var sb = new StringBuilder();
         sb.AppendLine("void embraceTheDarkness()");
@@ -389,7 +389,7 @@ public partial class EditorWindow
                 if (ImGui.BeginMenu("New"))
                 {
                     var t = new[]
-                        { ".amo", ".arm", ".con", ".crt", ".dor", ".int", ".itm", ".map", ".use", ".veg", ".wea" };
+                        { ".amo", ".arm", ".con", ".crt", ".dor", ".itm", ".map", ".use", ".veg", ".wea" };
                     foreach (var s in t)
                     {
                         if (!ImGui.MenuItem(s)) continue;
@@ -401,7 +401,7 @@ public partial class EditorWindow
                             ".con" => new USE(USEType.CON),
                             ".crt" => new CRT(),
                             ".dor" => new USE(USEType.DOR),
-                            //".int" => new INT(),
+                            //".int" => new INT(), // TODO: how to handle new INT?
                             ".itm" => new ITM(),
                             ".map" => new Map(),
                             ".use" => new USE(),
@@ -448,10 +448,10 @@ public partial class EditorWindow
                 if (ImGui.MenuItem("Extract + Convert All .grp Files"))
                     ExtractAllGRPFiles(true);
                 if (ImGui.MenuItem("Show .grp Browser"))
-                    using (var grpb = new GrpBrowser(null, true))
-                    {
-                        grpb.ShowDialog();
-                    }
+                {
+                    using var grpb = new GrpBrowser(null, true);
+                    grpb.ShowDialog();
+                }
 
                 if (ImGui.MenuItem(".png to .rle"))
                 {
@@ -569,7 +569,7 @@ public partial class EditorWindow
         ImGui.PopItemWidth();
     }
 
-    private void HelpMarker(string desc)
+    private static void HelpMarker(string desc)
     {
         ImGui.TextDisabled("(?)");
         if (!ImGui.IsItemHovered(ImGuiHoveredFlags.DelayShort)) return;
@@ -680,8 +680,16 @@ public partial class EditorWindow
     private void DrawINT()
     {
         ImGui.Begin("INT");
-        if (_currentFile.INT is not INT gui) return;
-        ImGui.PushItemWidth(-1);
+        if (_currentFile is not INT gui) return;
+        // create preview of the INT file
+        if (ImGui.Button("Preview"))
+        {
+            var ip = new IntViewer();
+            ip.Width = 1040;
+            ip.Height = 807;
+            ip.Show();
+            ip.LoadData(gui);
+        }
         ImGui.End();
     }
 

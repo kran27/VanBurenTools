@@ -903,49 +903,6 @@ public class EMNPc
 
 #region Other Classes
 
-public class Point2
-{
-    public float x;
-    public float y;
-
-    public Point2(float x, float y)
-    {
-        this.x = x;
-        this.y = y;
-    }
-
-    public IEnumerable<byte> ToByte()
-    {
-        var ret = new byte[8];
-        ret.Write(0, x);
-        ret.Write(4, y);
-        return ret;
-    }
-}
-
-public class Point3
-{
-    public float x;
-    public float y;
-    public float z;
-
-    public Point3(float x, float z, float y)
-    {
-        this.x = x;
-        this.z = z;
-        this.y = y;
-    }
-
-    public IEnumerable<byte> ToByte()
-    {
-        var ret = new byte[12];
-        ret.Write(0, x);
-        ret.Write(4, z);
-        ret.Write(8, y);
-        return ret;
-    }
-}
-
 public class Skill
 {
     public int Index;
@@ -1749,12 +1706,29 @@ public class VEG
 
 public class INT
 {
-    enum flags
+    public enum flags
     {
         Stretch,
         TileX,
         TileY,
         TileBoth,
+    }
+
+    public enum magic
+    {
+        Window,
+        Button,
+        Picture,
+        Label,
+        Edit,
+    }
+
+    public struct rect
+    {
+        public int x1;
+        public int y1;
+        public int x2;
+        public int y2;
     }
     
     public struct fragment
@@ -1762,25 +1736,129 @@ public class INT
         public int width;
         public int height;
         public string texture;
-        public int x1;
-        public int y1;
-        public int x2;
-        public int y2;
+        public rect rect;
     }
 
     public struct obj
     {
+        public int magic;
+        public rect rect1;
+        public string name;
+        public string ini;
+        public rect rect2;
         public List<fragment> fragments;
     }
 
+    public string name = "";
+    public List<obj> objects = [];
+    
     public INT(byte[] b)
     {
         var ms = new MemoryStream();
         ms.Write(b, 0, b.Length);
         var br = new BinaryReader(ms);
+        br.BaseStream.Seek(0, SeekOrigin.Begin);
 
-        var twofont = false;
-        var ret = new obj();
+        // TODO: implement two font logic (uncertain my ImHex pattern handles properly)
+        // var twofont = false;
+        
+        // any reads not marked with a comment are unknown values that may be stored later (assumed type)
+        
+        br.ReadBytes(7); // header, ignore
+        var revision = br.ReadByte() - 0x30; // 0x30 to convert ASCII to int
+        var name_length = br.ReadInt32();
+        name = new string(br.ReadChars(name_length));
+        br.ReadByte();
+        br.ReadInt32();
+        while (br.BaseStream.Position < br.BaseStream.Length)
+        {
+            var obj = new obj();
+            obj.magic = br.ReadInt32();
+            if (obj.magic == 1)
+            {
+                if (revision == 3) {
+                    // i have not researched this bit of data
+                    br.ReadBytes(5);
+                    var s1 = br.ReadInt32();
+                    br.ReadBytes(s1);
+                    var s2 = br.ReadInt32();
+                    br.ReadBytes(s2);
+                    var s3 = br.ReadInt32();
+                    br.ReadBytes(s3);
+                }
+                else
+                {
+                    br.ReadInt32();
+                }
+            }
+            obj.rect1 = new rect();
+            obj.rect1.x1 = br.ReadInt32();
+            obj.rect1.y1 = br.ReadInt32();
+            obj.rect1.x2 = br.ReadInt32();
+            obj.rect1.y2 = br.ReadInt32();
+            var name_length2 = br.ReadInt32();
+            obj.name = new string(br.ReadChars(name_length2));
+            br.ReadBytes(3);
+            var ini_length = br.ReadInt32();
+            obj.ini = new string(br.ReadChars(ini_length));
+            br.ReadBytes(4);
+            obj.rect2 = new rect();
+            obj.rect2.x1 = br.ReadInt32();
+            obj.rect2.y1 = br.ReadInt32();
+            obj.rect2.x2 = br.ReadInt32();
+            obj.rect2.y2 = br.ReadInt32();
+            br.ReadByte();
+            if (revision != 1)
+            {
+                // for now, not storing this data
+                var width = br.ReadInt32();
+                var height = br.ReadInt32();
+                br.ReadInt32();
+                br.ReadInt32();
+                var string_ref = br.ReadInt32();
+                var string_length = br.ReadInt32();
+                var str = new string(br.ReadChars(string_length));
+                br.ReadSingle();
+            }
+            else
+            {
+                br.ReadInt32();
+                br.ReadInt32();
+            }
+            // read 9 fragments
+            obj.fragments = new List<fragment>();
+            for (var i = 0; i < 9; i++)
+            {
+                var frag = new fragment();
+                frag.width = br.ReadInt32();
+                frag.height = br.ReadInt32();
+                br.ReadInt32();
+                br.ReadInt32();
+                br.ReadInt32();
+                var tex_length = br.ReadInt32();
+                frag.texture = new string(br.ReadChars(tex_length));
+                br.ReadSingle();
+                br.ReadInt32();
+                frag.rect = new rect();
+                frag.rect.x1 = br.ReadInt32();
+                frag.rect.y1 = br.ReadInt32();
+                frag.rect.x2 = br.ReadInt32();
+                frag.rect.y2 = br.ReadInt32();
+                br.ReadInt32();
+                obj.fragments.Add(frag);
+            }
+            var last = br.ReadInt32();
+            if (obj.magic >= 3 && last == 0)
+            {
+                br.ReadInt32();
+                var string_length = br.ReadInt32();
+                var str = new string(br.ReadChars(string_length));
+                br.ReadBytes(42);
+            }
+            objects.Add(obj);
+        }
+        br.Close();
+        ms.Close();
     }
 }
 

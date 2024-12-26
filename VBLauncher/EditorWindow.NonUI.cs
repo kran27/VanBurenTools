@@ -130,7 +130,7 @@ public partial class EditorWindow
                     _currentFile = fb.ReadCRT();
                     break;
                 case ".int":
-                    //_currentFile = INT.Parse(fb);
+                    _currentFile = new INT(fb);
                     break;
                 case ".itm":
                     _currentFile = fb.ReadITM();

@@ -223,7 +223,7 @@ static long __stdcall detour_present(IDXGISwapChain* p_swap_chain, UINT sync_int
 
 	ImGuiIO& io = ImGui::GetIO();
 
-	if (GetAsyncKeyState(VK_INSERT) & 1) show = !show;
+	if (GetAsyncKeyState(VK_HOME) & 1) show = !show;
 
 	if (show != lastShow)
 	{
