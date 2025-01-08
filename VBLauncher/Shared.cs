@@ -24,14 +24,15 @@ public static class IniManager
     {
         // Find bounds of section
         var SectionStart = Array.FindIndex(IniArray, x => x.StartsWith($"[{IniSection}]"));
-        var SectionEnd = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith("[")) - 1;
+        var SectionEnd = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith("["));
         if (SectionEnd == -1)
-            SectionEnd = IniArray.Length - 1;
+            SectionEnd = IniArray.Length;
+        SectionEnd--;
 
         if (KeyType == KeyType.Normal)
         {
             // Find key location and value
-            var KeyIndex = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith(IniKey));
+            var KeyIndex = Array.FindIndex(IniArray, SectionStart, x => x.StartsWith(IniKey));
             if (KeyIndex > SectionEnd)
                 return null;
             var KeyLine = IniArray[KeyIndex];

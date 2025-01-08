@@ -16,7 +16,7 @@ public partial class ModLoader
 {
     private List<ModInfo> modList = [];
     private string[] bArray;
-
+    
     public ModLoader()
     {
         InitializeComponent();
@@ -88,7 +88,8 @@ public partial class ModLoader
 
         public ListViewItem ToListViewItem()
         {
-            var ret = new ListViewItem(Name);
+            var ret = new ListViewItem();
+            ret.Name = Name;
             ret.SubItems.Add(Conflict.ToString());
             ret.SubItems.Add(Priority.ToString());
             return ret;
@@ -229,6 +230,8 @@ public partial class ModLoader
                 g.DrawLine(p, e.Bounds.Left + 5, e.Bounds.Top + 9, e.Bounds.Left + 7, e.Bounds.Top + 12);
                 g.DrawLine(p, e.Bounds.Left + 7, e.Bounds.Top + 12, e.Bounds.Left + 11, e.Bounds.Top + 6);
             }
+            
+            g.DrawString(e.Item.Name, e.Item.Font, txtbrsh, e.Bounds.Left + size + 4, e.Bounds.Top + 1);
 
             using (var b = new SolidBrush(textColor))
             {
@@ -336,6 +339,8 @@ public partial class ModLoader
         var selectedMod = modList[ListView1.SelectedItems[0].Index];
         DarkRichTextBox1.Text = selectedMod.Description;
         DarkLabel1.Text = selectedMod.Name;
+        DarkLabel1.Width = DarkLabel1.Parent.Width;
+        DarkLabel2.Text = "Description:";
         DarkLabel3.Text = "Version: " + selectedMod.Version;
     }
 
@@ -366,22 +371,30 @@ public partial class ModLoader
             }
 
             object cfs;
-            var overwrites = modList[i].Entries.Any(s => s.Equals("English.stf", StringComparison.OrdinalIgnoreCase) && lpe.Contains(s));
-            var overwritten = modList[i].Entries.Any(s => s.Equals("English.stf", StringComparison.OrdinalIgnoreCase) && hpe.Contains(s));
-            cfs = overwrites switch
-            {
-                true when overwritten => ConflictStatus.Mixed,
-                true => ConflictStatus.Overwrite,
-                _ => overwritten ? ConflictStatus.Overwritten : ConflictStatus.Clear
-            };
-
-            modList[i].Conflict = (ConflictStatus)cfs;
-            var redundant = modList[i].Entries.Where(s => s.Equals("English.stf", StringComparison.OrdinalIgnoreCase)).All(s => hpe.Contains(s));
+            var overwrites = modList[i].Entries.Any(s => lpe.Contains(s));
+            var overwritten = modList[i].Entries.Any(s => hpe.Contains(s));
+            var redundant = modList[i].Entries.All(s => hpe.Contains(s));
             if (redundant)
             {
                 cfs = ConflictStatus.Redundant;
-                modList[i].Conflict = (ConflictStatus)cfs;
             }
+            else if (overwrites && overwritten)
+            {
+                cfs = ConflictStatus.Mixed;
+            }
+            else if (overwrites)
+            {
+                cfs = ConflictStatus.Overwrite;
+            }
+            else if (overwritten)
+            {
+                cfs = ConflictStatus.Overwritten;
+            }
+            else
+            {
+                cfs = ConflictStatus.Clear;
+            }
+            modList[i].Conflict = (ConflictStatus)cfs;
             ListView1.Items[i].SubItems[1].Text = cfs.ToString();
             modList[i].Priority = ListView1.CheckedItems.IndexOf(ListView1.Items[i]);
             ListView1.Items[i].SubItems[2].Text = ListView1.CheckedItems.IndexOf(ListView1.Items[i]).ToString();
@@ -444,9 +457,10 @@ public partial class ModLoader
 
         // returns the string array for future use, and the # of strings between the vanilla and high-priority new.
         // this value is used to shift string references in the high priority mod's files.
-        return (oArray, additionalStrings);
+        return (oArray, hArray.Length - 3281);
     }
 
+    // increases string references in a file by a given value if they're beyond the vanilla strings.
     private void IncSTFRefs(string fp, int incVal)
     {
 
@@ -462,63 +476,93 @@ public partial class ModLoader
             ".itm" => b.ReadITM(),
             ".use" => b.ReadUSE(),
             ".wea" => b.ReadWEA(),
+            ".map" => b.ReadMap(),
             _ => default(object)
         };
 
         if (file is null)
             return;
-            
-        if (((dynamic)file).GENT is not GENTc gent)
-            return;
 
-        if (gent.HoverSR > 3281)
-            gent.HoverSR += incVal;
-        if (gent.LookSR > 3281)
-            gent.LookSR += incVal;
-        if (gent.NameSR > 3281)
-            gent.NameSR += incVal;
-        if (gent.UnkwnSR > 3281)
-            gent.UnkwnSR += incVal;
+        if (((dynamic)file).GENT is GENTc gent)
+        {
+            if (gent.HoverSR > 3281)
+                gent.HoverSR += incVal;
+            if (gent.LookSR > 3281)
+                gent.LookSR += incVal;
+            if (gent.NameSR > 3281)
+                gent.NameSR += incVal;
+            if (gent.UnkwnSR > 3281)
+                gent.UnkwnSR += incVal;
+        }
+
+        if (((dynamic)file).GCRE is GCREc gcre)
+        {
+            foreach (var gwam in gcre.GWAM.Where(gwam => gwam.NameSR > 3281))
+            {
+                gwam.NameSR += incVal;
+            }
+        }
+        
+        if ((dynamic)file is Map map)
+        {
+            foreach (var note in map.EMNO.Where(note => note.sr > 3281))
+            {
+                note.sr += incVal;
+            }
+        }
 
         File.WriteAllBytes(fp, (byte[])((dynamic)file).ToByte());
     }
 
     private void ToolStripLabel2_Click(object sender, EventArgs e)
     {
-        bArray = (string[])Extensions.STFToTXT(File.ReadAllBytes(Settings.Default.STFDir));
-        var tmpArray = bArray;
+        if (File.Exists(Settings.Default.STFDir + ".bak"))
+            File.Copy(Settings.Default.STFDir + ".bak", Settings.Default.STFDir, true);
+        else
+            File.Copy(Settings.Default.STFDir, Settings.Default.STFDir + ".bak");
+        
+        var tmpDir = @"Mods\tmp";
+        if (Directory.Exists(tmpDir))
+            Directory.Delete(tmpDir, true);
+        if (Directory.Exists("Override\\Deployed"))
+            Directory.Delete("Override\\Deployed", true);
+        
+        bArray = Extensions.STFToTXT(File.ReadAllBytes(Settings.Default.STFDir)).ToArray();
+        var originalStf = bArray;
         foreach (int i in ListView1.CheckedIndices)
         {
-            if (!modList[i].Entries.Any(x => x.Equals("English.stf", StringComparison.OrdinalIgnoreCase))) continue;
             var zip = ZipFile.OpenRead(modList[i].Zip.FullName);
+            Directory.CreateDirectory(tmpDir);
+            // extract all mod files
+            foreach (var entry2 in zip.Entries)
+            {
+                if (entry2.Name.ToLower() != "english.stf" && entry2.Name.ToLower() != "mod.info")
+                {
+                    entry2.ExtractToFile(Path.Combine(tmpDir, entry2.Name), true);
+                }
+            }
+
+            // load the mod's english.stf file (if present)
+            var modStf = zip.Entries.FirstOrDefault(e => e.Name.ToLower() == "english.stf");
+            if (modStf == null) continue;
+            using var memoryStream = new MemoryStream();
+            modStf.Open().CopyTo(memoryStream);
+            var stfData = memoryStream.ToArray();
+            var stfArray = Extensions.STFToTXT(stfData).ToArray();
+    
+            // merge the mod's english.stf with the original english.stf (or previously merged english.stf)
+            var tmp = MergeSTF(originalStf, stfArray);
+            originalStf = tmp.Item1;
+            
+            // increase string references in all files by the number of new strings added by the current mod.
             foreach (var entry in zip.Entries)
             {
-                if (entry.Name.ToLower() != "english.stf") continue;
-                using var memoryStream = new MemoryStream();
-                entry.Open().CopyTo(memoryStream);
-                var stfData = memoryStream.ToArray();
-                var stfArray = Extensions.STFToTXT(stfData);
-
-                var tmp = MergeSTF(tmpArray, (string[])stfArray);
-                tmpArray = tmp.Item1;
-
-                var tmpDir = @"Mods\tmp";
-                Directory.CreateDirectory(tmpDir);
-                foreach (var entry2 in zip.Entries)
-                {
-                    if (entry2.Name.ToLower() != "english.stf" && entry2.Name.ToLower() != "mod.info")
-                    {
-                        entry2.ExtractToFile(Path.Combine(tmpDir, entry2.Name), true);
-                    }
-                }
-                foreach (var f in Directory.GetFiles(tmpDir))
-                {
-                    var fi = new FileInfo(f);
-                    IncSTFRefs(f, tmp.Item2);
-                    File.Move(f, $@"Overrides\Deployed\{fi.Name}", true);
-                }
-                break;
+                if (entry.Name.ToLower() == "english.stf" || entry.Name.ToLower() == "mod.info") continue;
+                var fp = Path.Combine(tmpDir, entry.Name);
+                IncSTFRefs(fp, tmp.Item2);
             }
         }
+        if (Directory.Exists(tmpDir))
+        Directory.Move(tmpDir, "Override\\Deployed");
     }
 }

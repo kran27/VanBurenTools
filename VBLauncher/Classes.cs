@@ -1762,8 +1762,6 @@ public class INT
         // TODO: implement two font logic (uncertain my ImHex pattern handles properly)
         // var twofont = false;
         
-        // any reads not marked with a comment are unknown values that may be stored later (assumed type)
-        
         br.ReadBytes(7); // header, ignore
         var revision = br.ReadByte() - 0x30; // 0x30 to convert ASCII to int
         var name_length = br.ReadInt32();

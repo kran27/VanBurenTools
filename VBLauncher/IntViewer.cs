@@ -10,28 +10,13 @@ namespace VBLauncher;
 
 public class IntViewer : DarkForm
 {
+// Loads and draws image fragments from files based on object data. It iterates through objects, filters fragments by dimensions, and renders textures using GDI+.
     public void LoadData(INT intFile)
     {
         var g = CreateGraphics();
         foreach (var obj in intFile.objects)
         {
-            List<INT.fragment> fragsToDraw = new();
-            switch ((INT.magic)obj.magic)
-            {
-                case INT.magic.Picture:
-                    fragsToDraw = [obj.fragments[4]];
-                    break;
-                case INT.magic.Button:
-                case INT.magic.Label:
-                    break;
-                case INT.magic.Window:
-                    fragsToDraw = obj.fragments;
-                    break;
-                case INT.magic.Edit:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            var fragsToDraw = obj.fragments.Where(f => f.width != 16 && f.height != 16);
             foreach (var frag in fragsToDraw)
             //var frag = obj.fragments[4];
             {
