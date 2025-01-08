@@ -8,7 +8,7 @@ Various tools and code relating to reverse engineering Fallout Van Buren
 ### VBLauncher
 The main thing. features include:
 - Edit game and dgVoodoo settings
-- Load mods [VERY WIP]
+- Load mods with ModOrganizer 2 inspired UI (mostly functional)
 - Edit game files [WIP]
 - Extract game files from .grp (feature parity with ungrp, no other tools needed)
 - Visual preview of game resources (models, textures, etc.) [WIP]

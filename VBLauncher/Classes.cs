@@ -1730,7 +1730,7 @@ public class INT
         public int x2;
         public int y2;
     }
-    
+
     public struct fragment
     {
         public int width;
@@ -1751,7 +1751,7 @@ public class INT
 
     public string name = "";
     public List<obj> objects = [];
-    
+
     public INT(byte[] b)
     {
         var ms = new MemoryStream();
@@ -1761,7 +1761,9 @@ public class INT
 
         // TODO: implement two font logic (uncertain my ImHex pattern handles properly)
         // var twofont = false;
-        
+
+        // any reads not marked with a comment are unknown values that may be stored later (assumed type)
+
         br.ReadBytes(7); // header, ignore
         var revision = br.ReadByte() - 0x30; // 0x30 to convert ASCII to int
         var name_length = br.ReadInt32();
@@ -1774,7 +1776,8 @@ public class INT
             obj.magic = br.ReadInt32();
             if (obj.magic == 1)
             {
-                if (revision == 3) {
+                if (revision == 3)
+                {
                     // i have not researched this bit of data
                     br.ReadBytes(5);
                     var s1 = br.ReadInt32();
