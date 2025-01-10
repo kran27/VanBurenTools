@@ -404,18 +404,18 @@ public class MainMenuDef(
     string fov)
 {
     public string MapName { get; set; } = mapName;
-    public string TargetX { get; set; } = targetX;
-    public string TargetY { get; set; } = targetY;
-    public string TargetZ { get; set; } = targetZ;
-    public string Azimuth { get; set; } = azimuth;
-    public string Elevation { get; set; } = elevation;
-    public string FOV { get; set; } = fov;
+public string TargetX { get; set; } = targetX;
+public string TargetY { get; set; } = targetY;
+public string TargetZ { get; set; } = targetZ;
+public string Azimuth { get; set; } = azimuth;
+public string Elevation { get; set; } = elevation;
+public string FOV { get; set; } = fov;
 }
 
 public class Keybind(string key, string modifier, string action, bool onPress = true)
 {
     public readonly string Key = key;
-    public readonly string Modifier = modifier;
-    public readonly string Action = action;
-    public readonly bool OnPress = onPress;
+public readonly string Modifier = modifier;
+public readonly string Action = action;
+public readonly bool OnPress = onPress;
 }
