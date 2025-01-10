@@ -16,7 +16,7 @@ public partial class ModLoader
 {
     private List<ModInfo> modList = [];
     private string[] bArray;
-    
+
     public ModLoader()
     {
         InitializeComponent();
@@ -230,7 +230,7 @@ public partial class ModLoader
                 g.DrawLine(p, e.Bounds.Left + 5, e.Bounds.Top + 9, e.Bounds.Left + 7, e.Bounds.Top + 12);
                 g.DrawLine(p, e.Bounds.Left + 7, e.Bounds.Top + 12, e.Bounds.Left + 11, e.Bounds.Top + 6);
             }
-            
+
             g.DrawString(e.Item.Name, e.Item.Font, txtbrsh, e.Bounds.Left + size + 4, e.Bounds.Top + 1);
 
             using (var b = new SolidBrush(textColor))
@@ -502,7 +502,7 @@ public partial class ModLoader
                 gwam.NameSR += incVal;
             }
         }
-        
+
         if ((dynamic)file is Map map)
         {
             foreach (var note in map.EMNO.Where(note => note.sr > 3281))
@@ -520,13 +520,13 @@ public partial class ModLoader
             File.Copy(Settings.Default.STFDir + ".bak", Settings.Default.STFDir, true);
         else
             File.Copy(Settings.Default.STFDir, Settings.Default.STFDir + ".bak");
-        
+
         var tmpDir = @"Mods\tmp";
         if (Directory.Exists(tmpDir))
             Directory.Delete(tmpDir, true);
         if (Directory.Exists("Override\\Deployed"))
             Directory.Delete("Override\\Deployed", true);
-        
+
         bArray = Extensions.STFToTXT(File.ReadAllBytes(Settings.Default.STFDir)).ToArray();
         var originalStf = bArray;
         foreach (int i in ListView1.CheckedIndices)
@@ -549,11 +549,11 @@ public partial class ModLoader
             modStf.Open().CopyTo(memoryStream);
             var stfData = memoryStream.ToArray();
             var stfArray = Extensions.STFToTXT(stfData).ToArray();
-    
+
             // merge the mod's english.stf with the original english.stf (or previously merged english.stf)
             var tmp = MergeSTF(originalStf, stfArray);
             originalStf = tmp.Item1;
-            
+
             // increase string references in all files by the number of new strings added by the current mod.
             foreach (var entry in zip.Entries)
             {
@@ -563,6 +563,6 @@ public partial class ModLoader
             }
         }
         if (Directory.Exists(tmpDir))
-        Directory.Move(tmpDir, "Override\\Deployed");
+            Directory.Move(tmpDir, "Override\\Deployed");
     }
 }
