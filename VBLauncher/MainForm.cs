@@ -80,7 +80,7 @@ public partial class MainForm
             File.WriteAllText(IniManager.F3Dir, My.Resources.Resources.Default_F3);
             IniManager.F3Ini = File.ReadAllLines(IniManager.F3Dir);
         }
-        
+
         if (File.Exists(IniManager.SysDir))
             IniManager.SysIni = File.ReadAllLines(IniManager.SysDir);
         else
