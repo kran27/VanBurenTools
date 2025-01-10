@@ -65,7 +65,7 @@ namespace VBLauncher
             TabPage2 = new TabPage();
             SSFL = new DarkLabel();
             ResolutionCB = new DarkComboBox();
-            ResolutionCB.SelectedIndexChanged += new EventHandler(SetupSSCB);
+            ResolutionCB.SelectedIndexChanged += new EventHandler(SetupSscb);
             ResolutionL = new DarkLabel();
             TextureL = new DarkLabel();
             TextureCB = new DarkComboBox();

@@ -11,28 +11,28 @@ namespace VBLauncher;
 
 public partial class Options
 {
-    private readonly MainMenuDef[] MainMenus =
-    {
-        new MainMenuDef("mainmenu.map", "0", "5.5", "0", "2", "0.75", "59.2"),
-        new MainMenuDef("zz_TestMapsaarontemp2.map", "0", "0", "0", "0", "0", "0"),
-        new MainMenuDef("zz_TestMapsTest_City_Building01.map", "0", "5.5", "0", "45", "-2.5", "57"),
-        new MainMenuDef("zz_TestMapsTest_City_Building02.map", "0", "5.5", "0", "43", "-2.5", "57"),
-        new MainMenuDef("zz_TestMapsTest_City_Building03.map", "0", "5.5", "0", "43", "-5", "57"),
-        new MainMenuDef("zz_TestMapsTest_City_Building04.map", "0", "5.5", "0", "43", "-5.5", "57"),
-        new MainMenuDef("98_Canyon_Random_01.map", "50", "5", "10", "61", "0", "45"),
-        new MainMenuDef("98_Canyon_Random_02.map", "55", "5", "10", "36", "-2.5", "50"),
-        new MainMenuDef("04_0202_Spelunking.map", "70", "5", "45", "15", "5", "50"),
-        new MainMenuDef("zz_TestMapsTest_City_Fences.map", "0", "40", "0", "42", "35", "50"),
-        new MainMenuDef("zz_TestMapsScottE_Test1.map", "85", "30", "30", "255", "39", "60"),
-        new MainMenuDef("zz_TestMapsScottE_Test2.map", "145", "80", "-85", "0.5", "25", "75"),
-        new MainMenuDef("zz_TestMapsScottE_Test4.map", "0", "7.5", "0", "45", "12.5", "50"),
-        new MainMenuDef("zz_TestMapsTest_Junktown_Shacks.map", "0", "50", "-10", "42", "39", "50"),
-        new MainMenuDef("Default_StartMap.map", "60", "7.5", "25", "270", "8", "27"),
-        new MainMenuDef("00_03_Tutorial_Junktown.map", "80", "7.5", "50", "5", "10", "68"),
-        new MainMenuDef("00_04_Tutorial_Vault.map", "50", "50.5", "0", "36", "25", "68")
-    };
+    private readonly MainMenuDef[] _mainMenus =
+    [
+        new("mainmenu.map", "0", "5.5", "0", "2", "0.75", "59.2"),
+        new("zz_TestMapsaarontemp2.map", "0", "0", "0", "0", "0", "0"),
+        new("zz_TestMapsTest_City_Building01.map", "0", "5.5", "0", "45", "-2.5", "57"),
+        new("zz_TestMapsTest_City_Building02.map", "0", "5.5", "0", "43", "-2.5", "57"),
+        new("zz_TestMapsTest_City_Building03.map", "0", "5.5", "0", "43", "-5", "57"),
+        new("zz_TestMapsTest_City_Building04.map", "0", "5.5", "0", "43", "-5.5", "57"),
+        new("98_Canyon_Random_01.map", "50", "5", "10", "61", "0", "45"),
+        new("98_Canyon_Random_02.map", "55", "5", "10", "36", "-2.5", "50"),
+        new("04_0202_Spelunking.map", "70", "5", "45", "15", "5", "50"),
+        new("zz_TestMapsTest_City_Fences.map", "0", "40", "0", "42", "35", "50"),
+        new("zz_TestMapsScottE_Test1.map", "85", "30", "30", "255", "39", "60"),
+        new("zz_TestMapsScottE_Test2.map", "145", "80", "-85", "0.5", "25", "75"),
+        new("zz_TestMapsScottE_Test4.map", "0", "7.5", "0", "45", "12.5", "50"),
+        new("zz_TestMapsTest_Junktown_Shacks.map", "0", "50", "-10", "42", "39", "50"),
+        new("Default_StartMap.map", "60", "7.5", "25", "270", "8", "27"),
+        new("00_03_Tutorial_Junktown.map", "80", "7.5", "50", "5", "10", "68"),
+        new("00_04_Tutorial_Vault.map", "50", "50.5", "0", "36", "25", "68")
+    ];
 
-    private readonly string[] Maps =
+    private readonly string[] _maps =
     [
         "mainmenu.map", "zz_TestMapsaarontemp2.map", "zz_TestMapsTest_City_Building01.map",
         "zz_TestMapsTest_City_Building02.map", "zz_TestMapsTest_City_Building03.map",
@@ -42,36 +42,36 @@ public partial class Options
         "Default_StartMap.map", "00_03_Tutorial_Junktown.map", "00_04_Tutorial_Vault.map"
     ];
 
-    private string[] dgV2Conf;
-    private readonly string[] AAModes = ["off", "2x", "4x", "8x"];
-    private readonly string[] FModes = ["appdriven", "pointsampled", "Linearmip", "2", "4", "8", "16"];
-    private readonly string[] SSModes = ["unforced", "2x", "3x", "4x"];
-    private int Row;
-    private string Key;
-    private string Modifier;
-    private bool WantKey;
+    private string[] _dgV2Conf;
+    private readonly string[] _aaModes = ["off", "2x", "4x", "8x"];
+    private readonly string[] _fModes = ["appdriven", "pointsampled", "Linearmip", "2", "4", "8", "16"];
+    private readonly string[] _ssModes = ["unforced", "2x", "3x", "4x"];
+    private int _row;
+    private string _key;
+    private string _modifier;
+    private bool _wantKey;
 
     public Options()
     {
         InitializeComponent();
     }
 
-    private static void SetMainMenu(MainMenuDef MMD)
+    private static void SetMainMenu(MainMenuDef mmd)
     {
-        IniManager.Ini(ref IniManager.SysIni, "Mainmenu", "map name", MMD.MapName);
-        IniManager.Ini(ref IniManager.SysIni, "Mainmenu", "target x", MMD.TargetX);
-        IniManager.Ini(ref IniManager.SysIni, "Mainmenu", "target y", MMD.TargetY);
-        IniManager.Ini(ref IniManager.SysIni, "Mainmenu", "target z", MMD.TargetZ);
-        IniManager.Ini(ref IniManager.SysIni, "Mainmenu", "azimuth", MMD.Azimuth);
-        IniManager.Ini(ref IniManager.SysIni, "Mainmenu", "elevation", MMD.Elevation);
-        IniManager.Ini(ref IniManager.SysIni, "Mainmenu", "fov", MMD.FOV);
+        IniManager.Ini(ref IniManager.SysIni, "Mainmenu", "map name", mmd.MapName);
+        IniManager.Ini(ref IniManager.SysIni, "Mainmenu", "target x", mmd.TargetX);
+        IniManager.Ini(ref IniManager.SysIni, "Mainmenu", "target y", mmd.TargetY);
+        IniManager.Ini(ref IniManager.SysIni, "Mainmenu", "target z", mmd.TargetZ);
+        IniManager.Ini(ref IniManager.SysIni, "Mainmenu", "azimuth", mmd.Azimuth);
+        IniManager.Ini(ref IniManager.SysIni, "Mainmenu", "elevation", mmd.Elevation);
+        IniManager.Ini(ref IniManager.SysIni, "Mainmenu", "fov", mmd.FOV);
     }
 
     private void CheckOptions(object sender, EventArgs e)
     {
         DarkTabControl1.Invalidate();
         IntrosCB.Checked = IniManager.Ini(ref IniManager.F3Ini, "Graphics", "enable startup movies") == "1";
-        MainMenuCB.SelectedIndex = Array.IndexOf(Maps, IniManager.Ini(ref IniManager.SysIni, "Mainmenu", "map name"));
+        MainMenuCB.SelectedIndex = Array.IndexOf(_maps, IniManager.Ini(ref IniManager.SysIni, "Mainmenu", "map name"));
         CameraCB.Checked = IniManager.Ini(ref IniManager.SysIni, "Camera", "FOV Min") == "0.5";
         AltCamCB.Checked = IniManager.Ini(ref IniManager.SysIni, "Camera", "Distance Max") == "70";
         var files = General.SearchForFiles("Override", ["*.map"]);
@@ -85,15 +85,14 @@ public partial class Options
         // Graphics
         TextureCB.BringToFront();
         SSFCB.BringToFront();
-        try
+        if (File.Exists("dgVoodo.conf"))
         {
-            dgV2Conf = File.ReadAllLines("dgVoodoo.conf");
+            _dgV2Conf = File.ReadAllLines("dgVoodoo.conf");
         }
-        catch
+        else
         {
-            File.Exists("dgVoodoo.conf");
             File.WriteAllText("dgVoodoo.conf", My.Resources.Resources.dgV2conf);
-            dgV2Conf = File.ReadAllLines("dgVoodoo.conf");
+            _dgV2Conf = File.ReadAllLines("dgVoodoo.conf");
         }
 
         ResolutionCB.Items.Clear();
@@ -105,16 +104,16 @@ public partial class Options
             Hz = int.Parse(IniManager.Ini(ref IniManager.F3Ini, "Graphics", "refresh"))
         };
         ResolutionCB.SelectedItem = ResToStr(inires);
-        SetupSSCB(sender, e);
+        SetupSscb(sender, e);
         FullscreenCB.Checked = IniManager.Ini(ref IniManager.F3Ini, "Graphics", "fullscreen") == "1";
         APICB.SelectedIndex = File.Exists("d3d11.dll") ? 1 : 0;
 
-        AACB.SelectedIndex = AAModes.ToList().IndexOf(IniManager.Ini(ref dgV2Conf, "DirectX", "Antialiasing"));
-        TextureCB.SelectedIndex = FModes.ToList().IndexOf(IniManager.Ini(ref dgV2Conf, "DirectX", "Filtering"));
-        SSFCB.SelectedIndex = SSModes.ToList().IndexOf(IniManager.Ini(ref dgV2Conf, "DirectX", "Resolution"));
+        AACB.SelectedIndex = _aaModes.ToList().IndexOf(IniManager.Ini(ref _dgV2Conf, "DirectX", "Antialiasing"));
+        TextureCB.SelectedIndex = _fModes.ToList().IndexOf(IniManager.Ini(ref _dgV2Conf, "DirectX", "Filtering"));
+        SSFCB.SelectedIndex = _ssModes.ToList().IndexOf(IniManager.Ini(ref _dgV2Conf, "DirectX", "Resolution"));
         try
         {
-            MipmapCB.Checked = !bool.Parse(IniManager.Ini(ref dgV2Conf, "DirectX", "DisableMipmapping"));
+            MipmapCB.Checked = !bool.Parse(IniManager.Ini(ref _dgV2Conf, "DirectX", "DisableMipmapping"));
         }
         catch
         {
@@ -123,7 +122,7 @@ public partial class Options
 
         try
         {
-            PhongCB.Checked = bool.Parse(IniManager.Ini(ref dgV2Conf, "DirectX", "PhongShadingWhenPossible"));
+            PhongCB.Checked = bool.Parse(IniManager.Ini(ref _dgV2Conf, "DirectX", "PhongShadingWhenPossible"));
         }
         catch
         {
@@ -137,9 +136,9 @@ public partial class Options
     {
         DarkLabel1.Hide();
         DarkScrollBar1.BringToFront();
-        var BindString = IniManager.F3Ini.GetSection("HotKeys");
-        var Binds = new List<Keybind>();
-        foreach (var s in BindString)
+        var bindString = IniManager.F3Ini.GetSection("HotKeys");
+        var binds = new List<Keybind>();
+        foreach (var s in bindString)
         {
             if (s.StartsWith("+"))
             {
@@ -147,25 +146,20 @@ public partial class Options
                 var action = s[(s.IndexOf("=") + 1)..].Trim();
                 if (keys.Length > 2)
                 {
-                    Binds.Add(new Keybind(keys[2], keys[1], action));
+                    binds.Add(new Keybind(keys[2], keys[1], action));
                 }
                 else
                 {
-                    Binds.Add(new Keybind(keys[1], "", action));
+                    binds.Add(new Keybind(keys[1], "", action));
                 }
             }
             else if (s.StartsWith("-"))
             {
                 var keys = s[..(s.IndexOf("=") - 1)].Trim().Split("-");
                 var action = s[(s.IndexOf("=") + 1)..].Trim();
-                if (keys.Length > 2)
-                {
-                    Binds.Add(new Keybind(keys[2], keys[1], action, false));
-                }
-                else
-                {
-                    Binds.Add(new Keybind(keys[1], "", action, false));
-                }
+                binds.Add(keys.Length > 2
+                    ? new Keybind(keys[2], keys[1], action, false)
+                    : new Keybind(keys[1], "", action, false));
             }
         }
 
@@ -175,7 +169,7 @@ public partial class Options
         dt.Columns.Add("Key");
         dt.Columns.Add("Action");
         dt.Columns.Add("On Key");
-        foreach (var bind in Binds)
+        foreach (var bind in binds)
             dt.Rows.Add(bind.Modifier, bind.Key, bind.Action, bind.OnPress ? "Down" : "Up");
         DataGridView1.GridColor = ThemeProvider.Theme.Colors.GreySelection;
         DataGridView1.BackgroundColor = ThemeProvider.Theme.Colors.LightBackground;
@@ -202,7 +196,7 @@ public partial class Options
     {
         IniManager.Ini(ref IniManager.F3Ini, "Graphics", "enable startup movies",
             (IntrosCB.Checked ? 1 : 0).ToString());
-        SetMainMenu(MainMenus[MainMenuCB.SelectedIndex]);
+        SetMainMenu(_mainMenus[MainMenuCB.SelectedIndex]);
         IniManager.Ini(ref IniManager.SysIni, "Camera", "Distance Max", (AltCamCB.Checked ? 70 : 350).ToString());
         IniManager.Ini(ref IniManager.SysIni, "Camera", "Distance Min", (AltCamCB.Checked ? 70 : 350).ToString());
         IniManager.Ini(ref IniManager.SysIni, "Camera", "FOV Speed", (CameraCB.Checked ? 10d : 32.5d).ToString());
@@ -239,33 +233,33 @@ public partial class Options
                 }
         }
 
-        IniManager.Ini(ref dgV2Conf, "DirectX", "Antialiasing", AAModes[AACB.SelectedIndex]);
-        IniManager.Ini(ref dgV2Conf, "DirectX", "Filtering", FModes[TextureCB.SelectedIndex]);
-        IniManager.Ini(ref dgV2Conf, "DirectX", "Resolution", SSModes[SSFCB.SelectedIndex]);
-        IniManager.Ini(ref dgV2Conf, "DirectX", "DisableMipmapping", !MipmapCB.Checked ? "true" : "false");
-        IniManager.Ini(ref dgV2Conf, "DirectX", "PhongShadingWhenPossible", PhongCB.Checked ? "true" : "false");
-        IniManager.Ini(ref dgV2Conf, "GeneralExt", "FPSLimit", res.Hz.ToString());
+        IniManager.Ini(ref _dgV2Conf, "DirectX", "Antialiasing", _aaModes[AACB.SelectedIndex]);
+        IniManager.Ini(ref _dgV2Conf, "DirectX", "Filtering", _fModes[TextureCB.SelectedIndex]);
+        IniManager.Ini(ref _dgV2Conf, "DirectX", "Resolution", _ssModes[SSFCB.SelectedIndex]);
+        IniManager.Ini(ref _dgV2Conf, "DirectX", "DisableMipmapping", !MipmapCB.Checked ? "true" : "false");
+        IniManager.Ini(ref _dgV2Conf, "DirectX", "PhongShadingWhenPossible", PhongCB.Checked ? "true" : "false");
+        IniManager.Ini(ref _dgV2Conf, "GeneralExt", "FPSLimit", res.Hz.ToString());
         IniManager.Ini(ref IniManager.F3Ini, "Graphics", "refresh", res.Hz.ToString());
-        var NewBinds = (from DataGridViewRow r in DataGridView1.Rows
+        var newBinds = (from DataGridViewRow r in DataGridView1.Rows
                         select RowToStr(r)).ToList();
 
-        var SectionStart = Array.FindIndex(IniManager.F3Ini, x => x.StartsWith("[HotKeys]"));
-        var SectionEnd = Array.FindIndex(IniManager.F3Ini, SectionStart + 1, x => x.StartsWith("[")) - 1;
-        if (SectionEnd < 0)
-            SectionEnd = IniManager.F3Ini.Length - 1;
+        var sectionStart = Array.FindIndex(IniManager.F3Ini, x => x.StartsWith("[HotKeys]"));
+        var sectionEnd = Array.FindIndex(IniManager.F3Ini, sectionStart + 1, x => x.StartsWith("[")) - 1;
+        if (sectionEnd < 0)
+            sectionEnd = IniManager.F3Ini.Length - 1;
 
-        for (int i = SectionStart + 1, loopTo = SectionEnd - 1; i <= loopTo; i++)
-            General.RemoveAt(ref IniManager.F3Ini, SectionStart + 1);
+        for (int i = sectionStart + 1, loopTo = sectionEnd - 1; i <= loopTo; i++)
+            General.RemoveAt(ref IniManager.F3Ini, sectionStart + 1);
 
-        for (int i = 1, loopTo1 = NewBinds.Count() - 1; i <= loopTo1; i++)
-            General.InsertAt(ref IniManager.F3Ini, SectionStart + i, NewBinds[i - 1]);
-        File.WriteAllLines("dgVoodoo.conf", dgV2Conf);
+        for (int i = 1, loopTo1 = newBinds.Count() - 1; i <= loopTo1; i++)
+            General.InsertAt(ref IniManager.F3Ini, sectionStart + i, newBinds[i - 1]);
+        File.WriteAllLines("dgVoodoo.conf", _dgV2Conf);
         File.WriteAllLines(IniManager.SysDir, IniManager.SysIni);
         File.WriteAllLines(IniManager.F3Dir, IniManager.F3Ini);
         Hide();
     }
 
-    private void SetupSSCB(object sender, EventArgs e)
+    private void SetupSscb(object sender, EventArgs e)
     {
         var index = SSFCB.SelectedIndex;
         var res = StrToRes(ResolutionCB.Text);
@@ -298,15 +292,15 @@ public partial class Options
             case 0:
             case 1:
                 {
-                    Row = e.RowIndex;
+                    _row = e.RowIndex;
                     DarkLabel1.Show();
-                    WantKey = true;
+                    _wantKey = true;
                     break;
                 }
             case 2:
                 {
                     DarkLabel1.Hide();
-                    WantKey = false;
+                    _wantKey = false;
                     break;
                 }
             case 3:
@@ -318,7 +312,7 @@ public partial class Options
                             ? "Down"
                             : "Up";
                     DarkLabel1.Hide();
-                    WantKey = false;
+                    _wantKey = false;
                     break;
                 }
         }
@@ -359,13 +353,12 @@ public partial class Options
 
             default:
                 {
-                    if (WantKey)
+                    if (_wantKey)
                     {
-                        Modifier = e.Modifiers.ToString();
-                        Key = e.KeyCode.ToString();
-                        DataGridView1.Rows[Row].Cells[0].Value = ProperName.TryGetValue(Modifier, out var value) ? value : Modifier;
-                        DataGridView1.Rows[Row].Cells[1].Value = ProperName.TryGetValue(Key, out var value1) ? value1 : Key;
-                        break;
+                        _modifier = e.Modifiers.ToString();
+                        _key = e.KeyCode.ToString();
+                        DataGridView1.Rows[_row].Cells[0].Value = _properName.TryGetValue(_modifier, out var value) ? value : _modifier;
+                        DataGridView1.Rows[_row].Cells[1].Value = _properName.TryGetValue(_key, out var value1) ? value1 : _key;
                     }
 
                     break;
@@ -373,7 +366,7 @@ public partial class Options
         }
     }
 
-    private Dictionary<string, string> ProperName = new()
+    private readonly Dictionary<string, string> _properName = new()
     {
         { "D1", "1" },
         { "D2", "2" },
@@ -401,41 +394,28 @@ public partial class Options
     };
 }
 
-public class MainMenuDef
+public class MainMenuDef(
+    string mapName,
+    string targetX,
+    string targetY,
+    string targetZ,
+    string azimuth,
+    string elevation,
+    string fov)
 {
-    public string MapName { get; set; }
-    public string TargetX { get; set; }
-    public string TargetY { get; set; }
-    public string TargetZ { get; set; }
-    public string Azimuth { get; set; }
-    public string Elevation { get; set; }
-    public string FOV { get; set; }
-
-    public MainMenuDef(string mapName, string targetX, string targetY, string targetZ, string azimuth,
-        string elevation, string fov)
-    {
-        MapName = mapName;
-        TargetX = targetX;
-        TargetY = targetY;
-        TargetZ = targetZ;
-        Azimuth = azimuth;
-        Elevation = elevation;
-        FOV = fov;
-    }
+    public string MapName { get; set; } = mapName;
+    public string TargetX { get; set; } = targetX;
+    public string TargetY { get; set; } = targetY;
+    public string TargetZ { get; set; } = targetZ;
+    public string Azimuth { get; set; } = azimuth;
+    public string Elevation { get; set; } = elevation;
+    public string FOV { get; set; } = fov;
 }
 
-public class Keybind
+public class Keybind(string key, string modifier, string action, bool onPress = true)
 {
-    public string Key;
-    public string Modifier;
-    public string Action;
-    public bool OnPress;
-
-    public Keybind(string Key, string Modifier, string Action, bool OnPress = true)
-    {
-        this.Key = Key;
-        this.Modifier = Modifier;
-        this.Action = Action;
-        this.OnPress = OnPress;
-    }
+    public readonly string Key = key;
+    public readonly string Modifier = modifier;
+    public readonly string Action = action;
+    public readonly bool OnPress = onPress;
 }

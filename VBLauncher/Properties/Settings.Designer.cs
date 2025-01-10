@@ -57,5 +57,17 @@ namespace VBLauncher.Properties {
                 this["STFDir"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string DeployedMods {
+            get {
+                return ((string)(this["DeployedMods"]));
+            }
+            set {
+                this["DeployedMods"] = value;
+            }
+        }
     }
 }

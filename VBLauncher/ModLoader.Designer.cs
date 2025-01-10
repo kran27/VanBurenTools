@@ -69,7 +69,7 @@ namespace VBLauncher
             ToolStripLabel2 = new ToolStripLabel();
             ToolStripLabel2.MouseEnter += new EventHandler(ToolStripLabel_MouseEnter);
             ToolStripLabel2.MouseLeave += new EventHandler(ToolStripLabel_MouseLeave);
-            ToolStripLabel2.Click += new EventHandler(ToolStripLabel2_Click);
+            ToolStripLabel2.Click += new EventHandler(DeployMods);
             ToolStripSeparator1 = new ToolStripSeparator();
             ToolStripLabel3 = new ToolStripLabel();
             ToolStripLabel3.MouseEnter += new EventHandler(ToolStripLabel_MouseEnter);

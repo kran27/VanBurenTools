@@ -42,7 +42,7 @@ public partial class MainForm
     private void Startup(object sender, EventArgs e)
     {
         Logo.Parent = Background;
-        Background.BackgroundImage = (Image)My.Resources.Resources.ResourceManager.GetObject($"BG{new Random().Next(1, 13)}");
+        Background.BackgroundImage = (Image)My.Resources.Resources.ResourceManager.GetObject($"BG{new Random().Next(1, 13)}")!;
         if (File.Exists("F3.exe"))
         {
             Directory.CreateDirectory("Mods");
@@ -66,30 +66,24 @@ public partial class MainForm
         //x.ShowDialog();
 #endif
         AllowTransparency = false;
-        try
-        {
-            File.Delete($@"{Environment.GetFolderPath(Environment.SpecialFolder.Personal)}\F3\Characters\None.CRT");
-        }
-        catch
-        {
-            // ignored
-        }
+        var f3Docs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\F3";
 
-        try
-        {
+        var crt = $@"{f3Docs}\Characters\None.CRT";
+        if (File.Exists(crt))
+            File.Delete(crt);
+
+        if (File.Exists(IniManager.F3Dir))
             IniManager.F3Ini = File.ReadAllLines(IniManager.F3Dir);
-        }
-        catch
+        else
         {
             Directory.CreateDirectory($@"{Environment.GetFolderPath(Environment.SpecialFolder.Personal)}\F3");
             File.WriteAllText(IniManager.F3Dir, My.Resources.Resources.Default_F3);
             IniManager.F3Ini = File.ReadAllLines(IniManager.F3Dir);
         }
-        try
-        {
+        
+        if (File.Exists(IniManager.SysDir))
             IniManager.SysIni = File.ReadAllLines(IniManager.SysDir);
-        }
-        catch
+        else
         {
             Directory.CreateDirectory(@"Override\MenuMap\Engine");
             File.WriteAllText(IniManager.SysDir, My.Resources.Resources.Default_sys);
@@ -100,12 +94,12 @@ public partial class MainForm
     private void LaunchGame(object sender, EventArgs e)
     {
         PlayButtonUp(sender, e);
-        try
+        if (File.Exists("F3.exe"))
         {
             Process.Start("F3.exe");
             Close();
         }
-        catch
+        else
         {
             ShowError("Please put the launcher in the same directory as the game so you can launch it!", "Game Executable Not Found!");
         }
@@ -133,24 +127,22 @@ public partial class MainForm
 
     private void PlayButtonDown(object sender, EventArgs e)
     {
-        if (!_mouseDown)
-        {
-            _mouseDown = true;
-            _sound.Stream = My.Resources.Resources.f3_button_down_01;
-            _sound.Play();
-        }
+        if (_mouseDown) return;
+        _mouseDown = true;
+        _sound.Stream = My.Resources.Resources.f3_button_down_01;
+        _sound.Play();
     }
 
     private void PlayButtonUp(object sender, EventArgs e)
     {
-        if (_mouseDown)
-        {
-            _mouseDown = false;
-            _sound.Stream = My.Resources.Resources.f3_button_up_01;
-            _sound.Play();
-        }
+        if (!_mouseDown) return;
+        _mouseDown = false;
+        _sound.Stream = My.Resources.Resources.f3_button_up_01;
+        _sound.Play();
     }
 
+    // used to temporarily add fonts to the system for use by the game. useful in scenarios where the user doesn't have
+    // permission to install fonts on their system.
     [DllImport("gdi32.dll")]
     private static extern void AddFontResource(string fontPath);
 

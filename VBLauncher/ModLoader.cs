@@ -6,7 +6,9 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 using AltUI.Config;
+using VBLauncher.My.Resources;
 using VBLauncher.Properties;
 using static AltUI.Config.ThemeProvider;
 
@@ -14,9 +16,10 @@ namespace VBLauncher;
 
 public partial class ModLoader
 {
-    private List<ModInfo> modList = [];
-    private string[] bArray;
-
+    private List<ModInfo> _modList = [];
+    private string[] _bArray;
+    private string[] _deployedMods = [];
+    
     public ModLoader()
     {
         InitializeComponent();
@@ -24,6 +27,7 @@ public partial class ModLoader
 
     private void LoadMods()
     {
+        _deployedMods = Settings.Default.DeployedMods.Split(',');
         var directory = new DirectoryInfo("Mods");
         foreach (var file in directory.GetFiles("*.zip"))
         {
@@ -39,13 +43,17 @@ public partial class ModLoader
                 var entries = (from ent in zip.Entries
                                where !ent.Name.Equals("mod.info", StringComparison.CurrentCultureIgnoreCase)
                                select ent.Name).ToList();
-                modList.Add(new ModInfo(mname, description, version, new FileInfo(file.FullName), entries));
+                _modList.Add(new ModInfo(mname, description, version, new FileInfo(file.FullName), entries));
                 break;
             }
         }
 
-        foreach (var m in modList)
-            ListView1.Items.Add(m.ToListViewItem());
+        foreach (var m in _modList)
+        {
+            var li = m.ToListViewItem();
+            li.Checked = _deployedMods.Contains(m.Zip.Name);
+            ListView1.Items.Add(li);
+        }
     }
 
     private void Form1_Load(object sender, EventArgs e)
@@ -58,38 +66,27 @@ public partial class ModLoader
         ListView1.BackColor = BackgroundColour;
         ListView1.ForeColor = Theme.Colors.LightText;
         ListView1.AllowColumnReorder = false;
-
-        var files = Directory.GetFiles("Mods");
-        var directories = Directory.GetDirectories("Mods");
-
+        
         LoadMods();
     }
 
-    private class ModInfo
+    private class ModInfo(string name, string description, string version, FileInfo zip, List<string> entries)
     {
-        public string Name { get; set; }
-        public ConflictStatus Conflict { get; set; }
+        public string Name { get; } = name;
+        public ConflictStatus Conflict { get; set; } = ConflictStatus.Clear;
         public int Priority { get; set; }
-        public string Description { get; set; }
-        public string Version { get; set; }
-        public FileInfo Zip { get; set; }
-        public List<string> Entries { get; set; } = [];
-
-        public ModInfo(string Name, string Description, string Version, FileInfo Zip, List<string> Entries)
-        {
-            this.Name = Name;
-            Conflict = ConflictStatus.Clear;
-            Priority = 0;
-            this.Zip = Zip;
-            this.Description = Description;
-            this.Version = Version;
-            this.Entries = Entries;
-        }
+        public string Description { get; } = description;
+        public string Version { get; } = version;
+        public FileInfo Zip { get; } = zip;
+        public List<string> Entries { get; } = entries;
 
         public ListViewItem ToListViewItem()
         {
-            var ret = new ListViewItem();
-            ret.Name = Name;
+            var ret = new ListViewItem
+            {
+                Text = Name,
+                Name = Zip.Name
+            };
             ret.SubItems.Add(Conflict.ToString());
             ret.SubItems.Add(Priority.ToString());
             return ret;
@@ -129,14 +126,7 @@ public partial class ModLoader
         if (targetIndex > -1)
         {
             var itemBounds = ListView1.GetItemRect(targetIndex);
-            if (targetPoint.Y > itemBounds.Top + itemBounds.Height / 2)
-            {
-                ListView1.InsertionMark.AppearsAfterItem = true;
-            }
-            else
-            {
-                ListView1.InsertionMark.AppearsAfterItem = false;
-            }
+            ListView1.InsertionMark.AppearsAfterItem = targetPoint.Y > itemBounds.Top + itemBounds.Height / 2;
         }
         ListView1.InsertionMark.Index = targetIndex;
     }
@@ -154,15 +144,15 @@ public partial class ModLoader
         }
         var draggedItem = (ListViewItem)e.Data.GetData(typeof(ListViewItem));
 
-        var tmp = modList[ListView1.Items.IndexOf(draggedItem)];
-        modList.RemoveAt(ListView1.Items.IndexOf(draggedItem));
-        if (targetIndex > modList.Count - 1)
+        var tmp = _modList[ListView1.Items.IndexOf(draggedItem)];
+        _modList.RemoveAt(ListView1.Items.IndexOf(draggedItem));
+        if (targetIndex > _modList.Count - 1)
         {
-            modList.Add(tmp);
+            _modList.Add(tmp);
         }
         else
         {
-            modList.Insert(targetIndex, tmp);
+            _modList.Insert(targetIndex, tmp);
         }
         ListView1.Items.Insert(targetIndex, (ListViewItem)draggedItem.Clone());
         ListView1.Items.Remove(draggedItem);
@@ -181,11 +171,9 @@ public partial class ModLoader
 
         e.Graphics.DrawLine(new Pen(Theme.Colors.GreySelection, 1f), e.Bounds.Left, e.Bounds.Top, e.Bounds.Right, e.Bounds.Top);
 
-        if (e.Header.DisplayIndex == 1)
-        {
-            e.Graphics.DrawLine(new Pen(Theme.Colors.GreySelection, 1f), e.Bounds.Left, e.Bounds.Top + 3, e.Bounds.Left, e.Bounds.Bottom - 3);
-            e.Graphics.DrawLine(new Pen(Theme.Colors.GreySelection, 1f), e.Bounds.Right - 1, e.Bounds.Top + 3, e.Bounds.Right - 1, e.Bounds.Bottom - 3);
-        }
+        if (e.Header.DisplayIndex != 1) return;
+        e.Graphics.DrawLine(new Pen(Theme.Colors.GreySelection, 1f), e.Bounds.Left, e.Bounds.Top + 3, e.Bounds.Left, e.Bounds.Bottom - 3);
+        e.Graphics.DrawLine(new Pen(Theme.Colors.GreySelection, 1f), e.Bounds.Right - 1, e.Bounds.Top + 3, e.Bounds.Right - 1, e.Bounds.Bottom - 3);
     }
 
     private void ListView1_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
@@ -199,7 +187,7 @@ public partial class ModLoader
         {
             e.Graphics.FillRectangle(new SolidBrush(BackgroundColour), e.Bounds);
         }
-        if (ReferenceEquals(e.Item.SubItems[0], e.SubItem))
+        if (ReferenceEquals(e.Item!.SubItems[0], e.SubItem))
         {
             var g = e.Graphics;
             g.Clip = new Region(new Rectangle(e.Bounds.X, e.Bounds.Y, e.Bounds.Width, e.Bounds.Height));
@@ -214,13 +202,15 @@ public partial class ModLoader
 
             using (var b = new SolidBrush(Theme.Colors.LightBackground))
             {
-                var boxRect = new Rectangle(e.Bounds.Left + 2, (int)Math.Round(e.Bounds.Top + rect.Height / 2 - size / 2d), size, size);
+                var boxRect = new Rectangle(e.Bounds.Left + 2,
+                    (int)Math.Round(e.Bounds.Top + rect.Height / 2 - size / 2d), size, size);
                 g.FillRoundedRectangle(b, boxRect, 2);
             }
 
             using (var p = new Pen(borderColor))
             {
-                var boxRect = new Rectangle(e.Bounds.Left + 2, (int)Math.Round(e.Bounds.Top + rect.Height / 2 - size / 2d), size, size);
+                var boxRect = new Rectangle(e.Bounds.Left + 2,
+                    (int)Math.Round(e.Bounds.Top + rect.Height / 2 - size / 2d), size, size);
                 g.DrawRoundedRectangle(p, boxRect, 2);
             }
 
@@ -230,13 +220,8 @@ public partial class ModLoader
                 g.DrawLine(p, e.Bounds.Left + 5, e.Bounds.Top + 9, e.Bounds.Left + 7, e.Bounds.Top + 12);
                 g.DrawLine(p, e.Bounds.Left + 7, e.Bounds.Top + 12, e.Bounds.Left + 11, e.Bounds.Top + 6);
             }
-
-            g.DrawString(e.Item.Name, e.Item.Font, txtbrsh, e.Bounds.Left + size + 4, e.Bounds.Top + 1);
-
-            using (var b = new SolidBrush(textColor))
-            {
-                g.DrawString(e.Item.Text, e.Item.Font, b, e.Bounds.Left + size + 4, e.Bounds.Top + 1);
-            }
+            
+            g.DrawString(e.Item.Text, e.Item.Font, txtbrsh, e.Bounds.Left + size + 4, e.Bounds.Top + 1);
         }
         else if (ReferenceEquals(e.Item.SubItems[1], e.SubItem))
         {
@@ -246,19 +231,14 @@ public partial class ModLoader
             sf.LineAlignment = StringAlignment.Center;
             sf.FormatFlags = StringFormatFlags.NoWrap;
             sf.Trimming = StringTrimming.EllipsisCharacter;
-            e.Graphics.DrawImage((Image)My.Resources.Resources.ResourceManager.GetObject($"conflict_{e.SubItem.Text.ToLower()}"), e.Bounds.Left + e.Bounds.Width / 2.0f - 8f, e.Bounds.Top, 16f, 16f);
+            e.Graphics.DrawImage((Image)Resources.ResourceManager.GetObject($"conflict_{e.SubItem.Text.ToLower()}")!,
+                e.Bounds.Left + e.Bounds.Width / 2.0f - 8f, e.Bounds.Top, 16f, 16f);
         }
         else if (ReferenceEquals(e.Item.SubItems[2], e.SubItem))
-        {
             if (e.Item.Checked)
-            {
-                e.Graphics.DrawString(e.SubItem.Text, e.Item.Font, txtbrsh, (int)Math.Round(e.Bounds.Left + e.Bounds.Width / 2d) - e.Graphics.MeasureString(e.SubItem.Text, e.SubItem.Font).Width / 2f, e.Bounds.Top + 2);
-            }
-        }
-        else
-        {
-            e.DrawDefault = true;
-        }
+                e.Graphics.DrawString(e.SubItem.Text, e.Item.Font, txtbrsh,
+                    (int)Math.Round(e.Bounds.Left + e.Bounds.Width / 2d) -
+                    e.Graphics.MeasureString(e.SubItem.Text, e.SubItem.Font).Width / 2f, e.Bounds.Top + 2);
     }
 
     private static void ToolStripLabel_MouseEnter(object sender, EventArgs e)
@@ -282,7 +262,7 @@ public partial class ModLoader
         e.Graphics.DrawLine(new Pen(Theme.Colors.GreySelection, 1f), 0, 0, ((dynamic)sender).Width, 0);
     }
 
-    public partial class DoubleBufferedListView : ListView
+    public class DoubleBufferedListView : ListView
     {
 
         public DoubleBufferedListView()
@@ -309,7 +289,7 @@ public partial class ModLoader
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
-            Application.VisualStyleState = System.Windows.Forms.VisualStyles.VisualStyleState.ClientAndNonClientAreasEnabled;
+            Application.VisualStyleState = VisualStyleState.ClientAndNonClientAreasEnabled;
         }
     }
 
@@ -336,10 +316,9 @@ public partial class ModLoader
             return;
         }
 
-        var selectedMod = modList[ListView1.SelectedItems[0].Index];
+        var selectedMod = _modList[ListView1.SelectedItems[0].Index];
         DarkRichTextBox1.Text = selectedMod.Description;
         DarkLabel1.Text = selectedMod.Name;
-        DarkLabel1.Width = DarkLabel1.Parent.Width;
         DarkLabel2.Text = "Description:";
         DarkLabel3.Text = "Version: " + selectedMod.Version;
     }
@@ -351,29 +330,22 @@ public partial class ModLoader
             var lpe = new List<string>();
             var hpe = new List<string>();
             // get all entries of checked mods
-            try
+            foreach (int j in ListView1.CheckedIndices)
             {
-                foreach (int j in ListView1.CheckedIndices)
+                if (j < i)
                 {
-                    if (j < i)
-                    {
-                        lpe.AddRange(modList[j].Entries);
-                    }
-                    else if (j > i)
-                    {
-                        hpe.AddRange(modList[j].Entries);
-                    }
+                    lpe.AddRange(_modList[j].Entries);
                 }
-            }
-            catch
-            {
-                return;
+                else if (j > i)
+                {
+                    hpe.AddRange(_modList[j].Entries);
+                }
             }
 
             object cfs;
-            var overwrites = modList[i].Entries.Any(s => lpe.Contains(s));
-            var overwritten = modList[i].Entries.Any(s => hpe.Contains(s));
-            var redundant = modList[i].Entries.All(s => hpe.Contains(s));
+            var overwrites = _modList[i].Entries.Any(s => lpe.Contains(s));
+            var overwritten = _modList[i].Entries.Any(s => hpe.Contains(s));
+            var redundant = _modList[i].Entries.All(s => hpe.Contains(s));
             if (redundant)
             {
                 cfs = ConflictStatus.Redundant;
@@ -394,9 +366,9 @@ public partial class ModLoader
             {
                 cfs = ConflictStatus.Clear;
             }
-            modList[i].Conflict = (ConflictStatus)cfs;
+            _modList[i].Conflict = (ConflictStatus)cfs;
             ListView1.Items[i].SubItems[1].Text = cfs.ToString();
-            modList[i].Priority = ListView1.CheckedItems.IndexOf(ListView1.Items[i]);
+            _modList[i].Priority = ListView1.CheckedItems.IndexOf(ListView1.Items[i]);
             ListView1.Items[i].SubItems[2].Text = ListView1.CheckedItems.IndexOf(ListView1.Items[i]).ToString();
         }
         ToolStripLabel1.Text = $"Active: {ListView1.CheckedItems.Count}";
@@ -421,7 +393,7 @@ public partial class ModLoader
 
     private (string[], int) MergeSTF(string[] lArray, string[] hArray)
     {
-        var oArray = new string[3282];
+        var oArray = new string[3281];
         var additionalStrings = 0;
 
         // Copy low-priority array's Vanilla string section into output, to preserve any changes.
@@ -429,20 +401,16 @@ public partial class ModLoader
 
         // If high-priority array has modified Vanilla strings, overwrite that string.
         // this will effectively merge changes from both low and high, prioritizing high.
-        for (var i = 0; i <= 3281; i++)
-        {
-            if ((hArray[i] ?? "") != (bArray[i] ?? ""))
-            {
+        for (var i = 0; i < 3281; i++)
+            if (hArray[i] != _bArray[i])
                 oArray[i] = hArray[i];
-            }
-        }
 
         // if low priority array has additional strings, append those to the Vanilla segment, and save that value
         // this value will be used to shift string references to non-vanilla strings.
         if (lArray.Length > 3281)
         {
             additionalStrings = lArray.Length - 3281;
-            Array.Resize(ref oArray, oArray.Length + additionalStrings + 1);
+            Array.Resize(ref oArray, oArray.Length + additionalStrings);
             Array.Copy(lArray, 3281, oArray, 3281, additionalStrings);
         }
 
@@ -451,39 +419,38 @@ public partial class ModLoader
         // this way, it can go through the list and update the files for each mod consecutively.
         if (hArray.Length > 3281)
         {
-            Array.Resize(ref oArray, oArray.Length + (hArray.Length - 3281) + 1);
+            Array.Resize(ref oArray, oArray.Length + (hArray.Length - 3281));
             Array.Copy(hArray, 3281, oArray, 3281 + additionalStrings, hArray.Length - 3281);
         }
 
         // returns the string array for future use, and the # of strings between the vanilla and high-priority new.
         // this value is used to shift string references in the high priority mod's files.
-        return (oArray, hArray.Length - 3281);
+        return (oArray, additionalStrings);
     }
 
     // increases string references in a file by a given value if they're beyond the vanilla strings.
     private void IncSTFRefs(string fp, int incVal)
     {
-
         var b = File.ReadAllBytes(fp);
-
-        var file = (fp.GetExtension().ToLower()) switch
+        
+        dynamic? file = (fp.GetExtension().ToLower()) switch
         {
-            ".amo" => b.ReadAMO(),
-            ".arm" => b.ReadARM(),
-            ".con" => b.ReadUSE(),
-            ".crt" => b.ReadCRT(),
-            ".dor" => b.ReadUSE(),
-            ".itm" => b.ReadITM(),
-            ".use" => b.ReadUSE(),
-            ".wea" => b.ReadWEA(),
-            ".map" => b.ReadMap(),
-            _ => default(object)
+            "amo" => b.ReadAMO(),
+            "arm" => b.ReadARM(),
+            "con" => b.ReadUSE(),
+            "crt" => b.ReadCRT(),
+            "dor" => b.ReadUSE(),
+            "itm" => b.ReadITM(),
+            "use" => b.ReadUSE(),
+            "wea" => b.ReadWEA(),
+            "map" => b.ReadMap(),
+            _ => null
         };
 
         if (file is null)
             return;
 
-        if (((dynamic)file).GENT is GENTc gent)
+        if (file.GENT is GENTc gent)
         {
             if (gent.HoverSR > 3281)
                 gent.HoverSR += incVal;
@@ -495,55 +462,54 @@ public partial class ModLoader
                 gent.UnkwnSR += incVal;
         }
 
-        if (((dynamic)file).GCRE is GCREc gcre)
-        {
+        if (file.GCRE is GCREc gcre)
             foreach (var gwam in gcre.GWAM.Where(gwam => gwam.NameSR > 3281))
-            {
                 gwam.NameSR += incVal;
-            }
-        }
-
-        if ((dynamic)file is Map map)
-        {
+        
+        if (file is Map map)
             foreach (var note in map.EMNO.Where(note => note.sr > 3281))
-            {
                 note.sr += incVal;
-            }
-        }
 
-        File.WriteAllBytes(fp, (byte[])((dynamic)file).ToByte());
+        File.WriteAllBytes(fp, file.ToByte().ToArray());
     }
 
-    private void ToolStripLabel2_Click(object sender, EventArgs e)
+    private void DeployMods(object sender, EventArgs e)
     {
         if (File.Exists(Settings.Default.STFDir + ".bak"))
             File.Copy(Settings.Default.STFDir + ".bak", Settings.Default.STFDir, true);
         else
             File.Copy(Settings.Default.STFDir, Settings.Default.STFDir + ".bak");
-
-        var tmpDir = @"Mods\tmp";
+        
+        const string tmpDir = @"Mods\tmp";
         if (Directory.Exists(tmpDir))
             Directory.Delete(tmpDir, true);
         if (Directory.Exists("Override\\Deployed"))
             Directory.Delete("Override\\Deployed", true);
+        
+        _bArray = Extensions.STFToTXT(File.ReadAllBytes(Settings.Default.STFDir)).ToArray();
+        var originalStf = _bArray;
 
-        bArray = Extensions.STFToTXT(File.ReadAllBytes(Settings.Default.STFDir)).ToArray();
-        var originalStf = bArray;
+        Settings.Default.DeployedMods =
+            string.Join(",", ListView1.CheckedItems.Cast<ListViewItem>().Select(lvi => lvi.Name));
+        Settings.Default.Save();
+        
         foreach (int i in ListView1.CheckedIndices)
         {
-            var zip = ZipFile.OpenRead(modList[i].Zip.FullName);
+            var zip = ZipFile.OpenRead(_modList[i].Zip.FullName);
             Directory.CreateDirectory(tmpDir);
             // extract all mod files
             foreach (var entry2 in zip.Entries)
             {
-                if (entry2.Name.ToLower() != "english.stf" && entry2.Name.ToLower() != "mod.info")
+                if (!entry2.Name.Equals("english.stf", StringComparison.CurrentCultureIgnoreCase) &&
+                    !entry2.Name.Equals("mod.info", StringComparison.CurrentCultureIgnoreCase))
                 {
                     entry2.ExtractToFile(Path.Combine(tmpDir, entry2.Name), true);
                 }
             }
 
             // load the mod's english.stf file (if present)
-            var modStf = zip.Entries.FirstOrDefault(e => e.Name.ToLower() == "english.stf");
+            var modStf = zip.Entries.FirstOrDefault(entry =>
+                entry.Name.Equals("english.stf", StringComparison.CurrentCultureIgnoreCase));
             if (modStf == null) continue;
             using var memoryStream = new MemoryStream();
             modStf.Open().CopyTo(memoryStream);
@@ -557,11 +523,16 @@ public partial class ModLoader
             // increase string references in all files by the number of new strings added by the current mod.
             foreach (var entry in zip.Entries)
             {
-                if (entry.Name.ToLower() == "english.stf" || entry.Name.ToLower() == "mod.info") continue;
+                if (entry.Name.Equals("english.stf", StringComparison.CurrentCultureIgnoreCase) ||
+                    entry.Name.Equals("mod.info", StringComparison.CurrentCultureIgnoreCase)) continue;
                 var fp = Path.Combine(tmpDir, entry.Name);
                 IncSTFRefs(fp, tmp.Item2);
             }
         }
+        
+        // write the merged english.stf to the output file
+        File.WriteAllBytes(Settings.Default.STFDir, Extensions.TXTToSTF(originalStf));
+        
         if (Directory.Exists(tmpDir))
             Directory.Move(tmpDir, "Override\\Deployed");
     }
