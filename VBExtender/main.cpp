@@ -134,8 +134,8 @@ int WINAPI main()
     while (true)
     {
         auto ent = GetAddr(EntityBase, {0xE8, (uint)selEntity * 4, 0x2C, 0x0});
-
-        if (ent)
+        MEMORY_BASIC_INFORMATION mbi = {0};
+        if (VirtualQuery(reinterpret_cast<LPCVOID>(ent), &mbi, sizeof(mbi)))
         {
             for (uint i = 0; i < 64; i++)
             {
