@@ -5,12 +5,9 @@ using System.Drawing;
 using System.Windows.Forms;
 using AltUI.Controls;
 using AltUI.Forms;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace VBLauncher
 {
-
-    [DesignerGenerated()]
     public partial class ModLoader : DarkForm
     {
 
@@ -72,7 +69,7 @@ namespace VBLauncher
             ToolStripLabel2 = new ToolStripLabel();
             ToolStripLabel2.MouseEnter += new EventHandler(ToolStripLabel_MouseEnter);
             ToolStripLabel2.MouseLeave += new EventHandler(ToolStripLabel_MouseLeave);
-            ToolStripLabel2.Click += new EventHandler(ToolStripLabel2_Click);
+            ToolStripLabel2.Click += new EventHandler(DeployMods);
             ToolStripSeparator1 = new ToolStripSeparator();
             ToolStripLabel3 = new ToolStripLabel();
             ToolStripLabel3.MouseEnter += new EventHandler(ToolStripLabel_MouseEnter);
@@ -308,7 +305,7 @@ namespace VBLauncher
             DarkLabel3.Name = "DarkLabel3";
             DarkLabel3.Size = new Size(182, 14);
             DarkLabel3.TabIndex = 3;
-            DarkLabel3.Text = "Version:";
+            DarkLabel3.Text = "";
             // 
             // DarkLabel1
             // 
@@ -319,7 +316,7 @@ namespace VBLauncher
             DarkLabel1.Name = "DarkLabel1";
             DarkLabel1.Size = new Size(83, 21);
             DarkLabel1.TabIndex = 1;
-            DarkLabel1.Text = "Mod Title";
+            DarkLabel1.Text = "";
             // 
             // DarkLabel2
             // 
@@ -329,7 +326,7 @@ namespace VBLauncher
             DarkLabel2.Name = "DarkLabel2";
             DarkLabel2.Size = new Size(70, 15);
             DarkLabel2.TabIndex = 2;
-            DarkLabel2.Text = "Description:";
+            DarkLabel2.Text = "";
             // 
             // DarkRichTextBox1
             // 
@@ -343,7 +340,7 @@ namespace VBLauncher
             DarkRichTextBox1.ReadOnly = true;
             DarkRichTextBox1.Size = new Size(176, 312);
             DarkRichTextBox1.TabIndex = 0;
-            DarkRichTextBox1.Text = "This is a description of the text that has a very long line to see how the box ha" + "ndles wrapping to make sure my method will work" + '\n' + '\n' + "here's a shorter line" + '\n' + "v1.0";
+            DarkRichTextBox1.Text = "";
             // 
             // Timer1
             // 

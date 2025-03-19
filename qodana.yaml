@@ -30,7 +30,7 @@ profile:
 exclude:
   - name: All
     paths:
-      - VBLauncher\My Project\AssemblyInfo.vb
-  - name: UnusedMember.Local
-    paths:
-      - VBLauncher\Shared.vb
+      - AltUI
+      - VBLauncher/My Project
+      - VBLauncher/Properties
+      - VBExtender

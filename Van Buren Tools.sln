@@ -12,6 +12,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VBExtender", "VBExtender\VB
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AltUI", "AltUI\AltUI\AltUI.csproj", "{2E46CD86-5C52-40F8-981E-400EF6AA744B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImGuiColorTextEditNet", "ImGuiColorTextEditNet\src\TextEdit\ImGuiColorTextEditNet.csproj", "{C3512019-5EFB-491F-B590-6A7E18598300}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -22,14 +24,18 @@ Global
 		{F6283BE3-D708-0BC8-3EE1-A2CDEDC784B9}.Debug|x64.Build.0 = Debug|x64
 		{F6283BE3-D708-0BC8-3EE1-A2CDEDC784B9}.Release|x64.ActiveCfg = Release|x64
 		{F6283BE3-D708-0BC8-3EE1-A2CDEDC784B9}.Release|x64.Build.0 = Release|x64
-		{9772BADD-0709-4CDA-9D25-5E0F6245CE81}.Release|x64.ActiveCfg = Release|Win32
-		{9772BADD-0709-4CDA-9D25-5E0F6245CE81}.Release|x64.Build.0 = Release|Win32
 		{9772BADD-0709-4CDA-9D25-5E0F6245CE81}.Debug|x64.ActiveCfg = Debug|Win32
 		{9772BADD-0709-4CDA-9D25-5E0F6245CE81}.Debug|x64.Build.0 = Debug|Win32
-		{2E46CD86-5C52-40F8-981E-400EF6AA744B}.Debug|x64.ActiveCfg = Debug|x64
-		{2E46CD86-5C52-40F8-981E-400EF6AA744B}.Debug|x64.Build.0 = Debug|x64
-		{2E46CD86-5C52-40F8-981E-400EF6AA744B}.Release|x64.ActiveCfg = Release|x64
-		{2E46CD86-5C52-40F8-981E-400EF6AA744B}.Release|x64.Build.0 = Release|x64
+		{9772BADD-0709-4CDA-9D25-5E0F6245CE81}.Release|x64.ActiveCfg = Release|Win32
+		{9772BADD-0709-4CDA-9D25-5E0F6245CE81}.Release|x64.Build.0 = Release|Win32
+		{2E46CD86-5C52-40F8-981E-400EF6AA744B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2E46CD86-5C52-40F8-981E-400EF6AA744B}.Debug|x64.Build.0 = Debug|Any CPU
+		{2E46CD86-5C52-40F8-981E-400EF6AA744B}.Release|x64.ActiveCfg = Release|Any CPU
+		{2E46CD86-5C52-40F8-981E-400EF6AA744B}.Release|x64.Build.0 = Release|Any CPU
+		{C3512019-5EFB-491F-B590-6A7E18598300}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C3512019-5EFB-491F-B590-6A7E18598300}.Debug|x64.Build.0 = Debug|Any CPU
+		{C3512019-5EFB-491F-B590-6A7E18598300}.Release|x64.ActiveCfg = Release|Any CPU
+		{C3512019-5EFB-491F-B590-6A7E18598300}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

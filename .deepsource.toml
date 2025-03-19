@@ -5,3 +5,6 @@ name = "csharp"
 
 [[analyzers]]
 name = "cxx"
+
+[[transformers]]
+name = "dotnet-format"

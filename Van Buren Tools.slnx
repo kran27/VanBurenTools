@@ -1,0 +1,16 @@
+﻿<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+  </Configurations>
+  <Project Path="AltUI\AltUI\AltUI.csproj">
+    <Configuration Solution="Debug|x64" Project="Debug|Any CPU" />
+    <Configuration Solution="Release|x64" Project="Release|Any CPU" />
+  </Project>
+  <Project Path="VBExtender\VBExtender.vcxproj">
+    <Configuration Solution="Debug|x64" Project="Debug|Win32" />
+    <Configuration Solution="Release|x64" Project="Release|Win32" />
+  </Project>
+  <Project Path="VBLauncher\VBLauncher.csproj">
+    <BuildDependency Project="VBExtender\VBExtender.vcxproj" />
+  </Project>
+</Solution>
