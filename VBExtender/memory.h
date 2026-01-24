@@ -15,6 +15,13 @@ void Write(uintptr_t address, T data) {
 	*(T*)address = data;
 }
 
+inline void Write(uintptr_t address, const std::vector<uint8_t>& data)
+{
+	if (IsBadReadPtr(reinterpret_cast<void*>(address), data.size())) return;
+	if (IsBadWritePtr((LPVOID)address, data.size())) return;
+	std::memcpy(reinterpret_cast<void*>(address), data.data(), data.size());
+}
+
 template<std::size_t N>
 void WriteStr(uintptr_t address, char const(&data)[N]) {
     if (IsBadReadPtr((void*)address, N)) return;

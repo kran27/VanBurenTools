@@ -799,7 +799,7 @@ public static string GetString(IEnumerable<byte> b)
 
 public static string GetString(byte[] b, int i1, int i2)
 {
-    return Encoding.ASCII.GetString(b.ToArray(), i1, i2);
+    return Encoding.ASCII.GetString(b, i1, i2);
 }
 
 // Finds all locations of a given header, reads size, copies that section into byte array, puts array in list.

@@ -129,7 +129,7 @@ public class GrannyFormats
             typeof(unm_curve_data_da_k32f_c32f)) ?? throw new ExternalException());
         var dimension = GrannyCurveGetDimension(unmCurve);
         Marshal.FreeHGlobal(unmCurve);
-        Console.WriteLine($"Parsing keyframed curve with dimension {dimension}");
+        //Console.WriteLine($"Parsing keyframed curve with dimension {dimension}");
         var keyframes = new List<float[]>();
         // since data is keyframed, no spline interpolation is needed, knots are just the time of each keyframe
         // control count is knot count * dimension
@@ -146,7 +146,7 @@ public class GrannyFormats
             keyframes.Add(control);
         }
 
-        Console.WriteLine();
+        //Console.WriteLine();
 
         return keyframes;
     }

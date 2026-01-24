@@ -19,10 +19,13 @@ using AltUI.Forms;
 using Be.Windows.Forms;
 using HelixToolkit.Wpf;
 using Pfim;
+using SixLabors.ImageSharp.PixelFormats;
 using VBLauncher.VB3DLib;
+using Veldrid.ImageSharp;
 using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
 using ImageFormat = System.Drawing.Imaging.ImageFormat;
+using MessageBox = System.Windows.Forms.MessageBox;
 using PixelFormat = System.Drawing.Imaging.PixelFormat;
 using Point = System.Windows.Point;
 
@@ -72,6 +75,8 @@ public partial class GrpBrowser
 
     private string[]? filter = ["psf", "int", "rle", "itm", "veg", "crt", "map", "wav", "amx", "rtd", "rlz", "ini", "skl", "gr2", "skn", "8", "dlg", "str", "sst", "use", "arm", "dor", "wea", "pce", "sco", "gsf", "gls", "fnt", "spl", "pro", "enc", "wmp", "amo", "con", "tok", "b3d", "g3d", "tga", "bmp"];
 
+    public int NumberOfEntries => head.nEntries;
+    
     private F3RHTHeader head;
     private List<Entry>[] entries;
     private List<string> grpnames;
@@ -193,10 +198,18 @@ public partial class GrpBrowser
         if (convert)
         {
             if (ext == "tga") ext = "png";
-            if (ext == "b3d" || ext == "g3d") ext = "obj";
+            if (ext is "b3d" or "g3d") ext = "obj";
         }
         var b = getFileBytes(i, convert);
         File.WriteAllBytes(Path.Combine(grpnames[packOffsetToIndex[globalIndexToPackOffset[i]]], filenames[i] + "." + ext), b);
+    }
+    
+    public (string, string, string, byte[]) ExtractFileToMemory(int i)
+    {
+        var ext = extensions[i];
+        var b = getFileBytes(i);
+        var grp = grpnames[packOffsetToIndex[globalIndexToPackOffset[i]]];
+        return (grp, filenames[i], ext, b);
     }
 
     private byte[] getFileBytes(int index, bool convert = false)
@@ -746,18 +759,435 @@ public partial class GrpBrowser
         modelGroup.Children.Add(model);
         return modelGroup;
     }
+    
+    private MeshGeometry3D B3DToNoMatMeshOld(B3DModel b3d)
+    {
+        var meshBuilder = new MeshBuilder();
+        for (int i = 0, loopTo = b3d.Model_Faces_Index.Count - 1; i <= loopTo; i++)
+        {
+            var face = b3d.Model_Faces_Index[i];
+            var a = new Point3D(b3d.Model_Vertex_Position[face[0]].X, b3d.Model_Vertex_Position[face[0]].Y, b3d.Model_Vertex_Position[face[0]].Z);
+            var b = new Point3D(b3d.Model_Vertex_Position[face[1]].X, b3d.Model_Vertex_Position[face[1]].Y, b3d.Model_Vertex_Position[face[1]].Z);
+            var c = new Point3D(b3d.Model_Vertex_Position[face[2]].X, b3d.Model_Vertex_Position[face[2]].Y, b3d.Model_Vertex_Position[face[2]].Z);
+            var texA = new System.Windows.Point(b3d.Model_Vertex_Texcoords[face[0]].X, b3d.Model_Vertex_Texcoords[face[0]].Y);
+            var texB = new System.Windows.Point(b3d.Model_Vertex_Texcoords[face[1]].X, b3d.Model_Vertex_Texcoords[face[1]].Y);
+            var texC = new System.Windows.Point(b3d.Model_Vertex_Texcoords[face[2]].X, b3d.Model_Vertex_Texcoords[face[2]].Y);
+            meshBuilder.AddTriangle(a, b, c, texA, texB, texC);
+        }
+        return OptimizeMesh(meshBuilder);
+    }
 
     private Model3DGroup CRTToUsableMesh(byte[] b)
-    {
-        // Complex logic for CRT models, unchanged, just preserved.
-        // This method is large but domain-specific. Further reducing it
-        // risks breaking functionality. Consider extracting to a separate class.
-        // For brevity, we leave it as-is.
-        // ...
-        // [The body of CRTToUsableMesh remains as in original code - removed here for brevity]
-        // ...
-        return new Model3DGroup(); // placeholder
-    }
+        {
+            var crt = b.ReadCRT();
+            if (crt.EEN2.skl.StartsWith("Hum"))
+            {
+                var baseModel = (crt.EEN2.skl + ".b3d").ToLower();
+                var heaModel = (crt.EEN2.skl + "_" + crt.GCRE.Hea.Model + ".b3d").ToLower();
+                var haiModel = (crt.EEN2.skl + "_" + crt.GCRE.Hai.Model + ".b3d").ToLower();
+                var ponModel = (crt.EEN2.skl + "_" + crt.GCRE.Pon.Model + ".b3d").ToLower();
+                var musModel = (crt.EEN2.skl + "_" + crt.GCRE.Mus.Model + ".b3d").ToLower();
+                var beaModel = (crt.EEN2.skl + "_" + crt.GCRE.Bea.Model + ".b3d").ToLower();
+                var eyeModel = (crt.EEN2.skl + "_" + crt.GCRE.Eye.Model + ".b3d").ToLower();
+                var bodModel = (crt.EEN2.skl + "_" + crt.GCRE.Bod.Model + ".b3d").ToLower();
+                var hanModel = (crt.EEN2.skl + "_" + crt.GCRE.Han.Model + ".b3d").ToLower();
+                var feeModel = (crt.EEN2.skl + "_" + crt.GCRE.Fee.Model + ".b3d").ToLower();
+                var bacModel = (crt.EEN2.skl + "_" + crt.GCRE.Bac.Model + ".b3d").ToLower();
+                var shoModel = (crt.EEN2.skl + "_" + crt.GCRE.Sho.Model + ".b3d").ToLower();
+                var vanModel = (crt.EEN2.skl + "_" + crt.GCRE.Van.Model + ".b3d").ToLower();
+
+                var heaTex = default(string);
+                var eyeTex = default(string);
+                var bodTex = default(string);
+                var hanTex = default(string);
+                var feeTex = default(string);
+                var bacTex = default(string);
+                var shoTex = default(string);
+                var vanTex = default(string);
+
+                foreach (var itm in from i in crt.GCRE.Inventory
+                                    where i.ToLower().EndsWith(".arm")
+                                    select getFileBytes(fullNameToGlobalIndex[i.ToLower()]).ReadITM())
+                {
+                    if (!string.IsNullOrEmpty(itm.GITM.Bac.Model))
+                        bacModel = (crt.EEN2.skl + "_" + itm.GITM.Bac.Model + ".b3d").ToLower();
+                    if (!string.IsNullOrEmpty(itm.GITM.Bod.Model))
+                        bodModel = (crt.EEN2.skl + "_" + itm.GITM.Bod.Model + ".b3d").ToLower();
+                    if (!string.IsNullOrEmpty(itm.GITM.Fee.Model))
+                        feeModel = (crt.EEN2.skl + "_" + itm.GITM.Fee.Model + ".b3d").ToLower();
+                    if (!string.IsNullOrEmpty(itm.GITM.Han.Model))
+                        hanModel = (crt.EEN2.skl + "_" + itm.GITM.Han.Model + ".b3d").ToLower();
+                    if (!string.IsNullOrEmpty(itm.GITM.Hea.Model))
+                        heaModel = (crt.EEN2.skl + "_" + itm.GITM.Hea.Model + ".b3d").ToLower();
+                    if (!string.IsNullOrEmpty(itm.GITM.Sho.Model))
+                        shoModel = (crt.EEN2.skl + "_" + itm.GITM.Sho.Model + ".b3d").ToLower();
+                    if (!string.IsNullOrEmpty(itm.GITM.Van.Model))
+                        vanModel = (crt.EEN2.skl + "_" + itm.GITM.Van.Model + ".b3d").ToLower();
+                    heaTex = itm.GITM.Hea.Tex.Replace(".dds", ".tga").ToLower();
+                    eyeTex = itm.GITM.Eye.Tex.Replace(".dds", ".tga").ToLower();
+                    bodTex = itm.GITM.Bod.Tex.Replace(".dds", ".tga").ToLower();
+                    hanTex = itm.GITM.Han.Tex.Replace(".dds", ".tga").ToLower();
+                    feeTex = itm.GITM.Fee.Tex.Replace(".dds", ".tga").ToLower();
+                    bacTex = itm.GITM.Bac.Tex.Replace(".dds", ".tga").ToLower();
+                    shoTex = itm.GITM.Sho.Tex.Replace(".dds", ".tga").ToLower();
+                    vanTex = itm.GITM.Van.Tex.Replace(".dds", ".tga").ToLower();
+                }
+
+                var baseB3D = new B3DModel(getFileBytes(fullNameToGlobalIndex[baseModel]));
+                var baseMesh = B3DToNoMatMeshOld(baseB3D);
+
+                var heaB3D = default(B3DModel);
+                var haiB3D = default(B3DModel);
+                var ponB3D = default(B3DModel);
+                var musB3D = default(B3DModel);
+                var beaB3D = default(B3DModel);
+                var eyeB3D = default(B3DModel);
+                var bodB3D = default(B3DModel);
+                var hanB3D = default(B3DModel);
+                var feeB3D = default(B3DModel);
+                var bacB3D = default(B3DModel);
+                var shoB3D = default(B3DModel);
+                var vanB3D = default(B3DModel);
+
+                MeshGeometry3D heaMesh = null;
+                MeshGeometry3D haiMesh = null;
+                MeshGeometry3D ponMesh = null;
+                MeshGeometry3D musMesh = null;
+                MeshGeometry3D beaMesh = null;
+                MeshGeometry3D eyeMesh = null;
+                MeshGeometry3D bodMesh = null;
+                MeshGeometry3D hanMesh = null;
+                MeshGeometry3D feeMesh = null;
+                MeshGeometry3D bacMesh = null;
+                MeshGeometry3D shoMesh = null;
+                MeshGeometry3D vanMesh = null;
+
+                if ((heaModel ?? "") != (crt.EEN2.skl.ToLower() + "_.b3d" ?? ""))
+                {
+                    heaB3D = new B3DModel(getFileBytes(fullNameToGlobalIndex[heaModel]));
+                    heaMesh = B3DToNoMatMeshOld(heaB3D);
+                }
+                if ((haiModel ?? "") != (crt.EEN2.skl.ToLower() + "_.b3d" ?? ""))
+                {
+                    haiB3D = new B3DModel(getFileBytes(fullNameToGlobalIndex[haiModel]));
+                    haiMesh = B3DToNoMatMeshOld(haiB3D);
+                }
+                if ((ponModel ?? "") != (crt.EEN2.skl.ToLower() + "_.b3d" ?? ""))
+                {
+                    ponB3D = new B3DModel(getFileBytes(fullNameToGlobalIndex[ponModel]));
+                    ponMesh = B3DToNoMatMeshOld(ponB3D);
+                }
+                if ((musModel ?? "") != (crt.EEN2.skl.ToLower() + "_.b3d" ?? ""))
+                {
+                    musB3D = new B3DModel(getFileBytes(fullNameToGlobalIndex[musModel]));
+                    musMesh = B3DToNoMatMeshOld(musB3D);
+                }
+                if ((beaModel ?? "") != (crt.EEN2.skl.ToLower() + "_.b3d" ?? ""))
+                {
+                    beaB3D = new B3DModel(getFileBytes(fullNameToGlobalIndex[beaModel]));
+                    beaMesh = B3DToNoMatMeshOld(beaB3D);
+                }
+                if ((eyeModel ?? "") != (crt.EEN2.skl.ToLower() + "_.b3d" ?? ""))
+                {
+                    eyeB3D = new B3DModel(getFileBytes(fullNameToGlobalIndex[eyeModel]));
+                    eyeMesh = B3DToNoMatMeshOld(eyeB3D);
+                }
+                if ((bodModel ?? "") != (crt.EEN2.skl.ToLower() + "_.b3d" ?? ""))
+                {
+                    bodB3D = new B3DModel(getFileBytes(fullNameToGlobalIndex[bodModel]));
+                    bodMesh = B3DToNoMatMeshOld(bodB3D);
+                }
+                if ((hanModel ?? "") != (crt.EEN2.skl.ToLower() + "_.b3d" ?? ""))
+                {
+                    hanB3D = new B3DModel(getFileBytes(fullNameToGlobalIndex[hanModel]));
+                    hanMesh = B3DToNoMatMeshOld(hanB3D);
+                }
+                if ((feeModel ?? "") != (crt.EEN2.skl.ToLower() + "_.b3d" ?? ""))
+                {
+                    feeB3D = new B3DModel(getFileBytes(fullNameToGlobalIndex[feeModel]));
+                    feeMesh = B3DToNoMatMeshOld(feeB3D);
+                }
+                if ((bacModel ?? "") != (crt.EEN2.skl.ToLower() + "_.b3d" ?? ""))
+                {
+                    bacB3D = new B3DModel(getFileBytes(fullNameToGlobalIndex[bacModel]));
+                    bacMesh = B3DToNoMatMeshOld(bacB3D);
+                }
+                if ((shoModel ?? "") != (crt.EEN2.skl.ToLower() + "_.b3d" ?? ""))
+                {
+                    shoB3D = new B3DModel(getFileBytes(fullNameToGlobalIndex[shoModel]));
+                    shoMesh = B3DToNoMatMeshOld(shoB3D);
+                }
+                if ((vanModel ?? "") != (crt.EEN2.skl.ToLower() + "_.b3d" ?? ""))
+                {
+                    vanB3D = new B3DModel(getFileBytes(fullNameToGlobalIndex[vanModel]));
+                    vanMesh = B3DToNoMatMeshOld(vanB3D);
+                }
+
+                var x = new Bitmap(512, 512);
+                using (var gr = Graphics.FromImage(x))
+                {
+                    var baseTex = !string.IsNullOrEmpty(crt.EEN2.EEOV.s4) ? crt.EEN2.EEOV.s4.Replace(".dds", ".tga").ToLower() : baseB3D.texName.ToLower();
+                    var baseImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex[baseTex]));
+                    gr.DrawImageUnscaled(baseImage, 0, 0);
+                    if (heaMesh is not null)
+                    {
+                        if (string.IsNullOrEmpty(heaTex))
+                            heaTex = !string.IsNullOrEmpty(crt.GCRE.Hea.Tex) ? crt.GCRE.Hea.Tex.Replace(".dds", ".tga").ToLower() : heaB3D.texName.ToLower();
+                        var heaImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex[heaTex]));
+                        gr.DrawImageUnscaled(heaImage, 384, 0);
+                    }
+                    if (haiMesh is not null)
+                    {
+                        var haiTex = !string.IsNullOrEmpty(crt.GCRE.Hai.Tex) ? crt.GCRE.Hai.Tex.Replace(".dds", ".tga").ToLower() : haiB3D.texName.ToLower();
+                        var haiImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex[haiTex]));
+                        gr.DrawImageUnscaled(haiImage, 256, 128);
+                    }
+                    if (ponMesh is not null)
+                    {
+                        var ponTex = !string.IsNullOrEmpty(crt.GCRE.Pon.Tex) ? crt.GCRE.Pon.Tex.Replace(".dds", ".tga").ToLower() : ponB3D.texName.ToLower();
+                        var ponImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex[ponTex]));
+                        gr.DrawImageUnscaled(ponImage, 288, 224);
+                    }
+                    if (musMesh is not null)
+                    {
+                        var musTex = !string.IsNullOrEmpty(crt.GCRE.Mus.Tex) ? crt.GCRE.Mus.Tex.Replace(".dds", ".tga").ToLower() : musB3D.texName.ToLower();
+                        var musImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex[musTex]));
+                        gr.DrawImageUnscaled(musImage, 256, 224);
+                    }
+                    if (beaMesh is not null)
+                    {
+                        var beaTex = !string.IsNullOrEmpty(crt.GCRE.Bea.Tex) ? crt.GCRE.Bea.Tex.Replace(".dds", ".tga").ToLower() : beaB3D.texName.ToLower();
+                        var beaImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex[beaTex]));
+                        gr.DrawImageUnscaled(beaImage, 256, 192);
+                    }
+                    if (eyeMesh is not null)
+                    {
+                        if (string.IsNullOrEmpty(eyeTex))
+                            eyeTex = !string.IsNullOrEmpty(crt.GCRE.Eye.Tex) ? crt.GCRE.Eye.Tex.Replace(".dds", ".tga").ToLower() : eyeB3D.texName.ToLower();
+                        var eyeImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex[eyeTex]));
+                        gr.DrawImageUnscaled(eyeImage, 320, 192); // guess, i know of nothing that uses the eye socket
+                    }
+                    if (bodMesh is not null)
+                    {
+                        if (string.IsNullOrEmpty(bodTex))
+                            bodTex = !string.IsNullOrEmpty(crt.GCRE.Bod.Tex) ? crt.GCRE.Bod.Tex.Replace(".dds", ".tga").ToLower() : bodB3D.texName.ToLower();
+                        var bodImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex[bodTex]));
+                        gr.DrawImageUnscaled(bodImage, 0, 256);
+                    }
+                    if (hanMesh is not null)
+                    {
+                        if (string.IsNullOrEmpty(hanTex))
+                            hanTex = !string.IsNullOrEmpty(crt.GCRE.Han.Tex) ? crt.GCRE.Han.Tex.Replace(".dds", ".tga").ToLower() : hanB3D.texName.ToLower();
+                        var hanImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex[hanTex]));
+                        gr.DrawImageUnscaled(hanImage, 384, 128);
+                    }
+                    if (feeMesh is not null)
+                    {
+                        if (string.IsNullOrEmpty(feeTex))
+                            feeTex = !string.IsNullOrEmpty(crt.GCRE.Fee.Tex) ? crt.GCRE.Fee.Tex.Replace(".dds", ".tga").ToLower() : feeB3D.texName.ToLower();
+                        var feeImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex[feeTex]));
+                        gr.DrawImageUnscaled(feeImage, 384, 256);
+                    }
+                    if (bacMesh is not null)
+                    {
+                        if (string.IsNullOrEmpty(bacTex))
+                            bacTex = !string.IsNullOrEmpty(crt.GCRE.Bac.Tex) ? crt.GCRE.Bac.Tex.Replace(".dds", ".tga").ToLower() : bacB3D.texName.ToLower();
+                        var bacImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex[bacTex]));
+                        gr.DrawImageUnscaled(bacImage, 256, 256);
+                    }
+                    if (shoMesh is not null)
+                    {
+                        if (string.IsNullOrEmpty(shoTex))
+                            shoTex = !string.IsNullOrEmpty(crt.GCRE.Sho.Tex) ? crt.GCRE.Sho.Tex.Replace(".dds", ".tga").ToLower() : shoB3D.texName.ToLower();
+                        var shoImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex[shoTex]));
+                        gr.DrawImageUnscaled(shoImage, 256, 0);
+                    }
+                    if (vanMesh is not null)
+                    {
+                        if (string.IsNullOrEmpty(vanTex))
+                            vanTex = !string.IsNullOrEmpty(crt.GCRE.Van.Tex) ? crt.GCRE.Van.Tex.Replace(".dds", ".tga").ToLower() : vanB3D.texName.ToLower();
+                        var vanImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex[vanTex]));
+                        gr.DrawImageUnscaled(vanImage, 320, 128);
+                    }
+                }
+
+                var xbi = BitmapToBitmapImage(x);
+
+                var baseMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(xbi, baseMesh.TextureCoordinates)));
+                var modelGroup = new Model3DGroup();
+
+                var baseGM3 = new GeometryModel3D
+                {
+                    Geometry = baseMesh,
+                    Material = baseMat,
+                    BackMaterial = baseMat
+                };
+                modelGroup.Children.Add(baseGM3);
+
+                if (heaMesh is not null)
+                {
+                    var heaMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(xbi, heaMesh.TextureCoordinates)));
+                    var heaGM3 = new GeometryModel3D
+                    {
+                        Geometry = heaMesh,
+                        Material = heaMat,
+                        BackMaterial = heaMat
+                    };
+                    modelGroup.Children.Add(heaGM3);
+                }
+                if (haiMesh is not null)
+                {
+                    var haiMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(xbi, haiMesh.TextureCoordinates, true)));
+                    var haiGM3 = new GeometryModel3D
+                    {
+                        Geometry = haiMesh,
+                        Material = haiMat,
+                        BackMaterial = haiMat
+                    };
+                    modelGroup.Children.Add(haiGM3);
+                }
+                if (ponMesh is not null)
+                {
+                    var ponMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(xbi, ponMesh.TextureCoordinates)));
+                    var ponGM3 = new GeometryModel3D
+                    {
+                        Geometry = ponMesh,
+                        Material = ponMat,
+                        BackMaterial = ponMat
+                    };
+                    modelGroup.Children.Add(ponGM3);
+                }
+                if (musMesh is not null)
+                {
+                    var musMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(xbi, musMesh.TextureCoordinates, true)));
+                    var musGM3 = new GeometryModel3D
+                    {
+                        Geometry = musMesh,
+                        Material = musMat,
+                        BackMaterial = musMat
+                    };
+                    modelGroup.Children.Add(musGM3);
+                }
+                if (beaMesh is not null)
+                {
+                    var beaMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(xbi, beaMesh.TextureCoordinates, true)));
+                    var beaGM3 = new GeometryModel3D
+                    {
+                        Geometry = beaMesh,
+                        Material = beaMat,
+                        BackMaterial = beaMat
+                    };
+                    modelGroup.Children.Add(beaGM3);
+                }
+                if (eyeMesh is not null)
+                {
+                    var eyeMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(xbi, eyeMesh.TextureCoordinates)));
+                    var eyeGM3 = new GeometryModel3D
+                    {
+                        Geometry = eyeMesh,
+                        Material = eyeMat,
+                        BackMaterial = eyeMat
+                    };
+                    modelGroup.Children.Add(eyeGM3);
+                }
+                if (bodMesh is not null)
+                {
+                    var bodMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(xbi, bodMesh.TextureCoordinates, true)));
+                    var bodGM3 = new GeometryModel3D
+                    {
+                        Geometry = bodMesh,
+                        Material = bodMat,
+                        BackMaterial = bodMat
+                    };
+                    modelGroup.Children.Add(bodGM3);
+                }
+                if (hanMesh is not null)
+                {
+                    var hanMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(xbi, hanMesh.TextureCoordinates)));
+                    var hanGM3 = new GeometryModel3D
+                    {
+                        Geometry = hanMesh,
+                        Material = hanMat,
+                        BackMaterial = hanMat
+                    };
+                    modelGroup.Children.Add(hanGM3);
+                }
+                if (feeMesh is not null)
+                {
+                    var feeMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(xbi, feeMesh.TextureCoordinates)));
+                    var feeGM3 = new GeometryModel3D
+                    {
+                        Geometry = feeMesh,
+                        Material = feeMat,
+                        BackMaterial = feeMat
+                    };
+                    modelGroup.Children.Add(feeGM3);
+                }
+                if (bacMesh is not null)
+                {
+                    var bacMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(xbi, bacMesh.TextureCoordinates, true)));
+                    var bacGM3 = new GeometryModel3D
+                    {
+                        Geometry = bacMesh,
+                        Material = bacMat,
+                        BackMaterial = bacMat
+                    };
+                    modelGroup.Children.Add(bacGM3);
+                }
+                if (shoMesh is not null)
+                {
+                    var shoMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(xbi, shoMesh.TextureCoordinates)));
+                    var shoGM3 = new GeometryModel3D
+                    {
+                        Geometry = shoMesh,
+                        Material = shoMat,
+                        BackMaterial = shoMat
+                    };
+                    modelGroup.Children.Add(shoGM3);
+                }
+                if (vanMesh is not null)
+                {
+                    var vanMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(xbi, vanMesh.TextureCoordinates)));
+                    var vanGM3 = new GeometryModel3D
+                    {
+                        Geometry = vanMesh,
+                        Material = vanMat,
+                        BackMaterial = vanMat
+                    };
+                    modelGroup.Children.Add(vanGM3);
+                }
+
+                return modelGroup;
+            }
+            else
+            {
+                var baseModel = (crt.EEN2.skl + ".b3d").ToLower();
+                var baseB3D = new B3DModel(getFileBytes(fullNameToGlobalIndex[baseModel]));
+                var baseMesh = B3DToNoMatMeshOld(baseB3D);
+                var baseTex = !string.IsNullOrEmpty(crt.EEN2.EEOV.s4) ? crt.EEN2.EEOV.s4.Replace(".dds", ".tga").ToLower() : baseB3D.texName.ToLower();
+                DiffuseMaterial baseMat;
+                try
+                {
+                    var baseImage = TargaToBitmap(getFileBytes(fullNameToGlobalIndex[baseTex]));
+                    baseMat = new DiffuseMaterial(new ImageBrush(CropBitmapByUV(BitmapToBitmapImage(baseImage), baseMesh.TextureCoordinates, true)));
+                }
+                catch
+                {
+                    baseMat = new DiffuseMaterial(new SolidColorBrush(Colors.LightSlateGray));
+                }
+                var modelGroup = new Model3DGroup();
+
+                var baseGM3 = new GeometryModel3D
+                {
+                    Geometry = baseMesh,
+                    Material = baseMat,
+                    BackMaterial = baseMat
+                };
+                modelGroup.Children.Add(baseGM3);
+                return modelGroup;
+            }
+        }
+
 
     private BitmapImage CropBitmapByUV(BitmapImage bitmapImage, PointCollection uvCoordinates, bool trans = false)
     {
@@ -789,9 +1219,9 @@ public partial class GrpBrowser
         {
             var i1 = i;
             foreach (var g in from ent in entries[i]
-                              let g = localIndexToGlobal[i1][ent.number]
-                              where filenames[g] == nne && GetExtension(ent.type) == "image"
-                              select g)
+                     let g = localIndexToGlobal[i1][ent.number]
+                     where filenames[g] == nne && GetExtension(ent.type) == "image"
+                     select g)
             {
                 return TargaToBitmapImage(getFileBytes(g));
             }
@@ -983,7 +1413,7 @@ public partial class GrpBrowser
     private ModelVisual3D model = new();
 
     // actually figured out rle finally :D
-    private Bitmap DecodeRLE(byte[] b)
+    public Bitmap DecodeRLE(byte[] b)
     {
         var ms = new MemoryStream(b);
         var br = new BinaryReader(ms);
@@ -1006,6 +1436,31 @@ public partial class GrpBrowser
             }
         }
         return bmp;
+    }
+    
+    public ImageSharpTexture DecodeRLEToImageSharp(byte[] b)
+    {
+        var ms = new MemoryStream(b);
+        var br = new BinaryReader(ms);
+        var width = br.ReadInt32();
+        var height = br.ReadInt32();
+        var img = new SixLabors.ImageSharp.Image<Rgba32>(width, height);
+        var x = 0;
+        var y = height - 1; // flip vertically (based on automap image orientation)
+        while (ms.Position < ms.Length)
+        {
+            var c = br.ReadInt32();
+            var v = br.ReadByte();
+            for (var i = 0; i < c; i++)
+            {
+                img[x, y] = new Rgba32(v, v, v, 255);
+                x++;
+                if (x != width) continue;
+                x = 0;
+                y--;
+            }
+        }
+        return new ImageSharpTexture(img, false);
     }
 
     public static byte[] EncodeRLE(Bitmap b)

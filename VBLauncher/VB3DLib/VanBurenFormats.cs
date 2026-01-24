@@ -17,6 +17,12 @@ public class B3DModel
     public List<Vector3> Model_Vertex_Normal = [];
     public List<Vector3> Model_Vertex_Position = [];
     public List<Vector2> Model_Vertex_Texcoords = [];
+    
+    public Dictionary<string, TMaterials> MaterialDict = new();
+    public Dictionary<string, List<int>> SubModels = new();
+    public Dictionary<string, string> MatNameToTexture = new();
+    
+    public List<string> OcclusionZones = [];
 
     public string texName = "";
 
@@ -53,56 +59,220 @@ public class B3DModel
         Vertex_Type_Flag = 0;
 
         var header = new b3d_header(f, b3d);
-        Console.WriteLine("head");
         header.print();
-        Console.WriteLine("head_end");
 
-        //var Material_Node = new TMaterial_Node(f);
-        while (f.BaseStream.Position < f.BaseStream.Length)
-        {
-            var b = f.ReadByte();
-            switch (b)
+        if (header.VersionThing == 0x1C) {
+            //var Material_Node = new TMaterial_Node(f);
+            while (f.BaseStream.Position < f.BaseStream.Length)
             {
-                case 0x07:
-                    Console.WriteLine("Materials");
-                    var Materials = new TMaterials(f);
-                    this.Materials.Add(Materials);
-                    Materials.print();
-                    Console.WriteLine(f.BaseStream.Position);
-                    break;
+                var token = f.ReadByte();
+                switch (token)
+                {
+                    // 0x01 -> 0x05 are still read in the header, this behaviour is incorrect. (same with 0x1C)
+                    // i need to figure out why reading them via tokens doesn't work right, my implementation is off somehow
+                    case 0x01:
+                        // IDA sets "v11" to 1
+                        Console.WriteLine("Flag Thing");
+                        break;
+                    case 0x03:
+                        b3d.FormatVer = 1; // i dont really know what this is, it's a holdout from the original script not based on my reversing.
+                        Console.WriteLine("GlobalScaleFactor");
+                        header.GlobalScaleFactor = f.ReadSingle();
+                        break;
+                    case 0x04:
+                        Console.WriteLine("CoordinateScale");
+                        header.CoordinateScale = f.ReadSingle();
+                        break;
+                    case 0x05:
+                        Console.WriteLine("CoordinateSystem");
+                        header.CoordinateSystem = StringRead(f);
+                        header.Unknown6 = f.ReadByte();
+                        header.Unknown7 = f.ReadInt32();
+                        // should be end of "header" values
+                        header.print();
+                        break;
+                    case 0x07:
+                        Console.WriteLine("Materials");
+                        var Materials = new TMaterials(f);
+                        this.Materials.Add(Materials);
+                        MaterialDict[new string(Materials.Name)] = Materials;
+                        Materials.print();
+                        Console.WriteLine(f.BaseStream.Position);
+                        break;
+                    case 0x08:
+                        Console.WriteLine("Textures");
+                        var Textures = new TTextures(f, b3d);
+                        Textures.print();
+                        Console.WriteLine(f.BaseStream.Position);
+                        break;
+                    case 0x0A:
+                        Console.WriteLine("Nodes");
+                        var Nodes = new TNodes(f);
+                        Nodes.print();
+                        Console.WriteLine(f.BaseStream.Position);
+                        break;
+                    case 0x0E:
+                        Console.WriteLine("Bones");
+                        var Bones_Flag = 1;
+                        var Bone1 = new TBone(f);
+                        Bone1.print();
+                        Console.WriteLine(f.BaseStream.Position);
+                        break;
+                    case 0x0F:
+                        Console.WriteLine("VertexNodes");
+                        var Vertex_Node = new TVertex_Node(f, b3d);
+                        for (var index = 0; index < Vertex_Node.material_data.Count; index++)
+                        {
+                            var MD = Vertex_Node.material_data[index];
+                            if (MD is TMaterial_Data44 MD44)
+                            {
+                                SubModels[new string(MD44.Name)] = Vertex_Node.face_indices[index];
+                                MatNameToTexture[new string(MD44.Name)] = new string(MD44.Zone);
+                            }
+                            else if (MD is TMaterial_Data MD64)
+                            {
+                                SubModels[new string(MD64.Name)] = MD64.face_indices;
+                                MatNameToTexture[new string(MD64.Name)] = new string(MD64.Mtl_ID);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Unknown material data type in Vertex_Node: " + MD.GetType());
+                            }
+                        }
 
-                case 0x08:
-                    Console.WriteLine("Textures");
-                    var Textures = new TTextures(f, b3d);
-                    Textures.print();
-                    Console.WriteLine(f.BaseStream.Position);
-                    break;
+                        Vertex_Nodes.Add(Vertex_Node);
+                        Console.WriteLine(f.BaseStream.Position);
+                        break;
+                    case 0x1C:
+                        header.VersionThing = 0x1C;
+                        break;
+                    case 0x1B:
+                        Console.WriteLine("Occlusion Zones");
+                        var zoneCount = f.ReadInt32();
+                        Console.WriteLine($"Zone count: {zoneCount}");
+                        for (var i = 0; i < zoneCount; i++)
+                        {
+                            var zone = StringRead(f);
+                            OcclusionZones.Add(new string(zone)); 
+                            Console.WriteLine($"Zone {i}: {new string(zone)}");
+                        }
+                        break;
+                    case 0x0B:
+                        Console.WriteLine("File End"); // B3D always ends 0B0B01
+                        f.ReadBytes(2);
+                        break;
+                    default:
+                        Console.WriteLine($"Unknown byte: {token:X2} at position {f.BaseStream.Position}");
+                        Console.WriteLine(f.BaseStream.Position);
+                        return;
+                }
+            }
+        }
+        else
+        {
+            while (f.BaseStream.Position < f.BaseStream.Length)
+            {
+                var token = f.ReadByte();
+                switch (token)
+                {
+                    // 0x01 -> 0x05 are still read in the header, this behaviour is incorrect. (same with 0x1C)
+                    // i need to figure out why reading them via tokens doesn't work right, my implementation is off somehow
+                    case 0x01:
+                        // IDA sets "v11" to 1
+                        Console.WriteLine("Flag Thing");
+                        break;
+                    case 0x03:
+                        b3d.FormatVer = 1; // i dont really know what this is, it's a holdout from the original script not based on my reversing.
+                        Console.WriteLine("GlobalScaleFactor");
+                        header.GlobalScaleFactor = f.ReadSingle();
+                        break;
+                    case 0x04:
+                        Console.WriteLine("CoordinateScale");
+                        header.CoordinateScale = f.ReadSingle();
+                        break;
+                    case 0x05:
+                        Console.WriteLine("CoordinateSystem");
+                        header.CoordinateSystem = StringRead(f);
+                        header.Unknown6 = f.ReadByte();
+                        header.Unknown7 = f.ReadInt32();
+                        // should be end of "header" values
+                        header.print();
+                        break;
+                    case 0x0F:
+                        Console.WriteLine("Materials");
+                        var Materials = new TMaterials(f);
+                        this.Materials.Add(Materials);
+                        MaterialDict[new string(Materials.Name)] = Materials;
+                        Materials.print();
+                        Console.WriteLine(f.BaseStream.Position);
+                        break;
+                    case 0x08:
+                        Console.WriteLine("Textures");
+                        var Textures = new TTextures(f, b3d);
+                        Textures.print();
+                        Console.WriteLine(f.BaseStream.Position);
+                        break;
+                    case 0x0A:
+                        Console.WriteLine("Nodes");
+                        var Nodes = new TNodes(f);
+                        Nodes.print();
+                        Console.WriteLine(f.BaseStream.Position);
+                        break;
+                    case 0x0E:
+                        Console.WriteLine("Bones");
+                        var Bones_Flag = 1;
+                        var Bone1 = new TBone(f);
+                        Bone1.print();
+                        Console.WriteLine(f.BaseStream.Position);
+                        break;
+                    case 0xFF:
+                        Console.WriteLine("VertexNodes");
+                        var Vertex_Node = new TVertex_Node(f, b3d);
+                        for (var index = 0; index < Vertex_Node.material_data.Count; index++)
+                        {
+                            var MD = Vertex_Node.material_data[index];
+                            if (MD is TMaterial_Data44 MD44)
+                            {
+                                SubModels[new string(MD44.Name)] = Vertex_Node.face_indices[index];
+                                MatNameToTexture[new string(MD44.Name)] = new string(MD44.Zone);
+                            }
+                            else if (MD is TMaterial_Data MD64)
+                            {
+                                SubModels[new string(MD64.Name)] = MD64.face_indices;
+                                MatNameToTexture[new string(MD64.Name)] = new string(MD64.Mtl_ID);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Unknown material data type in Vertex_Node: " + MD.GetType());
+                            }
+                        }
 
-                case 0x0A:
-                    Console.WriteLine("Nodes");
-                    var Nodes = new TNodes(f);
-                    Nodes.print();
-                    Console.WriteLine(f.BaseStream.Position);
-                    break;
-
-                case 0x0E:
-                    Console.WriteLine("Bones");
-                    var Bones_Flag = 1;
-                    var Bone1 = new TBone(f);
-                    Bone1.print();
-                    Console.WriteLine(f.BaseStream.Position);
-                    break;
-
-                case 0x0F:
-                    Console.WriteLine("VertexNodes");
-                    var Vertex_Node = new TVertex_Node(f, b3d);
-                    Vertex_Nodes.Add(Vertex_Node);
-                    Console.WriteLine(f.BaseStream.Position);
-                    break;
-
-                default:
-                    Console.WriteLine(f.BaseStream.Position);
-                    return;
+                        Vertex_Nodes.Add(Vertex_Node);
+                        Console.WriteLine(f.BaseStream.Position);
+                        break;
+                    case 0x1C:
+                        header.VersionThing = 0x1C;
+                        break;
+                    case 0x1B:
+                        Console.WriteLine("Occlusion Zones");
+                        var zoneCount = f.ReadInt32();
+                        Console.WriteLine($"Zone count: {zoneCount}");
+                        for (var i = 0; i < zoneCount; i++)
+                        {
+                            var zone = StringRead(f);
+                            OcclusionZones.Add(new string(zone)); 
+                            Console.WriteLine($"Zone {i}: {new string(zone)}");
+                        }
+                        break;
+                    case 0x0B:
+                        Console.WriteLine("File End"); // B3D always ends 0B0B01
+                        f.ReadBytes(2);
+                        break;
+                    default:
+                        Console.WriteLine($"Unknown byte: {token:X2} at position {f.BaseStream.Position}");
+                        Console.WriteLine(f.BaseStream.Position);
+                        return;
+                }
             }
         }
     }
@@ -123,20 +293,17 @@ public class B3DModel
 
         //Console.WriteLine(s.ToArray());
         //Console.WriteLine(s.Count);
-
+        
         return s.ToArray();
     }
 
     public struct b3d_header
     {
         public char[] Sign = new char[8]; //: array[0..7]of char; // "B3D 1.1 "
-        public byte Unknown1 = 0; //: byte;
         public byte Unknown2 = 0; //: byte;
-        public byte Unknown3 = 0; //: byte; //Header ID??
+        public byte VersionThing = 0; //: byte;
         public float GlobalScaleFactor = 0.0f; //: single;
-        public byte Unknown4 = 0; //: byte; //Header ID??
         public float CoordinateScale = 0.0f; //: single;
-        public byte Unknown5 = 0; //: byte; //Header ID??
         public char[] CoordinateSystem = new char[4]; //: TCharArray;
         public byte Unknown6 = 0; //: byte;
         public int Unknown7 = 0; //: intword;
@@ -149,8 +316,9 @@ public class B3DModel
                 var n = f.ReadByte();
                 Sign[i] = (char)n;
             }
-
+            
             Unknown2 = f.ReadByte();
+            VersionThing = Unknown2;
             if (Unknown2 == 3)
             {
                 b3d.FormatVer = 1;
@@ -180,7 +348,7 @@ public class B3DModel
             Console.Write("(b3d_header Sign:\"");
             Console.Write(Sign);
             Console.Write(
-                $"\" Unknown1:{Unknown1} Unknown2:{Unknown2} Unknown3:{Unknown3} GlobalScaleFactor:{GlobalScaleFactor} Unknown4:{Unknown4} CoordinateScale:{CoordinateScale} Unknown5:{Unknown5} CoordinateSystem:\"");
+                $"\" VersionThing:{VersionThing} GlobalScaleFactor:{GlobalScaleFactor} CoordinateScale:{CoordinateScale} CoordinateSystem:\"");
             Console.Write(CoordinateSystem);
             Console.WriteLine($"\" Unknown6:{Unknown6} Unknown7:{Unknown7})");
         }
@@ -199,8 +367,8 @@ public class B3DModel
         {
             //Console.WriteLine("TVertex64");
             Coordinate.X = f.ReadSingle();
-            Coordinate.Z = f.ReadSingle();
             Coordinate.Y = f.ReadSingle();
+            Coordinate.Z = f.ReadSingle();
             b3d.Model_Vertex_Position.Add(Coordinate);
             b3d.Model_Vertex_Texcoords.Add(Unknown2);
 
@@ -250,8 +418,8 @@ public class B3DModel
         {
             //Console.WriteLine("TVertex44");
             Coordinate.X = f.ReadSingle();
-            Coordinate.Z = f.ReadSingle();
             Coordinate.Y = f.ReadSingle();
+            Coordinate.Z = f.ReadSingle();
             b3d.Model_Vertex_Position.Add(Coordinate);
 
             Normal.X = f.ReadSingle();
@@ -314,9 +482,12 @@ public class B3DModel
                 {
                     Zone = StringRead(f);
                     b3d.Txs.Add(new string(Name));
+                    Console.WriteLine(new string(Zone));
                     Unknown2 = f.ReadInt32();
-                    for (var j = 1; j <= Unknown2; j++)
-                        StringRead(f);
+                    for (var j = 1; j <= Unknown2; j++) {
+                        var unkstr = new string(StringRead(f));
+                        Console.WriteLine("SHDJKASHDKJHASKLJHSKDJFHKLSDFF\t\t\t" + unkstr);
+                    }
                     break;
                 }
             }
@@ -353,6 +524,8 @@ public class B3DModel
         public uint Unknown3; //: intword;
 
         public char[] Zone; //: TCharArray;
+        
+        public List<int> face_indices = [];
 
         public TMaterial_Data(BinaryReader f, B3DModel b3d)
         {
@@ -362,7 +535,8 @@ public class B3DModel
             var a1 = f.ReadUInt32();
             for (uint i = 1; i <= a1; i++) Mtl_ID = StringRead(f);
 
-            b3d.Txs.Add(new string(Name));
+            var nameStr = new string(Name);
+            b3d.Txs.Add(nameStr);
 
             uint kk;
             f.ReadByte();
@@ -375,8 +549,11 @@ public class B3DModel
                 var b = f.ReadInt32();
                 var c = f.ReadInt32();
                 b3d.Model_Faces_Index.Add([b, a, c]);
-            b3d.Model_Faces_Mats.Add(b3d.Txs.Count);
-        }
+                b3d.Model_Faces_Mats.Add(b3d.Txs.Count);
+                face_indices.Add(a);
+                face_indices.Add(b);
+                face_indices.Add(c);
+            }
 
             for (uint i = 1; i <= kk; i++) Unknown2 = f.ReadByte();
         }
@@ -409,6 +586,10 @@ public struct TVertex_Node
     public int BonesPerVert;
     public int NumberMaterial;
     public List<TVert_Bones_Data> Vert_Bones_Data;
+
+    public List<dynamic> material_data = new();
+    
+    public Dictionary<int, List<int>> face_indices = [];
 
     public TVertex_Node(BinaryReader f, B3DModel b3d)
     {
@@ -461,6 +642,7 @@ public struct TVertex_Node
             for (var i = 0; i < NumberMaterial; i++)
             {
                 var MD = new TMaterial_Data44(f, b3d);
+                material_data.Add(MD);
                 MD.print();
             }
 
@@ -495,26 +677,32 @@ public struct TVertex_Node
                     int b = f.ReadUInt16();
                     int c = f.ReadUInt16();
                     b3d.Model_Faces_Index.Add([c, b, a]);
-            b3d.Model_Faces_Mats.Add(j);
-        }
-    }
-            else
-            {
-                for (var i = 0; i<NumberVerts; i++)
-                {
-                    var Vertex64 = new TVertex64(f, b3d);
-}
-
-Console.WriteLine(f.BaseStream.Position);
-
-                NumberMaterial = f.ReadInt32();
-                Console.WriteLine($"NumberMaterial - {NumberMaterial}");
-                for (var i = 0; i<NumberMaterial; i++)
-                {
-                    var MD = new TMaterial_Data(f, b3d);
-MD.print();
+                    b3d.Model_Faces_Mats.Add(j);
+                    if (!face_indices.ContainsKey(j))
+                        face_indices[j] = [];
+                    face_indices[j].Add(a);
+                    face_indices[j].Add(b);
+                    face_indices[j].Add(c);
                 }
+        }
+        else
+        {
+            for (var i = 0; i < NumberVerts; i++)
+            {
+                var Vertex64 = new TVertex64(f, b3d);
             }
+
+            Console.WriteLine(f.BaseStream.Position);
+
+            NumberMaterial = f.ReadInt32();
+            Console.WriteLine($"NumberMaterial - {NumberMaterial}");
+            for (var i = 0; i<NumberMaterial; i++)
+            {
+                var MD = new TMaterial_Data(f, b3d);
+                material_data.Add(MD);
+                MD.print();
+            }
+        }
         }
     }
 

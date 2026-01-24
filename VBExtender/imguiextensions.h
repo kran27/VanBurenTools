@@ -324,7 +324,7 @@ void embraceTheDarkness()
 	colors[0] = ImVec4(0.8352941f, 0.8352941f, 0.8352941f, 1.0f);
 	colors[1] = ImVec4(0.39607844f, 0.39607844f, 0.39607844f, 1.0f);
 	colors[2] = ImVec4(0.0627451f, 0.0627451f, 0.06666667f, 1.0f);
-	colors[3] = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
+	colors[3] = ImVec4(0.0627451f, 0.0627451f, 0.06666667f, 1.0f);
 	colors[4] = ImVec4(0.0627451f, 0.0627451f, 0.06666667f, 1.0f);
 	colors[5] = ImVec4(0.1882353f, 0.1882353f, 0.20392157f, 1.0f);
 	colors[6] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);

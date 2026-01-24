@@ -6,4 +6,4 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "UI Library is also Windows-Only, as is Van Buren.")]
+//[assembly: SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "UI Library is also Windows-Only, as is Van Buren.")]

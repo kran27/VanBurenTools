@@ -1,4 +1,5 @@
 #include "includes.h"
+#include "patches.h"
 #include "proxy.h"
 
 bool init = false;
@@ -111,6 +112,7 @@ int WINAPI main()
     RegisterConsoleCommand("SetHealth", HealthTest);
     RegisterConsoleCommand("EntityInfo", EntityInfo);
 
+    // fix ui render "optimization" that causes improper layering.
     WritePtr<int>(F3 + 0x307EF8, {0x4}, 0);
 
     DebugAndConsole("Van Buren Extender %s Loaded and Initialized", version);
@@ -175,34 +177,13 @@ int WINAPI main()
     }
 }
 
-void PatchInstaCrash()
-{
-    // Patch out the insta crash when multiple instances of the game are running
-    // this is done by patching jnz to jmp so errors aren't thrown when the socket is already in use
-    DWORD oldProtect;
-    auto addr1 = reinterpret_cast<LPVOID>(F3 + 0x1b8f46);
-    auto addr2 = reinterpret_cast<LPVOID>(F3 + 0x1b8de7);
-
-    if (VirtualProtect(addr1, 1, PAGE_EXECUTE_READWRITE, &oldProtect))
-    {
-        Write<BYTE>(reinterpret_cast<uintptr_t>(addr1), 0xEB);
-        VirtualProtect(addr1, 1, oldProtect, &oldProtect);
-    }
-
-    if (VirtualProtect(addr2, 1, PAGE_EXECUTE_READWRITE, &oldProtect))
-    {
-        Write<BYTE>(reinterpret_cast<uintptr_t>(addr2), 0xEB);
-        VirtualProtect(addr2, 1, oldProtect, &oldProtect);
-    }
-}
-
 BOOL APIENTRY DllMain(HMODULE hModule, const DWORD dwReason, LPVOID lpReserved)
 {
     switch (dwReason)
     {
     case DLL_PROCESS_ATTACH:
         {
-            PatchInstaCrash();
+            ApplyPatches();
             dll_handle = hModule;
             CreateThread(nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(main), nullptr, 0, nullptr);
             RPCInit();

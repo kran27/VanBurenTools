@@ -15,12 +15,16 @@ typedef void(*SendDebugStringFunc)(const char* Format, ...);
 auto SendDebugString = reinterpret_cast<SendDebugStringFunc>(F3 + 0x00097120);
 
 typedef void (*sub_46CD60Func)(int a1, const char* Format, ...);
-auto WriteToDebugWindow = reinterpret_cast<sub_46CD60Func>(F3 + 0x6CD60); // also calls SendDebugString
+auto GameScripting__DebugOutput = reinterpret_cast<sub_46CD60Func>(F3 + 0x6CD60); // also calls SendDebugString
+
+typedef void (*sub_5583E0Func)(int dbgWnd, const char* str, int r, int g, int b); // void **a2 original for str
+auto WriteToDebugWindow = reinterpret_cast<sub_5583E0Func>(F3 + 0x1583E0);
 
 //sub_41CFE0 (writes to bottom left of screen) // through WriteToFeedback?
 
 typedef uintptr_t(*__cdecl RTDynamicCastFunc)(PVOID inptr, LONG VfDelta, PVOID SrcType, PVOID TargetType, BOOL isReference);
 auto RTDynamicCast = reinterpret_cast<RTDynamicCastFunc>(F3 + 0x002165E0);
+
 #pragma region Game Types
 auto Action = reinterpret_cast<PVOID>(0x6F1E60);
 auto Gfx_CamCtrl = reinterpret_cast<PVOID>(0x6FB068);
@@ -109,6 +113,7 @@ auto ToggleWind = reinterpret_cast<NoParamFunc>(F3 + 0x606E0);
 inline auto getClient() { return *reinterpret_cast<int**>(GetAddr(HudBase, { 0x2C })); }
 inline auto getServer() { return *reinterpret_cast<int**>(GetAddr(HudBase, { 0x18 })); } // TODO: probably fails in multiplayer?
 inline uintptr_t consolePtr() { return GetAddr(HudBase, { 0x2C, 0x88, 0x0 }); }
+inline uintptr_t debugWindowPtr() { return GetAddr(HudBase, { 0x2C, 0x8C, 0x0 }); }
 inline uintptr_t cursorPtr() { return GetAddr(HudBase, { 0x2C, 0xA4, 0x0 }); }
 
 inline int isValid(const char* str) {
@@ -256,6 +261,7 @@ inline void DebugAndConsole(const char* format, ...)
 	va_end(args);
 	strcat_s(result, "\n");
 	WriteToConsole(consolePtr(), result);
+	//WriteToDebugWindow(debugWindowPtr(), result, 128, 128, 128);
 	SendDebugString(result);
 }
 
@@ -465,5 +471,4 @@ inline void ToggleConsole() { showConsole = !showConsole; }
 inline void TestFunction(int a1)
 {
 	auto params = getParams(a1, 1);
-	WriteToDebugWindow(0, "TestFunction(%d)", params[0]);
 }

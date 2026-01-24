@@ -255,6 +255,8 @@ static long __stdcall detour_present(IDXGISwapChain* p_swap_chain, UINT sync_int
 
 	if (showConsole)
 		logs.Draw("Debug Logs");
+	
+	const auto bdl = ImGui::GetBackgroundDrawList();
 
 	if (show)
 	{
@@ -285,6 +287,12 @@ static long __stdcall detour_present(IDXGISwapChain* p_swap_chain, UINT sync_int
 				ImGui::Combo("", &selEntity, entities, IM_ARRAYSIZE(entities));
 			setuptext"Position" setupcontrol
 				ImGui::InputFloat3("\u200B", entPos, "%.2f", ImGuiInputTextFlags_ReadOnly);
+
+				auto entityScreenPos = worldToScreen(entPos[0], entPos[1], entPos[2]);
+
+				bdl->AddImage(targetCursor, ImVec2(entityScreenPos[0] - 14, entityScreenPos[1] - 14),
+					ImVec2(entityScreenPos[0] + 15, entityScreenPos[1] + 15), ImVec2(0, 0), ImVec2(1, 1), 0xFFFFFFFF);
+				
 			setuptext"Health" setupcontrol
 				if (ImGui::SliderInt("\u200B\u200B", &HP, 0, 999))
 				{
@@ -447,7 +455,6 @@ static long __stdcall detour_present(IDXGISwapChain* p_swap_chain, UINT sync_int
 
 	const auto mp = ImGui::GetMousePos();
 	const auto fdl = ImGui::GetForegroundDrawList();
-	const auto bdl = ImGui::GetBackgroundDrawList();
 
 	ID3D11ShaderResourceView* cursor = defaultCursor;
 	auto size = ImVec2(27, 27);

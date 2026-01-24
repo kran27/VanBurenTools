@@ -14,12 +14,25 @@ bool initReady = false;
 
 inline void WINAPI HookedOutputDebugStringA(const LPCSTR lpOutputString)
 {
-	//Only initialize after Client is connected (probably should do this smarter than checking debug strings.)
-	if (!initReady && strcmp(lpOutputString, "DIALOGUEINTERFACE INSTANTIATED\n - This debug line is to double check that it's not being created more than once.") == 0) initReady = true;
-	
-	logs.AddLog(lpOutputString);
+	std::string debugString(lpOutputString);
 
-	OriginalOutputDebugStringA(lpOutputString);
+	// Ensure the string ends with a newline
+	if (!debugString.empty() && debugString.back() != '\n') {
+		debugString += '\n';
+	}
+
+	// Only initialize after Client is connected
+	if (!initReady && debugString == "DIALOGUEINTERFACE INSTANTIATED\n - This debug line is to double check that it's not being created more than once.\n") {
+		initReady = true;
+	}
+	if (debugString == "Script_Small::Debugger() Attempt to set SRANGE on non-array LocalVar.\n")
+	{
+		return; // Ignore this specific debug message as it is spammed in the console
+	}
+
+	logs.AddLog(debugString.c_str());
+
+	OriginalOutputDebugStringA(debugString.c_str());
 }
 
 void InitHooks()

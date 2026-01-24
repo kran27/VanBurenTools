@@ -130,6 +130,7 @@
     <ClInclude Include="imguimenu.h" />
     <ClInclude Include="includes.h" />
     <ClInclude Include="memory.h" />
+    <ClInclude Include="patches.h" />
     <ClInclude Include="proxy.h" />
     <ClInclude Include="speed.h" />
   </ItemGroup>
