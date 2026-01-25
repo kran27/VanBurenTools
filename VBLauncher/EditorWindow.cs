@@ -646,6 +646,10 @@ public partial class EditorWindow
 
     private void DrawMap()
     {
+        if (_sceneRenderer.IsCleared())
+        {
+            _sceneRenderer.AddMap((Map)_currentFile);
+        }
         DrawEMAP();
         DrawEME2();
         DrawECAM();
