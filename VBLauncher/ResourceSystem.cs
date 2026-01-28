@@ -67,7 +67,7 @@ public static class ResourceSystem
                         }
                         break;
                     case "8":
-                        extDict[name] = new _8Model(fb, false); // TODO: HARDCODED FALSE VALUE
+                        extDict[name] = new _8Model(fb, true); // TODO: REPLACE HARDCODED VALUE
                         break;
                     case "amo":
                         extDict[name] = fb.ReadAMO();

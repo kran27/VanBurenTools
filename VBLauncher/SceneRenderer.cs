@@ -233,22 +233,17 @@ void main() {
         {
             try
             {
-                var mmn = map.EMAP.s1.ToLower();
+                var searchName = Path.GetFileNameWithoutExtension(map.EMAP.s1);
                 
-                // Try to find .b3d first
-                var b3d = ResourceSystem.FindResource(mmn, "b3d"); 
-                if (b3d != null)
+                var _8 = ResourceSystem.FindResource(searchName, "8");
+                if (_8 != null)
                 {
-                    AddB3DModel(b3d);
+                    Console.WriteLine($"Loading map geometry from 8Model: {searchName}");
+                    Add8Model(_8);
                 }
-                else
+                else 
                 {
-                    // Fallback to .8 (legacy)
-                    var _8 = ResourceSystem.FindResource(mmn, "8");
-                    if (_8 != null)
-                    {
-                        Add8Model(_8);
-                    }
+                    Console.WriteLine($"Could not find map geometry for {map.EMAP.s1} (checked .b3d and .8 for key {searchName})");
                 }
             }
             catch (Exception ex)
@@ -262,8 +257,12 @@ void main() {
         {
             try
             {
-                var rot = ent.l.W * 180f / Math.PI; // Legacy rotation calculation
-                var transform = Matrix4x4.CreateRotationZ((float)ent.l.W) * 
+                // Entities
+                // User reported map/entities are vertical with Z/Y swap. 
+                // This implies source is already Y-up (or we shouldn't swap).
+                // Reverting to direct X, Y, Z translation.
+                // Assuming W is rotation around Y (Yaw).
+                var transform = Matrix4x4.CreateRotationY((float)ent.l.W) * 
                                 Matrix4x4.CreateTranslation((float)ent.l.X, (float)ent.l.Y, (float)ent.l.Z);
 
                 if (ent.name.ToLower().EndsWith(".crt"))
@@ -297,7 +296,7 @@ void main() {
                 var crt = ResourceSystem.FindResource("default_pc.crt");
                 if (crt != null)
                 {
-                    var transform = Matrix4x4.CreateRotationZ((float)ep.r) * 
+                    var transform = Matrix4x4.CreateRotationY((float)ep.r) * 
                                     Matrix4x4.CreateTranslation(ep.p.X, ep.p.Y, ep.p.Z);
                     AddCRT(crt, transform);
                 }
@@ -307,6 +306,8 @@ void main() {
                 Console.WriteLine($"Error adding default PC to map: {ex.Message}");
             }
         }
+        
+        FocusCamera();
     }
     
     public void Add8Model(_8Model model)
@@ -341,6 +342,9 @@ void main() {
             materialFaces[mdxindex].Add(i);
         }
 
+        Console.WriteLine($"[SceneRenderer] Add8Model: GVP Count {model.GVP.Count}, IDX Count {model.IDX.Count}, MAT Count {model.MAT.Count}");
+        Console.WriteLine($"[SceneRenderer] Add8Model: Material Faces Breakdown: {string.Join(", ", materialFaces.Where(k => k.Value.Count > 0).Select(k => $"Mat {k.Key}: {k.Value.Count} faces"))}");
+
         foreach (var kvp in materialFaces)
         {
             var matIndex = kvp.Key;
@@ -350,14 +354,14 @@ void main() {
             string textureName = null;
             if (matIndex > 0 && matIndex <= model.MAT.Count)
             {
-                 textureName = model.MAT[matIndex - 1].FileName;
+                 textureName = Path.GetFileNameWithoutExtension(model.MAT[matIndex - 1].FileName);
             }
             
             var modelData = new ModelData
             {
                 Name = $"8Model_Mat{matIndex}",
                 WorldMatrix = Matrix4x4.Identity,
-                Pipeline = (textureName != null && textureName.Contains("Flora")) ? null : _opaquePipeline
+                Pipeline = textureName != null && textureName.Contains("Flora") ? null : _opaquePipeline
             };
             
             // Process Texture
@@ -368,7 +372,7 @@ void main() {
             }
             else
             {
-                ImageSharpTexture tx = ResourceSystem.FindResource(textureName);
+                ImageSharpTexture tx = ResourceSystem.FindResource(textureName, "tga");
                 if (tx != null)
                 {
                     modelData.SurfaceTextureView = factory.CreateTextureView(tx.CreateDeviceTexture(_graphicsDevice, factory));
@@ -376,6 +380,7 @@ void main() {
                 else
                 {
                      // Red fallback for missing texture to make it obvious
+                    Console.WriteLine($"[SceneRenderer] Add8Model: Missing texture '{textureName}' for material {matIndex}");
                     modelData.SurfaceTexture = Create1x1TextureFromColor(_graphicsDevice, factory, 1f, 0f, 0f);
                     modelData.SurfaceTextureView = factory.CreateTextureView(modelData.SurfaceTexture);
                 }
@@ -394,15 +399,22 @@ void main() {
                 int idx1 = face[1];
                 int idx2 = face[2];
                 
-                // Get Positions
-                Vector3 p0 = model.GVP[idx0];
-                Vector3 p1 = model.GVP[idx1];
-                Vector3 p2 = model.GVP[idx2];
+                // Get Positions, Swap Y/Z for Y-up, and Apply Scaling (10x to match B3D format ver 1)
+                // Get Positions and Un-Swap Y/Z (Undo VanBurenFormats swap)
+                // VanBurenFormats does: new Vector3(x, z, y)
+                // We want: (x, y, z)
+                // So we take (v.X, v.Z, v.Y) to reverse it.
+                Vector3 p0 = new Vector3(model.GVP[idx0].X, model.GVP[idx0].Z, model.GVP[idx0].Y);
+                Vector3 p1 = new Vector3(model.GVP[idx1].X, model.GVP[idx1].Z, model.GVP[idx1].Y);
+                Vector3 p2 = new Vector3(model.GVP[idx2].X, model.GVP[idx2].Z, model.GVP[idx2].Y);
                 
                 // Calculate Flat Normal
+                // Note: v1/v2 are based on swapped indices from VanBurenFormats (a, c, b).
+                // This swaps the winding, so Cross(v1, v2) points Inwards/Down.
+                // We need to swap the Cross product operands to get the Outwards/Up normal.
                 Vector3 v1 = p1 - p0;
                 Vector3 v2 = p2 - p0;
-                Vector3 normal = Vector3.Normalize(Vector3.Cross(v1, v2));
+                Vector3 normal = Vector3.Normalize(Vector3.Cross(v2, v1));
                 
                 // Check if Normal is valid (non-NaN)
                 if (float.IsNaN(normal.X) || float.IsNaN(normal.Y) || float.IsNaN(normal.Z))
@@ -443,7 +455,9 @@ void main() {
             _graphicsDevice.UpdateBuffer(modelData.IndexBuffer, 0, modelData.Indices.ToArray());
 
             _models.Add(modelData);
+            Console.WriteLine($"Added 8Model mesh part {matIndex}: {uniqueVertices.Count} vertices, {newIndices.Count} indices. Texture: {textureName ?? "None"}");
         }
+        Console.WriteLine($"Finished adding 8Model. Total model parts: {_models.Count}");
     }
     
     public void HandleWindowResize(uint width, uint height)
@@ -803,6 +817,45 @@ void main() {
         cl.ResolveTexture(_msaaColorTarget, _sceneColorTarget);
         cl.End();
         _graphicsDevice.SubmitCommands(cl);
+    }
+
+    public void FocusCamera()
+    {
+        if (_models.Count == 0) return;
+        
+        Vector3 min = new Vector3(float.MaxValue);
+        Vector3 max = new Vector3(float.MinValue);
+        bool hasVerts = false;
+
+        foreach(var m in _models)
+        {
+            foreach(var v in m.Vertices)
+            {
+                 min = Vector3.Min(min, v.Position);
+                 max = Vector3.Max(max, v.Position);
+                 hasVerts = true;
+            }
+        }
+        
+        if (!hasVerts) return;
+        
+        var center = (min + max) / 2f;
+        var extent = max - min;
+        var maxDim = Math.Max(extent.X, Math.Max(extent.Y, extent.Z));
+        
+        if (maxDim < 1f) maxDim = 10f; // Ensure minimum zoom
+
+        Console.WriteLine($"Map Bounds: Min {min} Max {max} Center {center} Size {maxDim}");
+
+        // Set camera position to see the whole bounds
+        // Assuming Y-up: 
+        // Position should be Up (Y+) and Back (Z+) from center.
+        
+        float dist = maxDim * 1.2f;
+        
+        _camera.Position = center + new Vector3(0, dist * 0.8f, dist);
+        _camera.Yaw = 0; // Look along Z (?)
+        _camera.Pitch = -0.5f; // Look down slightly
     }
 
     [StructLayout(LayoutKind.Sequential)]

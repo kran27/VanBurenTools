@@ -627,6 +627,7 @@ public partial class EditorWindow
         if (_sceneRenderer.IsCleared())
         {
             _sceneRenderer.AddCRT(_currentFile);
+            _sceneRenderer.FocusCamera();
         }
         ImGui.Begin("CRT Editor");
         DrawEEN2();

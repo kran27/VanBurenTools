@@ -1173,9 +1173,9 @@ public class _8Model
                             var c = buffer_offset[buffer_index] + f.ReadUInt16();
 
                             IDX.Add([a, c, b]);
-                        MDX.Add(m == 0 ? 0 : m);
+                            MDX.Add(m == 0 ? 0 : m);
+                        }
                     }
-                }
 
                 f.BaseStream.Seek(end, SeekOrigin.Begin);
                 return 0;
