@@ -503,7 +503,11 @@ public partial class ModLoader
                 if (!entry2.Name.Equals("english.stf", StringComparison.CurrentCultureIgnoreCase) &&
                     !entry2.Name.Equals("mod.info", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    entry2.ExtractToFile(Path.Combine(tmpDir, entry2.Name), true);
+                    var extractionPath = GetSafeExtractionPath(tmpDir, entry2.Name);
+                    if (extractionPath != null)
+                    {
+                        entry2.ExtractToFile(extractionPath, true);
+                    }
                 }
             }
 
@@ -525,8 +529,11 @@ public partial class ModLoader
             {
                 if (entry.Name.Equals("english.stf", StringComparison.CurrentCultureIgnoreCase) ||
                     entry.Name.Equals("mod.info", StringComparison.CurrentCultureIgnoreCase)) continue;
-                var fp = Path.Combine(tmpDir, entry.Name);
-                IncSTFRefs(fp, tmp.Item2);
+                var fp = GetSafeExtractionPath(tmpDir, entry.Name);
+                if (fp != null)
+                {
+                    IncSTFRefs(fp, tmp.Item2);
+                }
             }
         }
         
@@ -535,5 +542,20 @@ public partial class ModLoader
         
         if (Directory.Exists(tmpDir))
             Directory.Move(tmpDir, "Override\\Deployed");
+    }
+
+    private static string? GetSafeExtractionPath(string destinationDirectory, string entryName)
+    {
+        if (string.IsNullOrWhiteSpace(entryName)) return null;
+
+        var fullDestinationPath = Path.GetFullPath(destinationDirectory).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+
+        // Ensure backslashes are handled as separators, even on non-Windows platforms.
+        var normalizedEntryName = entryName.Replace('\\', Path.DirectorySeparatorChar);
+
+        var combinedPath = Path.Combine(destinationDirectory, normalizedEntryName);
+        var fullCombinedPath = Path.GetFullPath(combinedPath);
+
+        return fullCombinedPath.StartsWith(fullDestinationPath, StringComparison.OrdinalIgnoreCase) ? fullCombinedPath : null;
     }
 }
