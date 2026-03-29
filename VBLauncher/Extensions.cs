@@ -610,11 +610,12 @@ public static byte[] ToFixedBytes(ref IEnumerable<string> s)
     var bl = new List<byte>();
     foreach (var stri in s)
         bl.AddRange(Encoding.ASCII.GetBytes(stri));
-    var b = bl;
-    var l = b.ToArray().Locate([0x7C, 0x7E]);
+
+    var b = bl.ToArray();
+    var l = b.Locate([0x7C, 0x7E]);
     foreach (var m in l)
-        Write(b.ToArray(), m, [0xD, 0xA]);
-    return b.ToArray();
+        Write(b, m, [0xD, 0xA]);
+    return b;
 }
 
 #endregion
