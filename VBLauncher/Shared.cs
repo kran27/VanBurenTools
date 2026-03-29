@@ -141,10 +141,10 @@ public static class General
             var ThisFolder = FolderStack.Pop();
             try
             {
-                foreach (var SubFolder in Directory.GetDirectories(ThisFolder))
+                foreach (var SubFolder in Directory.EnumerateDirectories(ThisFolder))
                     FolderStack.Push(SubFolder);
                 foreach (var FileExt in FileFilter)
-                    ReturnedData.AddRange(Directory.GetFiles(ThisFolder, FileExt));
+                    ReturnedData.AddRange(Directory.EnumerateFiles(ThisFolder, FileExt));
             }
             catch
             {
