@@ -241,10 +241,6 @@ void main() {
                     Console.WriteLine($"Loading map geometry from 8Model: {searchName}");
                     Add8Model(_8);
                 }
-                else 
-                {
-                    Console.WriteLine($"Could not find map geometry for {map.EMAP.s1} (checked .b3d and .8 for key {searchName})");
-                }
             }
             catch (Exception ex)
             {
@@ -257,11 +253,6 @@ void main() {
         {
             try
             {
-                // Entities
-                // User reported map/entities are vertical with Z/Y swap. 
-                // This implies source is already Y-up (or we shouldn't swap).
-                // Reverting to direct X, Y, Z translation.
-                // Assuming W is rotation around Y (Yaw).
                 var transform = Matrix4x4.CreateRotationY((float)ent.l.W) * 
                                 Matrix4x4.CreateTranslation((float)ent.l.X, (float)ent.l.Y, (float)ent.l.Z);
 
@@ -287,9 +278,11 @@ void main() {
             {
                  Console.WriteLine($"Error adding entity {ent.name} to map: {ex.Message}");
             }
+            // Clear ignored zones after each entity so they don't affect the next one
+            _ignoredZones.Clear();
         }
 
-        // Add Default PC
+        // Add Default PC at Entry Points
         foreach (var ep in map.EMEP)
         {
             try {
@@ -305,6 +298,8 @@ void main() {
             {
                 Console.WriteLine($"Error adding default PC to map: {ex.Message}");
             }
+            // Clear ignored zones here too
+            _ignoredZones.Clear();
         }
         
         FocusCamera();
@@ -329,21 +324,24 @@ void main() {
              materialIndices[i] = new List<ushort>();
         }
         
-        // Populate indices (actually just collecting faces now)
-        // We will just store the FACE index (raw index in IDX) so we can look it up later
-        // because we are going to explode the vertices anyway.
+        // Populate indices (collect faces)
+        // Using a dictionary that creates lists on demand to handle any MDX value
         var materialFaces = new Dictionary<int, List<int>>();
-        for (int i = 0; i <= model.MAT.Count; i++) materialFaces[i] = new List<int>();
 
         for (int i = 0; i < model.IDX.Count; i++)
         {
             var mdxindex = model.MDX[i];
             if (mdxindex == 0) mdxindex = model.MAT.Count;
+            
+            if (!materialFaces.ContainsKey(mdxindex))
+            {
+                materialFaces[mdxindex] = new List<int>();
+            }
             materialFaces[mdxindex].Add(i);
         }
 
         Console.WriteLine($"[SceneRenderer] Add8Model: GVP Count {model.GVP.Count}, IDX Count {model.IDX.Count}, MAT Count {model.MAT.Count}");
-        Console.WriteLine($"[SceneRenderer] Add8Model: Material Faces Breakdown: {string.Join(", ", materialFaces.Where(k => k.Value.Count > 0).Select(k => $"Mat {k.Key}: {k.Value.Count} faces"))}");
+        Console.WriteLine($"[SceneRenderer] Add8Model: Material Faces Breakdown: {string.Join(", ", materialFaces.Select(k => $"Mat {k.Key}: {k.Value.Count} faces"))}");
 
         foreach (var kvp in materialFaces)
         {
@@ -399,19 +397,12 @@ void main() {
                 int idx1 = face[1];
                 int idx2 = face[2];
                 
-                // Get Positions, Swap Y/Z for Y-up, and Apply Scaling (10x to match B3D format ver 1)
                 // Get Positions and Un-Swap Y/Z (Undo VanBurenFormats swap)
-                // VanBurenFormats does: new Vector3(x, z, y)
-                // We want: (x, y, z)
-                // So we take (v.X, v.Z, v.Y) to reverse it.
                 Vector3 p0 = new Vector3(model.GVP[idx0].X, model.GVP[idx0].Z, model.GVP[idx0].Y);
                 Vector3 p1 = new Vector3(model.GVP[idx1].X, model.GVP[idx1].Z, model.GVP[idx1].Y);
                 Vector3 p2 = new Vector3(model.GVP[idx2].X, model.GVP[idx2].Z, model.GVP[idx2].Y);
                 
                 // Calculate Flat Normal
-                // Note: v1/v2 are based on swapped indices from VanBurenFormats (a, c, b).
-                // This swaps the winding, so Cross(v1, v2) points Inwards/Down.
-                // We need to swap the Cross product operands to get the Outwards/Up normal.
                 Vector3 v1 = p1 - p0;
                 Vector3 v2 = p2 - p0;
                 Vector3 normal = Vector3.Normalize(Vector3.Cross(v2, v1));
