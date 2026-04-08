@@ -18,4 +18,4 @@
 	url = https://github.com/ocornut/imgui
 [submodule "ImGuiColorTextEditNet"]
 	path = ImGuiColorTextEditNet
-	url = https://github.com/kran27/ImGuiColorTextEditNet
+	url = http://git.kran.gg/kran/ImGuiColorTextEditNet
