@@ -376,8 +376,8 @@ void main() {
         {
             try
             {
-                var transform = Matrix4x4.CreateRotationY((float)ent.l.W) * 
-                                Matrix4x4.CreateTranslation((float)ent.l.X, (float)ent.l.Y, (float)ent.l.Z);
+                var transform = Matrix4x4.CreateRotationY(ent.l.W) * 
+                                Matrix4x4.CreateTranslation(-ent.l.X, ent.l.Y, ent.l.Z);
 
                 if (ent.name.ToLower().EndsWith(".crt"))
                 {
@@ -412,8 +412,8 @@ void main() {
                 var crt = ResourceSystem.FindResource("default_pc.crt");
                 if (crt != null)
                 {
-                    var transform = Matrix4x4.CreateRotationY((float)ep.r) * 
-                                    Matrix4x4.CreateTranslation(ep.p.X, ep.p.Y, ep.p.Z);
+                    var transform = Matrix4x4.CreateRotationY(ep.r) * 
+                                    Matrix4x4.CreateTranslation(-ep.p.X, ep.p.Y, ep.p.Z);
                     AddCRT(crt, transform);
                 }
             }

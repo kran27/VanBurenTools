@@ -377,7 +377,7 @@ public class B3DModel
         public TVertex64(BinaryReader f, B3DModel b3d)
         {
             //Console.WriteLine("TVertex64");
-            Coordinate.X = f.ReadSingle();
+            Coordinate.X = -f.ReadSingle();
             Coordinate.Y = f.ReadSingle();
             Coordinate.Z = f.ReadSingle();
             b3d.Model_Vertex_Position.Add(Coordinate);
@@ -428,7 +428,7 @@ public class B3DModel
         public TVertex44(BinaryReader f, B3DModel b3d)
         {
             //Console.WriteLine("TVertex44");
-            Coordinate.X = f.ReadSingle();
+            Coordinate.X = -f.ReadSingle();
             Coordinate.Y = f.ReadSingle();
             Coordinate.Z = f.ReadSingle();
             b3d.Model_Vertex_Position.Add(Coordinate);
@@ -1235,7 +1235,7 @@ public class _8Model
             {
             for (var i = 1; i <= header.size / 12; i++)
             {
-                var x = f.ReadSingle();
+                var x = -f.ReadSingle();
                 var y = f.ReadSingle();
                 var z = f.ReadSingle();
 

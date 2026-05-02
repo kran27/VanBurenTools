@@ -11,8 +11,8 @@ namespace VBLauncher;
 public class Camera
 {
     private float _fov = 1f;
-    private float _near = 0.01f;
-    private float _far = 1000f;
+    private float _near = 0.1f;
+    private float _far = 500f;
 
     private Matrix4x4 _viewMatrix;
     private Matrix4x4 _projectionMatrix;
@@ -108,7 +108,7 @@ public class Camera
 
             UpdateViewMatrix();
         }
-        
+
         if (InputTracker.GetMouseButton(MouseButton.Middle))
         {
             // Get camera's right and up vectors

@@ -104,6 +104,12 @@ public class GrannyFormats
     // Fills LocalBindMatrix / WorldBindMatrix / InverseWorldBindMatrix on every bone.
     // Granny stores bones with parent index < child index, so a single forward sweep
     // is enough — children always read an already-finalised parent.
+    //
+    // The root gets premultiplied by a 180° Z rotation, mirroring writeBones in
+    // VBConv.cpp (m = matRotZ * m on the root only). Children inherit through the
+    // parent chain.
+    private static readonly Matrix4x4 RootFlip = Matrix4x4.CreateRotationZ(MathF.PI);
+
     private static void ComputeBindPose(List<bone> bones)
     {
         for (var i = 0; i < bones.Count; i++)
@@ -111,7 +117,7 @@ public class GrannyFormats
             var b = bones[i];
             b.LocalBindMatrix = LocalTransformToMatrix(b.LocalTransform);
             b.WorldBindMatrix = b.ParentIndex == -1
-                ? b.LocalBindMatrix
+                ? RootFlip * b.LocalBindMatrix
                 : b.LocalBindMatrix * bones[b.ParentIndex].WorldBindMatrix;
             Matrix4x4.Invert(b.WorldBindMatrix, out var inv);
             b.InverseWorldBindMatrix = inv;
@@ -413,7 +419,8 @@ public class GrannyFormats
 
     // Samples `a` at `time` against `m`'s skeleton. Reuses `pose` if supplied so
     // callers can avoid per-frame allocation. Bones not addressed by the animation
-    // hold their bind-pose local transform.
+    // hold their bind-pose local transform. Root tracks are honored if present so
+    // root motion (walking, jumping, etc.) plays back correctly.
     public static SkeletonPose Sample(model m, animation a, float time, SkeletonPose pose = null)
     {
         var bones = m.Skeleton.Bones;
@@ -437,7 +444,7 @@ public class GrannyFormats
         {
             var b = bones[i];
             pose.WorldMatrices[i] = b.ParentIndex == -1
-                ? pose.LocalMatrices[i]
+                ? RootFlip * pose.LocalMatrices[i]
                 : pose.LocalMatrices[i] * pose.WorldMatrices[b.ParentIndex];
             pose.SkinMatrices[i] = b.InverseWorldBindMatrix * pose.WorldMatrices[i];
         }
