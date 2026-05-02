@@ -55,6 +55,76 @@ public class GrannyFormats
         return otpt;
     }
 
+    // Mirrors the per-curve recipe in AdjustTransformTrackCurves so bone bind-pose
+    // ends up in the same space as the parsed animation tracks. ActualPosition is
+    // intentionally left in raw GR2 space (derived from InverseWorld4x4) since the
+    // skeleton previewer compensates with its own view-time rotation.
+    private static transform CreateAdjustedTransform(unm_transform t)
+    {
+        // Mirrors writeBones in VBConv.cpp: swap Y↔Z components, then invert. The
+        // earlier port additionally negated x/w which made rotations around Y and Z
+        // come out reversed — bind pose ended up reflected away from where the
+        // animation tracks expected it.
+        var q = Quaternion.Inverse(new Quaternion(
+            t.Orientation[0],
+             t.Orientation[2],
+             t.Orientation[1],
+            t.Orientation[3]));
+
+        var otpt = new transform
+        {
+            Position = new Vector3(
+                 t.Position[0] * 3.0f,
+                 t.Position[2] * 3.0f,
+                 t.Position[1] * 3.0f),
+            Orientation = q,
+            ScaleShear = new float[3][]
+        };
+        otpt.ScaleShear[0] = [t.ScaleShear[0], t.ScaleShear[1], t.ScaleShear[2]];
+        otpt.ScaleShear[1] = [t.ScaleShear[3], t.ScaleShear[4], t.ScaleShear[5]];
+        otpt.ScaleShear[2] = [t.ScaleShear[6], t.ScaleShear[7], t.ScaleShear[8]];
+        return otpt;
+    }
+
+    // Composes a transform into a single matrix using the reference's R*T*S order
+    // (writeBones in VBConv.cpp). ScaleShear is sampled on the diagonal only — same
+    // assumption the reference makes. Inputs are expected to already be in engine
+    // space (i.e. coming from CreateAdjustedTransform).
+    private static Matrix4x4 LocalTransformToMatrix(transform t)
+    {
+        var rot = Matrix4x4.CreateFromQuaternion(t.Orientation);
+        var pos = Matrix4x4.CreateTranslation(t.Position);
+        var scale = Matrix4x4.CreateScale(
+            t.ScaleShear[0][0],
+            t.ScaleShear[1][1],
+            t.ScaleShear[2][2]);
+        return rot * pos * scale;
+    }
+
+    // Fills LocalBindMatrix / WorldBindMatrix / InverseWorldBindMatrix on every bone.
+    // Granny stores bones with parent index < child index, so a single forward sweep
+    // is enough — children always read an already-finalised parent.
+    //
+    // The root gets premultiplied by a 180° Z rotation, mirroring writeBones in
+    // VBConv.cpp (m = matRotZ * m on the root only). Children inherit through the
+    // parent chain.
+    private static readonly Matrix4x4 RootFlip = Matrix4x4.CreateRotationZ(MathF.PI);
+
+    private static void ComputeBindPose(List<bone> bones)
+    {
+        for (var i = 0; i < bones.Count; i++)
+        {
+            var b = bones[i];
+            b.LocalBindMatrix = LocalTransformToMatrix(b.LocalTransform);
+            b.WorldBindMatrix = b.ParentIndex == -1
+                ? RootFlip * b.LocalBindMatrix
+                : b.LocalBindMatrix * bones[b.ParentIndex].WorldBindMatrix;
+            Matrix4x4.Invert(b.WorldBindMatrix, out var inv);
+            b.InverseWorldBindMatrix = inv;
+            bones[i] = b;
+        }
+    }
+
     private static void ParseArtToolInfo(ref file_info parsedFile, unm_file_info fileInfo)
     {
         var artToolInfo =
@@ -103,9 +173,9 @@ public class GrannyFormats
                 var bone = ReadFromArray<unm_bone>(skeleton.Bones, j);
                 var parsedBone = new bone
                 {
-                    Name = Marshal.PtrToStringAnsi(bone.Name) ?? throw new ExternalException(),
+                    Name = BoneNames.ProcessName(Marshal.PtrToStringAnsi(bone.Name) ?? throw new ExternalException()),
                     ParentIndex = bone.ParentIndex,
-                    LocalTransform = CreateTransform(bone.LocalTransform),
+                    LocalTransform = CreateAdjustedTransform(bone.LocalTransform),
                     InverseWorld4x4 = ConvertToMatrix4x4(bone.InverseWorld4x4)
                 };
                 Matrix4x4.Invert(parsedBone.InverseWorld4x4, out var World4x4);
@@ -114,6 +184,8 @@ public class GrannyFormats
                         World4x4); // transform data is parent-relative, so i use world transform for easy previewing
                 parsedModel.Skeleton.Bones.Add(parsedBone);
             }
+
+            ComputeBindPose(parsedModel.Skeleton.Bones);
 
             parsedModel.InitialPlacement = CreateTransform(model.InitialPlacement);
             parsedFile.Models.Add(parsedModel);
@@ -138,11 +210,14 @@ public class GrannyFormats
             var knot = ReadFromArray<float>(curveData.Knots, i);
             var control = new float[dimension + 1];
             control[0] = knot;
-            for (var j = 1; j <= dimension; j++)
+            // Layout per keyframe i is Controls[i*dim + 0..dim-1] — same recipe used
+            // by the reference C++ (writeAnimation in VBConv.cpp). The earlier port
+            // started its read at +1, which slid every component into the next
+            // keyframe's data and made every animated quat/position bogus.
+            for (var j = 0; j < dimension; j++)
             {
-                control[j] = ReadFromArray<float>(curveData.Controls, i * dimension + j);
+                control[j + 1] = ReadFromArray<float>(curveData.Controls, i * dimension + j);
             }
-            //Console.WriteLine($"Keyframe at {knot}: {string.Join(", ", control)}");
             keyframes.Add(control);
         }
 
@@ -151,84 +226,12 @@ public class GrannyFormats
         return keyframes;
     }
 
-    private static void ComputeBoneWorldTransforms(model parsedModel)
-    {
-        var bones = parsedModel.Skeleton.Bones;
-
-        // Compute world transforms for all root bones (ParentIndex == -1)
-        for (var i = 0; i < bones.Count; i++)
-        {
-            if (bones[i].ParentIndex == -1)
-            {
-                ComputeWorldTransformRecursive(bones, i, Matrix4x4.Identity);
-            }
-        }
-    }
-
-    private static void ComputeWorldTransformRecursive(List<bone> bones, int boneIndex, Matrix4x4 parentWorld)
-    {
-        var bone = bones[boneIndex];
-
-        // Convert the LocalTransform to a Matrix4x4
-        var localMatrix = TransformToMatrix(bone.LocalTransform);
-        var worldMatrix = localMatrix * parentWorld;
-
-        // Store the actual position of the bone by transforming (0,0,0)
-        var position = Vector3.Transform(Vector3.Zero, worldMatrix);
-        bone.ActualPosition = position;
-
-        // If needed, you can also store worldMatrix in the bone if you want easy future reference:
-        // bone.WorldTransform = worldMatrix; // (Add this field if you like)
-
-        // Update the bone in the list
-        bones[boneIndex] = bone;
-
-        // Recurse for children
-        for (var i = 0; i < bones.Count; i++)
-        {
-            if (bones[i].ParentIndex == boneIndex)
-            {
-                ComputeWorldTransformRecursive(bones, i, worldMatrix);
-            }
-        }
-    }
-
-    private static Matrix4x4 TransformToMatrix(transform t)
-    {
-        // Convert the ScaleShear[3x3], Orientation (Quaternion), and Position into a single world matrix
-        var scaleShearMat = new Matrix4x4(
-            t.ScaleShear[0][0], t.ScaleShear[0][1], t.ScaleShear[0][2], 0,
-            t.ScaleShear[1][0], t.ScaleShear[1][1], t.ScaleShear[1][2], 0,
-            t.ScaleShear[2][0], t.ScaleShear[2][1], t.ScaleShear[2][2], 0,
-            0, 0, 0, 1
-        );
-
-        var rotationMat = Matrix4x4.CreateFromQuaternion(t.Orientation);
-
-        // The order can vary depending on how Granny data is defined, but typically:
-        // World = ScaleShear * Rotation, then set Position
-        var worldMat = rotationMat;
-        worldMat = scaleShearMat * worldMat; // apply scale/shear
-
-        worldMat.Translation = t.Position; // apply translation
-
-        return worldMat;
-    }
-
     private static void AdjustTransformTrackCurves(transform_track tt)
     {
-        // Orientation adjustments:
-        // C++ snippet does:
-        // quat2.x = -ctrl[0], quat2.y = ctrl[2], quat2.z = ctrl[1], quat2.w = -ctrl[3]
-        // and then inverse the quaternion.
-        // In C# indexing: OrientationCurve[i] = [time, x, y, z, w]
-        // original ctrl[] mapping: ctrl[1]=x, ctrl[2]=y, ctrl[3]=z, ctrl[4]=w
-        // after reorder:
-        // x = -originalX
-        // y = originalZ
-        // z = originalY
-        // w = -originalW
-        // then q = inverse(q)
+        // Orientation adjustments — must match CreateAdjustedTransform exactly so
+        // animation poses live in the same space as the bind pose.
+        // writeAnimation in VBConv.cpp: quat2 = (ctrl[0], ctrl[2], ctrl[1], ctrl[3]),
+        // then quat = inverse(quat2). Just a Y↔Z swap on the quaternion components.
         foreach (var t in tt.OrientationCurve)
         {
             var o = t;
@@ -237,8 +240,7 @@ public class GrannyFormats
             var oz = o[3];
             var ow = o[4];
 
-            var q = new Quaternion(-ox, oz, oy, -ow);
-            q = Quaternion.Inverse(q);
+            var q = Quaternion.Inverse(new Quaternion(ox, oz, oy, ow));
 
             t[1] = q.X;
             t[2] = q.Y;
@@ -246,14 +248,11 @@ public class GrannyFormats
             t[4] = q.W;
         }
 
-        // Position adjustments:
-        // C++ snippet does:
-        // x = -ctrl[0]*3.0f, y = ctrl[2]*3.0f, z = ctrl[1]*3.0f
-        // In our indexing: PositionCurve[i] = [time, x, y, z]
-        // original: ctrl[1]=x, ctrl[2]=y, ctrl[3]=z
-        // newx = -x * 3.0f
-        // newy = z * 3.0f
-        // newz = y * 3.0f
+        // Position adjustments (writeAnimation in VBConv.cpp):
+        //   x = ctrl[0]*3.0f, y = ctrl[2]*3.0f, z = ctrl[1]*3.0f
+        // Y/Z swap with no sign flip — must match CreateAdjustedTransform exactly,
+        // otherwise the animated track lives in a different space than the bind pose
+        // and bones drift away from their parents as the animation plays.
         foreach (var t in tt.PositionCurve)
         {
             var p = t;
@@ -261,13 +260,9 @@ public class GrannyFormats
             var py = p[2];
             var pz = p[3];
 
-            var newx = -px * 3.0f;
-            var newy = pz * 3.0f;
-            var newz = py * 3.0f;
-
-            t[1] = newx;
-            t[2] = newy;
-            t[3] = newz;
+            t[1] = px * 3.0f;
+            t[2] = pz * 3.0f;
+            t[3] = py * 3.0f;
         }
 
         // Scale adjustments:
@@ -306,7 +301,7 @@ public class GrannyFormats
                     var transformTrack = ReadFromArray<unm_transform_track>(trackGroup.TransformTracks, k);
                     var parsedTransformTrack = new transform_track
                     {
-                        Name = Marshal.PtrToStringAnsi(transformTrack.Name) ?? throw new ExternalException(),
+                        Name = BoneNames.ProcessName(Marshal.PtrToStringAnsi(transformTrack.Name) ?? throw new ExternalException()),
                         Flags = transformTrack.Flags,
                         OrientationCurve = ParseCurve(transformTrack.OrientationCurve).ToArray(),
                         PositionCurve = ParseCurve(transformTrack.PositionCurve).ToArray(),
@@ -393,6 +388,137 @@ public class GrannyFormats
         OnePastLastMemberType = 0x17,
         Bool32Member = 0x13,
     };
+
+    // -- Animation sampling --------------------------------------------------
+    // The data side of the skinning pipeline. Bone matrices come out in engine
+    // space (the same space CreateAdjustedTransform / AdjustTransformTrackCurves
+    // produce). B3D mesh vertices are still in raw B3D space, so the renderer is
+    // responsible for the engine↔B3D bridge — easiest is to multiply skin
+    // matrices by a constant conversion at upload time.
+
+    // Per-frame snapshot of a posed skeleton. Bone-indexed arrays.
+    //   Local: per-bone local transform after animation override (or bind pose
+    //          for bones the animation doesn't touch).
+    //   World: cumulative world transform walked through the parent chain.
+    //   Skin:  bone[i].InverseWorldBindMatrix * World[i] — the matrix to apply
+    //          to a bind-pose vertex to get its skinned position. Upload these
+    //          to the vertex shader as the bone matrix palette.
+    public class SkeletonPose
+    {
+        public Matrix4x4[] LocalMatrices;
+        public Matrix4x4[] WorldMatrices;
+        public Matrix4x4[] SkinMatrices;
+
+        public SkeletonPose(int boneCount)
+        {
+            LocalMatrices = new Matrix4x4[boneCount];
+            WorldMatrices = new Matrix4x4[boneCount];
+            SkinMatrices = new Matrix4x4[boneCount];
+        }
+    }
+
+    // Samples `a` at `time` against `m`'s skeleton. Reuses `pose` if supplied so
+    // callers can avoid per-frame allocation. Bones not addressed by the animation
+    // hold their bind-pose local transform. Root tracks are honored if present so
+    // root motion (walking, jumping, etc.) plays back correctly.
+    public static SkeletonPose Sample(model m, animation a, float time, SkeletonPose pose = null)
+    {
+        var bones = m.Skeleton.Bones;
+        pose ??= new SkeletonPose(bones.Count);
+
+        var trackByName = new Dictionary<string, transform_track>();
+        if (a.TrackGroups != null)
+            foreach (var tg in a.TrackGroups)
+                foreach (var tt in tg.TransformTracks)
+                    trackByName[tt.Name] = tt;
+
+        for (var i = 0; i < bones.Count; i++)
+        {
+            var b = bones[i];
+            pose.LocalMatrices[i] = trackByName.TryGetValue(b.Name, out var track)
+                ? SampleTrack(track, time)
+                : b.LocalBindMatrix;
+        }
+
+        for (var i = 0; i < bones.Count; i++)
+        {
+            var b = bones[i];
+            pose.WorldMatrices[i] = b.ParentIndex == -1
+                ? RootFlip * pose.LocalMatrices[i]
+                : pose.LocalMatrices[i] * pose.WorldMatrices[b.ParentIndex];
+            pose.SkinMatrices[i] = b.InverseWorldBindMatrix * pose.WorldMatrices[i];
+        }
+
+        return pose;
+    }
+
+    // Maps each B3D bone index to its corresponding GR2 skeleton bone index by
+    // name (both sides go through BoneNames.ProcessName at parse time, so a raw
+    // string compare is enough). Returns -1 when no GR2 bone matches — callers
+    // must guard that before using the index.
+    public static int[] MapB3dBonesToGr2Skeleton(List<B3DModel.TBone> b3dBones, skeleton gr2Skel)
+    {
+        var nameToGr2 = new Dictionary<string, int>(gr2Skel.Bones.Count);
+        for (var i = 0; i < gr2Skel.Bones.Count; i++)
+            nameToGr2[gr2Skel.Bones[i].Name] = i;
+
+        var map = new int[b3dBones.Count];
+        for (var i = 0; i < b3dBones.Count; i++)
+            map[i] = nameToGr2.TryGetValue(b3dBones[i].Name, out var gr2Idx) ? gr2Idx : -1;
+        return map;
+    }
+
+    private static Matrix4x4 SampleTrack(transform_track track, float time)
+    {
+        var rot = SampleQuat(track.OrientationCurve, time, Quaternion.Identity);
+        var pos = SampleVec3(track.PositionCurve, time, Vector3.Zero);
+        var scl = SampleVec3(track.ScaleShearCurve, time, Vector3.One);
+        return Matrix4x4.CreateFromQuaternion(rot)
+             * Matrix4x4.CreateTranslation(pos)
+             * Matrix4x4.CreateScale(scl);
+    }
+
+    // Linear search keyframe lookup with slerp between neighbours. Curve format
+    // is [time, x, y, z, w] per knot. Only the keyframed (da_k32f_c32f) format is
+    // supported, mirroring ParseCurve. Swap to GrannyEvaluateCurveAtT later if
+    // other curve formats turn up.
+    private static Quaternion SampleQuat(float[][] curve, float time, Quaternion fallback)
+    {
+        if (curve.Length == 0) return fallback;
+        if (curve.Length == 1 || time <= curve[0][0]) return ToQuat(curve[0]);
+        if (time >= curve[^1][0]) return ToQuat(curve[^1]);
+
+        for (var i = 0; i < curve.Length - 1; i++)
+        {
+            if (curve[i][0] <= time && time < curve[i + 1][0])
+            {
+                var alpha = (time - curve[i][0]) / (curve[i + 1][0] - curve[i][0]);
+                return Quaternion.Slerp(ToQuat(curve[i]), ToQuat(curve[i + 1]), alpha);
+            }
+        }
+        return fallback;
+
+        static Quaternion ToQuat(float[] e) => new(e[1], e[2], e[3], e[4]);
+    }
+
+    private static Vector3 SampleVec3(float[][] curve, float time, Vector3 fallback)
+    {
+        if (curve.Length == 0) return fallback;
+        if (curve.Length == 1 || time <= curve[0][0]) return ToVec3(curve[0]);
+        if (time >= curve[^1][0]) return ToVec3(curve[^1]);
+
+        for (var i = 0; i < curve.Length - 1; i++)
+        {
+            if (curve[i][0] <= time && time < curve[i + 1][0])
+            {
+                var alpha = (time - curve[i][0]) / (curve[i + 1][0] - curve[i][0]);
+                return Vector3.Lerp(ToVec3(curve[i]), ToVec3(curve[i + 1]), alpha);
+            }
+        }
+        return fallback;
+
+        static Vector3 ToVec3(float[] e) => new(e[1], e[2], e[3]);
+    }
 
     // structs, mostly containing pointers, used while converting to the actually used structs
 
@@ -914,7 +1040,14 @@ public class GrannyFormats
         public int ParentIndex;
         public Vector3 ActualPosition; // horrible naming, this is the bone's position used for previewing
         public transform LocalTransform;
-        public Matrix4x4 InverseWorld4x4;
+        public Matrix4x4 InverseWorld4x4;            // raw GR2 space, kept only for ActualPosition derivation
+
+        // Bind-pose matrices in engine space (post swap+scale recipe applied to LocalTransform).
+        // Filled in by ComputeBindPose during ParseModels. These are what the renderer wants
+        // for skinning math, not InverseWorld4x4.
+        public Matrix4x4 LocalBindMatrix;
+        public Matrix4x4 WorldBindMatrix;
+        public Matrix4x4 InverseWorldBindMatrix;
     }
 
     public struct transform

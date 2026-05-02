@@ -29,6 +29,14 @@ public class B3DModel
     public List<string> Txs = [];
     public List<TVertex_Node> Vertex_Nodes = [];
 
+    // Skinning data. Bones is the file-level bone list (index = position in this list,
+    // matching the indices stored in Vert_Bones_Data.Bone). Vertex_Bones is aligned to
+    // Model_Vertex_Position: Vertex_Bones[i] holds every (bone, weight) pair referencing
+    // global vertex i, with -1 / unused slots filtered out. Vertex nodes that carry no
+    // skinning data contribute empty entries so the indexing stays parallel.
+    public List<TBone> Bones = [];
+    public List<List<TVert_Bones_Data>> Vertex_Bones = [];
+
     public int Vertex_Type_Flag;
 
     public B3DModel(string path)
@@ -55,6 +63,9 @@ public class B3DModel
 
         Txs = [];
         Materials = [];
+
+        Bones = [];
+        Vertex_Bones = [];
 
         Vertex_Type_Flag = 0;
 
@@ -113,8 +124,8 @@ public class B3DModel
                         break;
                     case 0x0E:
                         Console.WriteLine("Bones");
-                        var Bones_Flag = 1;
                         var Bone1 = new TBone(f);
+                        b3d.Bones.Add(Bone1);
                         Bone1.print();
                         Console.WriteLine(f.BaseStream.Position);
                         break;
@@ -220,8 +231,8 @@ public class B3DModel
                         break;
                     case 0x0E:
                         Console.WriteLine("Bones");
-                        var Bones_Flag = 1;
                         var Bone1 = new TBone(f);
+                        b3d.Bones.Add(Bone1);
                         Bone1.print();
                         Console.WriteLine(f.BaseStream.Position);
                         break;
@@ -366,7 +377,7 @@ public class B3DModel
         public TVertex64(BinaryReader f, B3DModel b3d)
         {
             //Console.WriteLine("TVertex64");
-            Coordinate.X = f.ReadSingle();
+            Coordinate.X = -f.ReadSingle();
             Coordinate.Y = f.ReadSingle();
             Coordinate.Z = f.ReadSingle();
             b3d.Model_Vertex_Position.Add(Coordinate);
@@ -417,7 +428,7 @@ public class B3DModel
         public TVertex44(BinaryReader f, B3DModel b3d)
         {
             //Console.WriteLine("TVertex44");
-            Coordinate.X = f.ReadSingle();
+            Coordinate.X = -f.ReadSingle();
             Coordinate.Y = f.ReadSingle();
             Coordinate.Z = f.ReadSingle();
             b3d.Model_Vertex_Position.Add(Coordinate);
@@ -587,6 +598,9 @@ public struct TVertex_Node
     public int NumberMaterial;
     public List<TVert_Bones_Data> Vert_Bones_Data;
 
+    // Unique non-(-1) bone indices referenced by this node's vertices.
+    public List<int> BonesUsed = [];
+
     public List<dynamic> material_data = new();
     
     public Dictionary<int, List<int>> face_indices = [];
@@ -634,7 +648,27 @@ public struct TVertex_Node
                 {
                     var VBD = new TVert_Bones_Data(f);
                     Vert_Bones_Data.Add(VBD);
+                    if (VBD.Bone != -1 && !BonesUsed.Contains(VBD.Bone))
+                        BonesUsed.Add(VBD.Bone);
                 }
+
+                // Source layout is bone-major: Vert_Bones_Data[l*NumberVerts + v].
+                // Transpose into per-vertex lists aligned to b3d.Model_Vertex_Position
+                // (which TVertex44 already extended by NumberVerts above).
+                for (var v = 0; v < NumberVerts; v++)
+                {
+                    var perVert = new List<TVert_Bones_Data>();
+                    for (var l = 0; l < BonesPerVert; l++)
+                    {
+                        var entry = Vert_Bones_Data[l * NumberVerts + v];
+                        if (entry.Bone != -1) perVert.Add(entry);
+                    }
+                    b3d.Vertex_Bones.Add(perVert);
+                }
+            }
+            else
+            {
+                for (var v = 0; v < NumberVerts; v++) b3d.Vertex_Bones.Add([]);
             }
 
             NumberMaterial = f.ReadInt32();
@@ -691,6 +725,7 @@ public struct TVertex_Node
             {
                 var Vertex64 = new TVertex64(f, b3d);
             }
+            for (var v = 0; v < NumberVerts; v++) b3d.Vertex_Bones.Add([]);
 
             Console.WriteLine(f.BaseStream.Position);
 
@@ -708,7 +743,7 @@ public struct TVertex_Node
 
     public struct TBone
 {
-    public char[] Name;
+    public string Name;
     public ushort Unknown1;
     public byte Flag;
     public Vector3 Translation;
@@ -717,7 +752,7 @@ public struct TVertex_Node
     public TBone(BinaryReader reader)
     {
         //Console.WriteLine("TBone");
-        Name = StringRead(reader);
+        Name = BoneNames.ProcessName(new string(StringRead(reader)));
         Unknown1 = reader.ReadUInt16();
         Flag = reader.ReadByte();
 
@@ -1200,7 +1235,7 @@ public class _8Model
             {
             for (var i = 1; i <= header.size / 12; i++)
             {
-                var x = f.ReadSingle();
+                var x = -f.ReadSingle();
                 var y = f.ReadSingle();
                 var z = f.ReadSingle();
 
@@ -1249,4 +1284,39 @@ public struct BitmapTexture
     public string FileName;
     public int AlphaSource;
 }
+}
+
+// Normalizes bone names so the same bone produces the same string regardless of
+// whether it came from a B3D mesh or a GR2 skeleton/animation. Mirrors
+// processBoneName() from the reference VB3dConvSrcEng/G3D.h.
+public static class BoneNames
+{
+    public static string ProcessName(string name)
+    {
+        if (string.IsNullOrEmpty(name)) return name;
+
+        // 1. Spaces -> underscores.
+        name = name.Replace(' ', '_');
+
+        // 2. If the name leads with a digit, move it to the end. When the second
+        //    char is also '_', insert an extra '_' so "0_Foo" -> "Foo_0" (vs.
+        //    "5Bones" -> "Bones5"). Matches the in-place pointer juggling in the
+        //    reference's processBoneName.
+        if (char.IsDigit(name[0]))
+        {
+            var leading = name[0];
+            if (name.Length > 1 && name[1] == '_')
+                name = name.Substring(2) + "_" + leading;
+            else
+                name = name.Substring(1) + leading;
+        }
+
+        // 3. Strip trailing "_1" from "*_Clavicle_1" / "*_Fingers_1" — the
+        //    reference treats these as the canonical bone, with "_1" being a
+        //    spurious suffix from the exporter.
+        if ((name.Contains("_Clavicle") || name.Contains("_Fingers")) && name.EndsWith("_1"))
+            name = name.Substring(0, name.Length - 2);
+
+        return name;
+    }
 }

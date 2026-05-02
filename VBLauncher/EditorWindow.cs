@@ -248,6 +248,8 @@ public partial class EditorWindow
             _graphicsDevice.SubmitCommands(_commandList);
             _graphicsDevice.SwapBuffers(_graphicsDevice.MainSwapchain);
 
+            Sdl2WindowExtensions.UpdateMouseCursor();
+
             // Frame timing control
             var frameEndTime = stopwatch.Elapsed.TotalSeconds;
             var frameDuration = frameEndTime - frameStartTime;
@@ -495,6 +497,11 @@ public partial class EditorWindow
                             File.WriteAllBytes(sfd.FileName, rle);
                     }
                 }
+
+                if (ImGui.MenuItem("Show Skeleton", "", _sceneRenderer.DrawSkeletonOverlay))
+                    _sceneRenderer.DrawSkeletonOverlay = !_sceneRenderer.DrawSkeletonOverlay;
+                if (ImGui.MenuItem("Animate", "", _sceneRenderer.AnimateSkinned))
+                    _sceneRenderer.AnimateSkinned = !_sceneRenderer.AnimateSkinned;
 
                 //if (ImGui.MenuItem("Get ImGui Colours"))
                 //    File.WriteAllText("ImGuiColours.txt", GetColourCode());
