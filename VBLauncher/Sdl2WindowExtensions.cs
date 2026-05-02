@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Text;
+using ImGuiNET;
 using Veldrid.Sdl2;
 
 class Sdl2WindowExtensions
@@ -23,6 +24,75 @@ class Sdl2WindowExtensions
     private delegate IntPtr SDL_FreeSurface_t(IntPtr surface);
     private static SDL_FreeSurface_t s_FreeSurface = Sdl2Native.LoadFunction<SDL_FreeSurface_t>("SDL_FreeSurface");
     private static void SDL_FreeSurface(IntPtr surface) => s_FreeSurface(surface);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate IntPtr SDL_CreateSystemCursor_t(int id);
+    private static SDL_CreateSystemCursor_t s_CreateSystemCursor = Sdl2Native.LoadFunction<SDL_CreateSystemCursor_t>("SDL_CreateSystemCursor");
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate void SDL_SetCursor_t(IntPtr cursor);
+    private static SDL_SetCursor_t s_SetCursor = Sdl2Native.LoadFunction<SDL_SetCursor_t>("SDL_SetCursor");
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    private delegate int SDL_ShowCursor_t(int toggle);
+    private static SDL_ShowCursor_t s_ShowCursor = Sdl2Native.LoadFunction<SDL_ShowCursor_t>("SDL_ShowCursor");
+
+    private const int SDL_SYSTEM_CURSOR_ARROW = 0;
+    private const int SDL_SYSTEM_CURSOR_IBEAM = 1;
+    private const int SDL_SYSTEM_CURSOR_SIZENWSE = 5;
+    private const int SDL_SYSTEM_CURSOR_SIZENESW = 6;
+    private const int SDL_SYSTEM_CURSOR_SIZEWE = 7;
+    private const int SDL_SYSTEM_CURSOR_SIZENS = 8;
+    private const int SDL_SYSTEM_CURSOR_SIZEALL = 9;
+    private const int SDL_SYSTEM_CURSOR_NO = 10;
+    private const int SDL_SYSTEM_CURSOR_HAND = 11;
+
+    private static readonly IntPtr[] s_cursorCache = new IntPtr[(int)ImGuiMouseCursor.COUNT];
+    private static ImGuiMouseCursor s_lastCursor = (ImGuiMouseCursor)(-2);
+
+    private static IntPtr GetOrCreateCursor(ImGuiMouseCursor cursor)
+    {
+        var idx = (int)cursor;
+        if (idx < 0 || idx >= s_cursorCache.Length) return IntPtr.Zero;
+        if (s_cursorCache[idx] != IntPtr.Zero) return s_cursorCache[idx];
+
+        var sdlId = cursor switch
+        {
+            ImGuiMouseCursor.Arrow => SDL_SYSTEM_CURSOR_ARROW,
+            ImGuiMouseCursor.TextInput => SDL_SYSTEM_CURSOR_IBEAM,
+            ImGuiMouseCursor.ResizeAll => SDL_SYSTEM_CURSOR_SIZEALL,
+            ImGuiMouseCursor.ResizeNS => SDL_SYSTEM_CURSOR_SIZENS,
+            ImGuiMouseCursor.ResizeEW => SDL_SYSTEM_CURSOR_SIZEWE,
+            ImGuiMouseCursor.ResizeNESW => SDL_SYSTEM_CURSOR_SIZENESW,
+            ImGuiMouseCursor.ResizeNWSE => SDL_SYSTEM_CURSOR_SIZENWSE,
+            ImGuiMouseCursor.Hand => SDL_SYSTEM_CURSOR_HAND,
+            ImGuiMouseCursor.NotAllowed => SDL_SYSTEM_CURSOR_NO,
+            _ => SDL_SYSTEM_CURSOR_ARROW,
+        };
+        s_cursorCache[idx] = s_CreateSystemCursor(sdlId);
+        return s_cursorCache[idx];
+    }
+
+    internal static void UpdateMouseCursor()
+    {
+        var io = ImGui.GetIO();
+        if ((io.ConfigFlags & ImGuiConfigFlags.NoMouseCursorChange) != 0) return;
+
+        var requested = ImGui.GetMouseCursor();
+        if (requested == s_lastCursor) return;
+        s_lastCursor = requested;
+
+        if (io.MouseDrawCursor || requested == ImGuiMouseCursor.None)
+        {
+            s_ShowCursor(0);
+        }
+        else
+        {
+            var handle = GetOrCreateCursor(requested);
+            if (handle != IntPtr.Zero) s_SetCursor(handle);
+            s_ShowCursor(1);
+        }
+    }
 
     private static unsafe IntPtr SDL_RWFromConstMem(byte[] data)
     {

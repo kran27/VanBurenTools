@@ -248,6 +248,8 @@ public partial class EditorWindow
             _graphicsDevice.SubmitCommands(_commandList);
             _graphicsDevice.SwapBuffers(_graphicsDevice.MainSwapchain);
 
+            Sdl2WindowExtensions.UpdateMouseCursor();
+
             // Frame timing control
             var frameEndTime = stopwatch.Elapsed.TotalSeconds;
             var frameDuration = frameEndTime - frameStartTime;
