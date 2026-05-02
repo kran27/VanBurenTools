@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -9,6 +10,79 @@ namespace VBLauncher;
 
 public static class IniManager
 {
+    private class SectionData
+    {
+        public string[]? Lines;
+        public Dictionary<string, string> NormalKeys = new();
+        public Dictionary<string, string> MultilineKeys = new();
+    }
+
+    private static readonly ConditionalWeakTable<string[], Dictionary<string, SectionData>> _cache = new();
+
+    private static Dictionary<string, SectionData> GetCache(string[] array)
+    {
+        return _cache.GetValue(array, _ => new Dictionary<string, SectionData>());
+    }
+
+    private static SectionData GetSectionData(string[] array, string section)
+    {
+        var dict = GetCache(array);
+        lock (dict)
+        {
+            if (dict.TryGetValue(section, out var data)) return data;
+
+            data = new SectionData();
+            // Find bounds of section
+            var sectionStart = Array.FindIndex(array, x => x.StartsWith($"[{section}]"));
+            if (sectionStart != -1)
+            {
+                var sectionEnd = Array.FindIndex(array, sectionStart + 1, x => x.StartsWith("["));
+                if (sectionEnd == -1)
+                    sectionEnd = array.Length;
+                sectionEnd--;
+
+                data.Lines = array.Skip(sectionStart + 1).Take(sectionEnd - sectionStart).ToArray();
+
+                // Pre-parse keys in this section
+                for (int i = sectionStart + 1; i <= sectionEnd; i++)
+                {
+                    var line = array[i].Trim();
+                    if (string.IsNullOrEmpty(line) || line.StartsWith(";") || line.StartsWith("[")) continue;
+
+                    if (line.StartsWith("<") && line.Contains(">"))
+                    {
+                        var keyEndTag = line.IndexOf(">", StringComparison.Ordinal);
+                        var key = line[1..keyEndTag];
+                        var endTag = $"</{key}>";
+                        var keyEndIndex = Array.FindIndex(array, i + 1, x => x.StartsWith(endTag));
+                        if (keyEndIndex != -1)
+                        {
+                            data.MultilineKeys[key] = string.Join(Environment.NewLine, array, i + 1, keyEndIndex - i - 1);
+                            i = keyEndIndex;
+                        }
+                    }
+                    else if (line.Contains("="))
+                    {
+                        var eqIndex = line.IndexOf("=", StringComparison.Ordinal);
+                        var key = line[..eqIndex].Trim();
+                        var value = line[(eqIndex + 1)..].Trim();
+
+                        var commentIndex = value.LastIndexOf(";", StringComparison.Ordinal);
+                        if (commentIndex != -1)
+                        {
+                            // Original logic for comments is a bit fragile, let's try to replicate it
+                            // KeyValue = KeyValue[..KeyValue.LastIndexOf(";", StringComparison.Ordinal)].Trim();
+                            value = value[..commentIndex].Trim();
+                        }
+                        data.NormalKeys[key] = value;
+                    }
+                }
+            }
+            dict[section] = data;
+            return data;
+        }
+    }
+
     public static string F3Dir = $@"{Environment.GetFolderPath(Environment.SpecialFolder.Personal)}\F3\F3.ini";
     public static string SysDir = @"Override\MenuMap\Engine\sys.ini";
     public static string[] F3Ini;
@@ -20,53 +94,22 @@ public static class IniManager
         Multiline
     }
 
-    public static string Ini(ref string[] IniArray, string IniSection, string IniKey, KeyType KeyType = KeyType.Normal)
+    public static string? Ini(ref string[] IniArray, string IniSection, string IniKey, KeyType KeyType = KeyType.Normal)
     {
-        // Find bounds of section
-        var SectionStart = Array.FindIndex(IniArray, x => x.StartsWith($"[{IniSection}]"));
-        var SectionEnd = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith("["));
-        if (SectionEnd == -1)
-            SectionEnd = IniArray.Length;
-        SectionEnd--;
-
+        var data = GetSectionData(IniArray, IniSection);
         if (KeyType == KeyType.Normal)
         {
-            // Find key location and value
-            var KeyIndex = Array.FindIndex(IniArray, SectionStart, x => x.StartsWith(IniKey));
-            if (KeyIndex > SectionEnd)
-                return null;
-            var KeyLine = IniArray[KeyIndex];
-            var KeyValue = KeyLine[(KeyLine.IndexOf("=", StringComparison.Ordinal) + 1)..].Trim();
-            // Find comment, if any
-            object Comment = null;
-            try
-            {
-                Comment = KeyValue[KeyValue.IndexOf(";", StringComparison.Ordinal)..];
-            }
-            catch
-            {
-            }
-            if (Comment is not null)
-                KeyValue = KeyValue[..KeyValue.LastIndexOf(";", StringComparison.Ordinal)].Trim();
-            // Return read value
-            return KeyValue;
+            return data.NormalKeys.TryGetValue(IniKey, out var value) ? value : null;
         }
         else
         {
-            // Multiline key
-            var KeyStart = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith($"<{IniKey}>"));
-            var KeyEnd = Array.FindIndex(IniArray, KeyStart + 1, x => x.StartsWith($"</{IniKey}>"));
-            if (KeyEnd < 0)
-                KeyEnd = IniArray.Length - 1;
-            // Get key value
-            var KeyValue = string.Join(Environment.NewLine, IniArray, KeyStart + 1, KeyEnd - KeyStart - 1);
-            // Return read value
-            return KeyValue;
+            return data.MultilineKeys.TryGetValue(IniKey, out var value) ? value : null;
         }
     }
 
     public static void Ini(ref string[] IniArray, string IniSection, string IniKey, string Value, KeyType KeyType = KeyType.Normal)
     {
+        _cache.Remove(IniArray);
         // Find bounds of section
         var SectionStart = Array.FindIndex(IniArray, x => x.StartsWith($"[{IniSection}]"));
         var SectionEnd = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith("[")) - 1;
@@ -117,13 +160,8 @@ public static class IniManager
 
     public static string[] GetSection(this string[] IniArray, string IniSection)
     {
-        // Find bounds of section
-        var SectionStart = Array.FindIndex(IniArray, x => x.StartsWith($"[{IniSection}]"));
-        var SectionEnd = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith("[")) - 1;
-        if (SectionEnd < 0)
-            SectionEnd = IniArray.Length - 1;
-        // Return section
-        return IniArray.Skip(SectionStart + 1).Take(SectionEnd - SectionStart).ToArray();
+        var data = GetSectionData(IniArray, IniSection);
+        return data.Lines ?? Array.Empty<string>();
     }
 
 }
