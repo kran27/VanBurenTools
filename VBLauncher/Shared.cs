@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -9,10 +11,48 @@ namespace VBLauncher;
 
 public static class IniManager
 {
+    internal class IniCache
+    {
+        public readonly Dictionary<string, int> SectionStarts = new(StringComparer.OrdinalIgnoreCase);
+        public readonly Dictionary<string, int> SectionEnds = new(StringComparer.OrdinalIgnoreCase);
+        public readonly ConcurrentDictionary<string, string[]> SectionArrays = new(StringComparer.OrdinalIgnoreCase);
+
+        public IniCache(string[] iniArray)
+        {
+            for (var i = 0; i < iniArray.Length; i++)
+            {
+                var line = iniArray[i];
+                if (line.StartsWith("["))
+                {
+                    var closingBracket = line.IndexOf(']');
+                    if (closingBracket != -1)
+                    {
+                        var sectionName = line.Substring(1, closingBracket - 1);
+                        if (!SectionStarts.ContainsKey(sectionName))
+                        {
+                            SectionStarts[sectionName] = i;
+                            // Find the end of the section
+                            var nextSection = Array.FindIndex(iniArray, i + 1, x => x.StartsWith("["));
+                            var sectionEnd = nextSection == -1 ? iniArray.Length : nextSection;
+                            SectionEnds[sectionName] = sectionEnd - 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     public static string F3Dir = $@"{Environment.GetFolderPath(Environment.SpecialFolder.Personal)}\F3\F3.ini";
     public static string SysDir = @"Override\MenuMap\Engine\sys.ini";
     public static string[] F3Ini;
     public static string[] SysIni;
+
+    private static readonly ConditionalWeakTable<string[], IniCache> Cache = new();
+
+    private static IniCache GetCache(string[] iniArray)
+    {
+        return Cache.GetValue(iniArray, arr => new IniCache(arr));
+    }
 
     public enum KeyType
     {
@@ -23,11 +63,18 @@ public static class IniManager
     public static string Ini(ref string[] IniArray, string IniSection, string IniKey, KeyType KeyType = KeyType.Normal)
     {
         // Find bounds of section
-        var SectionStart = Array.FindIndex(IniArray, x => x.StartsWith($"[{IniSection}]"));
-        var SectionEnd = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith("["));
-        if (SectionEnd == -1)
-            SectionEnd = IniArray.Length;
-        SectionEnd--;
+        var cache = GetCache(IniArray);
+        if (!cache.SectionStarts.TryGetValue(IniSection, out var SectionStart))
+        {
+            SectionStart = Array.FindIndex(IniArray, x => x.StartsWith($"[{IniSection}]"));
+        }
+        if (!cache.SectionEnds.TryGetValue(IniSection, out var SectionEnd))
+        {
+            SectionEnd = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith("["));
+            if (SectionEnd == -1)
+                SectionEnd = IniArray.Length;
+            SectionEnd--;
+        }
 
         if (KeyType == KeyType.Normal)
         {
@@ -68,16 +115,23 @@ public static class IniManager
     public static void Ini(ref string[] IniArray, string IniSection, string IniKey, string Value, KeyType KeyType = KeyType.Normal)
     {
         // Find bounds of section
-        var SectionStart = Array.FindIndex(IniArray, x => x.StartsWith($"[{IniSection}]"));
-        var SectionEnd = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith("[")) - 1;
-        if (SectionEnd < 0)
-            SectionEnd = IniArray.Length - 1;
+        var cache = GetCache(IniArray);
+        if (!cache.SectionStarts.TryGetValue(IniSection, out var SectionStart))
+        {
+            SectionStart = Array.FindIndex(IniArray, x => x.StartsWith($"[{IniSection}]"));
+        }
+        if (!cache.SectionEnds.TryGetValue(IniSection, out var SectionEnd))
+        {
+            SectionEnd = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith("[")) - 1;
+            if (SectionEnd < -1)
+                SectionEnd = IniArray.Length - 1;
+        }
 
         if (KeyType == KeyType.Normal)
         {
             // Find key location and value
             var KeyIndex = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith(IniKey));
-            if (KeyIndex > SectionEnd)
+            if (KeyIndex > SectionEnd || KeyIndex == -1)
                 return;
             var KeyLine = IniArray[KeyIndex];
             var KeyValue = KeyLine[(KeyLine.IndexOf("=") + 1)..].Trim();
@@ -92,6 +146,7 @@ public static class IniManager
             }
             // Set to new value
             IniArray[KeyIndex] = $"{IniKey} = {Value} {Comment}".Trim();
+            Cache.Remove(IniArray);
         }
         else
         {
@@ -110,6 +165,7 @@ public static class IniManager
                 Array.Copy(Value.Split(Environment.NewLine), 0, newValues, SectionEnd - SectionStart + 2, keyValueEnd - keyValueStart + 1);
                 newValues[newValues.Length - 1] = $"</{IniKey}>";
                 IniArray = newValues;
+                Cache.Remove(IniArray);
             }
         }
     }
@@ -117,13 +173,24 @@ public static class IniManager
 
     public static string[] GetSection(this string[] IniArray, string IniSection)
     {
-        // Find bounds of section
-        var SectionStart = Array.FindIndex(IniArray, x => x.StartsWith($"[{IniSection}]"));
-        var SectionEnd = Array.FindIndex(IniArray, SectionStart + 1, x => x.StartsWith("[")) - 1;
-        if (SectionEnd < 0)
-            SectionEnd = IniArray.Length - 1;
-        // Return section
-        return IniArray.Skip(SectionStart + 1).Take(SectionEnd - SectionStart).ToArray();
+        var cache = GetCache(IniArray);
+        return cache.SectionArrays.GetOrAdd(IniSection, sectionName =>
+        {
+            if (cache.SectionStarts.TryGetValue(sectionName, out var start) &&
+                cache.SectionEnds.TryGetValue(sectionName, out var end))
+            {
+                return IniArray.Skip(start + 1).Take(end - start).ToArray();
+            }
+
+            // Fallback for dynamic/non-existent sections, keeping original behavior
+            var sectionStart = Array.FindIndex(IniArray, x => x.StartsWith($"[{sectionName}]"));
+            if (sectionStart == -1) return [];
+            var sectionEnd = Array.FindIndex(IniArray, sectionStart + 1, x => x.StartsWith("[")) - 1;
+            if (sectionEnd < -1)
+                sectionEnd = IniArray.Length - 1;
+
+            return IniArray.Skip(sectionStart + 1).Take(sectionEnd - sectionStart).ToArray();
+        });
     }
 
 }
