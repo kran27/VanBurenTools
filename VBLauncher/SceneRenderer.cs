@@ -26,10 +26,12 @@ layout(set = 1, binding = 0) uniform WorldBuffer      { mat4 World;      };
 layout(location = 0) in vec3 Position;
 layout(location = 1) in vec2 TexCoords;  // keep UVs at loc 1
 layout(location = 2) in vec3 Normal;     // normals now at loc 2
+layout(location = 3) in vec4 Color;      // per-vertex color (white if unused)
 
 layout(location = 0) out vec2  fsin_texCoords;
 layout(location = 1) out vec3  fsin_normal;
 layout(location = 2) out vec3  fsin_worldPos;
+layout(location = 3) out vec4  fsin_color;
 
 void main() {
     // world‐space position
@@ -39,8 +41,9 @@ void main() {
     // transform & normalize normal into world‐space
     fsin_normal   = normalize(mat3(World) * Normal);
 
-    // pass UVs
+    // pass UVs and vertex color through
     fsin_texCoords = TexCoords;
+    fsin_color     = Color;
 
     // MVP
     gl_Position = Projection * View * worldPos4;
@@ -51,6 +54,7 @@ void main() {
 layout(location = 0) in vec2  fsin_texCoords;
 layout(location = 1) in vec3  fsin_normal;
 layout(location = 2) in vec3  fsin_worldPos;
+layout(location = 3) in vec4  fsin_color;
 
 layout(location = 0) out vec4 fsout_color;
 
@@ -64,10 +68,10 @@ layout(set = 0, binding = 3) uniform LightInfo {
 } uLight;
 
 void main() {
-    // Sample surface color + alpha
+    // Sample surface color + alpha, modulated by per-vertex color
     vec4 tex    = texture(sampler2D(SurfaceTexture, SurfaceSampler), fsin_texCoords);
-    vec3 albedo = tex.rgb;
-    float alpha = tex.a;
+    vec3 albedo = tex.rgb * fsin_color.rgb;
+    float alpha = tex.a * fsin_color.a;
 
     // lighting
     vec3 N      = normalize(fsin_normal);
@@ -97,6 +101,7 @@ layout(location = 4) in uvec4 BoneIndices;
 layout(location = 0) out vec2 fsin_texCoords;
 layout(location = 1) out vec3 fsin_normal;
 layout(location = 2) out vec3 fsin_worldPos;
+layout(location = 3) out vec4 fsin_color;
 
 void main() {
     // Bone-weighted skinning matrix. Indices are pre-bridged to B3D space at upload,
@@ -113,6 +118,7 @@ void main() {
     fsin_worldPos  = worldPos4.xyz;
     fsin_normal    = normalize(mat3(World) * skinnedNormal);
     fsin_texCoords = TexCoords;
+    fsin_color     = vec4(1.0); // skinned meshes don't carry vertex color
     gl_Position    = Projection * View * worldPos4;
 }";
 
@@ -477,9 +483,14 @@ void main() {
 
         for (int i = 0; i < model.IDX.Count; i++)
         {
+            // MDX==0 means "no material assigned". Use -1 as the bucket key so it
+            // can't collide with a real material index (1..MAT.Count) — previously
+            // we remapped to MAT.Count, which both collided with the last material
+            // and caused the texture lookup below to pick up MAT[Count-1] instead
+            // of the grey fallback.
             var mdxindex = model.MDX[i];
-            if (mdxindex == 0) mdxindex = model.MAT.Count;
-            
+            if (mdxindex == 0) mdxindex = -1;
+
             if (!materialFaces.ContainsKey(mdxindex))
             {
                 materialFaces[mdxindex] = new List<int>();
@@ -560,22 +571,44 @@ void main() {
                     Vector3 p1 = new Vector3(model.GVP[idx1].X, model.GVP[idx1].Z, model.GVP[idx1].Y);
                     Vector3 p2 = new Vector3(model.GVP[idx2].X, model.GVP[idx2].Z, model.GVP[idx2].Y);
 
-                    // Calculate Flat Normal
-                    Vector3 v1 = p1 - p0;
-                    Vector3 v2 = p2 - p0;
-                    Vector3 normal = Vector3.Normalize(Vector3.Cross(v2, v1));
+                    // Use per-vertex normals from the file (same Y/Z un-swap as positions).
+                    // Fall back to a flat normal if the chunk had no NRML sub-chunk.
+                    Vector3 n0 = model.GVN.Count > idx0 ? new Vector3(model.GVN[idx0].X, model.GVN[idx0].Z, model.GVN[idx0].Y) : Vector3.Zero;
+                    Vector3 n1 = model.GVN.Count > idx1 ? new Vector3(model.GVN[idx1].X, model.GVN[idx1].Z, model.GVN[idx1].Y) : Vector3.Zero;
+                    Vector3 n2 = model.GVN.Count > idx2 ? new Vector3(model.GVN[idx2].X, model.GVN[idx2].Z, model.GVN[idx2].Y) : Vector3.Zero;
 
-                    if (float.IsNaN(normal.X) || float.IsNaN(normal.Y) || float.IsNaN(normal.Z))
-                        normal = Vector3.UnitY;
+                    if (n0.LengthSquared() < 1e-8f || n1.LengthSquared() < 1e-8f || n2.LengthSquared() < 1e-8f)
+                    {
+                        Vector3 flat = Vector3.Cross(p1 - p0, p2 - p0);
+                        if (flat.LengthSquared() < 1e-12f || float.IsNaN(flat.X) || float.IsNaN(flat.Y) || float.IsNaN(flat.Z))
+                            flat = Vector3.UnitY;
+                        else
+                            flat = Vector3.Normalize(flat);
+                        if (n0.LengthSquared() < 1e-8f) n0 = flat;
+                        if (n1.LengthSquared() < 1e-8f) n1 = flat;
+                        if (n2.LengthSquared() < 1e-8f) n2 = flat;
+                    }
+                    else
+                    {
+                        n0 = Vector3.Normalize(n0);
+                        n1 = Vector3.Normalize(n1);
+                        n2 = Vector3.Normalize(n2);
+                    }
 
                     // Get UVs
                     Vector2 uv0 = model.GVT.Count > idx0 ? model.GVT[idx0] : Vector2.Zero;
                     Vector2 uv1 = model.GVT.Count > idx1 ? model.GVT[idx1] : Vector2.Zero;
                     Vector2 uv2 = model.GVT.Count > idx2 ? model.GVT[idx2] : Vector2.Zero;
 
-                    uniqueVertices.Add(new VertexPositionTextureNormal(p0, uv0, normal));
-                    uniqueVertices.Add(new VertexPositionTextureNormal(p1, uv1, normal));
-                    uniqueVertices.Add(new VertexPositionTextureNormal(p2, uv2, normal));
+                    // Per-vertex diffuse colors (DIFU sub-chunk). VanBurenFormats already
+                    // decodes BGRA + half-brightness, so we just normalize 0..255 → 0..1.
+                    Vector4 c0 = model.GVD.Count > idx0 ? ColorToVec4(model.GVD[idx0]) : Vector4.One;
+                    Vector4 c1 = model.GVD.Count > idx1 ? ColorToVec4(model.GVD[idx1]) : Vector4.One;
+                    Vector4 c2 = model.GVD.Count > idx2 ? ColorToVec4(model.GVD[idx2]) : Vector4.One;
+
+                    uniqueVertices.Add(new VertexPositionTextureNormal(p0, uv0, n0, c0));
+                    uniqueVertices.Add(new VertexPositionTextureNormal(p1, uv1, n1, c1));
+                    uniqueVertices.Add(new VertexPositionTextureNormal(p2, uv2, n2, c2));
 
                     ushort baseIdx = (ushort)(uniqueVertices.Count - 3);
                     newIndices.Add(baseIdx);
@@ -701,15 +734,17 @@ void main() {
                         new VertexElementDescription("TexCoords", VertexElementSemantic.TextureCoordinate,
                             VertexElementFormat.Float2),
                         new VertexElementDescription("Normal", VertexElementSemantic.TextureCoordinate,
-                            VertexElementFormat.Float3))
+                            VertexElementFormat.Float3),
+                        new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate,
+                            VertexElementFormat.Float4))
                 },
                 shaders),
             new[] { projViewLayout, _worldTextureLayout },
             _sceneFramebuffer.OutputDescription));
-            
+
         // Create Opaque Pipeline (skips blending, effectively ignoring alpha channel for visibility)
         _opaquePipeline = factory.CreateGraphicsPipeline(new GraphicsPipelineDescription(
-            BlendStateDescription.SingleOverrideBlend, 
+            BlendStateDescription.SingleOverrideBlend,
             DepthStencilStateDescription.DepthOnlyLessEqual,
             new RasterizerStateDescription(
                 FaceCullMode.None,
@@ -726,7 +761,9 @@ void main() {
                         new VertexElementDescription("TexCoords", VertexElementSemantic.TextureCoordinate,
                             VertexElementFormat.Float2),
                         new VertexElementDescription("Normal", VertexElementSemantic.TextureCoordinate,
-                            VertexElementFormat.Float3))
+                            VertexElementFormat.Float3),
+                        new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate,
+                            VertexElementFormat.Float4))
                 },
                 shaders),
             new[] { projViewLayout, _worldTextureLayout },
@@ -826,6 +863,9 @@ void main() {
         AddModel(model, materialIndex, null, worldMatrix, uvs);
     }
     
+    private static Vector4 ColorToVec4(System.Drawing.Color c)
+        => new Vector4(c.R / 255f, c.G / 255f, c.B / 255f, c.A / 255f);
+
     private Texture Create1x1TextureFromColor(GraphicsDevice graphicsDevice, ResourceFactory factory, float r, float g, float b, float a = 1.0f)
     {
         // Create a 1x1 texture
@@ -1241,19 +1281,25 @@ void main() {
         public string Name { get; set; } = "";
     }
     
+    [StructLayout(LayoutKind.Sequential)]
     public struct VertexPositionTextureNormal
     {
         public Vector3 Position;
         public Vector2 TexCoords;
         public Vector3 Normal;
+        public Vector4 Color;
 
-        public const uint SizeInBytes = 4 * 8 + 4 * 3; // 32 bytes
+        public const uint SizeInBytes = 12 + 8 + 12 + 16; // 48 bytes
 
         public VertexPositionTextureNormal(Vector3 pos, Vector2 uv, Vector3 normal)
+            : this(pos, uv, normal, Vector4.One) { }
+
+        public VertexPositionTextureNormal(Vector3 pos, Vector2 uv, Vector3 normal, Vector4 color)
         {
             Position = pos;
             TexCoords = uv;
             Normal = normal;
+            Color = color;
         }
     }
 

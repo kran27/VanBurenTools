@@ -1270,10 +1270,16 @@ public class _8Model
                         wanted &= ~0x200;
                         break;
                     case "DIFU" when (wanted & 0x400) != 0:
+                        // Stored as half-brightness BGRA: each channel is the displayed
+                        // value / 2 so the engine can encode overbright (>1.0) lighting
+                        // by multiplying by 2 at sample time. We decode + clamp here.
                         for (var v = 0; v < vc; v++)
                         {
-                            byte rd = f.ReadByte(), gr = f.ReadByte(), bl = f.ReadByte(), al = f.ReadByte();
-                            GVD[baseIdx + v] = Color.FromArgb(al, rd, gr, bl);
+                            byte bl = f.ReadByte(), gr = f.ReadByte(), rd = f.ReadByte(), al = f.ReadByte();
+                            int r = Math.Min(rd * 2, 255);
+                            int g = Math.Min(gr * 2, 255);
+                            int b = Math.Min(bl * 2, 255);
+                            GVD[baseIdx + v] = Color.FromArgb(al, r, g, b);
                         }
                         wanted &= ~0x400;
                         break;
