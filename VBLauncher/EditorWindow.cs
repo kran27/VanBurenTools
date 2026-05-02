@@ -498,6 +498,11 @@ public partial class EditorWindow
                     }
                 }
 
+                if (ImGui.MenuItem("Show Skeleton", "", _sceneRenderer.DrawSkeletonOverlay))
+                    _sceneRenderer.DrawSkeletonOverlay = !_sceneRenderer.DrawSkeletonOverlay;
+                if (ImGui.MenuItem("Animate", "", _sceneRenderer.AnimateSkinned))
+                    _sceneRenderer.AnimateSkinned = !_sceneRenderer.AnimateSkinned;
+
                 //if (ImGui.MenuItem("Get ImGui Colours"))
                 //    File.WriteAllText("ImGuiColours.txt", GetColourCode());
                 ImGui.EndMenu();

@@ -114,6 +114,25 @@ void main() {
     gl_Position    = Projection * View * worldPos4;
 }";
 
+    // Minimal flat-color line shader for the skeleton overlay. Uses set 0 = projView
+    // (matches the existing projViewLayout — LightBuffer is bound but unreferenced)
+    // and set 1 = WorldBuffer only (its own layout, no texture/sampler).
+    private const string LineVertexCode = @"#version 450
+layout(set = 0, binding = 0) uniform ProjectionBuffer { mat4 Projection; };
+layout(set = 0, binding = 1) uniform ViewBuffer       { mat4 View;       };
+layout(set = 1, binding = 0) uniform WorldBuffer      { mat4 World;      };
+
+layout(location = 0) in vec3 Position;
+void main() {
+    gl_Position = Projection * View * World * vec4(Position, 1.0);
+}";
+
+    private const string LineFragmentCode = @"#version 450
+layout(location = 0) out vec4 fsout_color;
+void main() {
+    fsout_color = vec4(0.2, 1.0, 0.2, 1.0);
+}";
+
     // Hard cap on bone palette size. 128 mat4 = 8 KB uniform buffer, well within the
     // typical 16 KB minimum guarantee. AddSkinnedB3DModel throws if a skeleton exceeds.
     private const int MaxBones = 128;
@@ -138,6 +157,8 @@ void main() {
 
     public bool AllowInput = false;
     public bool Initialized = false;
+    public bool DrawSkeletonOverlay = false;
+    public bool AnimateSkinned = true;
 
     public uint Height;
     public uint Width;
@@ -151,6 +172,13 @@ void main() {
     private DeviceBuffer _lightBuffer;
     private Pipeline _pipeline;
     private Pipeline _skinnedPipeline;
+    private Pipeline _linePipeline;
+    private ResourceLayout _lineProjViewLayout;
+    private ResourceLayout _lineWorldLayout;
+    private ResourceSet _lineProjViewSet;
+    private ResourceSet _lineWorldSet;
+    private DeviceBuffer _skeletonLineBuffer;
+    private Vector3[] _skeletonLineScratch;
 
     private GraphicsDevice _graphicsDevice = null!;
     private ImGuiRenderer _imguiRenderer;
@@ -205,23 +233,29 @@ void main() {
             _ignoredZones.Add(zone);
     }
 
-    void AddModelIfValid(string modelName, string textureFileName, Func<Vector2, Vector2> uvMapper, Matrix4x4? worldMatrix = null)
+    void AddModelIfValid(string modelName, string textureFileName, Func<Vector2, Vector2> uvMapper, Matrix4x4? worldMatrix = null,
+                         GrannyFormats.model? gr2Skeleton = null, GrannyFormats.animation? gr2Anim = null)
     {
         if (modelName.EndsWith('_')) return;
         B3DModel model = ResourceSystem.Resources["Critters"]["b3d"][modelName];
         List<Vector2> uvs = model.Model_Vertex_Texcoords.Select(uvMapper).ToList();
-        AddB3DModel(model, string.IsNullOrEmpty(textureFileName) ? null : textureFileName, worldMatrix, uvs);
+        if (gr2Skeleton.HasValue && gr2Anim.HasValue)
+            AddSkinnedB3DModel(model, gr2Skeleton.Value, gr2Anim.Value, worldMatrix,
+                string.IsNullOrEmpty(textureFileName) ? null : textureFileName, uvs);
+        else
+            AddB3DModel(model, string.IsNullOrEmpty(textureFileName) ? null : textureFileName, worldMatrix, uvs);
     }
 
-    public void AddARM(ARM arm, string modelPrefix = "HumMNor", Matrix4x4? worldMatrix = null)
+    public void AddARM(ARM arm, string modelPrefix = "HumMNor", Matrix4x4? worldMatrix = null,
+                       GrannyFormats.model? gr2Skeleton = null, GrannyFormats.animation? gr2Anim = null)
     {
-        AddModelIfValid(modelPrefix + '_' + arm.GITM.Bac.Model, arm.GITM.Bac.Tex, UVAtlasMapper.ToBacUV, worldMatrix);
-        AddModelIfValid(modelPrefix + '_' + arm.GITM.Bod.Model, arm.GITM.Bod.Tex, UVAtlasMapper.ToBodUV, worldMatrix);
-        AddModelIfValid(modelPrefix + '_' + arm.GITM.Eye.Model, arm.GITM.Eye.Tex, UVAtlasMapper.ToEyeUV, worldMatrix);
-        AddModelIfValid(modelPrefix + '_' + arm.GITM.Fee.Model, arm.GITM.Fee.Tex, UVAtlasMapper.ToFeeUV, worldMatrix);
-        AddModelIfValid(modelPrefix + '_' + arm.GITM.Han.Model, arm.GITM.Han.Tex, UVAtlasMapper.ToHanUV, worldMatrix);
-        AddModelIfValid(modelPrefix + '_' + arm.GITM.Hea.Model, arm.GITM.Hea.Tex, UVAtlasMapper.ToHeaUV, worldMatrix);
-        AddModelIfValid(modelPrefix + '_' + arm.GITM.Sho.Model, arm.GITM.Sho.Tex, UVAtlasMapper.ToShoUV, worldMatrix);
+        AddModelIfValid(modelPrefix + '_' + arm.GITM.Bac.Model, arm.GITM.Bac.Tex, UVAtlasMapper.ToBacUV, worldMatrix, gr2Skeleton, gr2Anim);
+        AddModelIfValid(modelPrefix + '_' + arm.GITM.Bod.Model, arm.GITM.Bod.Tex, UVAtlasMapper.ToBodUV, worldMatrix, gr2Skeleton, gr2Anim);
+        AddModelIfValid(modelPrefix + '_' + arm.GITM.Eye.Model, arm.GITM.Eye.Tex, UVAtlasMapper.ToEyeUV, worldMatrix, gr2Skeleton, gr2Anim);
+        AddModelIfValid(modelPrefix + '_' + arm.GITM.Fee.Model, arm.GITM.Fee.Tex, UVAtlasMapper.ToFeeUV, worldMatrix, gr2Skeleton, gr2Anim);
+        AddModelIfValid(modelPrefix + '_' + arm.GITM.Han.Model, arm.GITM.Han.Tex, UVAtlasMapper.ToHanUV, worldMatrix, gr2Skeleton, gr2Anim);
+        AddModelIfValid(modelPrefix + '_' + arm.GITM.Hea.Model, arm.GITM.Hea.Tex, UVAtlasMapper.ToHeaUV, worldMatrix, gr2Skeleton, gr2Anim);
+        AddModelIfValid(modelPrefix + '_' + arm.GITM.Sho.Model, arm.GITM.Sho.Tex, UVAtlasMapper.ToShoUV, worldMatrix, gr2Skeleton, gr2Anim);
     }
     
     public void AddCRT(CRT crt, Matrix4x4? worldMatrix = null)
@@ -235,6 +269,28 @@ void main() {
         B3DModel baseModel = ResourceSystem.FindResource(baseModelName, "b3d");
         if (baseModelName.StartsWith("Hum"))
         {
+            // Skeleton lives next to the b3d under the same prefix (HumMNor.skl). The
+            // animation set is shared across body sub-types — HumMNor / HumMMus / etc.
+            // all idle from HumM_Def_Una_Idle_01.gr2 — so the lookup uses the first 4
+            // chars as the animation prefix.
+            GrannyFormats.model? gr2Skel = null;
+            GrannyFormats.animation? gr2Anim = null;
+            // FindResource returns dynamic; file_info is a struct, so we pattern-match
+            // through object to avoid the runtime binder choking on `!= null`.
+            if ((object)ResourceSystem.FindResource(baseModelName, "skl") is GrannyFormats.file_info sklFile
+                && sklFile.Models is { Count: > 0 } sklModels)
+                gr2Skel = sklModels[0];
+            if (gr2Skel.HasValue && baseModelName.Length >= 4)
+            {
+                var animName = baseModelName.Substring(0, 4) + "_Def_Una_Idle_01";
+                if ((object)ResourceSystem.FindResource(animName, "gr2") is GrannyFormats.file_info animFile
+                    && animFile.Animations is { Count: > 0 } anims)
+                    gr2Anim = anims[0];
+                else
+                    Console.WriteLine($"CRT animation {animName}.gr2 not found, falling back to static pose.");
+            }
+            if (!gr2Anim.HasValue) gr2Skel = null; // need both for the skinned path
+
             var hideHair = false;
             var hideBeard = false;
             var hideMoustache = false;
@@ -253,32 +309,35 @@ void main() {
                 if (arm.GITM.hEye) hideEye = true;
                 if (arm.GITM.hPon) hidePonytail = true;
                 if (arm.GITM.hVan) hideVanity = true;
-                
-                AddARM(arm, baseModelName, worldMatrix);
+
+                AddARM(arm, baseModelName, worldMatrix, gr2Skel, gr2Anim);
                 // idk how to handle in-hand items yet, they aren't a part of armour anyway so ignored.
             }
 
-            AddModelIfValid(baseModelName + '_' + crt.GCRE.Hea.Model, crt.GCRE.Hea.Tex, UVAtlasMapper.ToHeaUV, worldMatrix);
+            AddModelIfValid(baseModelName + '_' + crt.GCRE.Hea.Model, crt.GCRE.Hea.Tex, UVAtlasMapper.ToHeaUV, worldMatrix, gr2Skel, gr2Anim);
             if (!hideEye)
-                AddModelIfValid(baseModelName + '_' + crt.GCRE.Eye.Model, crt.GCRE.Eye.Tex, UVAtlasMapper.ToEyeUV, worldMatrix);
+                AddModelIfValid(baseModelName + '_' + crt.GCRE.Eye.Model, crt.GCRE.Eye.Tex, UVAtlasMapper.ToEyeUV, worldMatrix, gr2Skel, gr2Anim);
             if (!hideHair)
-                AddModelIfValid(baseModelName + '_' + crt.GCRE.Hai.Model, crt.GCRE.Hai.Tex, UVAtlasMapper.ToHaiUV, worldMatrix);
+                AddModelIfValid(baseModelName + '_' + crt.GCRE.Hai.Model, crt.GCRE.Hai.Tex, UVAtlasMapper.ToHaiUV, worldMatrix, gr2Skel, gr2Anim);
             if (!hidePonytail)
-                AddModelIfValid(baseModelName + '_' + crt.GCRE.Pon.Model, crt.GCRE.Pon.Tex, UVAtlasMapper.ToPonUV, worldMatrix);
+                AddModelIfValid(baseModelName + '_' + crt.GCRE.Pon.Model, crt.GCRE.Pon.Tex, UVAtlasMapper.ToPonUV, worldMatrix, gr2Skel, gr2Anim);
             if (!hideMoustache)
-                AddModelIfValid(baseModelName + '_' + crt.GCRE.Mus.Model, crt.GCRE.Mus.Tex, UVAtlasMapper.ToMusUV, worldMatrix);
+                AddModelIfValid(baseModelName + '_' + crt.GCRE.Mus.Model, crt.GCRE.Mus.Tex, UVAtlasMapper.ToMusUV, worldMatrix, gr2Skel, gr2Anim);
             if (!hideBeard)
-                AddModelIfValid(baseModelName + '_' + crt.GCRE.Bea.Model, crt.GCRE.Bea.Tex, UVAtlasMapper.ToBeaUV, worldMatrix);
-            AddModelIfValid(baseModelName + '_' + crt.GCRE.Han.Model, crt.GCRE.Han.Tex, UVAtlasMapper.ToHanUV, worldMatrix);
+                AddModelIfValid(baseModelName + '_' + crt.GCRE.Bea.Model, crt.GCRE.Bea.Tex, UVAtlasMapper.ToBeaUV, worldMatrix, gr2Skel, gr2Anim);
+            AddModelIfValid(baseModelName + '_' + crt.GCRE.Han.Model, crt.GCRE.Han.Tex, UVAtlasMapper.ToHanUV, worldMatrix, gr2Skel, gr2Anim);
             if (!hideVanity)
-                AddModelIfValid(baseModelName + '_' + crt.GCRE.Van.Model, crt.GCRE.Van.Tex, UVAtlasMapper.ToVanUV, worldMatrix);
-            AddModelIfValid(baseModelName + '_' + crt.GCRE.Bod.Model, crt.GCRE.Bod.Tex, UVAtlasMapper.ToBodUV, worldMatrix);
-            AddModelIfValid(baseModelName + '_' + crt.GCRE.Sho.Model, crt.GCRE.Sho.Tex, UVAtlasMapper.ToShoUV, worldMatrix);
-            AddModelIfValid(baseModelName + '_' + crt.GCRE.Fee.Model, crt.GCRE.Fee.Tex, UVAtlasMapper.ToFeeUV, worldMatrix);
-            AddModelIfValid(baseModelName + '_' + crt.GCRE.Bac.Model, crt.GCRE.Bac.Tex, UVAtlasMapper.ToBacUV, worldMatrix);
+                AddModelIfValid(baseModelName + '_' + crt.GCRE.Van.Model, crt.GCRE.Van.Tex, UVAtlasMapper.ToVanUV, worldMatrix, gr2Skel, gr2Anim);
+            AddModelIfValid(baseModelName + '_' + crt.GCRE.Bod.Model, crt.GCRE.Bod.Tex, UVAtlasMapper.ToBodUV, worldMatrix, gr2Skel, gr2Anim);
+            AddModelIfValid(baseModelName + '_' + crt.GCRE.Sho.Model, crt.GCRE.Sho.Tex, UVAtlasMapper.ToShoUV, worldMatrix, gr2Skel, gr2Anim);
+            AddModelIfValid(baseModelName + '_' + crt.GCRE.Fee.Model, crt.GCRE.Fee.Tex, UVAtlasMapper.ToFeeUV, worldMatrix, gr2Skel, gr2Anim);
+            AddModelIfValid(baseModelName + '_' + crt.GCRE.Bac.Model, crt.GCRE.Bac.Tex, UVAtlasMapper.ToBacUV, worldMatrix, gr2Skel, gr2Anim);
 
             var baseUVs = baseModel.Model_Vertex_Texcoords.Select(UVAtlasMapper.ToBaseUV).ToList();
-            AddB3DModel(baseModel, crt.EEN2.EEOV.s4, worldMatrix, baseUVs);
+            if (gr2Skel.HasValue && gr2Anim.HasValue)
+                AddSkinnedB3DModel(baseModel, gr2Skel.Value, gr2Anim.Value, worldMatrix, crt.EEN2.EEOV.s4, baseUVs);
+            else
+                AddB3DModel(baseModel, crt.EEN2.EEOV.s4, worldMatrix, baseUVs);
         }
         else
         {
@@ -667,6 +726,45 @@ void main() {
             new[] { projViewLayout, _worldTextureLayout, _boneLayout },
             _sceneFramebuffer.OutputDescription));
 
+        // Skeleton overlay pipeline. Depth disabled so bones stay visible through the
+        // skinned mesh — the whole point is debug viz. Uses dedicated minimal layouts
+        // so the pipeline doesn't carry along the textured pipeline's LightBuffer (the
+        // D3D11 backend rejects the bind otherwise — shader doesn't reference it).
+        _lineProjViewLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(
+            new ResourceLayoutElementDescription("ProjectionBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex),
+            new ResourceLayoutElementDescription("ViewBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex)));
+        _lineProjViewSet = factory.CreateResourceSet(new ResourceSetDescription(
+            _lineProjViewLayout, _projectionBuffer, _viewBuffer));
+
+        _lineWorldLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(
+            new ResourceLayoutElementDescription("WorldBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex)));
+        _lineWorldSet = factory.CreateResourceSet(new ResourceSetDescription(_lineWorldLayout, _worldBuffer));
+
+        var lineVert = new ShaderDescription(ShaderStages.Vertex, Encoding.UTF8.GetBytes(LineVertexCode), "main");
+        var lineFrag = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(LineFragmentCode), "main");
+        var lineShaders = factory.CreateFromSpirv(lineVert, lineFrag);
+
+        _linePipeline = factory.CreateGraphicsPipeline(new GraphicsPipelineDescription(
+            BlendStateDescription.SingleOverrideBlend,
+            DepthStencilStateDescription.Disabled,
+            new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.CounterClockwise, true, false),
+            PrimitiveTopology.LineList,
+            new ShaderSetDescription(
+                new[]
+                {
+                    new VertexLayoutDescription(
+                        new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3))
+                },
+                lineShaders),
+            new[] { _lineProjViewLayout, _lineWorldLayout },
+            _sceneFramebuffer.OutputDescription));
+
+        // Two endpoints per bone (child + parent). Reused across every skinned model
+        // every frame — only the first MaxBones*2 slots are ever touched.
+        _skeletonLineScratch = new Vector3[MaxBones * 2];
+        _skeletonLineBuffer = factory.CreateBuffer(new BufferDescription(
+            (uint)(_skeletonLineScratch.Length * 12), BufferUsage.VertexBuffer));
+
         Initialized = true;
     }
 
@@ -916,6 +1014,10 @@ void main() {
         // Skinned models: advance time, sample animation, bridge into B3D space, upload
         // bone palette, draw. Each model owns its own time accumulator + cached pose so
         // characters tick independently.
+        // For the skeleton overlay we'd otherwise re-draw identical lines for every
+        // sub-model on the same character (head/body/hair/etc. all share a skeleton).
+        // Tracking poses we've already drawn this frame dedups them by reference.
+        var drawnPoses = DrawSkeletonOverlay ? new HashSet<GrannyFormats.SkeletonPose>() : null;
         foreach (var model in _skinnedModels)
         {
             AdvanceAndUpload(cl, model, deltaTime);
@@ -928,6 +1030,9 @@ void main() {
             cl.SetVertexBuffer(0, model.VertexBuffer);
             cl.SetIndexBuffer(model.IndexBuffer, IndexFormat.UInt16);
             cl.DrawIndexed((uint)model.Indices.Count, 1, 0, 0, 0);
+
+            if (DrawSkeletonOverlay && drawnPoses!.Add(model.Pose))
+                DrawSkeletonLines(cl, model);
         }
 
         cl.ResolveTexture(_msaaColorTarget, _sceneColorTarget);
@@ -937,6 +1042,26 @@ void main() {
 
     private void AdvanceAndUpload(CommandList cl, SkinnedModelData model, float deltaTime)
     {
+        for (var i = 0; i < model.UploadMatrices.Length; i++)
+            model.UploadMatrices[i] = Matrix4x4.Identity;
+
+        if (!AnimateSkinned)
+        {
+            // Bind-pose mode: skin matrices are identity, so the shader's bridge
+            // (B3dToEngine * I * EngineToB3d) cancels and the mesh renders as raw B3D
+            // verts in their unposed positions. Populate the overlay pose from the
+            // cached world bind matrices so the skeleton lines stay in sync.
+            var bones = model.GrSkeleton.Skeleton.Bones;
+            model.Pose ??= new GrannyFormats.SkeletonPose(bones.Count);
+            for (var i = 0; i < bones.Count; i++)
+            {
+                model.Pose.WorldMatrices[i] = bones[i].WorldBindMatrix;
+                model.Pose.SkinMatrices[i] = Matrix4x4.Identity;
+            }
+            cl.UpdateBuffer(model.BoneBuffer, 0, model.UploadMatrices);
+            return;
+        }
+
         // Loop the animation across its duration. If duration is 0/missing, just hold
         // the start frame (Sample handles that gracefully via clamping).
         var duration = model.GrAnim.Duration;
@@ -950,11 +1075,6 @@ void main() {
         // Bridge engine→B3D so the shader can apply the matrix directly to a B3D-space
         // vertex. b3dToGr2 maps the B3D bone index used by the vertex attribute back to
         // the GR2 bone whose pose matrix we want.
-        for (var i = 0; i < model.UploadMatrices.Length; i++)
-        {
-            model.UploadMatrices[i] = Matrix4x4.Identity;
-        }
-
         var skin = model.Pose.SkinMatrices;
         for (var b3dIdx = 0; b3dIdx < model.B3dToGr2.Length && b3dIdx < model.UploadMatrices.Length; b3dIdx++)
         {
@@ -964,6 +1084,43 @@ void main() {
         }
 
         cl.UpdateBuffer(model.BoneBuffer, 0, model.UploadMatrices);
+    }
+
+    // Builds parent→child line segments from the current pose and submits a single
+    // line draw. Bone world positions live in engine space (×3 scale, swapped axes);
+    // multiplying by EngineToB3d puts them in the same frame the mesh is rendered in,
+    // so the overlay tracks the visible skeleton 1:1. _worldBuffer was just written
+    // with this model's WorldMatrix for the mesh draw — we reuse it.
+    private bool _skeletonOverlayDiagPrinted;
+    private void DrawSkeletonLines(CommandList cl, SkinnedModelData model)
+    {
+        var bones = model.GrSkeleton.Skeleton.Bones;
+        var worlds = model.Pose.WorldMatrices;
+        var n = 0;
+        for (var i = 0; i < bones.Count; i++)
+        {
+            var parent = bones[i].ParentIndex;
+            if (parent < 0) continue;
+            var childPos = Vector3.Transform(worlds[i].Translation, EngineToB3d);
+            var parentPos = Vector3.Transform(worlds[parent].Translation, EngineToB3d);
+            if (n + 2 > _skeletonLineScratch.Length) break;
+            _skeletonLineScratch[n++] = parentPos;
+            _skeletonLineScratch[n++] = childPos;
+        }
+        if (!_skeletonOverlayDiagPrinted)
+        {
+            _skeletonOverlayDiagPrinted = true;
+            var firstChild = n >= 2 ? _skeletonLineScratch[1] : Vector3.Zero;
+            Console.WriteLine($"[Skeleton overlay] {bones.Count} bones, {n / 2} segments, first child at {firstChild}");
+        }
+        if (n == 0) return;
+
+        cl.UpdateBuffer(_skeletonLineBuffer, 0, _skeletonLineScratch);
+        cl.SetPipeline(_linePipeline);
+        cl.SetGraphicsResourceSet(0, _lineProjViewSet);
+        cl.SetGraphicsResourceSet(1, _lineWorldSet);
+        cl.SetVertexBuffer(0, _skeletonLineBuffer);
+        cl.Draw((uint)n);
     }
 
     public void FocusCamera()
@@ -1114,7 +1271,8 @@ void main() {
         GrannyFormats.model gr2Skeleton,
         GrannyFormats.animation gr2Anim,
         Matrix4x4? worldMatrix = null,
-        string textureOverride = null)
+        string textureOverride = null,
+        List<Vector2>? uvs = null)
     {
         if (!Initialized)
             throw new InvalidOperationException("SceneRenderer must be initialized before adding models");
@@ -1126,7 +1284,7 @@ void main() {
 
         for (var matIdx = 0; matIdx < b3d.SubModels.Keys.Count; matIdx++)
         {
-            AddSkinnedSubModel(b3d, matIdx, gr2Skeleton, gr2Anim, b3dToGr2, worldMatrix, textureOverride);
+            AddSkinnedSubModel(b3d, matIdx, gr2Skeleton, gr2Anim, b3dToGr2, worldMatrix, textureOverride, uvs);
         }
         foreach (var zone in b3d.OcclusionZones)
             _ignoredZones.Add(zone);
@@ -1139,7 +1297,8 @@ void main() {
         GrannyFormats.animation gr2Anim,
         int[] b3dToGr2,
         Matrix4x4? worldMatrix,
-        string textureOverride)
+        string textureOverride,
+        List<Vector2>? uvOverride = null)
     {
         var texId = b3d.SubModels.Keys.ElementAt(materialIndex);
         if (_ignoredZones.Contains(texId)) return;
@@ -1186,7 +1345,7 @@ void main() {
         // Build skinned vertex buffer. We blit positions/normals/uvs from the existing
         // flat B3D vertex arrays + look up per-vertex (bone, weight) lists from
         // Vertex_Bones (aligned to Model_Vertex_Position by VanBurenFormats).
-        var uvs = b3d.Model_Vertex_Texcoords;
+        var uvs = uvOverride ?? b3d.Model_Vertex_Texcoords;
         for (var i = 0; i < b3d.Model_Vertex_Position.Count; i++)
         {
             var bones = i < b3d.Vertex_Bones.Count ? b3d.Vertex_Bones[i] : null;

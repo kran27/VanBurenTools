@@ -61,16 +61,20 @@ public class GrannyFormats
     // skeleton previewer compensates with its own view-time rotation.
     private static transform CreateAdjustedTransform(unm_transform t)
     {
+        // Mirrors writeBones in VBConv.cpp: swap Y↔Z components, then invert. The
+        // earlier port additionally negated x/w which made rotations around Y and Z
+        // come out reversed — bind pose ended up reflected away from where the
+        // animation tracks expected it.
         var q = Quaternion.Inverse(new Quaternion(
-            -t.Orientation[0],
+            t.Orientation[0],
              t.Orientation[2],
              t.Orientation[1],
-            -t.Orientation[3]));
+            t.Orientation[3]));
 
         var otpt = new transform
         {
             Position = new Vector3(
-                -t.Position[0] * 3.0f,
+                 t.Position[0] * 3.0f,
                  t.Position[2] * 3.0f,
                  t.Position[1] * 3.0f),
             Orientation = q,
@@ -200,11 +204,14 @@ public class GrannyFormats
             var knot = ReadFromArray<float>(curveData.Knots, i);
             var control = new float[dimension + 1];
             control[0] = knot;
-            for (var j = 1; j <= dimension; j++)
+            // Layout per keyframe i is Controls[i*dim + 0..dim-1] — same recipe used
+            // by the reference C++ (writeAnimation in VBConv.cpp). The earlier port
+            // started its read at +1, which slid every component into the next
+            // keyframe's data and made every animated quat/position bogus.
+            for (var j = 0; j < dimension; j++)
             {
-                control[j] = ReadFromArray<float>(curveData.Controls, i * dimension + j);
+                control[j + 1] = ReadFromArray<float>(curveData.Controls, i * dimension + j);
             }
-            //Console.WriteLine($"Keyframe at {knot}: {string.Join(", ", control)}");
             keyframes.Add(control);
         }
 
@@ -215,18 +222,10 @@ public class GrannyFormats
 
     private static void AdjustTransformTrackCurves(transform_track tt)
     {
-        // Orientation adjustments:
-        // C++ snippet does:
-        // quat2.x = -ctrl[0], quat2.y = ctrl[2], quat2.z = ctrl[1], quat2.w = -ctrl[3]
-        // and then inverse the quaternion.
-        // In C# indexing: OrientationCurve[i] = [time, x, y, z, w]
-        // original ctrl[] mapping: ctrl[1]=x, ctrl[2]=y, ctrl[3]=z, ctrl[4]=w
-        // after reorder:
-        // x = -originalX
-        // y = originalZ
-        // z = originalY
-        // w = -originalW
-        // then q = inverse(q)
+        // Orientation adjustments — must match CreateAdjustedTransform exactly so
+        // animation poses live in the same space as the bind pose.
+        // writeAnimation in VBConv.cpp: quat2 = (ctrl[0], ctrl[2], ctrl[1], ctrl[3]),
+        // then quat = inverse(quat2). Just a Y↔Z swap on the quaternion components.
         foreach (var t in tt.OrientationCurve)
         {
             var o = t;
@@ -235,8 +234,7 @@ public class GrannyFormats
             var oz = o[3];
             var ow = o[4];
 
-            var q = new Quaternion(-ox, oz, oy, -ow);
-            q = Quaternion.Inverse(q);
+            var q = Quaternion.Inverse(new Quaternion(ox, oz, oy, ow));
 
             t[1] = q.X;
             t[2] = q.Y;
@@ -244,14 +242,11 @@ public class GrannyFormats
             t[4] = q.W;
         }
 
-        // Position adjustments:
-        // C++ snippet does:
-        // x = -ctrl[0]*3.0f, y = ctrl[2]*3.0f, z = ctrl[1]*3.0f
-        // In our indexing: PositionCurve[i] = [time, x, y, z]
-        // original: ctrl[1]=x, ctrl[2]=y, ctrl[3]=z
-        // newx = -x * 3.0f
-        // newy = z * 3.0f
-        // newz = y * 3.0f
+        // Position adjustments (writeAnimation in VBConv.cpp):
+        //   x = ctrl[0]*3.0f, y = ctrl[2]*3.0f, z = ctrl[1]*3.0f
+        // Y/Z swap with no sign flip — must match CreateAdjustedTransform exactly,
+        // otherwise the animated track lives in a different space than the bind pose
+        // and bones drift away from their parents as the animation plays.
         foreach (var t in tt.PositionCurve)
         {
             var p = t;
@@ -259,13 +254,9 @@ public class GrannyFormats
             var py = p[2];
             var pz = p[3];
 
-            var newx = -px * 3.0f;
-            var newy = pz * 3.0f;
-            var newz = py * 3.0f;
-
-            t[1] = newx;
-            t[2] = newy;
-            t[3] = newz;
+            t[1] = px * 3.0f;
+            t[2] = pz * 3.0f;
+            t[3] = py * 3.0f;
         }
 
         // Scale adjustments:
