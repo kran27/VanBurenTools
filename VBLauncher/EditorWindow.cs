@@ -457,6 +457,11 @@ public partial class EditorWindow
                     Settings.Default.STFEditEnabled = !Settings.Default.STFEditEnabled;
                     Settings.Default.Save();
                 }
+                
+                if (ImGui.MenuItem("Show Skeleton", "", _sceneRenderer.DrawSkeletonOverlay))
+                    _sceneRenderer.DrawSkeletonOverlay = !_sceneRenderer.DrawSkeletonOverlay;
+                if (ImGui.MenuItem("Animate", "", _sceneRenderer.AnimateSkinned))
+                    _sceneRenderer.AnimateSkinned = !_sceneRenderer.AnimateSkinned;
 
                 ImGui.EndMenu();
             }
@@ -498,11 +503,6 @@ public partial class EditorWindow
                     }
                 }
 
-                if (ImGui.MenuItem("Show Skeleton", "", _sceneRenderer.DrawSkeletonOverlay))
-                    _sceneRenderer.DrawSkeletonOverlay = !_sceneRenderer.DrawSkeletonOverlay;
-                if (ImGui.MenuItem("Animate", "", _sceneRenderer.AnimateSkinned))
-                    _sceneRenderer.AnimateSkinned = !_sceneRenderer.AnimateSkinned;
-
                 //if (ImGui.MenuItem("Get ImGui Colours"))
                 //    File.WriteAllText("ImGuiColours.txt", GetColourCode());
                 ImGui.EndMenu();
@@ -526,11 +526,14 @@ public partial class EditorWindow
             ImGui.PushStyleColor(ImGuiCol.ButtonHovered, Vector4.Zero); // Remove hover background
             ImGui.PushStyleColor(ImGuiCol.ButtonActive, Vector4.Zero); // Remove active background
             var availableSize = ImGui.GetContentRegionAvail();
-            if (_sceneRenderer.Width != availableSize.X || _sceneRenderer.Height != availableSize.Y)
+            uint pixelW = (uint)MathF.Max(1, MathF.Floor(availableSize.X));
+            uint pixelH = (uint)MathF.Max(1, MathF.Floor(availableSize.Y));
+            var drawSize = new Vector2(pixelW, pixelH);
+            if (_sceneRenderer.Width != pixelW || _sceneRenderer.Height != pixelH)
             {
-                _sceneRenderer.HandleWindowResize((uint)availableSize.X, (uint)availableSize.Y);
+                _sceneRenderer.HandleWindowResize(pixelW, pixelH);
             }
-            ImGui.ImageButton("SceneImage", _sceneRenderer.ImGuiBinding, availableSize);
+            ImGui.ImageButton("SceneImage", _sceneRenderer.ImGuiBinding, drawSize);
             _sceneRenderer.AllowInput = ImGui.IsItemHovered();
             ImGui.End();
 
