@@ -46,6 +46,8 @@ public static class UVAtlasMapper
     public static Vector2 ToFeeUV(Vector2 uv)  
         => TransformUV(uv, 384f, 256f,   128f, 128f);
 
+    public static Vector2 Default(Vector2 uv) => uv;
+
     private static Vector2 TransformUV(Vector2 uv, float offsetX, float offsetY, float w, float h)
     {
         return new Vector2(

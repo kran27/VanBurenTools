@@ -5,6 +5,8 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows;
+using System.Windows.Forms;
 using VBLauncher.VB3DLib;
 using Veldrid;
 using Veldrid.ImageSharp;
@@ -237,7 +239,12 @@ void main() {
                          GrannyFormats.model? gr2Skeleton = null, GrannyFormats.animation? gr2Anim = null)
     {
         if (modelName.EndsWith('_')) return;
-        B3DModel model = ResourceSystem.Resources["Critters"]["b3d"][modelName];
+        var model = (B3DModel?)ResourceSystem.FindResource(modelName, "b3d");
+        if (model == null)
+        {
+            Console.WriteLine($"Model {modelName}.b3d not found, skipping.");
+            return;
+        }
         List<Vector2> uvs = model.Model_Vertex_Texcoords.Select(uvMapper).ToList();
         if (gr2Skeleton.HasValue && gr2Anim.HasValue)
             AddSkinnedB3DModel(model, gr2Skeleton.Value, gr2Anim.Value, worldMatrix,
@@ -302,18 +309,35 @@ void main() {
 
             foreach (var item in crt.GCRE.Inventory)
             {
-                if (item.ToLower().Split('.')[1] is not "arm") continue;
-                ARM arm = ResourceSystem.FindResource(item);
-                // we check the conditional flags so we don't overwrite a previously set hide flag
-                if (arm.GITM.hHai) hideHair = true;
-                if (arm.GITM.hBea) hideBeard = true;
-                if (arm.GITM.hMus) hideMoustache = true;
-                if (arm.GITM.hEye) hideEye = true;
-                if (arm.GITM.hPon) hidePonytail = true;
-                if (arm.GITM.hVan) hideVanity = true;
+                var itm = ResourceSystem.FindResource(item);
+                if (itm is ARM arm) {
+                    if (arm.GITM.hHai) hideHair = true;
+                    if (arm.GITM.hBea) hideBeard = true;
+                    if (arm.GITM.hMus) hideMoustache = true;
+                    if (arm.GITM.hEye) hideEye = true;
+                    if (arm.GITM.hPon) hidePonytail = true;
+                    if (arm.GITM.hVan) hideVanity = true;
+                    AddARM(arm, baseModelName, worldMatrix, gr2Skel, gr2Anim);
+                }
+                else if (itm is WEA wea && false) // flagged false for now, unsure how animations are meant to be applied to in hand items.
+                {
+                    GrannyFormats.model? weaSkel = null;
+                    if ((object)ResourceSystem.FindResource(wea.GITM.IHS.Model, "skl") is GrannyFormats.file_info { Models.Count: > 0 } weaSkl) {
+                        weaSkel = weaSkl.Models[0];
+                        Console.WriteLine($"Found skeleton {wea.GITM.IHS.Model}.skl for weapon {item}");
+                        Console.WriteLine(weaSkel.Value.Name);
+                        foreach (var bone in weaSkel.Value.Skeleton.Bones)
+                        {
+                            Console.WriteLine($"Bone: {bone.Name}, Parent: {bone.ParentIndex}");
+                        }
 
-                AddARM(arm, baseModelName, worldMatrix, gr2Skel, gr2Anim);
-                // idk how to handle in-hand items yet, they aren't a part of armour anyway so ignored.
+                        foreach (var track in gr2Anim.Value.TrackGroups.SelectMany(tg => tg.TransformTracks))
+                        {
+                            Console.WriteLine($"Anim Track: {track.Name}");
+                        }
+                    }
+                    AddModelIfValid(wea.GITM.IHS.Model, wea.GITM.IHS.Tex, UVAtlasMapper.Default, worldMatrix, weaSkel, gr2Anim);
+                }
             }
 
             AddModelIfValid(baseModelName + '_' + crt.GCRE.Hea.Model, crt.GCRE.Hea.Tex, UVAtlasMapper.ToHeaUV, worldMatrix, gr2Skel, gr2Anim);
@@ -510,66 +534,83 @@ void main() {
             modelData.WorldTextureSet = factory.CreateResourceSet(new ResourceSetDescription(
                 _worldTextureLayout, _worldBuffer, modelData.SurfaceTextureView, _graphicsDevice.Aniso4xSampler));
 
-            var uniqueVertices = new List<VertexPositionTextureNormal>();
-            var newIndices = new List<ushort>();
-            
-            foreach (var faceIdx in faceIndices)
+            // Triangles are "exploded" into 3 fresh vertices each, so each chunk
+            // tops out at ushort.MaxValue / 3 = 21845 faces (65535 / 3). Past that,
+            // finalize the current chunk and start a new one sharing the same
+            // material. Without this, baseIdx wraps and the geometry past ~21k
+            // faces per material disappears (e.g. ~half of 03_Tutorial_Junktown).
+            const int FacesPerChunk = ushort.MaxValue / 3;
+            var totalChunks = (faceIndices.Count + FacesPerChunk - 1) / FacesPerChunk;
+            var chunkIndex = 0;
+            for (var faceCursor = 0; faceCursor < faceIndices.Count; faceCursor += FacesPerChunk, chunkIndex++)
             {
-                var face = model.IDX[faceIdx];
-                int idx0 = face[0];
-                int idx1 = face[1];
-                int idx2 = face[2];
-                
-                // Get Positions and Un-Swap Y/Z (Undo VanBurenFormats swap)
-                Vector3 p0 = new Vector3(model.GVP[idx0].X, model.GVP[idx0].Z, model.GVP[idx0].Y);
-                Vector3 p1 = new Vector3(model.GVP[idx1].X, model.GVP[idx1].Z, model.GVP[idx1].Y);
-                Vector3 p2 = new Vector3(model.GVP[idx2].X, model.GVP[idx2].Z, model.GVP[idx2].Y);
-                
-                // Calculate Flat Normal
-                Vector3 v1 = p1 - p0;
-                Vector3 v2 = p2 - p0;
-                Vector3 normal = Vector3.Normalize(Vector3.Cross(v2, v1));
-                
-                // Check if Normal is valid (non-NaN)
-                if (float.IsNaN(normal.X) || float.IsNaN(normal.Y) || float.IsNaN(normal.Z))
+                var chunkEnd = Math.Min(faceCursor + FacesPerChunk, faceIndices.Count);
+                var uniqueVertices = new List<VertexPositionTextureNormal>((chunkEnd - faceCursor) * 3);
+                var newIndices = new List<ushort>((chunkEnd - faceCursor) * 3);
+
+                for (var fi = faceCursor; fi < chunkEnd; fi++)
                 {
-                    normal = Vector3.UnitY;
+                    var face = model.IDX[faceIndices[fi]];
+                    int idx0 = face[0];
+                    int idx1 = face[1];
+                    int idx2 = face[2];
+
+                    // Get Positions and Un-Swap Y/Z (Undo VanBurenFormats swap)
+                    Vector3 p0 = new Vector3(model.GVP[idx0].X, model.GVP[idx0].Z, model.GVP[idx0].Y);
+                    Vector3 p1 = new Vector3(model.GVP[idx1].X, model.GVP[idx1].Z, model.GVP[idx1].Y);
+                    Vector3 p2 = new Vector3(model.GVP[idx2].X, model.GVP[idx2].Z, model.GVP[idx2].Y);
+
+                    // Calculate Flat Normal
+                    Vector3 v1 = p1 - p0;
+                    Vector3 v2 = p2 - p0;
+                    Vector3 normal = Vector3.Normalize(Vector3.Cross(v2, v1));
+
+                    if (float.IsNaN(normal.X) || float.IsNaN(normal.Y) || float.IsNaN(normal.Z))
+                        normal = Vector3.UnitY;
+
+                    // Get UVs
+                    Vector2 uv0 = model.GVT.Count > idx0 ? model.GVT[idx0] : Vector2.Zero;
+                    Vector2 uv1 = model.GVT.Count > idx1 ? model.GVT[idx1] : Vector2.Zero;
+                    Vector2 uv2 = model.GVT.Count > idx2 ? model.GVT[idx2] : Vector2.Zero;
+
+                    uniqueVertices.Add(new VertexPositionTextureNormal(p0, uv0, normal));
+                    uniqueVertices.Add(new VertexPositionTextureNormal(p1, uv1, normal));
+                    uniqueVertices.Add(new VertexPositionTextureNormal(p2, uv2, normal));
+
+                    ushort baseIdx = (ushort)(uniqueVertices.Count - 3);
+                    newIndices.Add(baseIdx);
+                    newIndices.Add((ushort)(baseIdx + 1));
+                    newIndices.Add((ushort)(baseIdx + 2));
                 }
 
-                // Get UVs
-                Vector2 uv0 = model.GVT.Count > idx0 ? model.GVT[idx0] : Vector2.Zero;
-                Vector2 uv1 = model.GVT.Count > idx1 ? model.GVT[idx1] : Vector2.Zero;
-                Vector2 uv2 = model.GVT.Count > idx2 ? model.GVT[idx2] : Vector2.Zero;
+                var chunkData = totalChunks == 1
+                    ? modelData
+                    : new ModelData
+                    {
+                        Name = $"{modelData.Name}_chunk{chunkIndex}",
+                        WorldMatrix = modelData.WorldMatrix,
+                        Pipeline = modelData.Pipeline,
+                        SurfaceTexture = modelData.SurfaceTexture,
+                        SurfaceTextureView = modelData.SurfaceTextureView,
+                        WorldTextureSet = modelData.WorldTextureSet
+                    };
 
-                // Add vertices
-                uniqueVertices.Add(new VertexPositionTextureNormal(p0, uv0, normal));
-                uniqueVertices.Add(new VertexPositionTextureNormal(p1, uv1, normal));
-                uniqueVertices.Add(new VertexPositionTextureNormal(p2, uv2, normal));
-                
-                // Add Indices (0, 1, 2 relative to this batch)
-                // Actually we just append sequential indices since we explode everything
-                ushort baseIdx = (ushort)(uniqueVertices.Count - 3);
-                newIndices.Add(baseIdx);
-                newIndices.Add((ushort)(baseIdx + 1));
-                newIndices.Add((ushort)(baseIdx + 2));
+                chunkData.Vertices = uniqueVertices;
+                chunkData.Indices = newIndices;
+
+                chunkData.VertexBuffer = factory.CreateBuffer(new BufferDescription(
+                    (uint)(chunkData.Vertices.Count * VertexPositionTextureNormal.SizeInBytes),
+                    BufferUsage.VertexBuffer));
+                _graphicsDevice.UpdateBuffer(chunkData.VertexBuffer, 0, chunkData.Vertices.ToArray());
+
+                chunkData.IndexBuffer = factory.CreateBuffer(new BufferDescription(
+                    (uint)(chunkData.Indices.Count * sizeof(ushort)),
+                    BufferUsage.IndexBuffer));
+                _graphicsDevice.UpdateBuffer(chunkData.IndexBuffer, 0, chunkData.Indices.ToArray());
+
+                _models.Add(chunkData);
+                Console.WriteLine($"Added 8Model mesh part {matIndex} chunk {chunkIndex + 1}/{totalChunks}: {uniqueVertices.Count} vertices, {newIndices.Count} indices. Texture: {textureName ?? "None"}");
             }
-            
-            modelData.Vertices = uniqueVertices;
-            modelData.Indices = newIndices;
-
-            // Create buffers
-            modelData.VertexBuffer = factory.CreateBuffer(new BufferDescription(
-                (uint)(modelData.Vertices.Count * VertexPositionTextureNormal.SizeInBytes),
-                BufferUsage.VertexBuffer));
-            _graphicsDevice.UpdateBuffer(modelData.VertexBuffer, 0, modelData.Vertices.ToArray());
-
-            modelData.IndexBuffer = factory.CreateBuffer(new BufferDescription(
-                (uint)(modelData.Indices.Count * sizeof(ushort)),
-                BufferUsage.IndexBuffer));
-            _graphicsDevice.UpdateBuffer(modelData.IndexBuffer, 0, modelData.Indices.ToArray());
-
-            _models.Add(modelData);
-            Console.WriteLine($"Added 8Model mesh part {matIndex}: {uniqueVertices.Count} vertices, {newIndices.Count} indices. Texture: {textureName ?? "None"}");
         }
         Console.WriteLine($"Finished adding 8Model. Total model parts: {_models.Count}");
     }
@@ -1415,5 +1456,16 @@ void main() {
 
         weights = new Vector4(w[0], w[1], w[2], w[3]);
         i0 = idx[0]; i1 = idx[1]; i2 = idx[2]; i3 = idx[3];
+    }
+    
+    public void PrintCameraDiagnostics()
+    {
+        Console.WriteLine($"Camera FOV: {_camera.FieldOfView}");
+        Console.WriteLine($"Camera Near Plane: {_camera.NearDistance}");
+        Console.WriteLine($"Camera Far Plane: {_camera.FarDistance}");
+        Console.WriteLine($"Camera Aspect Ratio: {_camera.AspectRatio}");
+        Console.WriteLine($"Camera Position: {_camera.Position}");
+        Console.WriteLine($"Camera Yaw: {_camera.Yaw}");
+        Console.WriteLine($"Camera Pitch: {_camera.Pitch}");
     }
 }

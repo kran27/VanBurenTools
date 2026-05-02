@@ -67,20 +67,7 @@ public static class ResourceSystem
                         }
                         break;
                     case "8":
-                        // Heuristic: Try both flags and pick the one with more faces
-                        var _8_false = new _8Model(fb, false);
-                        var _8_true = new _8Model(fb, true);
-                        
-                        Console.WriteLine($"[ResourceSystem] 8Model Heuristic for {name}: False(GVP={_8_false.GVP.Count}, IDX={_8_false.IDX.Count}) vs True(GVP={_8_true.GVP.Count}, IDX={_8_true.IDX.Count})");
-
-                        if (_8_true.IDX.Count > _8_false.IDX.Count)
-                            extDict[name] = _8_true;
-                        else if (_8_false.IDX.Count > 0)
-                            extDict[name] = _8_false;
-                        else if (_8_true.GVP.Count > _8_false.GVP.Count)
-                            extDict[name] = _8_true;
-                        else
-                            extDict[name] = _8_false;
+                        extDict[name] = new _8Model(fb);
                         break;
                     case "amo":
                         extDict[name] = fb.ReadAMO();

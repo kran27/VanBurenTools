@@ -462,6 +462,9 @@ public partial class EditorWindow
                     _sceneRenderer.DrawSkeletonOverlay = !_sceneRenderer.DrawSkeletonOverlay;
                 if (ImGui.MenuItem("Animate", "", _sceneRenderer.AnimateSkinned))
                     _sceneRenderer.AnimateSkinned = !_sceneRenderer.AnimateSkinned;
+                
+                if (ImGui.MenuItem("Print Camera Location/Rotation"))
+                    _sceneRenderer.PrintCameraDiagnostics();
 
                 ImGui.EndMenu();
             }

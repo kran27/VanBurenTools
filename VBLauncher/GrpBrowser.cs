@@ -534,7 +534,7 @@ public partial class GrpBrowser
                 AddModelControl(mesh);
                 break;
             case "8":
-                var _8m = new _8Model(b, DarkMessageBox.ShowInformation("FLGS Size?", "Option", DarkDialogButton.YesNo) == DialogResult.Yes);
+                var _8m = new _8Model(b);
                 AddModelControl(_8ModelToUsableMesh(_8m));
                 break;
             case "map":
@@ -624,7 +624,7 @@ public partial class GrpBrowser
             var mmn = map.EMAP.s1.ToLower();
             var mgi = fullNameToGlobalIndex[mmn];
             var mmb = getFileBytes(mgi);
-            var _8m = new _8Model(mmb, DarkMessageBox.ShowInformation("FLGS Size?", "Option", DarkDialogButton.YesNo) == DialogResult.Yes);
+            var _8m = new _8Model(mmb);
             viewport.Children.Add(new ModelVisual3D { Content = _8ModelToUsableMesh(_8m) });
         }
         catch

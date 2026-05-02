@@ -1022,268 +1022,522 @@ public class G3DModel
     }
 }
 
+// Parses the Van Buren OCTREE format ('.8' files) directly off Map::Read8File at
+// 0x5b0ad0 in the engine. Top-level chunk order:
+//   8TRE
+//     HEAD                           4 dwords; flags = HEAD[1]
+//     LGTD   (if flags & 4)          INFO + LGTR x N (64 bytes each)
+//     LVLD   (if flags & 8)          INFO (16) + LVL0 (lightmap blob)
+//     MATD                           INFO + MATR x N (196 bytes each)
+//     TXTD                           count1, count2; (count2-1) TXTR sub-chunks
+//     VTXD                           node_count; per-CNode VTXB { XYZ?, NRML?, DIFU?, TXUV?, LMUV? }
+//     TREE                           NODE/LEAF tree of indices; LEAF { INFO, IDXD/IDXS/FLGS }
 public class _8Model
 {
-    public int buffer_index;
-    public List<int> buffer_offset = [];
+    // ----- HEAD -----
+    public int Head_Version;
+    public int Head_Flags;
+    public int Head_Field2;
+    public int Head_Field3;
+    public bool HasLights => (Head_Flags & 4) != 0;
+    public bool HasLightmap => (Head_Flags & 8) != 0;
 
-    public int Flag = 1;
-    public List<Color> GVD = []; // vertex diffuse color
-    public List<Vector2> GVL = []; // lightmap coords
-    public List<Vector3> GVN = []; // vertex normal
+    // ----- LGTD / LVLD / MATD -----
+    public List<LightRecord> Lights = [];
+    public LightmapData? Lightmap;
+    public List<MaterialRecord> Materials = [];
 
-    public List<Vector3> GVP = []; // vertex position
+    // ----- TXTD -----
+    // Slot 0 is the engine's reserved "no texture" sentinel; real names start at index 1.
+    public List<string> TextureNames = [];
+
+    // ----- VTXD per-CNode buffers, concatenated for backwards compat with consumers -----
+    // X is negated and Y/Z are swapped to match the existing renderer convention.
+    public List<Vector3> GVP = []; // positions
+    public List<Vector3> GVN = []; // normals (engine-style swap)
+    public List<Color> GVD = [];   // diffuse vertex colors
     public List<Vector2> GVT = []; // texture coords
+    public List<Vector2> GVL = []; // lightmap coords
+    // CNodeOffsets[i] = global index where CNode i's vertices start. The list always ends with a sentinel entry equal to GVP.Count.
+    public List<int> CNodeOffsets = [];
+    public List<int> CNodeVertexCounts = [];
 
-    public List<int[]> IDX = []; // face indexes
+    // ----- TREE-derived face data -----
+    public List<int[]> IDX = [];
+    public List<int> MDX = [];
+
+    // Stats
+    public int NodeCount;
+    public int LeafCount;
+    public int CNodeCount;
+
+    // Backwards-compat view of TextureNames as BitmapTexture list (skips empty / .ctx)
+    public List<BitmapTexture> MAT = [];
     public string MapName = "defaultName";
-    public List<BitmapTexture> MAT = []; // materials
-    public List<int> MDX = []; // mat index
 
-    public _8Model(string path, bool flgs)
+    public _8Model(string path)
     {
-        Flag = flgs ? 4 : 1;
-
-        var f = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read));
-        ReadTREE_Data(f);
+        using var fs = File.Open(path, FileMode.Open, FileAccess.Read);
+        Parse(new BinaryReader(fs));
     }
 
-    public _8Model(byte[] file, bool flgs)
+    public _8Model(byte[] file)
     {
-        Flag = flgs ? 4 : 1;
-        GVP = [];
-
-        GVN = [];
-        GVD = [];
-        GVT = [];
-        GVL = [];
-
-        IDX = [];
-        MDX = [];
-        MAT = [];
-
-        buffer_index = 0;
-        buffer_offset = [];
-
-        var f = new BinaryReader(new MemoryStream(file));
-        ReadTREE_Data(f);
+        Parse(new BinaryReader(new MemoryStream(file)));
     }
 
-    public static string String4Read(BinaryReader f)
+    private void Parse(BinaryReader f)
     {
-        var s = new byte[4];
-        for (var i = 0; i < 4; ++i)
-        {
-            var t = f.BaseStream.Position;
-            s[i] = f.ReadByte();
-        }
+        if (ReadTag(f) != "8TRE")
+            throw new InvalidDataException("Not an 8TRE file");
+        f.ReadInt32(); // outer size — engine ignores
 
-        try
+        ReadHEAD(f);
+        if (HasLights) ReadLGTD(f);
+        if (HasLightmap) ReadLVLD(f);
+        ReadMATD(f);
+        ReadTXTD(f);
+        ReadVTXD(f);
+        ReadTREE(f);
+
+        // Backwards-compat MAT view: TextureNames in their TXTR order, with .ctx
+        // entries skipped. Consumers index this via `MDX[face] - 1`. The MDX `m`
+        // values from IDXS are positions in this filtered list, not into Materials.
+        for (var i = 1; i < TextureNames.Count; i++)
         {
-            return Encoding.ASCII.GetString(s);
-        }
-        catch
-        {
-            Console.WriteLine("ERRO");
-            return "    ";
+            var n = TextureNames[i];
+            if (string.IsNullOrEmpty(n)) continue;
+            if (n.IndexOf("ctx", StringComparison.OrdinalIgnoreCase) >= 0) continue;
+            MAT.Add(new BitmapTexture { FileName = n, AlphaSource = 2 });
         }
     }
 
-    public static bool IsHeader(string s)
+    private void ReadHEAD(BinaryReader f)
     {
-        return s switch
+        if (ReadTag(f) != "HEAD") throw new InvalidDataException("Expected HEAD");
+        var size = f.ReadInt32();
+        var end = f.BaseStream.Position + size;
+        if (size >= 16)
         {
-            "NODE" or "LEAF" or "INFO" or "IDXD" or "IDXS" or "FLGS" or "TREE" or "LVL0" or "XYZ " or "MATR"
-                or "MATD" or "TXTD" or "VTXD" or "VTXB" or "TXUV" or "LMUV" or "DIFU" or "NRML" or "LVLD"
-                or "HEAD" or "8TRE" or "LGTD" or "LGTR" => true,
-            _ => false
-        };
-    }
-
-    public void ReadTREE_Data(BinaryReader f)
-    {
-        ReadBlock(f, 0);
-    }
-
-    public int ReadBlock(BinaryReader f, int size)
-    {
-        var header = new TSectionHeader(f);
-
-        Console.WriteLine(header.id);
-
-        switch (header.id)
-        {
-            case "FLGS":
-                f.BaseStream.Seek(header.size * Flag, SeekOrigin.Current);
-                return 0;
-
-            case "IDXD":
-                f.BaseStream.Seek(-16, SeekOrigin.Current);
-                var t = f.ReadInt32();
-                if (t >= 0 && t <= buffer_offset.Count - 1) // maybe if (t >= 1 && t <= buffer_offset.Count)
-                    buffer_index = t;
-                f.BaseStream.Seek(12, SeekOrigin.Current);
-                break;
-
-            case "TXTD":
-                Console.WriteLine(f.ReadInt32());
-                Console.WriteLine(f.ReadInt32());
-                break;
-
-            case "TXUV":
-                {
-                    for (var i = 1; i <= header.size / 8; i++)
-                    {
-                        var u = f.ReadSingle();
-                        var v = f.ReadSingle();
-                        GVT.Add(new Vector2(u, v));
-                    }
-
-                    break;
-                }
-            //case "LMUV":
-            //{
-            //    for (int i = 1; i <= header.size / 8; i++)
-            //    {
-            //        float u = f.ReadSingle();
-            //        float v = f.ReadSingle();
-            //        GVL.Add(new Vector2(u, v));
-            //    }
-            //
-            //    break;
-            //}
-            case "TXTR":
-                {
-                    var s = "";
-                    for (var i = 1; i <= header.size; i++)
-                        s += f.ReadChar();
-
-                    if (s.IndexOf("ctx", StringComparison.Ordinal) != -1) return 0;
-
-                    var tm = new BitmapTexture
-                    {
-                        AlphaSource = 2,
-                        FileName = s
-                    };
-                    Console.WriteLine(s);
-                    MAT.Add(tm);
-
-                    return 0;
-                }
-            case "IDXS":
-                {
-                    var end = f.BaseStream.Position + header.size;
-                    var m = 0;
-                    var mp = 0;
-
-                    while (f.BaseStream.Position + 12 < end)
-                    {
-                        var tmp = f.ReadUInt16();
-                        if (tmp == 0) tmp = f.ReadUInt16();
-
-                        if ((tmp & 0xFF00) == 0x8000)
-                        {
-                            f.ReadUInt16();
-                            var t1 = f.ReadUInt16() - 0x4000;
-                            f.ReadUInt16();
-                            var t2 = f.ReadUInt16();
-                            m = t2;
-                        }
-
-                        if ((tmp & 0xFF00) == 0x4000)
-                        {
-                            f.ReadUInt16();
-                            var t1 = f.ReadUInt16();
-                            m = t1;
-                        }
-
-                        if ((tmp & 0xFF00) == 0) m = tmp;
-
-                        var sz = f.ReadUInt16();
-
-                        for (var i = 1; i <= sz / 3; i++)
-                        {
-                            var a = buffer_offset[buffer_index] + f.ReadUInt16();
-                            var b = buffer_offset[buffer_index] + f.ReadUInt16();
-                            var c = buffer_offset[buffer_index] + f.ReadUInt16();
-
-                            IDX.Add([a, c, b]);
-                            MDX.Add(m == 0 ? 0 : m);
-                        }
-                    }
-
-                f.BaseStream.Seek(end, SeekOrigin.Begin);
-                return 0;
+            Head_Version = f.ReadInt32();
+            Head_Flags = f.ReadInt32();
+            Head_Field2 = f.ReadInt32();
+            Head_Field3 = f.ReadInt32();
         }
-            case "VTXB":
-                f.ReadInt32();
-        header.size -= 4;
-        buffer_offset.Add(GVP.Count);
-        break;
+        f.BaseStream.Seek(end, SeekOrigin.Begin);
+    }
 
-            case "VTXD":
-                //f.ReadInt32();
-                var rd = f.ReadByte();
-        var gr = f.ReadByte();
-        var bl = f.ReadByte();
-        var al = f.ReadByte();
-        GVD.Add(Color.FromArgb(al, rd, gr, bl));
-        header.size -= 4;
-        break;
-
-            case "XYZ ":
+    private void ReadLGTD(BinaryReader f)
+    {
+        if (ReadTag(f) != "LGTD") throw new InvalidDataException("Expected LGTD");
+        var size = f.ReadInt32();
+        var end = f.BaseStream.Position + size;
+        if (ReadTag(f) == "INFO")
+        {
+            f.ReadInt32(); // INFO size, == 4
+            var count = f.ReadInt32();
+            for (var i = 0; i < count && f.BaseStream.Position + 8 <= end; i++)
             {
-            for (var i = 1; i <= header.size / 12; i++)
-            {
-                var x = -f.ReadSingle();
-                var y = f.ReadSingle();
-                var z = f.ReadSingle();
-
-                GVP.Add(new Vector3(x, z, y));
+                if (ReadTag(f) != "LGTR") break;
+                var lgtrSize = f.ReadInt32();
+                var n = Math.Min(lgtrSize, 64);
+                var raw = f.ReadBytes(n);
+                if (lgtrSize > 64) f.BaseStream.Seek(lgtrSize - 64, SeekOrigin.Current);
+                Lights.Add(LightRecord.Parse(raw));
             }
-
-            return 0;
         }
-            case "DIFU":
-                var baits = new List<byte>();
-        for (var i = 1; i <= header.size; i++) baits.Add(f.ReadByte());
-        File.WriteAllBytes("difu.bin", baits.ToArray());
-        break;
+        f.BaseStream.Seek(end, SeekOrigin.Begin);
     }
 
-        if (IsHeader(header.id))
-        {
-            var end = f.BaseStream.Position + header.size;
-            while (f.BaseStream.Position<end) ReadBlock(f, header.size);
-        }
-        else
-{
-    f.BaseStream.Seek(-8, SeekOrigin.Current);
-    if (size < 4 && size != 0) size = 4;
-
-    f.BaseStream.Seek(size, SeekOrigin.Current);
-}
-
-return 0;
-    }
-
-    public struct TSectionHeader
-{
-    public string id; // name
-    public int size;
-
-    public TSectionHeader(BinaryReader f)
+    private void ReadLVLD(BinaryReader f)
     {
-        id = String4Read(f);
-        size = f.ReadInt32();
+        if (ReadTag(f) != "LVLD") throw new InvalidDataException("Expected LVLD");
+        var size = f.ReadInt32();
+        var end = f.BaseStream.Position + size;
+        if (ReadTag(f) == "INFO")
+        {
+            f.ReadInt32(); // INFO size, == 16
+            var lm = new LightmapData
+            {
+                Width = f.ReadInt32(),
+                Height = f.ReadInt32(),
+                UnknownF0 = f.ReadSingle(),
+                UnknownF1 = f.ReadSingle()
+            };
+            if (f.BaseStream.Position + 8 <= end && ReadTag(f) == "LVL0")
+            {
+                var lvl0Size = f.ReadInt32();
+                lm.Pixels = f.ReadBytes(lvl0Size);
+            }
+            Lightmap = lm;
+        }
+        f.BaseStream.Seek(end, SeekOrigin.Begin);
+    }
+
+    private void ReadMATD(BinaryReader f)
+    {
+        if (ReadTag(f) != "MATD") throw new InvalidDataException("Expected MATD");
+        var size = f.ReadInt32();
+        var end = f.BaseStream.Position + size;
+        if (ReadTag(f) == "INFO")
+        {
+            f.ReadInt32(); // INFO size, == 4
+            var count = f.ReadInt32();
+            for (var i = 0; i < count && f.BaseStream.Position + 8 <= end; i++)
+            {
+                if (ReadTag(f) != "MATR") break;
+                var matrSize = f.ReadInt32();
+                var n = Math.Min(matrSize, 196);
+                var raw = f.ReadBytes(n);
+                if (matrSize > 196) f.BaseStream.Seek(matrSize - 196, SeekOrigin.Current);
+                Materials.Add(MaterialRecord.Parse(raw));
+            }
+        }
+        f.BaseStream.Seek(end, SeekOrigin.Begin);
+    }
+
+    private void ReadTXTD(BinaryReader f)
+    {
+        if (ReadTag(f) != "TXTD") throw new InvalidDataException("Expected TXTD");
+        var size = f.ReadInt32();
+        var end = f.BaseStream.Position + size;
+        f.ReadInt32(); // count1 — material count, currently unused here
+        var count2 = f.ReadInt32();
+        TextureNames.Add(""); // engine's [0] sentinel
+        for (var i = 1; i < count2 && f.BaseStream.Position + 8 <= end; i++)
+        {
+            ReadTag(f); // expected "TXTR"
+            var subSize = f.ReadInt32();
+            var bytes = f.ReadBytes(subSize);
+            var nz = Array.IndexOf(bytes, (byte)0);
+            TextureNames.Add(Encoding.ASCII.GetString(bytes, 0, nz < 0 ? bytes.Length : nz));
+        }
+        f.BaseStream.Seek(end, SeekOrigin.Begin);
+    }
+
+    private void ReadVTXD(BinaryReader f)
+    {
+        if (ReadTag(f) != "VTXD") throw new InvalidDataException("Expected VTXD");
+        var size = f.ReadInt32();
+        var end = f.BaseStream.Position + size;
+        var nodeCount = f.ReadInt32();
+        CNodeCount = nodeCount;
+        const int wantMask = 0x1F00; // engine hard-codes XYZ|NRML|DIFU|TXUV|LMUV in Map::GetOctree
+        for (var node = 0; node < nodeCount && f.BaseStream.Position + 8 <= end; node++)
+        {
+            if (ReadTag(f) != "VTXB") break;
+            var vtxbSize = f.ReadInt32();
+            var vtxbEnd = f.BaseStream.Position + vtxbSize;
+            var vc = f.ReadInt32();
+            var baseIdx = GVP.Count;
+            CNodeOffsets.Add(baseIdx);
+            CNodeVertexCounts.Add(vc);
+            // Pre-grow per-attribute arrays so they stay index-aligned regardless of which sub-chunks are present.
+            for (var v = 0; v < vc; v++)
+            {
+                GVP.Add(Vector3.Zero);
+                GVN.Add(Vector3.Zero);
+                GVD.Add(Color.White);
+                GVT.Add(Vector2.Zero);
+                GVL.Add(Vector2.Zero);
+            }
+            var wanted = wantMask;
+            while (wanted != 0 && f.BaseStream.Position + 8 <= vtxbEnd)
+            {
+                var subTag = ReadTag(f);
+                var subSize = f.ReadInt32();
+                var subEnd = f.BaseStream.Position + subSize;
+                switch (subTag)
+                {
+                    case "XYZ " when (wanted & 0x100) != 0:
+                        for (var v = 0; v < vc; v++)
+                        {
+                            var x = -f.ReadSingle();
+                            var y = f.ReadSingle();
+                            var z = f.ReadSingle();
+                            GVP[baseIdx + v] = new Vector3(x, z, y);
+                        }
+                        wanted &= ~0x100;
+                        break;
+                    case "NRML" when (wanted & 0x200) != 0:
+                        for (var v = 0; v < vc; v++)
+                        {
+                            var x = -f.ReadSingle();
+                            var y = f.ReadSingle();
+                            var z = f.ReadSingle();
+                            GVN[baseIdx + v] = new Vector3(x, z, y);
+                        }
+                        wanted &= ~0x200;
+                        break;
+                    case "DIFU" when (wanted & 0x400) != 0:
+                        for (var v = 0; v < vc; v++)
+                        {
+                            byte rd = f.ReadByte(), gr = f.ReadByte(), bl = f.ReadByte(), al = f.ReadByte();
+                            GVD[baseIdx + v] = Color.FromArgb(al, rd, gr, bl);
+                        }
+                        wanted &= ~0x400;
+                        break;
+                    case "TXUV" when (wanted & 0x800) != 0:
+                        for (var v = 0; v < vc; v++)
+                        {
+                            var u = f.ReadSingle();
+                            var vv = f.ReadSingle();
+                            GVT[baseIdx + v] = new Vector2(u, vv);
+                        }
+                        wanted &= ~0x800;
+                        break;
+                    case "LMUV" when (wanted & 0x1000) != 0:
+                        for (var v = 0; v < vc; v++)
+                        {
+                            var u = f.ReadSingle();
+                            var vv = f.ReadSingle();
+                            GVL[baseIdx + v] = new Vector2(u, vv);
+                        }
+                        wanted &= ~0x1000;
+                        break;
+                }
+                f.BaseStream.Seek(subEnd, SeekOrigin.Begin);
+            }
+            f.BaseStream.Seek(vtxbEnd, SeekOrigin.Begin);
+        }
+        CNodeOffsets.Add(GVP.Count); // sentinel for "past the end"
+        f.BaseStream.Seek(end, SeekOrigin.Begin);
+    }
+
+    private void ReadTREE(BinaryReader f)
+    {
+        if (ReadTag(f) != "TREE") throw new InvalidDataException("Expected TREE");
+        var size = f.ReadInt32();
+        var declaredEnd = f.BaseStream.Position + size;
+        // TREE's declared size is unreliable — at least 03_Tutorial_Junktown
+        // has a final LEAF whose body runs past `declaredEnd` into trailing file
+        // bytes (the engine never uses this size as a bound). Walk against the
+        // stream length instead so we don't drop the last subtree.
+        WalkTreeNode(f, f.BaseStream.Length);
+        // Seek to the larger of declaredEnd or current position so any caller
+        // logic that expects to be past the TREE chunk still works.
+        var resumeAt = Math.Max(declaredEnd, f.BaseStream.Position);
+        if (resumeAt <= f.BaseStream.Length)
+            f.BaseStream.Seek(resumeAt, SeekOrigin.Begin);
+    }
+
+    // Tag-driven recursive walk that mirrors OCTREE::ReadTree. Both NODE and LEAF
+    // can carry an inline IDXD/IDXS [/FLGS] block after their INFO chunk; the
+    // engine's post-INFO loop accepts NODE/LEAF/IDXD/FLGS interchangeably and
+    // skips DBUG. NODE additionally has an 8-dword child-presence mask at INFO
+    // offset 32; non-zero children follow inline as further NODE/LEAF subtrees.
+    // The size fields on NODE/LEAF/IDXD are read but not used to bound — the
+    // engine ignores them too.
+    private void WalkTreeNode(BinaryReader f, long limit)
+    {
+        if (f.BaseStream.Position + 8 > limit) return;
+        var tag = ReadTag(f);
+        f.ReadInt32(); // size (unused, tag-driven)
+        var isNode = tag == "NODE";
+        var isLeaf = tag == "LEAF";
+        if (!isNode && !isLeaf) return;
+        if (isNode) NodeCount++; else LeafCount++;
+
+        if (f.BaseStream.Position + 8 > limit) return;
+        if (ReadTag(f) != "INFO") return;
+        var infoSize = f.ReadInt32();
+        var infoStart = f.BaseStream.Position;
+        // INFO data layout (lifted from the engine's `v7+3` read):
+        //   offset 0..23 — bbox / metadata
+        //   offset 24..27 — cnode_idx (used when this node has its own IDXS)
+        //   offset 32..63 — 8-dword child presence mask (NODE only)
+        var cnodeIdx = 0;
+        if (infoSize >= 28)
+        {
+            f.BaseStream.Seek(infoStart + 24, SeekOrigin.Begin);
+            cnodeIdx = f.ReadInt32();
+        }
+        var presence = new int[8];
+        if (isNode && infoSize >= 64)
+        {
+            f.BaseStream.Seek(infoStart + 32, SeekOrigin.Begin);
+            for (var i = 0; i < 8; i++) presence[i] = f.ReadInt32();
+        }
+        f.BaseStream.Seek(infoStart + infoSize, SeekOrigin.Begin);
+
+        // Optionally consume an inline IDXD/IDXS [/FLGS] block. NODEs may or may
+        // not carry one; LEAFs typically do but a malformed leaf can omit it.
+        if (f.BaseStream.Position + 8 <= limit)
+        {
+            var probe = f.BaseStream.Position;
+            var t = ReadTag(f);
+            if (t == "IDXD")
+            {
+                f.ReadInt32(); // IDXD size — engine ignores
+                if (ReadTag(f) == "IDXS")
+                {
+                    var idxsSize = f.ReadInt32();
+                    var idxsEnd = f.BaseStream.Position + idxsSize;
+                    DecodeIDXS(f, idxsEnd, cnodeIdx);
+                    f.BaseStream.Seek(idxsEnd, SeekOrigin.Begin);
+                    if (f.BaseStream.Position + 8 <= limit)
+                    {
+                        var probe2 = f.BaseStream.Position;
+                        if (ReadTag(f) == "FLGS")
+                        {
+                            var flgsCount = f.ReadInt32();
+                            f.BaseStream.Seek(flgsCount * 4L, SeekOrigin.Current);
+                        }
+                        else
+                        {
+                            f.BaseStream.Seek(probe2, SeekOrigin.Begin);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                f.BaseStream.Seek(probe, SeekOrigin.Begin);
+            }
+        }
+
+        if (isNode)
+        {
+            for (var i = 0; i < 8; i++)
+            {
+                if (presence[i] == 0) continue;
+                WalkTreeNode(f, limit);
+            }
+        }
+    }
+
+    // IDXS payload is a series of groups: { material-switch, count, indices x count }.
+    // The high byte of the leading u16 selects which switch encoding is in use.
+    private void DecodeIDXS(BinaryReader f, long end, int cnodeIdx)
+    {
+        var baseOffset = cnodeIdx >= 0 && cnodeIdx < CNodeOffsets.Count - 1
+            ? CNodeOffsets[cnodeIdx]
+            : 0;
+        var m = 0;
+        while (f.BaseStream.Position + 12 <= end)
+        {
+            var tmp = f.ReadUInt16();
+            if (tmp == 0) tmp = f.ReadUInt16();
+            if ((tmp & 0xFF00) == 0x8000)
+            {
+                f.ReadUInt16();
+                _ = f.ReadUInt16() - 0x4000;
+                f.ReadUInt16();
+                m = f.ReadUInt16();
+            }
+            else if ((tmp & 0xFF00) == 0x4000)
+            {
+                f.ReadUInt16();
+                m = f.ReadUInt16();
+            }
+            else if ((tmp & 0xFF00) == 0)
+            {
+                m = tmp;
+            }
+            var sz = f.ReadUInt16();
+            for (var i = 0; i < sz / 3; i++)
+            {
+                if (f.BaseStream.Position + 6 > end) break;
+                var a = baseOffset + f.ReadUInt16();
+                var b = baseOffset + f.ReadUInt16();
+                var c = baseOffset + f.ReadUInt16();
+                IDX.Add([a, c, b]);
+                MDX.Add(m);
+            }
+        }
+    }
+
+    private static string ReadTag(BinaryReader f)
+    {
+        var bytes = f.ReadBytes(4);
+        return bytes.Length < 4 ? "" : Encoding.ASCII.GetString(bytes);
+    }
+
+    public struct BitmapTexture
+    {
+        public string FileName;
+        public int AlphaSource;
     }
 }
 
-public struct BitmapTexture
+public sealed class LightRecord
 {
-    public string FileName;
-    public int AlphaSource;
+    public byte[] Raw = Array.Empty<byte>();
+    // Layout inferred from MarkTest LGTR (64 bytes); fields beyond what's named here
+    // are still under analysis and remain accessible via Raw.
+    public Vector3 Color;
+    public Vector3 Position;
+    public Vector3 Direction;
+    public float Radius;
+    public float Intensity;
+
+    public static LightRecord Parse(byte[] raw)
+    {
+        var r = new LightRecord { Raw = raw };
+        if (raw.Length >= 0x14)
+            r.Color = new Vector3(
+                BitConverter.ToSingle(raw, 0x08),
+                BitConverter.ToSingle(raw, 0x0C),
+                BitConverter.ToSingle(raw, 0x10));
+        if (raw.Length >= 0x20)
+            r.Position = new Vector3(
+                BitConverter.ToSingle(raw, 0x14),
+                BitConverter.ToSingle(raw, 0x18),
+                BitConverter.ToSingle(raw, 0x1C));
+        if (raw.Length >= 0x2C)
+            r.Direction = new Vector3(
+                BitConverter.ToSingle(raw, 0x20),
+                BitConverter.ToSingle(raw, 0x24),
+                BitConverter.ToSingle(raw, 0x28));
+        if (raw.Length >= 0x30) r.Radius = BitConverter.ToSingle(raw, 0x2C);
+        if (raw.Length >= 0x34) r.Intensity = BitConverter.ToSingle(raw, 0x30);
+        return r;
+    }
 }
+
+public sealed class LightmapData
+{
+    public int Width;
+    public int Height;
+    public float UnknownF0;
+    public float UnknownF1;
+    public byte[] Pixels = Array.Empty<byte>();
+}
+
+public sealed class MaterialRecord
+{
+    public byte[] Raw = Array.Empty<byte>();
+    // Layout inferred from MarkTest MATR (196 bytes):
+    //   0x00 u32 (name length / id)
+    //   0x04 64-byte name
+    //   0x58 RGBA
+    //   0x5C 16-byte render mode (e.g. "OPAQUE")
+    //   0x74 16-byte sound type (e.g. "SILENT")
+    //   0xC0 u32 texture index into TXTD's name table
+    public string Name = "";
+    public Color Color;
+    public string RenderMode = "";
+    public string SoundType = "";
+    public int TextureIndex;
+
+    public static MaterialRecord Parse(byte[] raw)
+    {
+        var m = new MaterialRecord { Raw = raw };
+        if (raw.Length >= 0x44) m.Name = ReadAsciiZ(raw, 0x04, 64);
+        if (raw.Length >= 0x5C)
+            m.Color = Color.FromArgb(raw[0x5B], raw[0x58], raw[0x59], raw[0x5A]);
+        if (raw.Length >= 0x6C) m.RenderMode = ReadAsciiZ(raw, 0x5C, 16);
+        if (raw.Length >= 0x84) m.SoundType = ReadAsciiZ(raw, 0x74, 16);
+        if (raw.Length >= 0xC4) m.TextureIndex = BitConverter.ToInt32(raw, 0xC0);
+        return m;
+    }
+
+    private static string ReadAsciiZ(byte[] data, int offset, int max)
+    {
+        var n = 0;
+        while (n < max && offset + n < data.Length && data[offset + n] != 0) n++;
+        return Encoding.ASCII.GetString(data, offset, n);
+    }
 }
 
 // Normalizes bone names so the same bone produces the same string regardless of
