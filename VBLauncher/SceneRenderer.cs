@@ -267,30 +267,32 @@ void main() {
             return;
         }
         B3DModel baseModel = ResourceSystem.FindResource(baseModelName, "b3d");
+        
+        // Skeleton lives next to the b3d under the same prefix (HumMNor.skl). The
+        // animation set is shared across body sub-types — HumMNor / HumMMus / etc.
+        // all idle from HumM_Def_Una_Idle_01.gr2 — so the lookup uses the first 4
+        // chars as the animation prefix.
+        GrannyFormats.model? gr2Skel = null;
+        GrannyFormats.animation? gr2Anim = null;
+        // FindResource returns dynamic; file_info is a struct, so we pattern-match
+        // through object to avoid the runtime binder choking on `!= null`.
+        if ((object)ResourceSystem.FindResource(baseModelName, "skl") is GrannyFormats.file_info sklFile
+            && sklFile.Models is { Count: > 0 } sklModels)
+            gr2Skel = sklModels[0];
+        if (gr2Skel.HasValue)
+        {
+            //TODO: is there a flag for human models?
+            var animName = (baseModelName.StartsWith("Hum") ? baseModelName.Substring(0, 4) : baseModelName) + "_Def_Una_Idle_01";
+            if ((object)ResourceSystem.FindResource(animName, "gr2") is GrannyFormats.file_info animFile
+                && animFile.Animations is { Count: > 0 } anims)
+                gr2Anim = anims[0];
+            else
+                Console.WriteLine($"CRT animation {animName}.gr2 not found, falling back to static pose.");
+        }
+        if (!gr2Anim.HasValue) gr2Skel = null; // need both for the skinned path
+        
         if (baseModelName.StartsWith("Hum"))
         {
-            // Skeleton lives next to the b3d under the same prefix (HumMNor.skl). The
-            // animation set is shared across body sub-types — HumMNor / HumMMus / etc.
-            // all idle from HumM_Def_Una_Idle_01.gr2 — so the lookup uses the first 4
-            // chars as the animation prefix.
-            GrannyFormats.model? gr2Skel = null;
-            GrannyFormats.animation? gr2Anim = null;
-            // FindResource returns dynamic; file_info is a struct, so we pattern-match
-            // through object to avoid the runtime binder choking on `!= null`.
-            if ((object)ResourceSystem.FindResource(baseModelName, "skl") is GrannyFormats.file_info sklFile
-                && sklFile.Models is { Count: > 0 } sklModels)
-                gr2Skel = sklModels[0];
-            if (gr2Skel.HasValue && baseModelName.Length >= 4)
-            {
-                var animName = baseModelName.Substring(0, 4) + "_Def_Una_Idle_01";
-                if ((object)ResourceSystem.FindResource(animName, "gr2") is GrannyFormats.file_info animFile
-                    && animFile.Animations is { Count: > 0 } anims)
-                    gr2Anim = anims[0];
-                else
-                    Console.WriteLine($"CRT animation {animName}.gr2 not found, falling back to static pose.");
-            }
-            if (!gr2Anim.HasValue) gr2Skel = null; // need both for the skinned path
-
             var hideHair = false;
             var hideBeard = false;
             var hideMoustache = false;
@@ -338,11 +340,13 @@ void main() {
                 AddSkinnedB3DModel(baseModel, gr2Skel.Value, gr2Anim.Value, worldMatrix, crt.EEN2.EEOV.s4, baseUVs);
             else
                 AddB3DModel(baseModel, crt.EEN2.EEOV.s4, worldMatrix, baseUVs);
+            
+            return;
         }
+        if (gr2Skel.HasValue && gr2Anim.HasValue)
+            AddSkinnedB3DModel(baseModel, gr2Skel.Value, gr2Anim.Value, worldMatrix, crt.EEN2.EEOV.s4);
         else
-        {
             AddB3DModel(baseModel, crt.EEN2.EEOV.s4, worldMatrix);
-        }
     }
 
     public void AddMap(Map map)
@@ -1325,7 +1329,7 @@ void main() {
         }
         else
         {
-            var textureFileName = textureOverride ?? b3d.MatNameToTexture[texId];
+            var textureFileName = string.IsNullOrEmpty(textureOverride) ? b3d.MatNameToTexture[texId] : textureOverride;
             ImageSharpTexture tx = ResourceSystem.FindResource(textureFileName);
             if (tx is not null)
             {
