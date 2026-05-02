@@ -187,6 +187,11 @@ public partial class EditorWindow
 
         var io = ImGui.GetIO();
         io.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
+        // Veldrid's ImGuiRenderer constructor calls NewFrame() before we get here, so the
+        // first ini load happens with DockingEnable off — which causes ImGui to undock every
+        // window. Reload the ini now that the flag is set so dock state actually restores.
+        if (File.Exists("imgui.ini"))
+            ImGui.LoadIniSettingsFromDisk("imgui.ini");
         if (File.Exists(@"C:\Windows\Fonts\segoeui.ttf"))
         {
             _font = io.Fonts.AddFontFromFileTTF(@"C:\Windows\Fonts\segoeui.ttf", 17f);
