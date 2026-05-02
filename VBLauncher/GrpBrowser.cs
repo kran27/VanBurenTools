@@ -48,7 +48,7 @@ public partial class GrpBrowser
         public int offsetResources;
     }
 
-    internal struct Entry
+    public struct Entry
     {
         public int one;
         public int number;
@@ -78,14 +78,15 @@ public partial class GrpBrowser
     public int NumberOfEntries => head.nEntries;
     
     private F3RHTHeader head;
-    private List<Entry>[] entries;
-    private List<string> grpnames;
+    public List<Entry>[] entries;
+    public List<string> grpnames;
     private List<string> filenames;
     private Dictionary<int, int> globalIndexToPackOffset = new();
-    private Dictionary<int, int>[] localIndexToGlobal;
+    public Dictionary<int, int>[] localIndexToGlobal;
     private Dictionary<int, int> globalIndexToLocal;
     private Dictionary<string, int> fullNameToGlobalIndex = new();
     private List<string> extensions;
+    private readonly Dictionary<string, (F3GRPHeader Header, Lump[] Lumps)> _grpMetadataCache = new(StringComparer.OrdinalIgnoreCase);
 
     private readonly Dictionary<int, int> packOffsetToIndex = new()
     {
@@ -182,8 +183,20 @@ public partial class GrpBrowser
     {
         if (index == -1)
         {
-            for (var i = 0; i < head.nEntries; i++)
-                ExtractSingleFile(i, convert);
+            for (var p = 0; p < 24; p++)
+            {
+                if (entries[p].Count == 0) continue;
+
+                var grpname = Path.Combine("data", grpnames[p] + ".grp");
+                using var fs = new FileStream(grpname, FileMode.Open, FileAccess.Read);
+                using var br = new BinaryReader(fs);
+
+                foreach (var ent in entries[p])
+                {
+                    var g = localIndexToGlobal[p][ent.number];
+                    ExtractSingleFile(g, convert, br);
+                }
+            }
         }
         else
         {
@@ -192,7 +205,7 @@ public partial class GrpBrowser
         GC.Collect();
     }
 
-    private void ExtractSingleFile(int i, bool convert)
+    private void ExtractSingleFile(int i, bool convert, BinaryReader? br = null)
     {
         var ext = extensions[i];
         if (convert)
@@ -200,19 +213,19 @@ public partial class GrpBrowser
             if (ext == "tga") ext = "png";
             if (ext is "b3d" or "g3d") ext = "obj";
         }
-        var b = getFileBytes(i, convert);
+        var b = getFileBytes(i, convert, br);
         File.WriteAllBytes(Path.Combine(grpnames[packOffsetToIndex[globalIndexToPackOffset[i]]], filenames[i] + "." + ext), b);
     }
     
-    public (string, string, string, byte[]) ExtractFileToMemory(int i)
+    public (string, string, string, byte[]) ExtractFileToMemory(int i, BinaryReader? br = null)
     {
         var ext = extensions[i];
-        var b = getFileBytes(i);
+        var b = getFileBytes(i, false, br);
         var grp = grpnames[packOffsetToIndex[globalIndexToPackOffset[i]]];
         return (grp, filenames[i], ext, b);
     }
 
-    private byte[] getFileBytes(int index, bool convert = false)
+    private byte[] getFileBytes(int index, bool convert = false, BinaryReader? br = null)
     {
         var packLoc = globalIndexToPackOffset[index];
         var localIndex = globalIndexToLocal[index];
@@ -221,12 +234,12 @@ public partial class GrpBrowser
         var extname = Path.Combine(grpnames[packOffsetToIndex[packLoc]], filenames[index]);
 
         var e = entries[packOffsetToIndex[packLoc]][localIndex];
-        return getFileBytes(grpname, e.number, e.type, extname, convert);
+        return getFileBytes(grpname, e.number, e.type, extname, convert, br);
     }
 
-    private byte[] getFileBytes(string packname, int filenumber, int filetype, string filename, bool convert = false)
+    private byte[] getFileBytes(string packname, int filenumber, int filetype, string filename, bool convert = false, BinaryReader? br = null)
     {
-        var (lumps, grpHeader, buffer) = ReadGrpLumps(packname, filenumber);
+        var (lumps, grpHeader, buffer) = ReadGrpLumps(packname, filenumber, br);
 
         var ext = DetermineActualExtension(filetype, buffer);
 
@@ -235,27 +248,64 @@ public partial class GrpBrowser
         return ConvertFileBytes(buffer, ext, filename);
     }
 
-    private (Lump[] lumps, F3GRPHeader grpHeader, byte[] buffer) ReadGrpLumps(string packname, int filenumber)
+    private (Lump[] lumps, F3GRPHeader grpHeader, byte[] buffer) ReadGrpLumps(string packname, int filenumber, BinaryReader? externalReader = null)
     {
-        using var fs = new FileStream(packname, FileMode.Open, FileAccess.Read);
-        using var br = new BinaryReader(fs);
-        var grpHeader = new F3GRPHeader
+        if (!_grpMetadataCache.TryGetValue(packname, out var metadata))
         {
-            vMajor = br.ReadInt32(),
-            vMinor = br.ReadInt32(),
-            nFiles = br.ReadInt32()
-        };
-
-        var lumps = new Lump[grpHeader.nFiles];
-        for (var i = 0; i < grpHeader.nFiles; i++)
-        {
-            lumps[i].offset = br.ReadInt32();
-            lumps[i].length = br.ReadInt32();
+            if (externalReader != null)
+            {
+                metadata = ReadMetadata(externalReader);
+            }
+            else
+            {
+                using var fs = new FileStream(packname, FileMode.Open, FileAccess.Read);
+                using var br = new BinaryReader(fs);
+                metadata = ReadMetadata(br);
+            }
+            _grpMetadataCache[packname] = metadata;
         }
 
-        fs.Seek(lumps[filenumber].offset, SeekOrigin.Begin);
-        var buffer = br.ReadBytes(lumps[filenumber].length);
-        return (lumps, grpHeader, buffer);
+        var brToUse = externalReader;
+        FileStream? tempFs = null;
+        BinaryReader? tempBr = null;
+
+        try
+        {
+            if (brToUse == null)
+            {
+                tempFs = new FileStream(packname, FileMode.Open, FileAccess.Read);
+                tempBr = new BinaryReader(tempFs);
+                brToUse = tempBr;
+            }
+
+            brToUse.BaseStream.Seek(metadata.Lumps[filenumber].offset, SeekOrigin.Begin);
+            var buffer = brToUse.ReadBytes(metadata.Lumps[filenumber].length);
+            return (metadata.Lumps, metadata.Header, buffer);
+        }
+        finally
+        {
+            tempBr?.Dispose();
+            tempFs?.Dispose();
+        }
+
+        static (F3GRPHeader Header, Lump[] Lumps) ReadMetadata(BinaryReader br)
+        {
+            br.BaseStream.Seek(0, SeekOrigin.Begin);
+            var header = new F3GRPHeader
+            {
+                vMajor = br.ReadInt32(),
+                vMinor = br.ReadInt32(),
+                nFiles = br.ReadInt32()
+            };
+
+            var lumps = new Lump[header.nFiles];
+            for (var i = 0; i < header.nFiles; i++)
+            {
+                lumps[i].offset = br.ReadInt32();
+                lumps[i].length = br.ReadInt32();
+            }
+            return (header, lumps);
+        }
     }
 
     private string DetermineActualExtension(int filetype, byte[] buffer)
@@ -309,22 +359,28 @@ public partial class GrpBrowser
 
     public void readExtensions()
     {
-        extensions = [];
-        for (var i = 0; i < head.nEntries; i++)
+        extensions = Enumerable.Repeat(string.Empty, head.nEntries).ToList();
+        for (var p = 0; p < 24; p++)
         {
-            var packLoc = globalIndexToPackOffset[i];
-            var localIndex = globalIndexToLocal[i];
-            var grpname = Path.Combine("data", grpnames[packOffsetToIndex[packLoc]] + ".grp");
-            var extname = Path.Combine(grpnames[packOffsetToIndex[packLoc]], filenames[i]);
-            var ext = ReadSingleExtension(grpname, entries[packOffsetToIndex[packLoc]][localIndex].number, entries[packOffsetToIndex[packLoc]][localIndex].type);
-            extensions.Add(ext);
-            fullNameToGlobalIndex[(filenames[i] + "." + extensions[i]).ToLower()] = i;
+            if (entries[p].Count == 0) continue;
+
+            var grpname = Path.Combine("data", grpnames[p] + ".grp");
+            using var fs = new FileStream(grpname, FileMode.Open, FileAccess.Read);
+            using var br = new BinaryReader(fs);
+
+            foreach (var ent in entries[p])
+            {
+                var g = localIndexToGlobal[p][ent.number];
+                var ext = ReadSingleExtension(grpname, ent.number, ent.type, br);
+                extensions[g] = ext;
+                fullNameToGlobalIndex[(filenames[g] + "." + ext).ToLower()] = g;
+            }
         }
     }
 
-    private string ReadSingleExtension(string packname, int filenumber, int filetype)
+    private string ReadSingleExtension(string packname, int filenumber, int filetype, BinaryReader? br = null)
     {
-        var (lumps, _, buffer) = ReadGrpLumps(packname, filenumber);
+        var (lumps, _, buffer) = ReadGrpLumps(packname, filenumber, br);
         var ext = GetExtension(filetype);
 
         if (ext == "model")

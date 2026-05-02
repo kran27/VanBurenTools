@@ -28,11 +28,21 @@ public static class ResourceSystem
             using var grpb = new GrpBrowser(null);
             grpb.ReadRHT();
             grpb.readExtensions();
-            for (var i = 0; i < grpb.NumberOfEntries; i++)
+
+            for (var p = 0; p < 24; p++)
             {
-                var (grp, name, ext, fb) = grpb.ExtractFileToMemory(i);
+                var grpname = Path.Combine("data", grpb.grpnames[p] + ".grp");
+                if (!File.Exists(grpname)) continue;
+
+                using var fs = new FileStream(grpname, FileMode.Open, FileAccess.Read);
+                using var br = new BinaryReader(fs);
+
+                foreach (var ent in grpb.entries[p])
+                {
+                    var i = grpb.localIndexToGlobal[p][ent.number];
+                    var (grp, name, ext, fb) = grpb.ExtractFileToMemory(i, br);
             
-                if (!Resources.TryGetValue(grp, out var grpDict))
+                    if (!Resources.TryGetValue(grp, out var grpDict))
                 {
                     grpDict = new Dictionary<string, Dictionary<string, dynamic>>(StringComparer.OrdinalIgnoreCase);
                     Resources[grp] = grpDict;
@@ -125,6 +135,7 @@ public static class ResourceSystem
                         MessageBox.Show($"Unknown file type: {ext} for file {name}.{ext}", "Resource System Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         break;
                 }
+            }
             }
         }
         catch (Exception ex)
