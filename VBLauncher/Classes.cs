@@ -50,12 +50,16 @@ public class Map
     }
 }
 
-public class CRT
+public class Entity
 {
     public EEN2c EEN2 = new();
+    public GENTc GENT = new();
+}
+
+public class CRT : Entity
+{
     public GCHRc GCHR = new();
     public GCREc GCRE = new();
-    public GENTc GENT = new();
 
     public IEnumerable<byte> ToByte()
     {
@@ -69,10 +73,8 @@ public class CRT
     }
 }
 
-public class ITM
+public class ITM : Entity
 {
-    public EEN2c EEN2 = new();
-    public GENTc GENT = new();
     public GITMc GITM = new();
 
     public IEnumerable<byte> ToByte()
@@ -85,12 +87,9 @@ public class ITM
     }
 }
 
-public class ARM
+public class ARM : ITM
 {
-    public EEN2c EEN2 = new();
-    public GENTc GENT = new();
     public GIARc GIAR = new();
-    public GITMc GITM = new();
 
     public IEnumerable<byte> ToByte()
     {
@@ -103,12 +102,9 @@ public class ARM
     }
 }
 
-public class AMO
+public class AMO : ITM
 {
-    public EEN2c EEN2 = new();
-    public GENTc GENT = new();
     public GIAMc GIAM = new();
-    public GITMc GITM = new();
 
     public IEnumerable<byte> ToByte()
     {
@@ -116,7 +112,7 @@ public class AMO
         b.AddRange(EEN2.ToByte());
         b.AddRange(GENT.ToByte());
         b.AddRange(GITM.ToByte());
-        // b.AddRange(GIAM.ToByte())
+        b.AddRange(GIAM.ToByte());
         return b;
     }
 }
@@ -128,11 +124,8 @@ public enum USEType
     CON
 }
 
-public class
-    USE // also encapsulates CON and DOR, which use static chunks that are not read from or written to, if/which chunk is used is controlled by GOBJ.
+public class USE : Entity
 {
-    public EEN2c EEN2 = new();
-    public GENTc GENT = new();
     public GOBJc GOBJ = new();
 
     public USE(USEType type = USEType.USE)
@@ -146,33 +139,32 @@ public class
         b.AddRange(EEN2.ToByte());
         b.AddRange(GENT.ToByte());
         b.AddRange(GOBJ.ToByte());
-        if (GOBJ.Type == 0)
+        switch ((USEType)GOBJ.Type)
         {
-        }
-        else if (GOBJ.Type == 1)
-        {
-            b.AddRange([
-                0x47, 0x44, 0x4F, 0x52, 0x1, 0x0, 0x0, 0x0, 0x18, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-                0x0, 0x0, 0x0, 0x0
-            ]); // GDOR chunk (static in all Van Buren files)
-        }
-        else if (GOBJ.Type == 2)
-        {
-            b.AddRange([
-                0x47, 0x43, 0x4F, 0x4E, 0x1, 0x0, 0x0, 0x0, 0x1A, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-                0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
-            ]); // GCON chunk (static in all Van Buren files)
+            case USEType.USE:
+                break;
+            case USEType.DOR:
+                b.AddRange([
+                    0x47, 0x44, 0x4F, 0x52, 0x1, 0x0, 0x0, 0x0, 0x18, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+                    0x0, 0x0, 0x0, 0x0
+                ]); // GDOR chunk (static in all Van Buren files)
+                break;
+            case USEType.CON:
+                b.AddRange([
+                    0x47, 0x43, 0x4F, 0x4E, 0x1, 0x0, 0x0, 0x0, 0x1A, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+                    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
+                ]); // GCON chunk (static in all Van Buren files)
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
 
         return b;
     }
 }
 
-public class WEA
+public class WEA : ITM
 {
-    public EEN2c EEN2 = new();
-    public GENTc GENT = new();
-    public GITMc GITM = new();
     public GIWPc GIWP = new();
 
     public IEnumerable<byte> ToByte()

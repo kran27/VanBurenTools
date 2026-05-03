@@ -267,7 +267,7 @@ public class VideoInfo
     public static object[] GetResAsStrings()
     {
         return (from S in GetResolution()
-                select $"{S.Width}x{S.Height}@{S.Hz}").ToArray();
+                select $"{S.Width}x{S.Height}").ToArray();
     }
 
     private static Resolution[] GetResolution()
@@ -278,21 +278,9 @@ public class VideoInfo
         DM.dmSize = (ushort)Marshal.SizeOf(typeof(DevModeW));
         while (EnumDisplaySettingsExW(Screen.PrimaryScreen.DeviceName, Index, ref DM, 0U))
         {
-            var Resolution = new Resolution { Width = (int)DM.dmPelsWidth, Height = (int)DM.dmPelsHeight, Hz = (int)DM.dmDisplayFrequency };
-            if (!SizeList.Contains(Resolution))
-            {
-                try
-                {
-                    if (SizeList.Last().Width == Resolution.Width)
-                        SizeList.Remove(SizeList.Last());
-                }
-                catch
-                {
-                    // ignored
-                }
-
+            var Resolution = new Resolution { Width = (int)DM.dmPelsWidth, Height = (int)DM.dmPelsHeight, Hz = 0 };
+            if (!SizeList.Any(r => r.Width == Resolution.Width && r.Height == Resolution.Height))
                 SizeList.Add(Resolution);
-            }
             Index += 1;
         }
         return SizeList.ToArray();
@@ -303,12 +291,11 @@ public class VideoInfo
         try
         {
             var a = str.Split(['x']);
-            var b = a[1].Split(['@']);
             return new Resolution
             {
                 Width = int.Parse(a[0]),
-                Height = int.Parse(b[0]),
-                Hz = int.Parse(b[1])
+                Height = int.Parse(a[1]),
+                Hz = 0
             };
         }
         catch
@@ -322,9 +309,9 @@ public class VideoInfo
         }
     }
 
-    public static string ResToStr(Resolution res, bool ShowHz = true, int mult = 1)
+    public static string ResToStr(Resolution res, int mult = 1)
     {
-        return $"{res.Width * mult}x{res.Height * mult}{(ShowHz ? $"@{res.Hz}" : "")}";
+        return $"{res.Width * mult}x{res.Height * mult}";
     }
 
 }

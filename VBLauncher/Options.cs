@@ -101,7 +101,7 @@ public partial class Options
         {
             Width = int.Parse(IniManager.Ini(ref IniManager.F3Ini, "Graphics", "width")),
             Height = int.Parse(IniManager.Ini(ref IniManager.F3Ini, "Graphics", "height")),
-            Hz = int.Parse(IniManager.Ini(ref IniManager.F3Ini, "Graphics", "refresh"))
+            Hz = 0
         };
         ResolutionCB.SelectedItem = ResToStr(inires);
         SetupSscb(sender, e);
@@ -238,8 +238,8 @@ public partial class Options
         IniManager.Ini(ref _dgV2Conf, "DirectX", "Resolution", _ssModes[SSFCB.SelectedIndex]);
         IniManager.Ini(ref _dgV2Conf, "DirectX", "DisableMipmapping", !MipmapCB.Checked ? "true" : "false");
         IniManager.Ini(ref _dgV2Conf, "DirectX", "PhongShadingWhenPossible", PhongCB.Checked ? "true" : "false");
-        IniManager.Ini(ref _dgV2Conf, "GeneralExt", "FPSLimit", res.Hz.ToString());
-        IniManager.Ini(ref IniManager.F3Ini, "Graphics", "refresh", res.Hz.ToString());
+        IniManager.Ini(ref _dgV2Conf, "GeneralExt", "FPSLimit", "0");
+        IniManager.Ini(ref IniManager.F3Ini, "Graphics", "refresh", "0");
         var newBinds = (from DataGridViewRow r in DataGridView1.Rows
                         select RowToStr(r)).ToList();
 
@@ -264,7 +264,7 @@ public partial class Options
         var index = SSFCB.SelectedIndex;
         var res = StrToRes(ResolutionCB.Text);
         SSFCB.Items.Clear();
-        object[] resolutions = [ResToStr(res, false), ResToStr(res, false, 2), ResToStr(res, false, 3), ResToStr(res, false, 4)];
+        object[] resolutions = [ResToStr(res), ResToStr(res, 2), ResToStr(res, 3), ResToStr(res, 4)];
         SSFCB.Items.AddRange(resolutions);
         SSFCB.SelectedIndex = index;
     }

@@ -549,9 +549,6 @@ public partial class EditorWindow
             case CRT:
                 DrawCRT();
                 break;
-            case ITM:
-                DrawITM();
-                break;
             case Map:
                 DrawMap();
                 break;
@@ -566,6 +563,9 @@ public partial class EditorWindow
                 break;
             case WEA:
                 DrawWEA();
+                break;
+            case ITM:
+                DrawITM();
                 break;
             case VEG:
                 DrawVEG();
@@ -640,26 +640,28 @@ public partial class EditorWindow
         ImGui.EndTooltip();
     }
 
-    private void DrawCRT()
+    private void DrawEntity()
     {
         if (_sceneRenderer.IsCleared())
         {
-            _sceneRenderer.AddCRT(_currentFile);
+            _sceneRenderer.AddEntity(_currentFile);
             _sceneRenderer.FocusCamera();
         }
-        ImGui.Begin("CRT Editor");
         DrawEEN2();
         DrawGENT();
+    }
+
+    private void DrawCRT()
+    {
+        DrawEntity();
         DrawGCHR();
         DrawGCRE();
         DrawGWAM();
-        ImGui.End();
     }
 
     private void DrawITM()
     {
-        DrawEEN2();
-        DrawGENT();
+        DrawEntity();
         DrawGITM();
     }
 
@@ -685,8 +687,7 @@ public partial class EditorWindow
 
     private void DrawUSE()
     {
-        DrawEEN2();
-        DrawGENT();
+        DrawEntity();
         DrawGOBJ();
     }
 

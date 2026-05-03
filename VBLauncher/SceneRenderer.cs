@@ -313,9 +313,9 @@ void main() {
         AddModelIfValid(modelPrefix + '_' + arm.GITM.Sho.Model, arm.GITM.Sho.Tex, UVAtlasMapper.ToShoUV, worldMatrix, gr2Skeleton, gr2Anim);
     }
     
-    public void AddCRT(CRT crt, Matrix4x4? worldMatrix = null)
+    public void AddEntity(Entity entity, Matrix4x4? worldMatrix = null)
     {
-        var baseModelName = crt.EEN2.skl;
+        var baseModelName = entity.EEN2.skl;
         if (string.IsNullOrEmpty(baseModelName))
         {
             Console.WriteLine("CRT has no base model, skipping.");
@@ -337,16 +337,16 @@ void main() {
         if (gr2Skel.HasValue)
         {
             //TODO: is there a flag for human models?
-            var animName = (baseModelName.StartsWith("Hum") ? baseModelName.Substring(0, 4) : baseModelName) + "_Def_Una_Idle_01";
-            if ((object)ResourceSystem.FindResource(animName, "gr2") is GrannyFormats.file_info animFile
-                && animFile.Animations is { Count: > 0 } anims)
+            var baseName = baseModelName.StartsWith("Hum") ? baseModelName[..4] : baseModelName;
+            var resource = ResourceSystem.FindResource(baseName + "_Def_Una_Idle_01", "gr2") ?? ResourceSystem.FindResource(baseName + "_Def_1H_Idle_01", "gr2");
+            if (resource is GrannyFormats.file_info { Animations: { Count: > 0 } anims })
                 gr2Anim = anims[0];
             else
-                Console.WriteLine($"CRT animation {animName}.gr2 not found, falling back to static pose.");
+                Console.WriteLine($"CRT animation not found for {baseName}, falling back to static pose.");
         }
         if (!gr2Anim.HasValue) gr2Skel = null; // need both for the skinned path
         
-        if (baseModelName.StartsWith("Hum"))
+        if (entity is CRT crt && baseModelName.StartsWith("Hum"))
         {
             var hideHair = false;
             var hideBeard = false;
@@ -409,16 +409,17 @@ void main() {
 
             var baseUVs = baseModel.Model_Vertex_Texcoords.Select(UVAtlasMapper.ToBaseUV).ToList();
             if (gr2Skel.HasValue && gr2Anim.HasValue)
-                AddSkinnedB3DModel(baseModel, gr2Skel.Value, gr2Anim.Value, worldMatrix, crt.EEN2.EEOV.s4, baseUVs);
+                AddSkinnedB3DModel(baseModel, gr2Skel.Value, gr2Anim.Value, worldMatrix, entity.EEN2.EEOV.s4, baseUVs);
             else
-                AddB3DModel(baseModel, crt.EEN2.EEOV.s4, worldMatrix, baseUVs);
+                AddB3DModel(baseModel, entity.EEN2.EEOV.s4, worldMatrix, baseUVs);
             
             return;
         }
+        
         if (gr2Skel.HasValue && gr2Anim.HasValue)
-            AddSkinnedB3DModel(baseModel, gr2Skel.Value, gr2Anim.Value, worldMatrix, crt.EEN2.EEOV.s4);
+            AddSkinnedB3DModel(baseModel, gr2Skel.Value, gr2Anim.Value, worldMatrix, entity.EEN2.EEOV.s4);
         else
-            AddB3DModel(baseModel, crt.EEN2.EEOV.s4, worldMatrix);
+            AddB3DModel(baseModel, entity.EEN2.EEOV.s4, worldMatrix);
     }
 
     public void AddMap(Map map)
@@ -454,7 +455,7 @@ void main() {
                 if (ent.name.ToLower().EndsWith(".crt"))
                 {
                     var crt = ResourceSystem.FindResource(ent.name);
-                    if (crt != null) AddCRT(crt, transform);
+                    if (crt != null) AddEntity(crt, transform);
                 }
                 else
                 {
@@ -486,7 +487,7 @@ void main() {
                 {
                     var transform = Matrix4x4.CreateRotationY(ep.r) * 
                                     Matrix4x4.CreateTranslation(-ep.p.X, ep.p.Y, ep.p.Z);
-                    AddCRT(crt, transform);
+                    AddEntity(crt, transform);
                 }
             }
             catch (Exception ex)

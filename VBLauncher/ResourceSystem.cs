@@ -57,17 +57,22 @@ public static class ResourceSystem
                         extDict[name] = grpb.DecodeRLEToImageSharp(fb);
                         break;
                     case "b3d":
-                        try
+                    {
+                        var capturedName = name;
+                        var capturedExt = ext;
+                        extDict[name] = new LazyResource(() =>
                         {
-                            extDict[name] = new B3DModel(fb);
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show($"Failed to load model {name}.{ext}: {ex.Message}");
-                        }
+                            try { return new B3DModel(fb); }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show($"Failed to load model {capturedName}.{capturedExt}: {ex.Message}");
+                                return null;
+                            }
+                        });
                         break;
+                    }
                     case "8":
-                        extDict[name] = new _8Model(fb);
+                        extDict[name] = new LazyResource(() => new _8Model(fb));
                         break;
                     case "amo":
                         extDict[name] = fb.ReadAMO();
@@ -156,7 +161,30 @@ public static class ResourceSystem
         foreach (var grpDict in Resources.Values)
             if (grpDict.TryGetValue(ext, out var extDict) &&
                 extDict.TryGetValue(name, out var res))
-                return res;
+                return res is LazyResource lr ? lr.Get() : res;
         return null;
+    }
+}
+
+public sealed class LazyResource
+{
+    private Func<dynamic?>? _factory;
+    private dynamic? _value;
+    private bool _loaded;
+    private readonly object _lock = new();
+
+    public LazyResource(Func<dynamic?> factory) => _factory = factory;
+
+    public dynamic? Get()
+    {
+        if (_loaded) return _value;
+        lock (_lock)
+        {
+            if (_loaded) return _value;
+            _value = _factory!();
+            _factory = null;
+            _loaded = true;
+            return _value;
+        }
     }
 }
