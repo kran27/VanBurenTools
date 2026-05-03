@@ -76,223 +76,164 @@ public class B3DModel
 
         Vertex_Type_Flag = 0;
 
-        var header = new b3d_header(f, b3d);
-        header.print();
-
-        if (header.VersionThing == 0x1C) {
-            //var Material_Node = new TMaterial_Node(f);
-            while (f.BaseStream.Position < f.BaseStream.Length)
-            {
-                var token = f.ReadByte();
-                switch (token)
-                {
-                    // 0x01 -> 0x05 are still read in the header, this behaviour is incorrect. (same with 0x1C)
-                    // i need to figure out why reading them via tokens doesn't work right, my implementation is off somehow
-                    case 0x01:
-                        // IDA sets "v11" to 1
-                        Console.WriteLine("Flag Thing");
-                        break;
-                    case 0x03:
-                        b3d.FormatVer = 1; // i dont really know what this is, it's a holdout from the original script not based on my reversing.
-                        Console.WriteLine("GlobalScaleFactor");
-                        header.GlobalScaleFactor = f.ReadSingle();
-                        break;
-                    case 0x04:
-                        Console.WriteLine("CoordinateScale");
-                        header.CoordinateScale = f.ReadSingle();
-                        break;
-                    case 0x05:
-                        Console.WriteLine("CoordinateSystem");
-                        header.CoordinateSystem = StringRead(f);
-                        header.Unknown6 = f.ReadByte();
-                        header.Unknown7 = f.ReadInt32();
-                        // should be end of "header" values
-                        header.print();
-                        break;
-                    case 0x07:
-                        Console.WriteLine("Materials");
-                        var Materials = new TMaterials(f);
-                        this.Materials.Add(Materials);
-                        MaterialDict[new string(Materials.Name)] = Materials;
-                        Materials.print();
-                        Console.WriteLine(f.BaseStream.Position);
-                        break;
-                    case 0x08:
-                        Console.WriteLine("Textures");
-                        var Textures = new TTextures(f, b3d);
-                        Textures.print();
-                        Console.WriteLine(f.BaseStream.Position);
-                        break;
-                    case 0x0A:
-                        Console.WriteLine("Nodes");
-                        var Nodes = new TNodes(f);
-                        Nodes.print();
-                        Console.WriteLine(f.BaseStream.Position);
-                        break;
-                    case 0x0E:
-                        Console.WriteLine("Bones");
-                        var Bone1 = new TBone(f);
-                        b3d.Bones.Add(Bone1);
-                        Bone1.print();
-                        Console.WriteLine(f.BaseStream.Position);
-                        break;
-                    case 0x0F:
-                        Console.WriteLine("VertexNodes");
-                        var Vertex_Node = new TVertex_Node(f, b3d);
-                        for (var index = 0; index < Vertex_Node.material_data.Count; index++)
-                        {
-                            var MD = Vertex_Node.material_data[index];
-                            if (MD is TMaterial_Data44 MD44)
-                            {
-                                SubModels[new string(MD44.Name)] = Vertex_Node.face_indices[index];
-                                MatNameToTexture[new string(MD44.Name)] = new string(MD44.Zone);
-                            }
-                            else if (MD is TMaterial_Data MD64)
-                            {
-                                SubModels[new string(MD64.Name)] = MD64.face_indices;
-                                MatNameToTexture[new string(MD64.Name)] = new string(MD64.Mtl_ID);
-                            }
-                            else
-                            {
-                                Console.WriteLine("Unknown material data type in Vertex_Node: " + MD.GetType());
-                            }
-                        }
-
-                        Vertex_Nodes.Add(Vertex_Node);
-                        Console.WriteLine(f.BaseStream.Position);
-                        break;
-                    case 0x1C:
-                        header.VersionThing = 0x1C;
-                        break;
-                    case 0x1B:
-                        Console.WriteLine("Occlusion Zones");
-                        var zoneCount = f.ReadInt32();
-                        Console.WriteLine($"Zone count: {zoneCount}");
-                        for (var i = 0; i < zoneCount; i++)
-                        {
-                            var zone = StringRead(f);
-                            OcclusionZones.Add(new string(zone)); 
-                            Console.WriteLine($"Zone {i}: {new string(zone)}");
-                        }
-                        break;
-                    case 0x0B:
-                        Console.WriteLine("File End"); // B3D always ends 0B0B01
-                        f.ReadBytes(2);
-                        break;
-                    default:
-                        Console.WriteLine($"Unknown byte: {token:X2} at position {f.BaseStream.Position}");
-                        Console.WriteLine(f.BaseStream.Position);
-                        return;
-                }
-            }
-        }
-        else
+        // Tag dispatch derived from F3.exe Gfx_G3D_Mesh's B3D loader (sub_4DE680 / sub_4DE120).
+        // No fixed-size header — everything after the 8-byte signature is tagged. The earlier
+        // C# port had a hand-unrolled "header" plus two divergent switch tables; both diverged
+        // from the game and broke door (.dor) meshes with VersionThing=3.
+        var sig = f.ReadBytes(8);
+        if (sig.Length != 8 || Encoding.ASCII.GetString(sig) != "B3D 1.1 ")
         {
-            while (f.BaseStream.Position < f.BaseStream.Length)
-            {
-                var token = f.ReadByte();
-                switch (token)
-                {
-                    // 0x01 -> 0x05 are still read in the header, this behaviour is incorrect. (same with 0x1C)
-                    // i need to figure out why reading them via tokens doesn't work right, my implementation is off somehow
-                    case 0x01:
-                        // IDA sets "v11" to 1
-                        Console.WriteLine("Flag Thing");
-                        break;
-                    case 0x03:
-                        b3d.FormatVer = 1; // i dont really know what this is, it's a holdout from the original script not based on my reversing.
-                        Console.WriteLine("GlobalScaleFactor");
-                        header.GlobalScaleFactor = f.ReadSingle();
-                        break;
-                    case 0x04:
-                        Console.WriteLine("CoordinateScale");
-                        header.CoordinateScale = f.ReadSingle();
-                        break;
-                    case 0x05:
-                        Console.WriteLine("CoordinateSystem");
-                        header.CoordinateSystem = StringRead(f);
-                        header.Unknown6 = f.ReadByte();
-                        header.Unknown7 = f.ReadInt32();
-                        // should be end of "header" values
-                        header.print();
-                        break;
-                    case 0x0F:
-                        Console.WriteLine("Materials");
-                        var Materials = new TMaterials(f);
-                        this.Materials.Add(Materials);
-                        MaterialDict[new string(Materials.Name)] = Materials;
-                        Materials.print();
-                        Console.WriteLine(f.BaseStream.Position);
-                        break;
-                    case 0x08:
-                        Console.WriteLine("Textures");
-                        var Textures = new TTextures(f, b3d);
-                        Textures.print();
-                        Console.WriteLine(f.BaseStream.Position);
-                        break;
-                    case 0x0A:
-                        Console.WriteLine("Nodes");
-                        var Nodes = new TNodes(f);
-                        Nodes.print();
-                        Console.WriteLine(f.BaseStream.Position);
-                        break;
-                    case 0x0E:
-                        Console.WriteLine("Bones");
-                        var Bone1 = new TBone(f);
-                        b3d.Bones.Add(Bone1);
-                        Bone1.print();
-                        Console.WriteLine(f.BaseStream.Position);
-                        break;
-                    case 0xFF:
-                        Console.WriteLine("VertexNodes");
-                        var Vertex_Node = new TVertex_Node(f, b3d);
-                        for (var index = 0; index < Vertex_Node.material_data.Count; index++)
-                        {
-                            var MD = Vertex_Node.material_data[index];
-                            if (MD is TMaterial_Data44 MD44)
-                            {
-                                SubModels[new string(MD44.Name)] = Vertex_Node.face_indices[index];
-                                MatNameToTexture[new string(MD44.Name)] = new string(MD44.Zone);
-                            }
-                            else if (MD is TMaterial_Data MD64)
-                            {
-                                SubModels[new string(MD64.Name)] = MD64.face_indices;
-                                MatNameToTexture[new string(MD64.Name)] = new string(MD64.Mtl_ID);
-                            }
-                            else
-                            {
-                                Console.WriteLine("Unknown material data type in Vertex_Node: " + MD.GetType());
-                            }
-                        }
+            Console.WriteLine("Not a B3D file (signature mismatch).");
+            return;
+        }
 
-                        Vertex_Nodes.Add(Vertex_Node);
-                        Console.WriteLine(f.BaseStream.Position);
-                        break;
-                    case 0x1C:
-                        header.VersionThing = 0x1C;
-                        break;
-                    case 0x1B:
-                        Console.WriteLine("Occlusion Zones");
-                        var zoneCount = f.ReadInt32();
-                        Console.WriteLine($"Zone count: {zoneCount}");
-                        for (var i = 0; i < zoneCount; i++)
-                        {
-                            var zone = StringRead(f);
-                            OcclusionZones.Add(new string(zone)); 
-                            Console.WriteLine($"Zone {i}: {new string(zone)}");
-                        }
-                        break;
-                    case 0x0B:
-                        Console.WriteLine("File End"); // B3D always ends 0B0B01
-                        f.ReadBytes(2);
-                        break;
-                    default:
-                        Console.WriteLine($"Unknown byte: {token:X2} at position {f.BaseStream.Position}");
-                        Console.WriteLine(f.BaseStream.Position);
-                        return;
+        // FormatVer gates TVertex_Node between the legacy (VT=3, ~door / pre-conversion) layout
+        // and the modern (VT=28, post-conversion) layout — completely different vertex/material
+        // wire formats. The old code defaulted to 1 in the VT=3 header path and stayed at 0 in
+        // VT=28. Match that: default to 1, and only flip to 0 when we actually see a 0x1C tag.
+        b3d.FormatVer = 1;
+        var done = false;
+        while (!done && f.BaseStream.Position < f.BaseStream.Length)
+        {
+            var token = f.ReadByte();
+            switch (token)
+            {
+                case 0x01:
+                    done = true; // EOF
+                    break;
+                case 0x03:
+                    f.ReadSingle(); // GlobalScaleFactor — not consumed downstream
+                    break;
+                case 0x04:
+                    f.ReadSingle(); // CoordinateScale
+                    break;
+                case 0x05:
+                    StringRead(f); // CoordinateSystem
+                    break;
+                case 0x06:
+                    f.ReadBytes(12); // 3 dwords; 4th component is implicit 1.0f
+                    break;
+                case 0x07:
+                {
+                    var mat = new TMaterials(f);
+                    Materials.Add(mat);
+                    MaterialDict[new string(mat.Name)] = mat;
+                    break;
                 }
+                case 0x08:
+                case 0x09:
+                {
+                    _ = new TTextures(f, b3d);
+                    break;
+                }
+                case 0x0A:
+                    ParseNode(f, b3d);
+                    break;
+                case 0x0E:
+                {
+                    var bone = new TBone(f);
+                    b3d.Bones.Add(bone);
+                    break;
+                }
+                case 0x16:
+                    f.ReadInt32();
+                    break;
+                case 0x17:
+                    // sub_4D2620: 3 padded strings + 16 + 4 + 4 + 4 bytes
+                    StringRead(f);
+                    StringRead(f);
+                    StringRead(f);
+                    f.ReadBytes(28);
+                    break;
+                case 0x1C:
+                    f.ReadByte(); // version value; presence of this tag is the modern-format signal
+                    b3d.FormatVer = 0;
+                    break;
+                default:
+                    Console.WriteLine($"Unknown top-level B3D tag: 0x{token:X2} at position {f.BaseStream.Position}");
+                    return;
             }
         }
+    }
+
+    // Mirrors sub_4DA760 (G3D_Node::Read). Tag 0x0A spawns a node which has its own tag loop
+    // running until 0x0B. 0x0F (G3D_Surface = vertex/face data) lives inside the node, NOT at
+    // the top level. 0x0A inside a node spawns a child — recurse. Empty tags like 0x0C/0x0D
+    // are consumed for stream alignment but the data isn't currently retained downstream.
+    private void ParseNode(BinaryReader f, B3DModel b3d)
+    {
+        while (f.BaseStream.Position < f.BaseStream.Length)
+        {
+            var token = f.ReadByte();
+            switch (token)
+            {
+                case 0x01:
+                    Console.WriteLine("EOF reached before end of node");
+                    return;
+                case 0x0A:
+                    ParseNode(f, b3d);
+                    break;
+                case 0x0B:
+                    return; // end-of-node
+                case 0x0C:
+                    StringRead(f); // node Name (sub_4D0670 → sub_4D0450)
+                    break;
+                case 0x0D:
+                    ReadTransform(f);
+                    break;
+                case 0x0F:
+                {
+                    var vn = new TVertex_Node(f, b3d);
+                    for (var index = 0; index < vn.material_data.Count; index++)
+                    {
+                        var MD = vn.material_data[index];
+                        if (MD is TMaterial_Data44 MD44)
+                        {
+                            SubModels[new string(MD44.Name)] = vn.face_indices[index];
+                            MatNameToTexture[new string(MD44.Name)] = new string(MD44.Zone);
+                        }
+                        else if (MD is TMaterial_Data MD64)
+                        {
+                            SubModels[new string(MD64.Name)] = MD64.face_indices;
+                            MatNameToTexture[new string(MD64.Name)] = new string(MD64.Mtl_ID);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Unknown material data type in Vertex_Node: " + MD.GetType());
+                        }
+                    }
+                    Vertex_Nodes.Add(vn);
+                    break;
+                }
+                case 0x1B:
+                {
+                    // G3D_OcclusionZones — sub_4D9770: int32 count + N padded strings.
+                    // Was previously (incorrectly) handled at the top level; the game only
+                    // emits 0x1B inside a node's tag loop.
+                    var zoneCount = f.ReadInt32();
+                    for (var i = 0; i < zoneCount; i++)
+                        OcclusionZones.Add(new string(StringRead(f)));
+                    break;
+                }
+                default:
+                    // Inner-node tags 0x10..0x15, 0x17, 0x18, 0x1A, 0x1B exist in the game but
+                    // their wire formats aren't decoded here yet. Bail out of the current node
+                    // so we don't desync the outer tag stream — the file may still load partially.
+                    Console.WriteLine($"Unhandled inner node tag: 0x{token:X2} at position {f.BaseStream.Position}");
+                    return;
+            }
+        }
+    }
+
+    // Mirrors G3D_Transform::Read at sub_4D0A00. Padded-string Name + 1-byte flag + conditional
+    // 24 / 32 / 24-byte payloads (translation / rotation matrix / scale).
+    private static void ReadTransform(BinaryReader f)
+    {
+        StringRead(f); // Name
+        var flags = f.ReadByte();
+        if ((flags & 0x01) != 0) f.ReadBytes(24);
+        if ((flags & 0x02) != 0) f.ReadBytes(32);
+        if ((flags & 0x04) != 0) f.ReadBytes(24);
     }
 
     public static char[] StringRead(BinaryReader f)

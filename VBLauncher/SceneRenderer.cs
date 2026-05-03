@@ -265,8 +265,18 @@ void main() {
         InitializeSharedResources();
     }
     
+    // Legacy/VT=3 b3ds (doors mostly?) are 10x smaller than VT=28 (which are correct relative to .8, .skl, etc.)
+    static readonly Matrix4x4 LegacyB3DCorrection = Matrix4x4.CreateScale(10f);
+
+    static Matrix4x4? ApplyLegacyCorrection(B3DModel model, Matrix4x4? worldMatrix)
+    {
+        if (model.FormatVer != 1) return worldMatrix;
+        return LegacyB3DCorrection * (worldMatrix ?? Matrix4x4.Identity);
+    }
+
     public void AddB3DModel(B3DModel model, Matrix4x4? worldMatrix = null, List<Vector2>? uvs = null)
     {
+        worldMatrix = ApplyLegacyCorrection(model, worldMatrix);
         for (var i = 0; i < model.SubModels.Keys.Count; i++)
         {
             AddModel(model, i, null, worldMatrix, uvs);
@@ -274,9 +284,10 @@ void main() {
         foreach (var zone in model.OcclusionZones)
             _ignoredZones.Add(zone);
     }
-    
+
     public void AddB3DModel(B3DModel model, string textureOverride, Matrix4x4? worldMatrix = null, List<Vector2>? uvs = null)
     {
+        worldMatrix = ApplyLegacyCorrection(model, worldMatrix);
         for (var i = 0; i < model.SubModels.Keys.Count; i++)
         {
             AddModel(model, i, textureOverride, worldMatrix, uvs);
@@ -324,6 +335,10 @@ void main() {
             return;
         }
         B3DModel baseModel = ResourceSystem.FindResource(baseModelName, "b3d");
+        if (baseModel is null) {
+            Console.WriteLine($"Base model {baseModelName}.b3d not found for entity, skipping.");
+            return;
+        }
         
         // Skeleton lives next to the b3d under the same prefix (HumMNor.skl). The
         // animation set is shared across body sub-types — HumMNor / HumMMus / etc.
