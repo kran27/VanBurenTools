@@ -135,8 +135,9 @@ layout(set = 2, binding = 0) uniform BoneBuffer       { mat4 Bones[" + MaxBones 
 layout(location = 0) in vec3  Position;
 layout(location = 1) in vec2  TexCoords;
 layout(location = 2) in vec3  Normal;
-layout(location = 3) in vec4  BoneWeights;
-layout(location = 4) in uvec4 BoneIndices;
+layout(location = 3) in vec4  Color;
+layout(location = 4) in vec4  BoneWeights;
+layout(location = 5) in uvec4 BoneIndices;
 
 layout(location = 0) out vec2 fsin_texCoords;
 layout(location = 1) out vec3 fsin_normal;
@@ -158,7 +159,7 @@ void main() {
     fsin_worldPos  = worldPos4.xyz;
     fsin_normal    = normalize(mat3(World) * skinnedNormal);
     fsin_texCoords = TexCoords;
-    fsin_color     = vec4(1.0); // skinned meshes don't carry vertex color
+    fsin_color     = Color;
     gl_Position    = Projection * View * worldPos4;
 }";
 
@@ -222,6 +223,7 @@ void main() {
     private DeviceBuffer _lightBuffer;
     private Pipeline _pipeline;
     private Pipeline _skinnedPipeline;
+    private Pipeline _opaqueSkinnedPipeline;
     private Pipeline _linePipeline;
     private ResourceLayout _lineProjViewLayout;
     private ResourceLayout _lineWorldLayout;
@@ -318,7 +320,7 @@ void main() {
         var baseModelName = entity.EEN2.skl;
         if (string.IsNullOrEmpty(baseModelName))
         {
-            Console.WriteLine("CRT has no base model, skipping.");
+            Console.WriteLine("Entity has no base model, skipping.");
             return;
         }
         B3DModel baseModel = ResourceSystem.FindResource(baseModelName, "b3d");
@@ -451,24 +453,9 @@ void main() {
             {
                 var transform = Matrix4x4.CreateRotationY(ent.l.W) * 
                                 Matrix4x4.CreateTranslation(-ent.l.X, ent.l.Y, ent.l.Z);
-
-                if (ent.name.ToLower().EndsWith(".crt"))
-                {
-                    var crt = ResourceSystem.FindResource(ent.name);
-                    if (crt != null) AddEntity(crt, transform);
-                }
-                else
-                {
-                     var een2 = ResourceSystem.FindResource(ent.name).EEN2;
-                     if (een2 != null && !string.IsNullOrEmpty(een2.skl))
-                     {
-                         var b3d = ResourceSystem.FindResource(een2.skl, "b3d");
-                         if (b3d != null)
-                         {
-                             AddB3DModel(b3d, transform);
-                         }
-                     }
-                }
+                
+                var entity = ResourceSystem.FindResource(ent.name);
+                if (entity != null) AddEntity(entity, transform);
             }
             catch (Exception ex)
             {
@@ -843,6 +830,21 @@ void main() {
 
         var skinnedVert = new ShaderDescription(ShaderStages.Vertex, Encoding.UTF8.GetBytes(SkinnedVertexCode), "main");
         var skinnedShaders = factory.CreateFromSpirv(skinnedVert, frag);
+        var skinnedOpaqueShaders = factory.CreateFromSpirv(skinnedVert, fragOpaque);
+
+        var skinnedVertexLayout = new VertexLayoutDescription(
+            new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate,
+                VertexElementFormat.Float3),
+            new VertexElementDescription("TexCoords", VertexElementSemantic.TextureCoordinate,
+                VertexElementFormat.Float2),
+            new VertexElementDescription("Normal", VertexElementSemantic.TextureCoordinate,
+                VertexElementFormat.Float3),
+            new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate,
+                VertexElementFormat.Float4),
+            new VertexElementDescription("BoneWeights", VertexElementSemantic.TextureCoordinate,
+                VertexElementFormat.Float4),
+            new VertexElementDescription("BoneIndices", VertexElementSemantic.TextureCoordinate,
+                VertexElementFormat.UInt4));
 
         _skinnedPipeline = factory.CreateGraphicsPipeline(new GraphicsPipelineDescription(
             BlendStateDescription.SingleAlphaBlend,
@@ -853,22 +855,24 @@ void main() {
                 FrontFace.CounterClockwise,
                 true, false),
             PrimitiveTopology.TriangleList,
-            new ShaderSetDescription(
-                new[]
-                {
-                    new VertexLayoutDescription(
-                        new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate,
-                            VertexElementFormat.Float3),
-                        new VertexElementDescription("TexCoords", VertexElementSemantic.TextureCoordinate,
-                            VertexElementFormat.Float2),
-                        new VertexElementDescription("Normal", VertexElementSemantic.TextureCoordinate,
-                            VertexElementFormat.Float3),
-                        new VertexElementDescription("BoneWeights", VertexElementSemantic.TextureCoordinate,
-                            VertexElementFormat.Float4),
-                        new VertexElementDescription("BoneIndices", VertexElementSemantic.TextureCoordinate,
-                            VertexElementFormat.UInt4))
-                },
-                skinnedShaders),
+            new ShaderSetDescription(new[] { skinnedVertexLayout }, skinnedShaders),
+            new[] { projViewLayout, _worldTextureLayout, _boneLayout },
+            _sceneFramebuffer.OutputDescription));
+
+        // Opaque counterpart of _skinnedPipeline. Used for skinned B3D submeshes whose
+        // material technique doesn't carry IMAGE_ALPHA — the alpha-tested fragment
+        // shader would otherwise discard texels on TGAs with junk/zero alpha and
+        // make solid character parts render see-through.
+        _opaqueSkinnedPipeline = factory.CreateGraphicsPipeline(new GraphicsPipelineDescription(
+            BlendStateDescription.SingleOverrideBlend,
+            DepthStencilStateDescription.DepthOnlyLessEqual,
+            new RasterizerStateDescription(
+                FaceCullMode.None,
+                PolygonFillMode.Solid,
+                FrontFace.CounterClockwise,
+                true, false),
+            PrimitiveTopology.TriangleList,
+            new ShaderSetDescription(new[] { skinnedVertexLayout }, skinnedOpaqueShaders),
             new[] { projViewLayout, _worldTextureLayout, _boneLayout },
             _sceneFramebuffer.OutputDescription));
 
@@ -965,17 +969,23 @@ void main() {
         }
 
         var factory = _graphicsDevice.ResourceFactory;
+        var matRecord = model.MaterialDict[texId];
         var modelData = new ModelData
         {
             Name = texId,
-            WorldMatrix = worldMatrix ?? Matrix4x4.Identity // Use provided matrix or Identity
+            WorldMatrix = worldMatrix ?? Matrix4x4.Identity, // Use provided matrix or Identity
+            // Default-opaque so meshes with junk-alpha TGAs don't render see-through.
+            // Opt into the alpha pipeline only for materials the engine treats as
+            // transparent: IMAGE_ALPHA cutout, VERTEX_ALPHA (e.g. hair), or any
+            // non-OPAQUE blend state.
+            Pipeline = matRecord.NeedsAlphaPipeline ? null : _opaquePipeline
         };
-        
-        var mtl_id = new string(model.MaterialDict[texId].Mtl_ID);
-        
+
+        var mtl_id = matRecord.TechniqueName;
+
         if (mtl_id is "NO_TEXTURE")
         {
-            var color = model.MaterialDict[texId].Mater.Diffuse;
+            var color = matRecord.Mater.Diffuse;
             modelData.SurfaceTexture = Create1x1TextureFromColor(_graphicsDevice, factory, color.r, color.g, color.b, color.a);
             modelData.SurfaceTextureView = factory.CreateTextureView(modelData.SurfaceTexture);
             modelData.WorldTextureSet = factory.CreateResourceSet(new ResourceSetDescription(
@@ -1015,14 +1025,18 @@ void main() {
         
         uvs ??= model.Model_Vertex_Texcoords; // Use UVs if provided, otherwise default to model's UVs
         
-        // Load model vertices and indices
+        // Load model vertices and indices. Per-vertex color (RGBA) drives blending
+        // for VERTEX_ALPHA techniques — without it, hair/etc. samples alpha=1 and
+        // renders fully opaque.
         for (var i = 0; i < model.Model_Vertex_Position.Count; i++)
         {
+            var color = i < model.Model_Vertex_Color.Count ? model.Model_Vertex_Color[i] : Vector4.One;
             modelData.Vertices.Add(
                 new VertexPositionTextureNormal(
-                    model.Model_Vertex_Position[i], 
-                    uvs[i], 
-                    model.Model_Vertex_Normal[i]));
+                    model.Model_Vertex_Position[i],
+                    uvs[i],
+                    model.Model_Vertex_Normal[i],
+                    color));
         }
         
         foreach (var face in model.SubModels[texId])
@@ -1142,8 +1156,7 @@ void main() {
         _light.CameraPosition = _camera.Position;
         cl.UpdateBuffer(_lightBuffer, 0, _light);
 
-        // Render each model
-        foreach (var model in _models)
+        void draw(ModelData model)
         {
             cl.SetPipeline(model.Pipeline ?? _pipeline);
             cl.SetGraphicsResourceSet(0, _projViewSet);
@@ -1154,18 +1167,24 @@ void main() {
             cl.DrawIndexed((uint)model.Indices.Count, 1, 0, 0, 0);
         }
 
+        // Render each model
+        foreach (var model in _models.Where(m => m.Pipeline == _opaquePipeline)) draw(model);
+        foreach (var model in _models.Where(m => m.Pipeline != _opaquePipeline)) draw(model);
+
         // Skinned models: advance time, sample animation, bridge into B3D space, upload
         // bone palette, draw. Each model owns its own time accumulator + cached pose so
         // characters tick independently.
         // For the skeleton overlay we'd otherwise re-draw identical lines for every
         // sub-model on the same character (head/body/hair/etc. all share a skeleton).
         // Tracking poses we've already drawn this frame dedups them by reference.
+        
         var drawnPoses = DrawSkeletonOverlay ? new HashSet<GrannyFormats.SkeletonPose>() : null;
-        foreach (var model in _skinnedModels)
+        
+        void drawSkinned(SkinnedModelData model)
         {
             AdvanceAndUpload(cl, model, deltaTime);
 
-            cl.SetPipeline(_skinnedPipeline);
+            cl.SetPipeline(model.Pipeline ?? _skinnedPipeline);
             cl.SetGraphicsResourceSet(0, _projViewSet);
             cl.UpdateBuffer(_worldBuffer, 0, model.WorldMatrix);
             cl.SetGraphicsResourceSet(1, model.WorldTextureSet);
@@ -1177,6 +1196,9 @@ void main() {
             if (DrawSkeletonOverlay && drawnPoses!.Add(model.Pose))
                 DrawSkeletonLines(cl, model);
         }
+        
+        foreach (var model in _skinnedModels.Where(m => m.Pipeline == _opaqueSkinnedPipeline)) drawSkinned(model);
+        foreach (var model in _skinnedModels.Where(m => m.Pipeline != _opaqueSkinnedPipeline)) drawSkinned(model);
 
         cl.ResolveTexture(_msaaColorTarget, _sceneColorTarget);
         cl.End();
@@ -1367,18 +1389,25 @@ void main() {
         public Vector3 Position;
         public Vector2 TexCoords;
         public Vector3 Normal;
+        public Vector4 Color;
         public Vector4 BoneWeights;
         public uint BoneIndex0, BoneIndex1, BoneIndex2, BoneIndex3;
 
-        public const uint SizeInBytes = 12 + 8 + 12 + 16 + 16; // 64 bytes
+        public const uint SizeInBytes = 12 + 8 + 12 + 16 + 16 + 16; // 80 bytes
 
         public VertexPositionTextureNormalSkinned(
             Vector3 pos, Vector2 uv, Vector3 normal,
+            Vector4 weights, uint i0, uint i1, uint i2, uint i3)
+            : this(pos, uv, normal, Vector4.One, weights, i0, i1, i2, i3) { }
+
+        public VertexPositionTextureNormalSkinned(
+            Vector3 pos, Vector2 uv, Vector3 normal, Vector4 color,
             Vector4 weights, uint i0, uint i1, uint i2, uint i3)
         {
             Position = pos;
             TexCoords = uv;
             Normal = normal;
+            Color = color;
             BoneWeights = weights;
             BoneIndex0 = i0; BoneIndex1 = i1; BoneIndex2 = i2; BoneIndex3 = i3;
         }
@@ -1395,6 +1424,7 @@ void main() {
         public TextureView SurfaceTextureView { get; set; }
         public ResourceSet WorldTextureSet { get; set; }
         public ResourceSet BoneSet { get; set; }
+        public Pipeline Pipeline { get; set; }
         public Matrix4x4 WorldMatrix { get; set; } = Matrix4x4.Identity;
         public string Name { get; set; } = "";
 
@@ -1453,6 +1483,7 @@ void main() {
         if (_ignoredZones.Contains(texId)) return;
 
         var factory = _graphicsDevice.ResourceFactory;
+        var matRecord = b3d.MaterialDict[texId];
         var modelData = new SkinnedModelData
         {
             Name = texId,
@@ -1460,15 +1491,18 @@ void main() {
             GrSkeleton = gr2Skeleton,
             GrAnim = gr2Anim,
             B3dToGr2 = b3dToGr2,
-            UploadMatrices = new Matrix4x4[MaxBones]
+            UploadMatrices = new Matrix4x4[MaxBones],
+            // Mirror the static B3D path: alpha pipeline whenever the material wants
+            // texture-alpha, vertex-alpha (hair), or non-OPAQUE blending.
+            Pipeline = matRecord.NeedsAlphaPipeline ? null : _opaqueSkinnedPipeline
         };
 
-        var mtl_id = new string(b3d.MaterialDict[texId].Mtl_ID);
+        var mtl_id = matRecord.TechniqueName;
         if (mtl_id is "INVISIBLE") return;
 
         if (mtl_id is "NO_TEXTURE")
         {
-            var color = b3d.MaterialDict[texId].Mater.Diffuse;
+            var color = matRecord.Mater.Diffuse;
             modelData.SurfaceTexture = Create1x1TextureFromColor(_graphicsDevice, factory, color.r, color.g, color.b, color.a);
             modelData.SurfaceTextureView = factory.CreateTextureView(modelData.SurfaceTexture);
         }
@@ -1499,10 +1533,12 @@ void main() {
         {
             var bones = i < b3d.Vertex_Bones.Count ? b3d.Vertex_Bones[i] : null;
             ExpandToFour(bones, out var weights, out var i0, out var i1, out var i2, out var i3);
+            var color = i < b3d.Model_Vertex_Color.Count ? b3d.Model_Vertex_Color[i] : Vector4.One;
             modelData.Vertices.Add(new VertexPositionTextureNormalSkinned(
                 b3d.Model_Vertex_Position[i],
                 i < uvs.Count ? uvs[i] : Vector2.Zero,
                 b3d.Model_Vertex_Normal[i],
+                color,
                 weights, i0, i1, i2, i3));
         }
 

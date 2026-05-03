@@ -17,6 +17,12 @@ public class B3DModel
     public List<Vector3> Model_Vertex_Normal = [];
     public List<Vector3> Model_Vertex_Position = [];
     public List<Vector2> Model_Vertex_Texcoords = [];
+    // Per-vertex RGBA color, parallel to Model_Vertex_Position. The alpha channel
+    // is what makes BASE_VERTEX_ALPHA_* materials (hair, etc.) actually translucent —
+    // the renderer multiplies the texture sample against this and blends on output.
+    // Defaults to white when a vertex format doesn't carry a color (TVertex64
+    // intermittent paths, etc.) so opaque meshes stay opaque.
+    public List<Vector4> Model_Vertex_Color = [];
     
     public Dictionary<string, TMaterials> MaterialDict = new();
     public Dictionary<string, List<int>> SubModels = new();
@@ -58,6 +64,7 @@ public class B3DModel
         Model_Vertex_Position = [];
         Model_Vertex_Texcoords = [];
         Model_Vertex_Normal = [];
+        Model_Vertex_Color = [];
         Model_Faces_Index = [];
         Model_Faces_Mats = [];
 
@@ -392,6 +399,7 @@ public class B3DModel
             Color.Y = f.ReadSingle();
             Color.Z = f.ReadSingle();
             Color.W = f.ReadSingle();
+            b3d.Model_Vertex_Color.Add(Color);
 
             //TexCoords
             Unknown1.X = f.ReadInt32();
@@ -440,6 +448,8 @@ public class B3DModel
 
             Color = new byte[4];
             for (var i = 0; i < 4; i++) Color[i] = f.ReadByte();
+            // BGRA on disk (D3DCOLOR layout); store as RGBA floats.
+            b3d.Model_Vertex_Color.Add(new Vector4(Color[2] / 255f, Color[1] / 255f, Color[0] / 255f, Color[3] / 255f));
 
             TextureCoord.X = f.ReadSingle();
             TextureCoord.Y = f.ReadSingle();
@@ -830,6 +840,28 @@ public class TMaterials
     public char[] MATERIAL_TYPE;
     public char[] Mtl_ID;
     public char[] Name;
+
+    // The engine (Gfx_G3D_Mesh::LoadMesh) matches this string against the 33-entry
+    // technique table at off_6FC800 — BASE / BASE_IMAGE_ALPHA / BASE_VERTEX_ALPHA /
+    // NO_TEXTURE / INVISIBLE / etc. Despite the field name, this is the *technique*,
+    // not a texture id (matches the existing NO_TEXTURE/INVISIBLE checks in the
+    // renderer). Substrings IMAGE_ALPHA / VERTEX_ALPHA gate texture-alpha and
+    // per-vertex-alpha sampling, same as .8 MaterialRecord.
+    public string TechniqueName => Mtl_ID is { Length: > 0 } ? new string(Mtl_ID) : "";
+    public bool UsesImageAlpha => TechniqueName.Contains("IMAGE_ALPHA");
+    public bool UsesVertexAlpha => TechniqueName.Contains("VERTEX_ALPHA");
+
+    // Blend mode from the engine's 6-entry off_6FC7C8 table (OPAQUE / ALPHABLEND /
+    // MODCOLOR / SUBTRACT / REVSUBTRACT / ADD). Anything other than OPAQUE means the
+    // material is doing real per-pixel blending — hair, for example, ships as
+    // technique BASE_VERTEX_ALPHA_2X + blend state ALPHABLEND.
+    public string BlendStateName => BLEND_STATE is { Length: > 0 } ? new string(BLEND_STATE) : "";
+    public bool IsBlended => BlendStateName.Length > 0 && BlendStateName != "OPAQUE";
+
+    // True when the material needs the alpha-tested + alpha-blended pipeline rather
+    // than the plain opaque one. Covers all three engine signals: texture-alpha
+    // cutout, per-vertex alpha, and any non-OPAQUE blend mode.
+    public bool NeedsAlphaPipeline => UsesImageAlpha || UsesVertexAlpha || IsBlended;
 
     public TMaterials(BinaryReader f)
     {
