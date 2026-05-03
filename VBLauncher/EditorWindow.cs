@@ -294,7 +294,7 @@ public partial class EditorWindow
         return new Vector4(col.R / 255f, col.G / 255f, col.B / 255f, col.A / 255f);
     }
 
-    private Vector3 ColToVec3(Color col)
+    public static Vector3 ColToVec3(Color col)
     {
         return new Vector3(col.R / 255f, col.G / 255f, col.B / 255f);
     }
@@ -579,7 +579,7 @@ public partial class EditorWindow
 // reset all temporary values used in the editor (indexes, lists, etc.)
     private void ResetTempValues()
     {
-        _sceneRenderer.ClearModels();
+        _sceneRenderer.Reset();
         _eeovSelected = -1;
         _eeovTemp = "";
         _gcreSpecial = 0;
@@ -1257,7 +1257,7 @@ public partial class EditorWindow
         if (_currentFile is not Map map) return;
         ImGui.Begin("EMNO");
         // get all the names of the EMNOs (use string references)
-        _emnoNames = map.EMNO.Select(e => e.sr == 0 ? map.EMNO.IndexOf(e).ToString() : _stf[e.sr - 1]).ToArray();
+        _emnoNames = map.EMNO.Count == 0 ? [] : map.EMNO.Select(e => e.sr == 0 ? map.EMNO.IndexOf(e).ToString() : _stf[e.sr - 1]).ToArray();
         ImGui.Combo("##EMNO", ref _emnoIndex, _emnoNames, _emnoNames.Length);
         ImGui.PushItemWidth(-1);
         ImGui.SameLine();
@@ -1272,6 +1272,8 @@ public partial class EditorWindow
             map.EMNO.RemoveAt(_emnoIndex);
         if (_emnoIndex >= map.EMNO.Count)
             _emnoIndex = map.EMNO.Count - 1;
+        if (_emnoIndex == -1)
+            _emnoIndex = 0;
         if (map.EMNO.Count == 0)
         {
             ImGui.End();
@@ -1507,6 +1509,8 @@ public partial class EditorWindow
             emnp.chunks.RemoveAt(_emnpChunk);
         if (_emnpChunk >= emnp.chunks.Count)
             _emnpChunk = emnp.chunks.Count - 1;
+        if (_emnpChunk == -1)
+            _emnpChunk = 0;
         if (emnp.chunks.Count == 0)
         {
             ImGui.End();

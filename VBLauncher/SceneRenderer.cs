@@ -71,7 +71,13 @@ void main() {
     // Sample surface color + alpha, modulated by per-vertex color
     vec4 tex    = texture(sampler2D(SurfaceTexture, SurfaceSampler), fsin_texCoords);
     vec3 albedo = tex.rgb * fsin_color.rgb;
-    float alpha = tex.a * fsin_color.a;
+
+    // Discard only fully-transparent texels. Matches the engine's DirectX
+    // default (ALPHAFUNC=GREATER, ALPHAREF=0), instead of the standard 0.5 i use 0.45
+    // which is what we need for textures like Int_Vault13 that store a
+    // uniform alpha=125 even on faces that are conceptually opaque, while
+    // still cutting holes in foliage atlases.
+    if (tex.a < 0.45) discard;
 
     // lighting
     vec3 N      = normalize(fsin_normal);
@@ -81,10 +87,44 @@ void main() {
     vec3 diffuse = albedo * uLight.LightColor * NdotL;
     vec3 ambient = 0.3 * albedo;
 
-    // output with texture’s alpha
-    fsout_color = vec4(diffuse + ambient, alpha);
+    fsout_color = vec4(diffuse + ambient, fsin_color.a);
 }";
-    
+
+    // Opaque variant — same lighting, but no alpha discard and a forced 1.0 output
+    // alpha. Used by the 8Model map pipeline because many map TGAs are 32-bit with
+    // junk/zero alpha channels; alpha-testing those would erase the whole map.
+    private const string OpaqueFragmentCode = @"#version 450
+
+layout(location = 0) in vec2  fsin_texCoords;
+layout(location = 1) in vec3  fsin_normal;
+layout(location = 2) in vec3  fsin_worldPos;
+layout(location = 3) in vec4  fsin_color;
+
+layout(location = 0) out vec4 fsout_color;
+
+layout(set = 1, binding = 1) uniform texture2D SurfaceTexture;
+layout(set = 1, binding = 2) uniform sampler  SurfaceSampler;
+
+layout(set = 0, binding = 3) uniform LightInfo {
+    vec3 LightPosition;
+    vec3 LightColor;
+    vec3 CameraPosition;
+} uLight;
+
+void main() {
+    vec4 tex    = texture(sampler2D(SurfaceTexture, SurfaceSampler), fsin_texCoords);
+    vec3 albedo = tex.rgb * fsin_color.rgb;
+
+    vec3 N      = normalize(fsin_normal);
+    vec3 L      = normalize(uLight.LightPosition - fsin_worldPos);
+    float NdotL = max(dot(N, L), 0.0);
+
+    vec3 diffuse = albedo * uLight.LightColor * NdotL;
+    vec3 ambient = 0.3 * albedo;
+
+    fsout_color = vec4(diffuse + ambient, 1.0);
+}";
+
     private static readonly string SkinnedVertexCode = @"#version 450
 
 layout(set = 0, binding = 0) uniform ProjectionBuffer { mat4 Projection; };
@@ -152,12 +192,12 @@ void main() {
     //   v_b3d * (B3dToEngine * S * EngineToB3d) = v_b3d_skinned.
     // Recipe is the inverse of the reference's TVertex44 transform:
     //   engine = (b3d.x * 0.3, -b3d.z * 0.3, b3d.y * 0.3).
-    private static readonly Matrix4x4 B3dToEngine = new Matrix4x4(
+    private static readonly Matrix4x4 B3dToEngine = new(
         0.3f,  0f,    0f,   0f,
         0f,    0f,    0.3f, 0f,
         0f,   -0.3f,  0f,   0f,
         0f,    0f,    0f,   1f);
-    private static readonly Matrix4x4 EngineToB3d = new Matrix4x4(
+    private static readonly Matrix4x4 EngineToB3d = new(
         1f / 0.3f, 0f,         0f,         0f,
         0f,        0f,        -1f / 0.3f,  0f,
         0f,        1f / 0.3f,  0f,         0f,
@@ -173,9 +213,11 @@ void main() {
 
     public IntPtr ImGuiBinding;
 
-    private List<ModelData> _models = new List<ModelData>();
-    private List<SkinnedModelData> _skinnedModels = new List<SkinnedModelData>();
+    private List<ModelData> _models = new();
+    private List<SkinnedModelData> _skinnedModels = new();
     private Camera _camera;
+
+    private LightInfo _light = new();
 
     private DeviceBuffer _lightBuffer;
     private Pipeline _pipeline;
@@ -455,6 +497,8 @@ void main() {
             _ignoredZones.Clear();
         }
         
+        _light.LightColor = (new Vector3(1) + EditorWindow.ColToVec3(map.EMAP.col)) / 2;
+        
         FocusCamera();
     }
     
@@ -477,33 +521,36 @@ void main() {
              materialIndices[i] = new List<ushort>();
         }
         
-        // Populate indices (collect faces)
-        // Using a dictionary that creates lists on demand to handle any MDX value
-        var materialFaces = new Dictionary<int, List<int>>();
+        // Group faces by (texture, material). MDX (1-based into MAT) picks the
+        // bound texture; MFL (0-based into Materials) picks the technique. The
+        // same texture atlas can be referenced by multiple materials with
+        // different techniques (e.g. foliage atlas: BASE_2X for trunks +
+        // BASE_IMAGE_ALPHA_2X for alpha-tested leaf cards), so we have to split
+        // on both. MDX==0 collapses to a single "no texture" bucket regardless
+        // of the material it carries.
+        var materialFaces = new Dictionary<(int Mdx, int Mat), List<int>>();
 
         for (int i = 0; i < model.IDX.Count; i++)
         {
-            // MDX==0 means "no material assigned". Use -1 as the bucket key so it
-            // can't collide with a real material index (1..MAT.Count) — previously
-            // we remapped to MAT.Count, which both collided with the last material
-            // and caused the texture lookup below to pick up MAT[Count-1] instead
-            // of the grey fallback.
             var mdxindex = model.MDX[i];
             if (mdxindex == 0) mdxindex = -1;
-
-            if (!materialFaces.ContainsKey(mdxindex))
+            var matIdx = i < model.MFL.Count ? (int)model.MFL[i] : 0;
+            var key = (mdxindex, matIdx);
+            if (!materialFaces.TryGetValue(key, out var bucket))
             {
-                materialFaces[mdxindex] = new List<int>();
+                bucket = new List<int>();
+                materialFaces[key] = bucket;
             }
-            materialFaces[mdxindex].Add(i);
+            bucket.Add(i);
         }
 
-        Console.WriteLine($"[SceneRenderer] Add8Model: GVP Count {model.GVP.Count}, IDX Count {model.IDX.Count}, MAT Count {model.MAT.Count}");
-        Console.WriteLine($"[SceneRenderer] Add8Model: Material Faces Breakdown: {string.Join(", ", materialFaces.Select(k => $"Mat {k.Key}: {k.Value.Count} faces"))}");
+        Console.WriteLine($"[SceneRenderer] Add8Model: GVP Count {model.GVP.Count}, IDX Count {model.IDX.Count}, MAT Count {model.MAT.Count}, Materials Count {model.Materials.Count}");
+        Console.WriteLine($"[SceneRenderer] Add8Model: Material Faces Breakdown: {string.Join(", ", materialFaces.Select(k => $"(Tex={k.Key.Mdx}, Mat={k.Key.Mat}): {k.Value.Count} faces"))}");
 
         foreach (var kvp in materialFaces)
         {
-            var matIndex = kvp.Key;
+            var matIndex = kvp.Key.Mdx;
+            var matRecordIndex = kvp.Key.Mat;
             var faceIndices = kvp.Value;
             if (faceIndices.Count == 0) continue;
 
@@ -512,12 +559,20 @@ void main() {
             {
                  textureName = Path.GetFileNameWithoutExtension(model.MAT[matIndex - 1].FileName);
             }
-            
+
+            // Pipeline choice is driven by the per-face material's technique name
+            // (MATR offset +4, matched against the engine's off_6FC800 table).
+            // Names containing IMAGE_ALPHA opt into texture-alpha sampling
+            // (1-bit cutout); everything else stays on the opaque pipeline.
+            var useImageAlpha = matRecordIndex >= 0
+                && matRecordIndex < model.Materials.Count
+                && model.Materials[matRecordIndex].UsesImageAlpha;
+
             var modelData = new ModelData
             {
-                Name = $"8Model_Mat{matIndex}",
+                Name = $"8Model_Tex{matIndex}_Mat{matRecordIndex}",
                 WorldMatrix = Matrix4x4.Identity,
-                Pipeline = textureName != null && textureName.Contains("Flora") ? null : _opaquePipeline
+                Pipeline = useImageAlpha ? null : _opaquePipeline
             };
             
             // Process Texture
@@ -573,9 +628,9 @@ void main() {
 
                     // Use per-vertex normals from the file (same Y/Z un-swap as positions).
                     // Fall back to a flat normal if the chunk had no NRML sub-chunk.
-                    Vector3 n0 = model.GVN.Count > idx0 ? new Vector3(model.GVN[idx0].X, model.GVN[idx0].Z, model.GVN[idx0].Y) : Vector3.Zero;
-                    Vector3 n1 = model.GVN.Count > idx1 ? new Vector3(model.GVN[idx1].X, model.GVN[idx1].Z, model.GVN[idx1].Y) : Vector3.Zero;
-                    Vector3 n2 = model.GVN.Count > idx2 ? new Vector3(model.GVN[idx2].X, model.GVN[idx2].Z, model.GVN[idx2].Y) : Vector3.Zero;
+                    Vector3 n0 = model.GVN.Count > idx0 ? new Vector3(model.GVN[idx0].X, model.GVN[idx0].Y, model.GVN[idx0].Z) : Vector3.Zero;
+                    Vector3 n1 = model.GVN.Count > idx1 ? new Vector3(model.GVN[idx1].X, model.GVN[idx1].Y, model.GVN[idx1].Z) : Vector3.Zero;
+                    Vector3 n2 = model.GVN.Count > idx2 ? new Vector3(model.GVN[idx2].X, model.GVN[idx2].Y, model.GVN[idx2].Z) : Vector3.Zero;
 
                     if (n0.LengthSquared() < 1e-8f || n1.LengthSquared() < 1e-8f || n2.LengthSquared() < 1e-8f)
                     {
@@ -704,7 +759,9 @@ void main() {
 
         var vert = new ShaderDescription(ShaderStages.Vertex, Encoding.UTF8.GetBytes(VertexCode), "main");
         var frag = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(FragmentCode), "main");
+        var fragOpaque = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(OpaqueFragmentCode), "main");
         var shaders = factory.CreateFromSpirv(vert, frag);
+        var opaqueShaders = factory.CreateFromSpirv(vert, fragOpaque);
 
         var projViewLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(
             new ResourceLayoutElementDescription("ProjectionBuffer", ResourceKind.UniformBuffer, ShaderStages.Vertex),
@@ -716,8 +773,12 @@ void main() {
             new ResourceLayoutElementDescription("SurfaceTexture", ResourceKind.TextureReadOnly, ShaderStages.Fragment),
             new ResourceLayoutElementDescription("SurfaceSampler", ResourceKind.Sampler, ShaderStages.Fragment)));
 
+        // Alpha-tested + alpha-blended pipeline: the fragment shader discards texels
+        // below the texture-alpha threshold (so transparent texture areas don't write
+        // depth and don't need sorting), while vertex-color alpha is still blended
+        // through normally for smooth fades.
         _pipeline = factory.CreateGraphicsPipeline(new GraphicsPipelineDescription(
-            BlendStateDescription.SingleAlphaBlend, 
+            BlendStateDescription.SingleAlphaBlend,
             DepthStencilStateDescription.DepthOnlyLessEqual,
             new RasterizerStateDescription(
                 FaceCullMode.None, // Disable backface culling
@@ -742,7 +803,9 @@ void main() {
             new[] { projViewLayout, _worldTextureLayout },
             _sceneFramebuffer.OutputDescription));
 
-        // Create Opaque Pipeline (skips blending, effectively ignoring alpha channel for visibility)
+        // Opaque Pipeline: ignores texture alpha entirely. Used by the 8Model map
+        // path where many TGAs are 32-bit with junk/zero alpha — running them through
+        // the alpha-tested fragment shader would discard the entire map.
         _opaquePipeline = factory.CreateGraphicsPipeline(new GraphicsPipelineDescription(
             BlendStateDescription.SingleOverrideBlend,
             DepthStencilStateDescription.DepthOnlyLessEqual,
@@ -765,7 +828,7 @@ void main() {
                         new VertexElementDescription("Color", VertexElementSemantic.TextureCoordinate,
                             VertexElementFormat.Float4))
                 },
-                shaders),
+                opaqueShaders),
             new[] { projViewLayout, _worldTextureLayout },
             _sceneFramebuffer.OutputDescription));
 
@@ -863,8 +926,7 @@ void main() {
         AddModel(model, materialIndex, null, worldMatrix, uvs);
     }
     
-    private static Vector4 ColorToVec4(System.Drawing.Color c)
-        => new Vector4(c.R / 255f, c.G / 255f, c.B / 255f, c.A / 255f);
+    private static Vector4 ColorToVec4(System.Drawing.Color c) => new(c.R / 255f, c.G / 255f, c.B / 255f, c.A / 255f);
 
     private Texture Create1x1TextureFromColor(GraphicsDevice graphicsDevice, ResourceFactory factory, float r, float g, float b, float a = 1.0f)
     {
@@ -987,7 +1049,7 @@ void main() {
         return _models.Count == 0 && _skinnedModels.Count == 0;
     }
 
-    public void ClearModels()
+    public void Reset()
     {
         foreach (var model in _models)
         {
@@ -1011,6 +1073,7 @@ void main() {
         }
         _skinnedModels.Clear();
         _ignoredZones.Clear();
+        _light = new LightInfo();
     }
 
     public int GetModelCount()
@@ -1068,13 +1131,6 @@ void main() {
         InputTracker.UpdateFrameInput(_window.PumpEvents());
         if (AllowInput) _camera.Update(deltaTime);
 
-        LightInfo light = new()
-        {
-            LightPosition = _camera.Position,
-            LightColor = new Vector3(1, 1, 1),
-            CameraPosition = _camera.Position,
-        };
-
         cl.Begin();
         cl.SetFramebuffer(_sceneFramebuffer);
         cl.ClearColorTarget(0, RgbaFloat.Black);
@@ -1082,7 +1138,8 @@ void main() {
 
         cl.UpdateBuffer(_projectionBuffer, 0, _camera.ProjectionMatrix);
         cl.UpdateBuffer(_viewBuffer, 0, _camera.ViewMatrix);
-        cl.UpdateBuffer(_lightBuffer, 0, light);
+        _light.CameraPosition = _camera.Position;
+        cl.UpdateBuffer(_lightBuffer, 0, _light);
 
         // Render each model
         foreach (var model in _models)
@@ -1257,20 +1314,20 @@ void main() {
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    private struct LightInfo
+    private struct LightInfo()
     {
-        public Vector3 LightPosition;
+        public Vector3 LightPosition = new(5000, 4000, 10000);
         private float _pad1;
-        public Vector3 LightColor;
+        public Vector3 LightColor = new(1, 1, 1);
         private float _pad2;
-        public Vector3 CameraPosition;
+        public Vector3 CameraPosition = Vector3.Zero;
         private float _pad3;
     }
 
     public class ModelData
     {
-        public List<VertexPositionTextureNormal> Vertices { get; set; } = new List<VertexPositionTextureNormal>();
-        public List<ushort> Indices { get; set; } = new List<ushort>();
+        public List<VertexPositionTextureNormal> Vertices { get; set; } = new();
+        public List<ushort> Indices { get; set; } = new();
         public DeviceBuffer VertexBuffer { get; set; }
         public DeviceBuffer IndexBuffer { get; set; }
         public Texture SurfaceTexture { get; set; }

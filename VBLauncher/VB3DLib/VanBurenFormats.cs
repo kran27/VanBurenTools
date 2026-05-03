@@ -1065,6 +1065,16 @@ public class _8Model
     // ----- TREE-derived face data -----
     public List<int[]> IDX = [];
     public List<int> MDX = [];
+    // Per-face material index, sourced from the low byte of each IDXS group's
+    // header word (see DecodeIDXS). Parallel to IDX/MDX: MDX gives the bound
+    // texture (1-based into the filtered MAT list); MFL picks which
+    // MaterialRecord in `Materials` actually applies. The technique on that
+    // material is what tells the renderer whether to alpha-test (IMAGE_ALPHA)
+    // or alpha-blend per-vertex (VERTEX_ALPHA), so a single texture atlas can
+    // host both opaque and alpha-tested cards — e.g. PS_Flora_Desert01_LG:
+    // trunks (BASE_2X) and leaf cards (BASE_IMAGE_ALPHA_2X) share one TGA but
+    // are split across two MaterialRecords sharing the same texture.
+    public List<uint> MFL = [];
 
     // Stats
     public int NodeCount;
@@ -1381,6 +1391,10 @@ public class _8Model
                     var idxsEnd = f.BaseStream.Position + idxsSize;
                     DecodeIDXS(f, idxsEnd, cnodeIdx);
                     f.BaseStream.Seek(idxsEnd, SeekOrigin.Begin);
+                    // FLGS is per-face state read by the engine but not the
+                    // material assignment (that lives in IDXS group headers,
+                    // see DecodeIDXS). Its contents look like coarse face-
+                    // category flags that we don't need for rendering.
                     if (f.BaseStream.Position + 8 <= limit)
                     {
                         var probe2 = f.BaseStream.Position;
@@ -1412,20 +1426,42 @@ public class _8Model
         }
     }
 
-    // IDXS payload is a series of groups: { material-switch, count, indices x count }.
-    // The high byte of the leading u16 selects which switch encoding is in use.
+    // IDXS payload is a sequence of groups, each headed by a "material switch":
+    //   - 0x80NN  w1  (0x4000+ww2)  w3  m   : verbose form (per-group state)
+    //   - 0x40NN  w1                m       : compact form
+    //   - 0x00NN                            : minimal — tmp itself is m
+    //   followed by `count` (u16, =3*tris) and `tris` triangles of u16 indices.
+    //
+    // What each header field means (reverse-engineered from F3.exe's
+    // Octree2Gfx::ConstructRenderData, which builds per-batch render structs at
+    // sub_4BDEA0:0x4bf252 — `material = materials[batch[3]]`):
+    //   m       — texture index (1-based into the filtered MAT list, 0 = no
+    //             texture; selects which TGA gets bound for the group).
+    //   tmp&0xFF — the 0-based MaterialRecord index for the group. This is what
+    //             picks the technique (BASE, BASE_IMAGE_ALPHA_2X, etc.) and the
+    //             blend op. The same texture (m) can appear with multiple
+    //             tmp_low values, so a foliage atlas can mix opaque trunks
+    //             (tmp_low → BASE_2X) with alpha-tested cards (tmp_low →
+    //             BASE_IMAGE_ALPHA_2X).
+    //   w1, w3   — vertex-range bounds within the cnode's vertex buffer (used
+    //             for D3D's DrawIndexedPrimitive minIndex/numVertices). Not
+    //             needed for our renderer — we draw the whole index buffer.
+    //   w2 - 0x4000 — secondary state bit (FX/lighting variant); engine reads
+    //                it but the visible effect is small and we ignore it.
     private void DecodeIDXS(BinaryReader f, long end, int cnodeIdx)
     {
         var baseOffset = cnodeIdx >= 0 && cnodeIdx < CNodeOffsets.Count - 1
             ? CNodeOffsets[cnodeIdx]
             : 0;
         var m = 0;
+        var matIdx = 0;
         while (f.BaseStream.Position + 12 <= end)
         {
             var tmp = f.ReadUInt16();
             if (tmp == 0) tmp = f.ReadUInt16();
             if ((tmp & 0xFF00) == 0x8000)
             {
+                matIdx = tmp & 0xFF;
                 f.ReadUInt16();
                 _ = f.ReadUInt16() - 0x4000;
                 f.ReadUInt16();
@@ -1433,12 +1469,15 @@ public class _8Model
             }
             else if ((tmp & 0xFF00) == 0x4000)
             {
+                matIdx = tmp & 0xFF;
                 f.ReadUInt16();
                 m = f.ReadUInt16();
             }
             else if ((tmp & 0xFF00) == 0)
             {
                 m = tmp;
+                // Minimal form has no per-group material; the engine inherits
+                // the previously-set one. Keep matIdx as-is across iterations.
             }
             var sz = f.ReadUInt16();
             for (var i = 0; i < sz / 3; i++)
@@ -1449,6 +1488,7 @@ public class _8Model
                 var c = baseOffset + f.ReadUInt16();
                 IDX.Add([a, c, b]);
                 MDX.Add(m);
+                MFL.Add((uint)matIdx);
             }
         }
     }
@@ -1513,28 +1553,37 @@ public sealed class LightmapData
 public sealed class MaterialRecord
 {
     public byte[] Raw = Array.Empty<byte>();
-    // Layout inferred from MarkTest MATR (196 bytes):
+    // MATR layout (196 bytes), reconstructed from F3.exe's
+    // Octree2Gfx::ConstructRenderData (sub_4BDEA0):
     //   0x00 u32 (name length / id)
-    //   0x04 64-byte name
-    //   0x58 RGBA
-    //   0x5C 16-byte render mode (e.g. "OPAQUE")
+    //   0x04 64-byte technique name — strcmp'd against a fixed 33-entry table
+    //        (off_6FC800: BASE, BASE_LM, BASE_IMAGE_ALPHA, BASE_VERTEX_ALPHA, ...).
+    //        Substrings IMAGE_ALPHA / VERTEX_ALPHA in the name gate texture-alpha
+    //        and per-vertex-alpha sampling respectively. This is how a single
+    //        foliage atlas can have alpha-tested cards next to opaque trunks.
+    //   0x58 16-byte blend-state name — strcmp'd against a 6-entry table
+    //        (off_6FC7C8: OPAQUE, ALPHABLEND, MODCOLOR, SUBTRACT, REVSUBTRACT, ADD).
     //   0x74 16-byte sound type (e.g. "SILENT")
-    //   0xC0 u32 texture index into TXTD's name table
+    //   0x88 u32 flag word OR'd into the per-mesh render flags
+    //   0xB0..0xBC four u32 TCFX params (passed to Gfx_TCFX_Param::SetParam)
+    //   0xC0 u32 packed flags + texture-stage indices: bits 0x10/0x08/0x04 enable
+    //        the base/lightmap/third stages; (value >> 5) & 0xF is the 4-bit slot
+    //        used to look up which actual texture is bound for each enabled stage.
     public string Name = "";
-    public Color Color;
-    public string RenderMode = "";
+    public string BlendState = "";
     public string SoundType = "";
-    public int TextureIndex;
+    public uint StageFlags;
+
+    public bool UsesImageAlpha => Name.Contains("IMAGE_ALPHA");
+    public bool UsesVertexAlpha => Name.Contains("VERTEX_ALPHA");
 
     public static MaterialRecord Parse(byte[] raw)
     {
         var m = new MaterialRecord { Raw = raw };
         if (raw.Length >= 0x44) m.Name = ReadAsciiZ(raw, 0x04, 64);
-        if (raw.Length >= 0x5C)
-            m.Color = Color.FromArgb(raw[0x5B], raw[0x58], raw[0x59], raw[0x5A]);
-        if (raw.Length >= 0x6C) m.RenderMode = ReadAsciiZ(raw, 0x5C, 16);
+        if (raw.Length >= 0x68) m.BlendState = ReadAsciiZ(raw, 0x58, 16);
         if (raw.Length >= 0x84) m.SoundType = ReadAsciiZ(raw, 0x74, 16);
-        if (raw.Length >= 0xC4) m.TextureIndex = BitConverter.ToInt32(raw, 0xC0);
+        if (raw.Length >= 0xC4) m.StageFlags = BitConverter.ToUInt32(raw, 0xC0);
         return m;
     }
 
