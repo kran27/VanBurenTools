@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -1682,17 +1682,19 @@ public class _8Model
                     var idxsEnd = f.BaseStream.Position + idxsSize;
                     DecodeIDXS(f, idxsEnd, cnodeIdx);
                     f.BaseStream.Seek(idxsEnd, SeekOrigin.Begin);
-                    // FLGS is per-face state read by the engine but not the
-                    // material assignment (that lives in IDXS group headers,
-                    // see DecodeIDXS). Its contents look like coarse face-
-                    // category flags that we don't need for rendering.
+                    // FLGS holds one flag per face — but the per-face width isn't
+                    // constant across maps. We scan to identify which length is used
+                    // by scanning for a known flag after the appropriate number of
+                    // flags at both possible lengths.
                     if (f.BaseStream.Position + 8 <= limit)
                     {
                         var probe2 = f.BaseStream.Position;
                         if (ReadTag(f) == "FLGS")
                         {
                             var flgsCount = f.ReadInt32();
-                            f.BaseStream.Seek(flgsCount * 4L, SeekOrigin.Current);
+                            var bodyStart = f.BaseStream.Position;
+                            long pick = ResolveFlgsBodyEnd(f, bodyStart, flgsCount, limit);
+                            f.BaseStream.Seek(pick, SeekOrigin.Begin);
                         }
                         else
                         {
@@ -1715,6 +1717,29 @@ public class _8Model
                 WalkTreeNode(f, limit);
             }
         }
+    }
+
+    private static long ResolveFlgsBodyEnd(BinaryReader f, long bodyStart, int flgsCount, long limit)
+    {
+        var byteEnd = bodyStart + flgsCount;
+        var int4End = bodyStart + flgsCount * 4L;
+        bool byteOk = LooksLikeTreeTagAt(f, byteEnd, limit);
+        bool int4Ok = LooksLikeTreeTagAt(f, int4End, limit);
+        if (byteOk) return byteEnd;
+        if (int4Ok) return int4End;
+        return int4End;
+    }
+
+    private static bool LooksLikeTreeTagAt(BinaryReader f, long pos, long limit)
+    {
+        if (pos < 0 || pos + 4 > limit || pos + 4 > f.BaseStream.Length) return false;
+        var saved = f.BaseStream.Position;
+        f.BaseStream.Seek(pos, SeekOrigin.Begin);
+        var bytes = f.ReadBytes(4);
+        f.BaseStream.Seek(saved, SeekOrigin.Begin);
+        if (bytes.Length < 4) return false;
+        var s = Encoding.ASCII.GetString(bytes);
+        return s == "NODE" || s == "LEAF";
     }
 
     // IDXS payload is a sequence of groups, each headed by a "material switch":
