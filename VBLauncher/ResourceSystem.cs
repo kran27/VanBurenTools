@@ -62,7 +62,16 @@ public static class ResourceSystem
                         var capturedExt = ext;
                         extDict[name] = new LazyResource(() =>
                         {
-                            try { return new B3DModel(fb); }
+                            try
+                            {
+                                var b3d = new B3DModel(fb);
+                                // Diagnostic: dump the header signals we currently drop on
+                                // the floor so we can correlate Token16 / T06 / NodeXform
+                                // values against visually-broken vs working props. Remove
+                                // once a placement-time discriminator is confirmed.
+                                Console.WriteLine($"[b3d] {capturedName,-40} {b3d.DescribeTransformSignals()}");
+                                return b3d;
+                            }
                             catch (Exception ex)
                             {
                                 MessageBox.Show($"Failed to load model {capturedName}.{capturedExt}: {ex.Message}");
@@ -164,6 +173,7 @@ public static class ResourceSystem
                 return res is LazyResource lr ? lr.Get() : res;
         return null;
     }
+
 }
 
 public sealed class LazyResource

@@ -23,6 +23,37 @@ public class B3DModel
     // Defaults to white when a vertex format doesn't carry a color (TVertex64
     // intermittent paths, etc.) so opaque meshes stay opaque.
     public List<Vector4> Model_Vertex_Color = [];
+
+    // Top-level token 0x16 — int32 payload. Observation: -1 correlates with mis-rotated
+    // static props (DS_carjunk_01_glass etc.); engine semantics still TBD. Captured so
+    // the renderer can correlate at placement time. Null means the token wasn't present.
+    public int? Token16Value;
+
+    // Top-level token 0x06 — 3 dwords (engine implies a 4th = 1.0f). Engine also flips
+    // a flag at struct[144] when this token is present.
+    public int[]? Token06Values;
+    public bool HasToken06;
+
+    // Per-node transforms parsed from token 0x0D inside ParseNode. Empty for files like
+    // carjunk_01_glass that don't emit transforms. The Name is the most recent 0x0C
+    // (node name) seen in the same node block.
+    public List<NodeTransform> NodeTransforms = [];
+
+    // Header strings/values we previously discarded outright. Captured so the
+    // diagnostic dump can show whether a per-model orientation flag lives here.
+    public string CoordinateSystem = "";       // token 0x05 (e.g. "LEFT_HANDED")
+    public float GlobalScaleFactor;            // token 0x03
+    public float CoordinateScale;              // token 0x04
+
+    // First-vertex-node u1/u2 bytes — currently dropped on the floor as "VertNode U1/U2".
+    // Captured so we can correlate against rotation behaviour without grepping the log.
+    public byte VertNode_U1;
+    public byte VertNode_U2;
+    public bool VertNode_Captured;
+
+    // Names of the nodes encountered (in tree-walk order). For carjunk that's
+    // ["Scene Root", "DS_carjunk_01_glass"]; for many props it's just ["Scene Root"].
+    public List<string> NodeNames = [];
     
     public Dictionary<string, TMaterials> MaterialDict = new();
     public Dictionary<string, List<int>> SubModels = new();
@@ -44,6 +75,17 @@ public class B3DModel
     public List<List<TVert_Bones_Data>> Vertex_Bones = [];
 
     public int Vertex_Type_Flag;
+
+    // True when the file declares the very-old "VT=0x35" header variant (CR_Sheep,
+    // CR_Bear, CR_Badger and similar pre-conversion critter meshes). It uses an
+    // alternate set of tag IDs (0x0F/0x10/0x18 at top level for material/texture/
+    // bone, 0x13 for node-begin, 0x14 for node-end, 0x16 for node name, 0x19 for
+    // G3D_Surface) and a smaller 36-byte TVertex44 layout that drops the trailing
+    // two ints. None of those IDs collide with the modern (VT=0x1C) tag set, so
+    // we can dispatch them unconditionally; the flag exists so the structs that
+    // share a parser path (TMaterials, TMaterial_Data44, TVertex_Node) can pick
+    // the right wire format.
+    public bool IsLegacyV35;
 
     public B3DModel(string path)
     {
@@ -76,6 +118,19 @@ public class B3DModel
 
         Vertex_Type_Flag = 0;
 
+        Token16Value = null;
+        Token06Values = null;
+        HasToken06 = false;
+        NodeTransforms = [];
+        CoordinateSystem = "";
+        GlobalScaleFactor = 0f;
+        CoordinateScale = 0f;
+        VertNode_U1 = 0;
+        VertNode_U2 = 0;
+        VertNode_Captured = false;
+        NodeNames = [];
+        IsLegacyV35 = false;
+
         // Tag dispatch derived from F3.exe Gfx_G3D_Mesh's B3D loader (sub_4DE680 / sub_4DE120).
         // No fixed-size header — everything after the 8-byte signature is tagged. The earlier
         // C# port had a hand-unrolled "header" plus two divergent switch tables; both diverged
@@ -102,17 +157,23 @@ public class B3DModel
                     done = true; // EOF
                     break;
                 case 0x03:
-                    f.ReadSingle(); // GlobalScaleFactor — not consumed downstream
+                    GlobalScaleFactor = f.ReadSingle();
                     break;
                 case 0x04:
-                    f.ReadSingle(); // CoordinateScale
+                    CoordinateScale = f.ReadSingle();
                     break;
                 case 0x05:
-                    StringRead(f); // CoordinateSystem
+                    CoordinateSystem = new string(StringRead(f));
                     break;
                 case 0x06:
-                    f.ReadBytes(12); // 3 dwords; 4th component is implicit 1.0f
+                {
+                    // 3 dwords; engine implies a 4th component of 1.0f. Engine also flips
+                    // a flag at struct[144] when this token is present, so capture both the
+                    // values and a "saw it" bool for renderer correlation.
+                    Token06Values = [f.ReadInt32(), f.ReadInt32(), f.ReadInt32()];
+                    HasToken06 = true;
                     break;
+                }
                 case 0x07:
                 {
                     var mat = new TMaterials(f);
@@ -136,7 +197,14 @@ public class B3DModel
                     break;
                 }
                 case 0x16:
-                    f.ReadInt32();
+                    // engine: int32 stored at struct[24]. -1 observed on mis-rotated static
+                    // props (e.g. DS_carjunk_01_glass); engine consumer not yet identified.
+                    Token16Value = f.ReadInt32();
+                    break;
+                case 0x2F:
+                    // Legacy-V35 equivalent of 0x16 (top-level int32). All three sample
+                    // critter meshes carry the same -1 here.
+                    Token16Value = f.ReadInt32();
                     break;
                 case 0x17:
                     // sub_4D2620: 3 padded strings + 16 + 4 + 4 + 4 bytes
@@ -148,6 +216,44 @@ public class B3DModel
                 case 0x1C:
                     f.ReadByte(); // version value; presence of this tag is the modern-format signal
                     b3d.FormatVer = 0;
+                    break;
+                case 0x35:
+                    // Pre-conversion legacy header (CR_Sheep / CR_Bear / CR_Badger). Same
+                    // shape as 0x1C — 1-byte version follows — but it switches the parser
+                    // to the legacy tag set + compact TVertex44 layout used by these
+                    // older critter meshes.
+                    f.ReadByte();
+                    b3d.FormatVer = 1;
+                    b3d.IsLegacyV35 = true;
+                    break;
+                case 0x0F:
+                {
+                    // Legacy-V35 TMaterials (modern equivalent: 0x07). Same Mtl_ID + Name
+                    // + 18-float TMater + BLEND_STATE prefix, but no MATERIAL_TYPE / Flag_1
+                    // / Flag_2 — five zero-filler bytes instead.
+                    var mat = new TMaterials(f, legacy: true);
+                    Materials.Add(mat);
+                    MaterialDict[new string(mat.Name)] = mat;
+                    break;
+                }
+                case 0x10:
+                {
+                    // Legacy-V35 TTextures (modern equivalent: 0x08/0x09). Same wire format.
+                    _ = new TTextures(f, b3d);
+                    break;
+                }
+                case 0x18:
+                {
+                    // Legacy-V35 TBone (modern equivalent: 0x0E). Same wire format.
+                    var bone = new TBone(f);
+                    b3d.Bones.Add(bone);
+                    break;
+                }
+                case 0x13:
+                    // Legacy-V35 NODE_BEGIN (modern equivalent: 0x0A). The inner-tag set
+                    // is also remapped (0x14 end, 0x16 name, 0x19 surface) so ParseNode
+                    // dispatches based on b3d.IsLegacyV35.
+                    ParseNode(f, b3d);
                     break;
                 default:
                     Console.WriteLine($"Unknown top-level B3D tag: 0x{token:X2} at position {f.BaseStream.Position}");
@@ -162,6 +268,9 @@ public class B3DModel
     // are consumed for stream alignment but the data isn't currently retained downstream.
     private void ParseNode(BinaryReader f, B3DModel b3d)
     {
+        // Most-recent 0x0C name in this node block. The 0x0D transform that follows
+        // belongs to whichever 0x0C node we last passed.
+        string currentNodeName = "";
         while (f.BaseStream.Position < f.BaseStream.Length)
         {
             var token = f.ReadByte();
@@ -171,17 +280,22 @@ public class B3DModel
                     Console.WriteLine("EOF reached before end of node");
                     return;
                 case 0x0A:
+                case 0x13: // legacy-V35 NODE_BEGIN
                     ParseNode(f, b3d);
                     break;
                 case 0x0B:
-                    return; // end-of-node
+                case 0x14: // legacy-V35 NODE_END
+                    return;
                 case 0x0C:
-                    StringRead(f); // node Name (sub_4D0670 → sub_4D0450)
+                case 0x16 when b3d.IsLegacyV35: // legacy-V35 NODE_NAME (re-uses 0x16 inside nodes)
+                    currentNodeName = new string(StringRead(f)); // node Name (sub_4D0670 → sub_4D0450)
+                    NodeNames.Add(currentNodeName);
                     break;
                 case 0x0D:
-                    ReadTransform(f);
+                    NodeTransforms.Add(ReadTransform(f, currentNodeName));
                     break;
                 case 0x0F:
+                case 0x19 when b3d.IsLegacyV35: // legacy-V35 G3D_Surface
                 {
                     var vn = new TVertex_Node(f, b3d);
                     for (var index = 0; index < vn.material_data.Count; index++)
@@ -226,14 +340,140 @@ public class B3DModel
     }
 
     // Mirrors G3D_Transform::Read at sub_4D0A00. Padded-string Name + 1-byte flag + conditional
-    // 24 / 32 / 24-byte payloads (translation / rotation matrix / scale).
-    private static void ReadTransform(BinaryReader f)
+    // 24 / 32 / 24-byte payloads (translation / rotation matrix / scale). The owning node's
+    // name (last 0x0C in the same node block) is passed in so the renderer can correlate.
+    private static NodeTransform ReadTransform(BinaryReader f, string nodeName)
     {
-        StringRead(f); // Name
-        var flags = f.ReadByte();
-        if ((flags & 0x01) != 0) f.ReadBytes(24);
-        if ((flags & 0x02) != 0) f.ReadBytes(32);
-        if ((flags & 0x04) != 0) f.ReadBytes(24);
+        var nx = new NodeTransform { OwnerNodeName = nodeName };
+        nx.TransformName = new string(StringRead(f));
+        nx.Flags = f.ReadByte();
+        if ((nx.Flags & 0x01) != 0)
+        {
+            // 6 floats — first 3 look like translation; engine usage of the rest TBD.
+            var t = new float[6];
+            for (var i = 0; i < 6; i++) t[i] = f.ReadSingle();
+            nx.TranslationRaw = t;
+        }
+        if ((nx.Flags & 0x02) != 0)
+        {
+            var r = new float[8];
+            for (var i = 0; i < 8; i++) r[i] = f.ReadSingle();
+            nx.RotationRaw = r;
+        }
+        if ((nx.Flags & 0x04) != 0)
+        {
+            var s = new float[6];
+            for (var i = 0; i < 6; i++) s[i] = f.ReadSingle();
+            nx.ScaleRaw = s;
+        }
+        return nx;
+    }
+
+    // One-line summary for the diagnostic dump in ResourceSystem. Lets us correlate
+    // every per-model signal we've parsed against visually-broken vs working props.
+    public string DescribeTransformSignals()
+    {
+        var t16 = Token16Value.HasValue ? Token16Value.Value.ToString() : "-";
+        var t06 = HasToken06 ? "yes" : "no ";
+        var coordSys = string.IsNullOrEmpty(CoordinateSystem) ? "?" : CoordinateSystem;
+        var nodes = NodeNames.Count == 0 ? "-" : string.Join("/", NodeNames);
+
+        // Bone summary — list every bone with flag != 0 so we can spot any baked
+        // rotation we're not applying. Compact format: name@flag(t…|r…) per bone,
+        // sep by `|`. Bones with flag=0 (identity) are omitted to keep the line short.
+        string boneSummary = "noBones";
+        if (Bones.Count > 0)
+        {
+            var parts = new List<string>();
+            for (var i = 0; i < Bones.Count; i++)
+            {
+                var b = Bones[i];
+                if (b.Flag == 0) continue;
+                var nm = string.IsNullOrEmpty(b.Name) ? $"b{i}" : b.Name;
+                var t = $"t({b.Translation.X:F2},{b.Translation.Y:F2},{b.Translation.Z:F2})";
+                var r = b.Flag == 3
+                    ? $"r({b.Rotation.X:F2},{b.Rotation.Y:F2},{b.Rotation.Z:F2},{b.Rotation.W:F2})"
+                    : "r-none";
+                parts.Add($"{nm}@{b.Flag}{t}{r}");
+            }
+            boneSummary = $"bones={Bones.Count}[{string.Join("|", parts)}]";
+        }
+
+        // Vertex bbox + the (failed) primary-axis rotation prediction. The prediction
+        // matched n=3 perfectly but breaks past that — we keep it in the dump so we
+        // can compare predicted-vs-actual for any new sample the user reports as
+        // broken or wrongly-corrected, which narrows down what the real encoding
+        // depends on.
+        string bbox = "noVerts";
+        string predRot = "predRot=?";
+        if (Model_Vertex_Position.Count > 0)
+        {
+            float minX = float.MaxValue, minY = float.MaxValue, minZ = float.MaxValue;
+            float maxX = float.MinValue, maxY = float.MinValue, maxZ = float.MinValue;
+            foreach (var v in Model_Vertex_Position)
+            {
+                if (v.X < minX) minX = v.X; if (v.X > maxX) maxX = v.X;
+                if (v.Y < minY) minY = v.Y; if (v.Y > maxY) maxY = v.Y;
+                if (v.Z < minZ) minZ = v.Z; if (v.Z > maxZ) maxZ = v.Z;
+            }
+            bbox = $"bbox=({minX:F1},{minY:F1},{minZ:F1})..({maxX:F1},{maxY:F1},{maxZ:F1})";
+            var sX = maxX - minX; var sY = maxY - minY; var sZ = maxZ - minZ;
+            var cX = (minX + maxX) * 0.5f; var cZ = (minZ + maxZ) * 0.5f;
+            float r;
+            if (sY >= sX && sY >= sZ) r = 0f;
+            else if (sX > sZ) r = cX >= 0f ? -90f : 90f;
+            else r = cZ < 0f ? 180f : 0f;
+            predRot = $"predRot={r,4:F0}";
+        }
+
+        // Per-material data we previously discarded. We dump every material's worth of
+        // newly-captured ints — the loop-of-16 in TMaterial_Data44 is the most likely
+        // place a per-template orientation flag could hide. Show LoopHitIndex (which
+        // iteration hit Unknown2==1) and the LoopInts up to that point, plus the
+        // standalone PostMatTypeInt.
+        string matExtra = "noMat";
+        if (Vertex_Nodes.Count > 0 && Vertex_Nodes[0].material_data.Count > 0)
+        {
+            var parts = new List<string>();
+            foreach (var md in Vertex_Nodes[0].material_data)
+            {
+                if (md is TMaterial_Data44 md44)
+                {
+                    var loopShown = md44.LoopHitIndex > 0
+                        ? string.Join(",", md44.LoopInts.Take(md44.LoopHitIndex))
+                        : string.Join(",", md44.LoopInts);
+                    parts.Add($"[postMtInt={md44.PostMatTypeInt},hit@{md44.LoopHitIndex},loop=({loopShown})]");
+                }
+                else if (md is TMaterial_Data md64)
+                {
+                    parts.Add($"[U3={md64.Unknown3},postStrB={md64.PostStringByte},preKkU={md64.PreKkUint}]");
+                }
+            }
+            matExtra = $"MDExtra={string.Join("", parts)}";
+        }
+
+        // Top-level TMaterials list — Mtl_ID / Name / BLEND_STATE / MATERIAL_TYPE / Flag_1 / Flag_2.
+        // Captured in the parser but never previously surfaced. The Flag_1/Flag_2 ints
+        // are the most likely to encode a per-template orientation since they're
+        // explicitly named "flag" and we don't otherwise interpret them.
+        string topMats = "noTopMat";
+        if (Materials.Count > 0)
+        {
+            var parts = new List<string>();
+            for (var i = 0; i < Materials.Count; i++)
+            {
+                var m = Materials[i];
+                var nm = new string(m.Name);
+                var id = new string(m.Mtl_ID);
+                var bs = new string(m.BLEND_STATE);
+                var mt = new string(m.MATERIAL_TYPE);
+                parts.Add($"[{nm}|{id}|bs={bs}|mt={mt}|f1={m.Flag_1}|f2={m.Flag_2}]");
+            }
+            topMats = $"TopMats({Materials.Count})={string.Join("", parts)}";
+        }
+
+        var flavor = IsLegacyV35 ? "V35" : (FormatVer == 0 ? "modern" : "legacy");
+        return $"Flavor={flavor,-6} FmtVer={FormatVer} cs={coordSys,-12} Token16={t16,-4} T06={t06} NodeXform={NodeTransforms.Count} VN_u1={VertNode_U1} VN_u2={VertNode_U2} {boneSummary} {bbox} {predRot} nodes=[{nodes}] {matExtra} {topMats}";
     }
 
     public static char[] StringRead(BinaryReader f)
@@ -397,8 +637,17 @@ public class B3DModel
             b3d.Model_Vertex_Texcoords.Add(TextureCoord);
 
             Unknown1 = new int[2];
-            Unknown1[0] = f.ReadInt32();
-            Unknown1[1] = f.ReadInt32();
+            if (b3d.IsLegacyV35)
+            {
+                // Legacy-V35 critter meshes ship a 36-byte vertex (no trailing
+                // two ints). The G3D_Surface header in those files reports
+                // SizeOfVerts == 36, matching this short layout.
+            }
+            else
+            {
+                Unknown1[0] = f.ReadInt32();
+                Unknown1[1] = f.ReadInt32();
+            }
         }
     }
 
@@ -426,29 +675,51 @@ public class B3DModel
         public int Unknown3;
         public char[] Zone;
 
+        // All 17 floats from the loop that previously kept only the last one. Decoded
+        // form is "ambient(4)+diffuse(4)+emissive(4)+specular(4)+shininess+alpha" — but
+        // since this format wasn't fully verified, capture all 17 so the diagnostic
+        // can spot any non-color-looking value (e.g. a baked rotation/axis).
+        public float[] AllFloats17 = new float[17];
+
+        // The `a` int read after MATERIAL_TYPE that was previously printed-and-discarded,
+        // and the up-to-16 ints from the search loop before Unknown2 == 1 was found.
+        // Capturing both — if any of these vary across broken vs working models, that's
+        // the per-material flag we've been missing.
+        public int PostMatTypeInt;
+        public int[] LoopInts = new int[16];
+        public int LoopHitIndex = -1;            // index where Unknown2==1 was hit (or -1 if never)
+
         public TMaterial_Data44(BinaryReader f, B3DModel b3d)
         {
             //Console.WriteLine("TMaterial_Data44");
             Name = StringRead(f);
             Mtl_ID = StringRead(f);
             for (var i = 0; i < 17; i++)
-                Unknown1 = f.ReadSingle();
+                AllFloats17[i] = Unknown1 = f.ReadSingle();
             BLEND_STATE = StringRead(f);
-            MATERIAL_TYPE = StringRead(f);
-            var a = f.ReadInt32();
-            Console.WriteLine(a);
+            // Legacy-V35 critter meshes drop MATERIAL_TYPE here. The two-byte
+            // strlen prefix isn't even present, so we just leave the field empty.
+            MATERIAL_TYPE = b3d.IsLegacyV35 ? [] : StringRead(f);
+            PostMatTypeInt = f.ReadInt32();
             for (var i = 1; i <= 16; i++)
             {
                 Unknown2 = f.ReadInt32();
+                LoopInts[i - 1] = Unknown2;
                 if (Unknown2 == 1)
                 {
+                    LoopHitIndex = i;
                     Zone = StringRead(f);
                     b3d.Txs.Add(new string(Name));
-                    Console.WriteLine(new string(Zone));
-                    Unknown2 = f.ReadInt32();
-                    for (var j = 1; j <= Unknown2; j++) {
-                        var unkstr = new string(StringRead(f));
-                        Console.WriteLine("SHDJKASHDKJHASKLJHSKDJFHKLSDFF\t\t\t" + unkstr);
+                    if (!b3d.IsLegacyV35)
+                    {
+                        // Modern files follow Zone with `count(int32)` then `count`
+                        // small strings (the Name split on spaces). Legacy-V35 stops
+                        // right after Zone — the next read belongs to the outer
+                        // post-material string list.
+                        Unknown2 = f.ReadInt32();
+                        for (var j = 1; j <= Unknown2; j++) {
+                            StringRead(f);
+                        }
                     }
                     break;
                 }
@@ -486,8 +757,15 @@ public class B3DModel
         public uint Unknown3; //: intword;
 
         public char[] Zone; //: TCharArray;
-        
+
         public List<int> face_indices = [];
+
+        // Bytes the parser previously read & dropped on the floor:
+        // (1) the byte read between the Mtl_ID strings and the unknown uint32
+        // (2) the uint32 read just before the face count `kk`
+        // Either could plausibly carry a per-mesh orientation hint we've been ignoring.
+        public byte PostStringByte;
+        public uint PreKkUint;
 
         public TMaterial_Data(BinaryReader f, B3DModel b3d)
         {
@@ -501,8 +779,8 @@ public class B3DModel
             b3d.Txs.Add(nameStr);
 
             uint kk;
-            f.ReadByte();
-            f.ReadUInt32();
+            PostStringByte = f.ReadByte();
+            PreKkUint = f.ReadUInt32();
             kk = f.ReadUInt32();
             Console.WriteLine(kk);
             for (uint i = 1; i <= kk / 3; i++)
@@ -563,9 +841,24 @@ public struct TVertex_Node
         //Console.WriteLine("TVertex_Node");
         Unknown1 = f.ReadByte();
         Unknown2 = f.ReadByte();
+        if (!b3d.VertNode_Captured)
+        {
+            b3d.VertNode_U1 = (byte)Unknown1;
+            b3d.VertNode_U2 = (byte)Unknown2;
+            b3d.VertNode_Captured = true;
+        }
         Console.WriteLine($"VertNode U1 {Unknown1} U2 {Unknown2}");
 
-        if (b3d.FormatVer == 0)
+        if (b3d.IsLegacyV35)
+        {
+            // Legacy-V35 G3D_Surface header carries an extra byte between u1/u2
+            // and NumberVerts compared to the modern (FormatVer==0) layout: a
+            // VertexTypeFlag byte (always 1 in the samples) plus a one-byte pad.
+            VertexTypeFlag = f.ReadByte();
+            f.ReadByte(); // pad
+            b3d.Vertex_Type_Flag = VertexTypeFlag;
+        }
+        else if (b3d.FormatVer == 0)
         {
             VertexTypeFlag = f.ReadByte();
             b3d.Vertex_Type_Flag = VertexTypeFlag;
@@ -804,16 +1097,28 @@ public class TMaterials
     // cutout, per-vertex alpha, and any non-OPAQUE blend mode.
     public bool NeedsAlphaPipeline => UsesImageAlpha || UsesVertexAlpha || IsBlended;
 
-    public TMaterials(BinaryReader f)
+    public TMaterials(BinaryReader f) : this(f, legacy: false) { }
+
+    public TMaterials(BinaryReader f, bool legacy)
     {
-        //Console.WriteLine("TMaterials");
         Mtl_ID = StringRead(f);
         Name = StringRead(f);
         Mater = new TMater(f);
         BLEND_STATE = StringRead(f);
-        MATERIAL_TYPE = StringRead(f);
-        Flag_1 = f.ReadInt32();
-        Flag_2 = f.ReadInt32();
+        if (legacy)
+        {
+            // Legacy-V35 omits MATERIAL_TYPE / Flag_1 / Flag_2 and just leaves
+            // five trailing zero bytes before the next tag. Consume them so the
+            // outer tag stream stays aligned.
+            MATERIAL_TYPE = [];
+            f.ReadBytes(5);
+        }
+        else
+        {
+            MATERIAL_TYPE = StringRead(f);
+            Flag_1 = f.ReadInt32();
+            Flag_2 = f.ReadInt32();
+        }
     }
 
     public void print()
@@ -917,6 +1222,19 @@ public struct TMaterial_Node
         Console.WriteLine($"MaterialNode - NumberMaterialNodes = {NumberMaterialNodes}");
     }
 }
+}
+
+// Per-node transform parsed from token 0x0D inside ParseNode. Raw float arrays for now —
+// engine semantics for the 24/32/24-byte payloads aren't fully decoded, so we keep the
+// bytes and let the renderer (or a future pass) interpret once we know what they mean.
+public sealed class NodeTransform
+{
+    public string OwnerNodeName = ""; // most-recent 0x0C name in the same node block
+    public string TransformName = ""; // padded-string name read by the transform itself
+    public byte Flags;                // bit0 → translation block, bit1 → rotation block, bit2 → scale block
+    public float[]? TranslationRaw;   // 6 floats when Flags & 0x01
+    public float[]? RotationRaw;      // 8 floats when Flags & 0x02
+    public float[]? ScaleRaw;         // 6 floats when Flags & 0x04
 }
 
 public class G3DModel

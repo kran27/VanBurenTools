@@ -1318,7 +1318,10 @@ public partial class GrpBrowser
             }
 
             var model = new GeometryModel3D { Geometry = mesh.Value, Material = material, BackMaterial = material };
-            if (b3d.FormatVer == 1)
+            // V35 critters share FormatVer==1 with the door-mesh legacy path but
+            // ship at the same world-space scale as modern meshes — skip the 10×
+            // bump that the door files need.
+            if (b3d.FormatVer == 1 && !b3d.IsLegacyV35)
                 model.Transform = new ScaleTransform3D(new Vector3D(10d, 10d, 10d));
 
             modelGroup.Children.Add(model);

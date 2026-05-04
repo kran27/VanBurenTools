@@ -268,9 +268,60 @@ void main() {
     // Legacy/VT=3 b3ds (doors mostly?) are 10x smaller than VT=28 (which are correct relative to .8, .skl, etc.)
     static readonly Matrix4x4 LegacyB3DCorrection = Matrix4x4.CreateScale(10f);
 
+    // EXPERIMENTAL: bbox-based per-model rotation. Hypothesis: every B3D's geometry
+    // is authored along one specific horizontal axis (the one its bbox extends most
+    // along), and the engine rotates each model so that primary axis aligns with +Z
+    // before placement. Three known samples agree perfectly:
+    //   Console (works)  → primary axis Y → 0°
+    //   VEntrance (+180°) → primary axis -Z → +180°
+    //   Glass (-90°)     → primary axis +X → -90°
+    // If this rule holds across more models, it confirms the encoding is something
+    // that correlates with bbox shape — almost certainly a field we're already
+    // parsing (e.g. Bone[0].Translation, an unread material flag, etc.) but not
+    // currently using to derive rotation. If the rule fails, the actual encoding
+    // is somewhere else entirely.
+    static float BboxOrientationCorrectionRadians(B3DModel model)
+    {
+        if (model.Model_Vertex_Position.Count == 0) return 0f;
+        float minX = float.MaxValue, minY = float.MaxValue, minZ = float.MaxValue;
+        float maxX = float.MinValue, maxY = float.MinValue, maxZ = float.MinValue;
+        foreach (var v in model.Model_Vertex_Position)
+        {
+            if (v.X < minX) minX = v.X; if (v.X > maxX) maxX = v.X;
+            if (v.Y < minY) minY = v.Y; if (v.Y > maxY) maxY = v.Y;
+            if (v.Z < minZ) minZ = v.Z; if (v.Z > maxZ) maxZ = v.Z;
+        }
+        var sizeX = maxX - minX;
+        var sizeY = maxY - minY;
+        var sizeZ = maxZ - minZ;
+        var cx = (minX + maxX) * 0.5f;
+        var cz = (minZ + maxZ) * 0.5f;
+
+        // If the primary extent is vertical, no horizontal rotation is needed.
+        if (sizeY >= sizeX && sizeY >= sizeZ) return 0f;
+
+        // Pick X vs Z as the dominant horizontal axis. The sign of the *center* on
+        // that axis tells us whether the geometry is biased toward + or -, which is
+        // the direction the model "points".
+        if (sizeX > sizeZ)
+            // Geometry extends primarily along X. Rotate to align that direction with +Z.
+            // +X bias → -90° (rotates +X to +Z); -X bias → +90°.
+            return cx >= 0f ? -MathF.PI / 2f : MathF.PI / 2f;
+        else
+            // Geometry extends primarily along Z. -Z bias → +180° to flip to +Z.
+            return cz < 0f ? MathF.PI : 0f;
+    }
+
     static Matrix4x4? ApplyLegacyCorrection(B3DModel model, Matrix4x4? worldMatrix)
     {
-        if (model.FormatVer != 1) return worldMatrix;
+        // Bbox-rotation experiment failed past n=3 (false positive on Tribal shelf /
+        // Tech computer; false negative on Tech generator). Keeping the predictor
+        // alive only as a diagnostic — see B3DModel.DescribeTransformSignals.
+        // V35-legacy critters (CR_Sheep/Bear/Badger) report FormatVer==1 too because
+        // they share the legacy material/vertex wire format, but their world-space
+        // coordinates already match the modern critters and don't need the
+        // door-mesh correction matrix.
+        if (model.FormatVer != 1 || model.IsLegacyV35) return worldMatrix;
         return LegacyB3DCorrection * (worldMatrix ?? Matrix4x4.Identity);
     }
 
@@ -355,7 +406,9 @@ void main() {
         {
             //TODO: is there a flag for human models?
             var baseName = baseModelName.StartsWith("Hum") ? baseModelName[..4] : baseModelName;
-            var resource = ResourceSystem.FindResource(baseName + "_Def_Una_Idle_01", "gr2") ?? ResourceSystem.FindResource(baseName + "_Def_1H_Idle_01", "gr2");
+            var resource = ResourceSystem.FindResource(baseName + "_Def_Una_Idle_01", "gr2");
+            if (resource is null) resource = ResourceSystem.FindResource(baseName + "_Def_1H_Idle_01", "gr2");
+            if (resource is null) resource = ResourceSystem.FindResource(baseName + "_Com_Una_Idle_01", "gr2");
             if (resource is GrannyFormats.file_info { Animations: { Count: > 0 } anims })
                 gr2Anim = anims[0];
             else
@@ -466,9 +519,13 @@ void main() {
         {
             try
             {
-                var transform = Matrix4x4.CreateRotationY(ent.l.W) * 
+                // Per-template rotation correction (if any) is now derived from the
+                // model's geometry inside ApplyLegacyCorrection — see
+                // BboxOrientationCorrectionRadians. This loop just applies the EME2
+                // placement transform.
+                var transform = Matrix4x4.CreateRotationY(ent.l.W) *
                                 Matrix4x4.CreateTranslation(-ent.l.X, ent.l.Y, ent.l.Z);
-                
+
                 var entity = ResourceSystem.FindResource(ent.name);
                 if (entity != null) AddEntity(entity, transform);
             }

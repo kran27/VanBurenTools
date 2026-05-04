@@ -118,11 +118,17 @@ public static class Extensions
     public static EME2c ToEME2c(this byte[] b)
     {
         var cl = b.Locate("EEOV"u8.ToArray())[0];
+        var nameLen = b[12];
+        var lEnd = 30 + nameLen; // 14(name start) + nameLen + 16(four floats)
+        var gapLen = Math.Max(0, cl - lEnd);
+        var gap = new byte[gapLen];
+        for (var i = 0; i < gapLen; i++) gap[i] = b[lEnd + i];
         return new EME2c
         {
-            name = GetString(b, 14, b[12]),
-            l = new Vector4(BitConverter.ToSingle(b, 14 + b[12]), BitConverter.ToSingle(b, 18 + b[12]),
-                BitConverter.ToSingle(b, 22 + b[12]), BitConverter.ToSingle(b, 26 + b[12])),
+            name = GetString(b, 14, nameLen),
+            l = new Vector4(BitConverter.ToSingle(b, 14 + nameLen), BitConverter.ToSingle(b, 18 + nameLen),
+                BitConverter.ToSingle(b, 22 + nameLen), BitConverter.ToSingle(b, 26 + nameLen)),
+            PostLGap = gap,
             EEOV = b.Skip(cl).Take(BitConverter.ToInt32(b, cl + 8)).ToArray().ToEEOVc()
         };
     }
@@ -190,24 +196,35 @@ public static class Extensions
         var s2l = b[s2o - 2];
         var s3o = s2o + s2l + 2;
         var s3l = b[s3o - 2];
+        // Capture the 4 bytes between `sel` (at s3o+s3l+1) and the EEOV start (cl).
+        // These were previously discarded; one of them may be the per-entity orientation
+        // flag we're after.
+        var postSelStart = s3o + s3l + 2; // one past `sel`
+        var gap = new byte[4];
+        for (var i = 0; i < 4 && postSelStart + i < cl && postSelStart + i < b.Length; i++)
+            gap[i] = b[postSelStart + i];
         return new EEN2c
         {
             skl = GetString(b, s1o, s1l),
             invtex = GetString(b, s2o, s2l),
             acttex = GetString(b, s3o, s3l),
             sel = b[s3o + s3l + 1] != 0,
+            PostSelGap = gap,
             EEOV = b.Skip(cl).Take(BitConverter.ToInt32(b, cl + 8)).ToArray().ToEEOVc()
         };
     }
 
     public static GENTc ToGENTc(this byte[] b)
     {
+        var gap = new byte[8];
+        for (var i = 0; i < 8 && 28 + i < b.Length; i++) gap[i] = b[28 + i];
         return new GENTc
         {
             HoverSR = BitConverter.ToInt32(b, 12),
             LookSR = BitConverter.ToInt32(b, 16),
             NameSR = BitConverter.ToInt32(b, 20),
             UnkwnSR = BitConverter.ToInt32(b, 24),
+            Gap28to35 = gap,
             MaxHealth = BitConverter.ToInt32(b, 36),
             StartHealth = BitConverter.ToInt32(b, 40)
         };

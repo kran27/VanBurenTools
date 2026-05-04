@@ -234,6 +234,12 @@ public class EME2c
     public Vector4 l = new(0f, 0f, 0f, 0f);
     public string name = "";
 
+    // Bytes between `l` (ends at offset 30+name) and the EEOV chunk start. Up to 8 in
+    // typical files. Captured raw because we suspect a per-instance orientation flag
+    // we don't currently parse lives in here (B3D and CRT signals are identical
+    // between broken and correctly-rotated entities).
+    public byte[] PostLGap = [];
+
     public IEnumerable<byte> ToByte()
     {
         var oEEOV = EEOV.ToByte();
@@ -471,6 +477,12 @@ public class EEN2c
     public bool sel = false;
     public string skl = "";
 
+    // 4 bytes between `sel` (offset 19+lens) and the EEOV chunk start (offset 23+lens)
+    // that the existing reader skips. Captured raw so we can correlate against
+    // mis-rotated entities — the user's hypothesis is that an orientation flag we
+    // don't currently parse lives in here.
+    public byte[] PostSelGap = new byte[4];
+
     public IEnumerable<byte> ToByte()
     {
         var oEEOV = EEOV.ToByte();
@@ -497,6 +509,10 @@ public class GENTc
     public int NameSR = 0; // String of the entities' name
     public int StartHealth = 0;
     public int UnkwnSR = 0; // String used ???
+
+    // Bytes 28..35 in the GENT chunk that the reader skips (jumps from UnkwnSR@24
+    // straight to MaxHealth@36). 8 raw bytes — could be flags or a small struct.
+    public byte[] Gap28to35 = new byte[8];
 
     public IEnumerable<byte> ToByte()
     {
