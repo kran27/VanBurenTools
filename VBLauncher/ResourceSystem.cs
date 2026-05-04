@@ -10,28 +10,38 @@ namespace VBLauncher;
 
 // Replacement for GrpBrowser's internal resource system.
 // Provides access to all game resources via their filename, just as the game does.
-// Assets are parsed upon initialization and stored in a nested dictionary structure ready for access.
+// Initialize() builds an index of every resource's name + extension + GRP location;
+// the actual file bytes stay on disk and the parsed object is built only when a
+// caller pulls the asset via FindResource. Iterating .Keys is therefore free —
+// the heavy work happens once per asset on first access.
 
 public static class ResourceSystem
 {
-    // Dictionary structure: grp -> ext -> name -> resource
-    // Returned resource is it's parsed type, e.g. ImageSharpTexture, B3DModel, etc.
-    // You are expected to know what type of resource you are looking for. No mechanism for automatic type detection is provided.
+    // Dictionary structure: grp -> ext -> name -> LazyResource
+    // FindResource transparently unwraps the LazyResource for callers that
+    // expect the parsed value. Direct dictionary access (e.g. iterating
+    // Resources["Interface"]["tga"].Keys for type-ahead UI) only touches the
+    // names — no GRP I/O happens until a key is actually fetched.
     public static Dictionary<string, Dictionary<string, Dictionary<string, dynamic>>> Resources { get; } = new(StringComparer.OrdinalIgnoreCase);
-    
+
+    // The GrpBrowser owns the cached lump tables and the file-name index. We
+    // keep it alive for the lifetime of the process because the lazy
+    // resources need to call back into it to fetch their bytes on demand.
+    private static GrpBrowser? _grpb;
+
     static bool _isInitialized = false;
     public static void Initialize()
     {
         if (_isInitialized)
             return;
         try {
-            using var grpb = new GrpBrowser(null);
-            grpb.ReadRHT();
-            grpb.readExtensions();
-            for (var i = 0; i < grpb.NumberOfEntries; i++)
+            _grpb = new GrpBrowser(null);
+            _grpb.ReadRHT();
+            _grpb.readExtensions();
+            for (var i = 0; i < _grpb.NumberOfEntries; i++)
             {
-                var (grp, name, ext, fb) = grpb.ExtractFileToMemory(i);
-            
+                var (grp, name, ext) = _grpb.GetFileMetadata(i);
+
                 if (!Resources.TryGetValue(grp, out var grpDict))
                 {
                     grpDict = new Dictionary<string, Dictionary<string, dynamic>>(StringComparer.OrdinalIgnoreCase);
@@ -42,103 +52,15 @@ public static class ResourceSystem
                     extDict = new Dictionary<string, dynamic>(StringComparer.OrdinalIgnoreCase);
                     grpDict[ext] = extDict;
                 }
-            
-                switch (ext)
-                {
-                    case "bmp":
-                    case "tga":
-                        try {
-                            extDict[name] = new ImageSharpTexture(new MemoryStream(fb));
-                        } catch (Exception ex) {
-                            //MessageBox.Show($"Failed to load texture {name}.{ext}: {ex.Message}");
-                        }
-                        break;
-                    case "rle":
-                        extDict[name] = grpb.DecodeRLEToImageSharp(fb);
-                        break;
-                    case "b3d":
-                    {
-                        var capturedName = name;
-                        var capturedExt = ext;
-                        extDict[name] = new LazyResource(() =>
-                        {
-                            try
-                            {
-                                var b3d = new B3DModel(fb);
-                                // Diagnostic: dump the header signals we currently drop on
-                                // the floor so we can correlate Token16 / T06 / NodeXform
-                                // values against visually-broken vs working props. Remove
-                                // once a placement-time discriminator is confirmed.
-                                Console.WriteLine($"[b3d] {capturedName,-40} {b3d.DescribeTransformSignals()}");
-                                return b3d;
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show($"Failed to load model {capturedName}.{capturedExt}: {ex.Message}");
-                                return null;
-                            }
-                        });
-                        break;
-                    }
-                    case "8":
-                        extDict[name] = new LazyResource(() => new _8Model(fb));
-                        break;
-                    case "amo":
-                        extDict[name] = fb.ReadAMO();
-                        break;
-                    case "arm":
-                        extDict[name] = fb.ReadARM();
-                        break;
-                    case "crt":
-                        extDict[name] = fb.ReadCRT();
-                        break;
-                    case "itm":
-                        extDict[name] = fb.ReadITM();
-                        break;
-                    case "map":
-                        try {
-                            extDict[name] = fb.ReadMap();
-                        }
-                        catch (Exception ex) {
-                            //MessageBox.Show($"Failed to load map {name}.{ext}: {ex.Message}");
-                        }
-                        break;
-                    case "con":
-                    case "dor":
-                    case "use":
-                        extDict[name] = fb.ReadUSE();
-                        break;
-                    case "wea":
-                        extDict[name] = fb.ReadWEA();
-                        break;
-                    case "veg":
-                        extDict[name] = new VEG(fb);
-                        break;
-                    case "gr2":
-                    case "skl":
-                        extDict[name] = GrannyFormats.ReadFileFromMemory(fb);
-                        break;
-                    case "ini":
-                    case "tok":
-                    case "sco":
-                    case "pce":
-                    case "g3d":
-                    case "gsf":
-                    case "psf":
-                    case "pco":
-                    case "gls":
-                        extDict[name] = System.Text.Encoding.UTF8.GetString(fb);
-                        break;
-                    case "wav":
-                    case "int":
-                    case "amx":
-                    case "dlg":
-                        extDict[name] = fb;
-                        break;
-                    default:
-                        MessageBox.Show($"Unknown file type: {ext} for file {name}.{ext}", "Resource System Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        break;
-                }
+
+                // Capture the per-entry context the loader needs. We cannot
+                // capture `i` directly because the loop variable would
+                // change semantics if this was a foreach over a non-array;
+                // an explicit local also keeps the closure size minimal.
+                var capturedIndex = i;
+                var capturedName = name;
+                var capturedExt = ext;
+                extDict[name] = new LazyResource(() => LoadAsset(capturedIndex, capturedName, capturedExt));
             }
         }
         catch (Exception ex)
@@ -147,6 +69,80 @@ public static class ResourceSystem
             return;
         }
         _isInitialized = true;
+    }
+
+    // Reads the asset bytes from the GRP and turns them into the parsed type
+    // the rest of the codebase expects. Called from LazyResource.Get() the
+    // first time an asset is touched; subsequent accesses hit the cached
+    // value inside the LazyResource. Failures are swallowed (returning null)
+    // for the formats whose original initializer also swallowed them, so the
+    // overall lazy/eager behavioural contract stays the same.
+    private static dynamic? LoadAsset(int globalIndex, string name, string ext)
+    {
+        var fb = _grpb!.GetFileBytesByIndex(globalIndex);
+        switch (ext)
+        {
+            case "bmp":
+            case "tga":
+                try { return new ImageSharpTexture(new MemoryStream(fb)); }
+                catch { return null; }
+            case "rle":
+                return _grpb.DecodeRLEToImageSharp(fb);
+            case "b3d":
+                try
+                {
+                    var b3d = new B3DModel(fb);
+                    Console.WriteLine($"[b3d] {name,-40} {b3d.DescribeTransformSignals()}");
+                    return b3d;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed to load model {name}.{ext}: {ex.Message}");
+                    return null;
+                }
+            case "8":
+                return new _8Model(fb);
+            case "amo":
+                return fb.ReadAMO();
+            case "arm":
+                return fb.ReadARM();
+            case "crt":
+                return fb.ReadCRT();
+            case "itm":
+                return fb.ReadITM();
+            case "map":
+                try { return fb.ReadMap(); }
+                catch { return null; }
+            case "con":
+            case "dor":
+            case "use":
+                return fb.ReadUSE();
+            case "wea":
+                return fb.ReadWEA();
+            case "veg":
+                return new VEG(fb);
+            case "gr2":
+            case "skl":
+                return GrannyFormats.ReadFileFromMemory(fb);
+            case "ini":
+            case "tok":
+            case "sco":
+            case "pce":
+            case "g3d":
+            case "gsf":
+            case "psf":
+            case "pco":
+            case "gls":
+                return System.Text.Encoding.UTF8.GetString(fb);
+            case "wav":
+            case "int":
+            case "amx":
+            case "dlg":
+                return fb;
+            default:
+                MessageBox.Show($"Unknown file type: {ext} for file {name}.{ext}", "Resource System Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+        }
     }
 
     // Function to find a resource by its filename.

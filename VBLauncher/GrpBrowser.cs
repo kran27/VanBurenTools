@@ -87,6 +87,14 @@ public partial class GrpBrowser
     private Dictionary<string, int> fullNameToGlobalIndex = new();
     private List<string> extensions;
 
+    // Per-pack lump table cache. Each .grp's header is read at most once
+    // regardless of how many files are extracted from it; subsequent accesses
+    // (header peek during readExtensions, lazy byte fetch from ResourceSystem)
+    // hit this cache instead of reparsing the GRP header. Indexed by
+    // packOffsetToIndex (0..23). null means "not loaded yet".
+    private Lump[]?[] _cachedLumps = new Lump[24][];
+    private readonly object _lumpsLock = new();
+
     private readonly Dictionary<int, int> packOffsetToIndex = new()
     {
         { 0, 0 },
@@ -201,7 +209,9 @@ public partial class GrpBrowser
             if (ext is "b3d" or "g3d") ext = "obj";
         }
         var b = getFileBytes(i, convert);
-        File.WriteAllBytes(Path.Combine(grpnames[packOffsetToIndex[globalIndexToPackOffset[i]]], filenames[i] + "." + ext), b);
+        var grpDir = grpnames[packOffsetToIndex[globalIndexToPackOffset[i]]];
+        Directory.CreateDirectory(grpDir);
+        File.WriteAllBytes(Path.Combine(grpDir, filenames[i] + "." + ext), b);
     }
     
     public (string, string, string, byte[]) ExtractFileToMemory(int i)
@@ -215,47 +225,84 @@ public partial class GrpBrowser
     private byte[] getFileBytes(int index, bool convert = false)
     {
         var packLoc = globalIndexToPackOffset[index];
+        var packIndex = packOffsetToIndex[packLoc];
         var localIndex = globalIndexToLocal[index];
-        Directory.CreateDirectory(grpnames[packOffsetToIndex[packLoc]]);
-        var grpname = Path.Combine("data", grpnames[packOffsetToIndex[packLoc]] + ".grp");
-        var extname = Path.Combine(grpnames[packOffsetToIndex[packLoc]], filenames[index]);
+        var e = entries[packIndex][localIndex];
+        var grpname = Path.Combine("data", grpnames[packIndex] + ".grp");
 
-        var e = entries[packOffsetToIndex[packLoc]][localIndex];
-        return getFileBytes(grpname, e.number, e.type, extname, convert);
-    }
-
-    private byte[] getFileBytes(string packname, int filenumber, int filetype, string filename, bool convert = false)
-    {
-        var (lumps, grpHeader, buffer) = ReadGrpLumps(packname, filenumber);
-
-        var ext = DetermineActualExtension(filetype, buffer);
-
+        var buffer = ReadLumpBytes(packIndex, e.number);
         if (!convert) return buffer;
 
-        return ConvertFileBytes(buffer, ext, filename);
+        var ext = DetermineActualExtension(e.type, buffer);
+        var extname = Path.Combine(grpnames[packIndex], filenames[index]);
+        return ConvertFileBytes(buffer, ext, extname);
     }
 
-    private (Lump[] lumps, F3GRPHeader grpHeader, byte[] buffer) ReadGrpLumps(string packname, int filenumber)
+    // Lump table is read once per pack and cached. The original ReadGrpLumps
+    // re-opened the .grp and re-walked the entire file table on every access,
+    // which made readExtensions and any per-file lookups O(N) per call (~10k
+    // entries × full table walk). Splitting "lump-table fetch" from "file-bytes
+    // read" lets the resource system point lazy resources at this and only
+    // touch disk when an asset is actually used.
+    private Lump[] GetLumps(int packIndex)
     {
-        using var fs = new FileStream(packname, FileMode.Open, FileAccess.Read);
-        using var br = new BinaryReader(fs);
-        var grpHeader = new F3GRPHeader
+        var cached = _cachedLumps[packIndex];
+        if (cached != null) return cached;
+        lock (_lumpsLock)
         {
-            vMajor = br.ReadInt32(),
-            vMinor = br.ReadInt32(),
-            nFiles = br.ReadInt32()
-        };
+            cached = _cachedLumps[packIndex];
+            if (cached != null) return cached;
 
-        var lumps = new Lump[grpHeader.nFiles];
-        for (var i = 0; i < grpHeader.nFiles; i++)
-        {
-            lumps[i].offset = br.ReadInt32();
-            lumps[i].length = br.ReadInt32();
+            var grpname = Path.Combine("data", grpnames[packIndex] + ".grp");
+            using var fs = new FileStream(grpname, FileMode.Open, FileAccess.Read);
+            using var br = new BinaryReader(fs);
+            br.ReadInt32(); // vMajor
+            br.ReadInt32(); // vMinor
+            var nFiles = br.ReadInt32();
+            var lumps = new Lump[nFiles];
+            for (var i = 0; i < nFiles; i++)
+            {
+                lumps[i].offset = br.ReadInt32();
+                lumps[i].length = br.ReadInt32();
+            }
+            _cachedLumps[packIndex] = lumps;
+            return lumps;
         }
+    }
 
-        fs.Seek(lumps[filenumber].offset, SeekOrigin.Begin);
-        var buffer = br.ReadBytes(lumps[filenumber].length);
-        return (lumps, grpHeader, buffer);
+    private byte[] ReadLumpBytes(int packIndex, int lumpNumber)
+    {
+        var lumps = GetLumps(packIndex);
+        var lump = lumps[lumpNumber];
+        var grpname = Path.Combine("data", grpnames[packIndex] + ".grp");
+        using var fs = new FileStream(grpname, FileMode.Open, FileAccess.Read);
+        fs.Seek(lump.offset, SeekOrigin.Begin);
+        var buffer = new byte[lump.length];
+        fs.ReadExactly(buffer, 0, lump.length);
+        return buffer;
+    }
+
+    // Public entry point for the resource system's lazy loaders. Returns the
+    // raw file bytes for `globalIndex` without any extension-based conversion
+    // and without creating any side-effect directories. Threadsafe — concurrent
+    // callers on different global indices each get their own FileStream.
+    public byte[] GetFileBytesByIndex(int globalIndex)
+    {
+        var packLoc = globalIndexToPackOffset[globalIndex];
+        var packIndex = packOffsetToIndex[packLoc];
+        var localIndex = globalIndexToLocal[globalIndex];
+        var entry = entries[packIndex][localIndex];
+        return ReadLumpBytes(packIndex, entry.number);
+    }
+
+    // Non-allocating "where does this asset live" lookup. Used by the resource
+    // system to populate its name → handle dictionary without touching the
+    // GRP file at all (extension is already known via readExtensions).
+    public (string grp, string name, string ext) GetFileMetadata(int globalIndex)
+    {
+        var packLoc = globalIndexToPackOffset[globalIndex];
+        var packIndex = packOffsetToIndex[packLoc];
+        return (grpnames[packIndex], filenames[globalIndex], extensions[globalIndex]);
     }
 
     private string DetermineActualExtension(int filetype, byte[] buffer)
@@ -307,32 +354,70 @@ public partial class GrpBrowser
         return memoryStream.ToArray();
     }
 
+    // Resolves every entry's extension in one pass per pack. The previous
+    // implementation called ReadSingleExtension per entry, which re-opened the
+    // GRP and walked the full lump table once per file — ~N² disk reads
+    // ballooning startup time when N ≈ 10k. With the cached lump table from
+    // GetLumps we open each .grp at most twice (once in GetLumps, once here)
+    // and read only 4 bytes per file when the type-id is the ambiguous
+    // model/image marker. Concrete-typed entries skip the disk read entirely.
     public void readExtensions()
     {
-        extensions = [];
-        for (var i = 0; i < head.nEntries; i++)
+        var n = head.nEntries;
+        var resolved = new string[n];
+
+        for (var packIndex = 0; packIndex < entries.Length; packIndex++)
         {
-            var packLoc = globalIndexToPackOffset[i];
-            var localIndex = globalIndexToLocal[i];
-            var grpname = Path.Combine("data", grpnames[packOffsetToIndex[packLoc]] + ".grp");
-            var extname = Path.Combine(grpnames[packOffsetToIndex[packLoc]], filenames[i]);
-            var ext = ReadSingleExtension(grpname, entries[packOffsetToIndex[packLoc]][localIndex].number, entries[packOffsetToIndex[packLoc]][localIndex].type);
-            extensions.Add(ext);
-            fullNameToGlobalIndex[(filenames[i] + "." + extensions[i]).ToLower()] = i;
+            var packEntries = entries[packIndex];
+            if (packEntries.Count == 0) continue;
+            var grpname = Path.Combine("data", grpnames[packIndex] + ".grp");
+            if (!File.Exists(grpname)) continue;
+
+            // Force the lump table into the cache before opening the file
+            // ourselves, so we don't double-open it when the cache miss falls
+            // through to GetLumps (which would also try to read the .grp).
+            var lumps = GetLumps(packIndex);
+
+            FileStream? fs = null;
+            Span<byte> head4 = stackalloc byte[4];
+            try
+            {
+                foreach (var entry in packEntries)
+                {
+                    var globalIndex = localIndexToGlobal[packIndex][entry.number];
+                    var ext = GetExtension(entry.type);
+                    if (ext == "model" || ext == "image")
+                    {
+                        // Only the model/image type IDs need a disk peek to
+                        // disambiguate (B3D vs G3D, BMP vs TGA). Everything
+                        // else maps 1:1 from the entry type.
+                        fs ??= new FileStream(grpname, FileMode.Open, FileAccess.Read);
+                        var lump = lumps[entry.number];
+                        fs.Seek(lump.offset, SeekOrigin.Begin);
+                        var read = 0;
+                        while (read < 4)
+                        {
+                            var got = fs.Read(head4[read..]);
+                            if (got <= 0) break;
+                            read += got;
+                        }
+                        if (ext == "model")
+                            ext = (read == 4 && head4[0] == 'B' && head4[1] == '3' && head4[2] == 'D' && head4[3] == ' ') ? "b3d" : "g3d";
+                        else // image
+                            ext = (read >= 2 && head4[0] == 'B' && head4[1] == 'M') ? "bmp" : "tga";
+                    }
+                    resolved[globalIndex] = ext;
+                }
+            }
+            finally
+            {
+                fs?.Dispose();
+            }
         }
-    }
 
-    private string ReadSingleExtension(string packname, int filenumber, int filetype)
-    {
-        var (lumps, _, buffer) = ReadGrpLumps(packname, filenumber);
-        var ext = GetExtension(filetype);
-
-        if (ext == "model")
-            ext = (buffer[0] == 'B' && buffer[1] == '3' && buffer[2] == 'D' && buffer[3] == ' ') ? "b3d" : "g3d";
-        else if (ext == "image")
-            ext = (buffer[0] == 'B' && buffer[1] == 'M') ? "bmp" : "tga";
-
-        return ext;
+        extensions = new List<string>(resolved);
+        for (var i = 0; i < n; i++)
+            fullNameToGlobalIndex[(filenames[i] + "." + extensions[i]).ToLower()] = i;
     }
 
     public void ReadRHT()
