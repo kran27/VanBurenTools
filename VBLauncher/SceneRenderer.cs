@@ -49,7 +49,20 @@ void main() {
     gl_Position = Projection * View * worldPos4;
 }";
 
-    private const string FragmentCode = @"#version 450
+    // Multi-light fragment shader for B3D entities (critters, props, etc).
+    // Sums per-light diffuse contributions inline — no helper function, no
+    // early returns. SPIRV-Cross emits do-while(false) blocks for shaders
+    // with early returns + a containing for-loop, and fxc SEH-crashes on
+    // that combo. Branchless masking keeps the HLSL output as a flat
+    // sequence of arithmetic ops which fxc handles cleanly.
+    //
+    // Per-light layout (four vec4s):
+    //   v0: xyz = Position,  w = Type
+    //   v1: xyz = Color,     w = Radius
+    //   v2: xyz = Direction, w = FalloffStart
+    //   v3: x = ConeInnerCos, y = ConeOuterCos, z = HasDirection (0/1), w = unused
+    private static readonly string FragmentCode = @"#version 450
+#define MAX_LIGHTS 16
 
 layout(location = 0) in vec2  fsin_texCoords;
 layout(location = 1) in vec3  fsin_normal;
@@ -62,38 +75,84 @@ layout(set = 1, binding = 1) uniform texture2D SurfaceTexture;
 layout(set = 1, binding = 2) uniform sampler  SurfaceSampler;
 
 layout(set = 0, binding = 3) uniform LightInfo {
-    vec3 LightPosition;
-    vec3 LightColor;
-    vec3 CameraPosition;
-} uLight;
+    vec4 Header;             // x = LightCount, yzw unused
+    vec4 AmbientCamera;      // xyz = AmbientColor, w unused
+    vec4 CameraPos;          // xyz = camera position, w unused
+    vec4 Lights[MAX_LIGHTS * 4];
+} uLights;
 
 void main() {
-    // Sample surface color + alpha, modulated by per-vertex color
-    vec4 tex    = texture(sampler2D(SurfaceTexture, SurfaceSampler), fsin_texCoords);
+    vec4 tex = texture(sampler2D(SurfaceTexture, SurfaceSampler), fsin_texCoords);
+    if (tex.a < 0.45) discard;
     vec3 albedo = tex.rgb * fsin_color.rgb;
 
-    // Discard only fully-transparent texels. Matches the engine's DirectX
-    // default (ALPHAFUNC=GREATER, ALPHAREF=0), instead of the standard 0.5 i use 0.45
-    // which is what we need for textures like Int_Vault13 that store a
-    // uniform alpha=125 even on faces that are conceptually opaque, while
-    // still cutting holes in foliage atlases.
-    if (tex.a < 0.45) discard;
+    vec3 N = normalize(fsin_normal);
+    vec3 lighting = uLights.AmbientCamera.xyz;
+    int lightCount = int(uLights.Header.x);
 
-    // lighting
-    vec3 N      = normalize(fsin_normal);
-    vec3 L      = normalize(uLight.LightPosition - fsin_worldPos);
-    float NdotL = max(dot(N, L), 0.0);
+    for (int i = 0; i < MAX_LIGHTS; i++) {
+        // Branchless ‘slot is in use’ mask — multiplying the contribution
+        // by this scalar nukes the slot when i >= lightCount, which keeps
+        // the loop body free of early-exits (fxc-friendly).
+        float slotMask = step(float(i), float(lightCount - 1));
 
-    vec3 diffuse = albedo * uLight.LightColor * NdotL;
-    vec3 ambient = 0.3 * albedo;
+        int base = i * 4;
+        vec4 v0 = uLights.Lights[base + 0];
+        vec4 v1 = uLights.Lights[base + 1];
+        vec4 v2 = uLights.Lights[base + 2];
+        vec4 v3 = uLights.Lights[base + 3];
 
-    fsout_color = vec4(diffuse + ambient, fsin_color.a);
+        vec3 toLight = v0.xyz - fsin_worldPos;
+        float dist = length(toLight);
+        vec3 L = toLight / max(dist, 0.0001);
+        float NdotL = max(dot(N, L), 0.0);
+
+        float radius = v1.w;
+        float startDist = radius * v2.w;
+        float distAtt = clamp((radius - dist) / max(radius - startDist, 0.0001), 0.0, 1.0);
+        distAtt = distAtt * distAtt * step(dist, radius);
+
+        // Directional light bypass: Type == 4 (used for dominant world light)
+        // behaves as an infinite directional light with no distance falloff.
+        float isDirectional = step(3.5, v0.w) * step(v0.w, 4.5);
+        distAtt = mix(distAtt, 1.0, isDirectional);
+        L = mix(L, normalize(v0.xyz), isDirectional);
+        NdotL = max(dot(N, L), 0.0);
+
+        // Spotlight cone — branchless. Pull a safe direction (sub in +Z
+        // when the slot has no direction so normalize() doesn't see zero
+        // or NaN), compute the smoothstep cone mask unconditionally, then
+        // pick between the cone mask and a constant 1.0 via mix() based
+        // on the precomputed ‘is spotlight with direction’ flag.
+        float coneInnerCos = v3.x;
+        float coneOuterCos = v3.y;
+        float hasDirection = v3.z;
+        vec3 safeDir = mix(vec3(0.0, 0.0, 1.0), v2.xyz, hasDirection);
+        float cosTheta = dot(-normalize(safeDir), L);
+        float spotMask = smoothstep(coneOuterCos, coneInnerCos, cosTheta);
+        // useSpot = 1 only when Type == 0 AND HasDirection.  Type is stored
+        // in v0.w; abs(type) is 0 for spot and ≥1 for the point variants,
+        // so 1 - min(abs(type), 1) collapses to 1.0 for spots only.
+        float useSpot = (1.0 - min(abs(v0.w), 1.0)) * hasDirection;
+        float coneFactor = mix(1.0, spotMask, useSpot);
+
+        lighting += v1.xyz * NdotL * distAtt * coneFactor * slotMask;
+    }
+
+    fsout_color = vec4(albedo * lighting, fsin_color.a);
 }";
 
-    // Opaque variant — same lighting, but no alpha discard and a forced 1.0 output
-    // alpha. Used by the 8Model map pipeline because many map TGAs are 32-bit with
-    // junk/zero alpha channels; alpha-testing those would erase the whole map.
+    // .8 map geometry has lighting baked into the per-vertex DIFU colour
+    // (fsin_color.rgb), so we don't run the per-fragment light loop here —
+    // it would just double-up on what bake already captured. We do still
+    // read AmbientCamera.xyz: partly as a tiny scene-mood top-up for fully
+    // shadowed corners, and partly so SPIRV-Cross can't strip the cbuffer
+    // declaration. Without that reference the cross-compiler emits HLSL
+    // with no register(b2) binding, the D3D11 shader's resource interface
+    // stops matching the pipeline's projViewLayout, and the whole opaque
+    // pipeline silently refuses to draw.
     private const string OpaqueFragmentCode = @"#version 450
+#define MAX_LIGHTS 16
 
 layout(location = 0) in vec2  fsin_texCoords;
 layout(location = 1) in vec3  fsin_normal;
@@ -106,23 +165,59 @@ layout(set = 1, binding = 1) uniform texture2D SurfaceTexture;
 layout(set = 1, binding = 2) uniform sampler  SurfaceSampler;
 
 layout(set = 0, binding = 3) uniform LightInfo {
-    vec3 LightPosition;
-    vec3 LightColor;
-    vec3 CameraPosition;
-} uLight;
+    vec4 Header;             // x = LightCount, yzw unused
+    vec4 AmbientCamera;      // xyz = AmbientColor, w unused
+    vec4 CameraPos;          // xyz = camera position, w unused
+    vec4 Lights[MAX_LIGHTS * 4];
+} uLights;
 
 void main() {
-    vec4 tex    = texture(sampler2D(SurfaceTexture, SurfaceSampler), fsin_texCoords);
+    vec4 tex = texture(sampler2D(SurfaceTexture, SurfaceSampler), fsin_texCoords);
     vec3 albedo = tex.rgb * fsin_color.rgb;
 
-    vec3 N      = normalize(fsin_normal);
-    vec3 L      = normalize(uLight.LightPosition - fsin_worldPos);
-    float NdotL = max(dot(N, L), 0.0);
+    vec3 N = normalize(fsin_normal);
+    vec3 lighting = uLights.AmbientCamera.xyz;
+    int lightCount = int(uLights.Header.x);
 
-    vec3 diffuse = albedo * uLight.LightColor * NdotL;
-    vec3 ambient = 0.3 * albedo;
+    for (int i = 0; i < MAX_LIGHTS; i++) {
+        float slotMask = step(float(i), float(lightCount - 1));
 
-    fsout_color = vec4(diffuse + ambient, 1.0);
+        int base = i * 4;
+        vec4 v0 = uLights.Lights[base + 0];
+        vec4 v1 = uLights.Lights[base + 1];
+        vec4 v2 = uLights.Lights[base + 2];
+        vec4 v3 = uLights.Lights[base + 3];
+
+        vec3 toLight = v0.xyz - fsin_worldPos;
+        float dist = length(toLight);
+        vec3 L = toLight / max(dist, 0.0001);
+        float NdotL = max(dot(N, L), 0.0);
+
+        float radius = v1.w;
+        float startDist = radius * v2.w;
+        float distAtt = clamp((radius - dist) / max(radius - startDist, 0.0001), 0.0, 1.0);
+        distAtt = distAtt * distAtt * step(dist, radius);
+
+        // Directional light bypass: Type == 4 (used for dominant world light)
+        // behaves as an infinite directional light with no distance falloff.
+        float isDirectional = step(3.5, v0.w) * step(v0.w, 4.5);
+        distAtt = mix(distAtt, 1.0, isDirectional);
+        L = mix(L, normalize(v0.xyz), isDirectional);
+        NdotL = max(dot(N, L), 0.0);
+
+        float coneInnerCos = v3.x;
+        float coneOuterCos = v3.y;
+        float hasDirection = v3.z;
+        vec3 safeDir = mix(vec3(0.0, 0.0, 1.0), v2.xyz, hasDirection);
+        float cosTheta = dot(-normalize(safeDir), L);
+        float spotMask = smoothstep(coneOuterCos, coneInnerCos, cosTheta);
+        float useSpot = (1.0 - min(abs(v0.w), 1.0)) * hasDirection;
+        float coneFactor = mix(1.0, spotMask, useSpot);
+
+        lighting += v1.xyz * NdotL * distAtt * coneFactor * slotMask;
+    }
+
+    fsout_color = vec4(albedo * lighting, 1.0);
 }";
 
     private static readonly string SkinnedVertexCode = @"#version 450
@@ -217,8 +312,6 @@ void main() {
     private List<ModelData> _models = new();
     private List<SkinnedModelData> _skinnedModels = new();
     private Camera _camera;
-
-    private LightInfo _light = new();
 
     private DeviceBuffer _lightBuffer;
     private Pipeline _pipeline;
@@ -495,17 +588,19 @@ void main() {
     public void AddMap(Map map)
     {
         // Add Map Geometry
+        _8Model? loaded8 = null;
         if (!string.IsNullOrEmpty(map.EMAP.s1))
         {
             try
             {
                 var searchName = Path.GetFileNameWithoutExtension(map.EMAP.s1);
-                
+
                 var _8 = ResourceSystem.FindResource(searchName, "8");
                 if (_8 != null)
                 {
                     Console.WriteLine($"Loading map geometry from 8Model: {searchName}");
                     Add8Model(_8);
+                    loaded8 = _8;
                 }
             }
             catch (Exception ex)
@@ -557,9 +652,106 @@ void main() {
             _ignoredZones.Clear();
         }
         
-        _light.LightColor = (new Vector3(1) + EditorWindow.ColToVec3(map.EMAP.col)) / 2;
-        
+        // Lighting setup. The .map file ships an EMAP.col global tint that we
+        // fold into AmbientColor (so even pitch-black corners pick up the map
+        // designer's mood colour). Every LGTR record from the .8 file is
+        // forwarded to the shader which sums them per-fragment with hard-cutoff
+        // attenuation. Static .8 geometry uses the opaque shader which ignores
+        // these — its lighting is pre-baked into per-vertex DIFU — but every
+        // dynamic entity (critter, prop, default-PC) shades against this list.
+        var emapTint = (new Vector3(1) + EditorWindow.ColToVec3(map.EMAP.col)) / 2;
+        UploadMapLights(loaded8?.Lights, emapTint, loaded8?.GetDominantLight());
+
         FocusCamera();
+    }
+
+    // Translates a list of LightRecord entries into the GpuLight array the
+    // shader expects, applies the map's ambient tint, and pushes both header
+    // and array into _lightBuffer in a single contiguous upload. When the
+    // map has no LGTD chunk we fall back to a single hardcoded "outdoor sun"
+    // so B3D viewers (no map loaded) still get sensible shading.
+    private void UploadMapLights(List<LightRecord>? lights, Vector3 ambient, LightRecord? dominant = null)
+    {
+        Array.Clear(_gpuLights);
+
+        var n = 0;
+        if (lights != null)
+        {
+            foreach (var l in lights)
+            {
+                if (n >= MaxLights) break;
+                if (!float.IsFinite(l.Position.X) || !float.IsFinite(l.Position.Y) || !float.IsFinite(l.Position.Z))
+                    continue;
+
+                var radius = l.Radius > 0 ? l.Radius : 1f;
+                // Fold Intensity into Color on the CPU so the shader doesn't
+                // multiply per-fragment.
+                var color = l.Color * (l.Intensity > 0 ? l.Intensity : 1f);
+
+                // Cone angles default to a near-omni cone for type-0 records
+                // that ship without explicit angles (Junktown's distant
+                // "sun" marker hits this).
+                var inner = l.ConeInnerRad > 0 ? l.ConeInnerRad : MathF.PI;
+                var outer = l.ConeOuterRad > inner ? l.ConeOuterRad : inner + 0.01f;
+
+                // hasDirection lets the shader skip the spot cone for type-0
+                // records that ship a NaN Direction (rather than NaN-checking
+                // inside the shader, which fxc handled poorly). We also nuke
+                // any non-finite Direction component so the GPU never sees a
+                // NaN — D3D11's HLSL backend treats NaNs in cbuffer data as
+                // undefined behaviour.
+                bool dirFinite = float.IsFinite(l.Direction.X) && float.IsFinite(l.Direction.Y) && float.IsFinite(l.Direction.Z);
+                var dir = dirFinite ? l.Direction : Vector3.Zero;
+
+                _gpuLights[n] = new GpuLight
+                {
+                    PositionType     = new Vector4(l.Position.X, l.Position.Y, l.Position.Z, l.Type),
+                    ColorRadius      = new Vector4(color.X, color.Y, color.Z, radius),
+                    DirectionFalloff = new Vector4(dir.X, dir.Y, dir.Z, MathF.Max(0f, MathF.Min(l.FalloffStart, 0.99f))),
+                    ConeAndFlags     = new Vector4(MathF.Cos(inner), MathF.Cos(outer), dirFinite ? 1f : 0f, 0f),
+                };
+                n++;
+            }
+
+            // Inject the dominant light as a directional light if it exists.
+            // B3D map geometry is already lit by vertex colors (DIFU), but
+            // dynamic critters/props need a global "sun" to look correct in
+            // large outdoor maps where point lights are sparse. We treat the
+            // dominant light as an infinite directional light (Type 4) to
+            // bypass distance attenuation.
+            if (dominant != null && n < MaxLights)
+            {
+                var color = dominant.Color * (dominant.Intensity > 0 ? dominant.Intensity : 1f);
+                _gpuLights[n] = new GpuLight
+                {
+                    // For Type 4, Position field is used as Direction vector
+                    PositionType     = new Vector4(dominant.Position.X, dominant.Position.Y, dominant.Position.Z, 4), 
+                    ColorRadius      = new Vector4(color.X, color.Y, color.Z, 1_000_000f),
+                    DirectionFalloff = new Vector4(0f, 0f, 0f, 0.99f),
+                    ConeAndFlags     = new Vector4(1f, 1f, 0f, 0f),
+                };
+                n++;
+            }
+        }
+
+        if (n == 0 || (dominant == null && n == 0))
+        {
+            // Outdoor-sun fallback — matches the old hardcoded LightPosition
+            // that B3D viewers used to get from the single-light shader.
+            _gpuLights[0] = new GpuLight
+            {
+                PositionType     = new Vector4(5000, 4000, 10000, 4), // Type 4 = Directional
+                ColorRadius      = new Vector4(ambient.X, ambient.Y, ambient.Z, 1_000_000f),
+                DirectionFalloff = new Vector4(0f, 0f, 0f, 0.99f),
+                ConeAndFlags     = new Vector4(1f, 1f, 0f, 0f),
+            };
+            n = 1;
+        }
+
+        _lightHeader.Header = new Vector4(n, 0f, 0f, 0f);
+        // matches the old shader's `0.3 * albedo` ambient baseline.
+        var amb = ambient * 0.3f;
+        _lightHeader.AmbientCamera = new Vector4(amb, 0f);
     }
     
     public void Add8Model(_8Model model)
@@ -815,7 +1007,9 @@ void main() {
         _projectionBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer));
         _viewBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer));
         _worldBuffer = factory.CreateBuffer(new BufferDescription(64, BufferUsage.UniformBuffer));
-        _lightBuffer = factory.CreateBuffer(new BufferDescription((uint)Marshal.SizeOf<LightInfo>(), BufferUsage.UniformBuffer));
+        // Light uniform buffer = LightInfoHeader (48 bytes) + MaxLights × GpuLight (64 bytes each).
+        var lightBufferSize = (uint)(Marshal.SizeOf<LightInfoHeader>() + MaxLights * Marshal.SizeOf<GpuLight>());
+        _lightBuffer = factory.CreateBuffer(new BufferDescription(lightBufferSize, BufferUsage.UniformBuffer));
 
         var vert = new ShaderDescription(ShaderStages.Vertex, Encoding.UTF8.GetBytes(VertexCode), "main");
         var frag = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(FragmentCode), "main");
@@ -894,6 +1088,10 @@ void main() {
 
         _projViewSet = factory.CreateResourceSet(new ResourceSetDescription(
             projViewLayout, _projectionBuffer, _viewBuffer, _lightBuffer));
+
+        // Seed the light buffer with the no-map fallback so the B3D-only
+        // model viewer (which never calls AddMap) still has a usable sun.
+        UploadMapLights(null, new Vector3(1f));
 
         // Skinned pipeline. Reuses the existing fragment shader so lighting/texturing
         // stays consistent. Resource sets: 0=projView/light, 1=world+texture, 2=bones.
@@ -1160,7 +1358,9 @@ void main() {
         }
         _skinnedModels.Clear();
         _ignoredZones.Clear();
-        _light = new LightInfo();
+        _lightHeader = new LightInfoHeader();
+        Array.Clear(_gpuLights);
+        UploadMapLights(null, new Vector3(1f));
     }
 
     public int GetModelCount()
@@ -1225,8 +1425,11 @@ void main() {
 
         cl.UpdateBuffer(_projectionBuffer, 0, _camera.ProjectionMatrix);
         cl.UpdateBuffer(_viewBuffer, 0, _camera.ViewMatrix);
-        _light.CameraPosition = _camera.Position;
-        cl.UpdateBuffer(_lightBuffer, 0, _light);
+        _lightHeader.CameraPos = new Vector4(_camera.Position, 0f);
+        // Header at offset 0, lights array immediately after. Two uploads
+        // because Veldrid's UpdateBuffer doesn't take a struct + tail.
+        cl.UpdateBuffer(_lightBuffer, 0, _lightHeader);
+        cl.UpdateBuffer(_lightBuffer, (uint)Marshal.SizeOf<LightInfoHeader>(), _gpuLights);
 
         void draw(ModelData model)
         {
@@ -1408,16 +1611,54 @@ void main() {
         _camera.Pitch = -0.5f; // Look down slightly
     }
 
+    // Maximum number of LGTR records we forward to the shader. The biggest
+    // ship-with map (Vault, Shelter) has 14; rounding up to 16 covers them
+    // and stays well clear of fxc's flakier behaviour with very large
+    // cbuffer arrays. If a map has more than this they're truncated by
+    // AddMap. Keep in sync with FragmentCode's MAX_LIGHTS.
+    private const int MaxLights = 16;
+
+    // Per-light data laid out as four vec4s. The GLSL struct in FragmentCode
+    // unpacks this layout — keep the two in sync. We pack as vec4-only
+    // (instead of mixed vec3+scalar) because SPIRV-Cross → HLSL → FXC
+    // crashes with an SEH on the mixed layout.
+    //   v0: xyz = Position,  w = Type (cast to int in shader)
+    //   v1: xyz = Color,     w = Radius
+    //   v2: xyz = Direction, w = FalloffStart
+    //   v3: x = ConeInnerCos, y = ConeOuterCos, z = HasDirection (0/1), w = unused
     [StructLayout(LayoutKind.Sequential)]
-    private struct LightInfo()
+    private struct GpuLight
     {
-        public Vector3 LightPosition = new(5000, 4000, 10000);
-        private float _pad1;
-        public Vector3 LightColor = new(1, 1, 1);
-        private float _pad2;
-        public Vector3 CameraPosition = Vector3.Zero;
-        private float _pad3;
+        public Vector4 PositionType;
+        public Vector4 ColorRadius;
+        public Vector4 DirectionFalloff;
+        public Vector4 ConeAndFlags;
     }
+
+    // Header that precedes the Lights[] array in the same uniform buffer.
+    // Layout matches the GLSL `LightInfo` block — three leading vec4s of
+    // globals, then MaxLights × sizeof(GpuLight) bytes of array.
+    [StructLayout(LayoutKind.Sequential)]
+    private struct LightInfoHeader
+    {
+        public Vector4 Header;            // x = LightCount
+        public Vector4 AmbientCamera;     // xyz = AmbientColor
+        public Vector4 CameraPos;
+
+        public LightInfoHeader()
+        {
+            Header = Vector4.Zero;
+            AmbientCamera = new Vector4(0.3f, 0.3f, 0.3f, 0f);
+            CameraPos = Vector4.Zero;
+        }
+    }
+
+    // Backing storage for the uniform buffer. Header lives at offset 0;
+    // Lights[] follows immediately. We keep them as separate fields so we
+    // can update them independently (e.g. bump CameraPos every frame
+    // without rewriting the light array).
+    private LightInfoHeader _lightHeader = new();
+    private readonly GpuLight[] _gpuLights = new GpuLight[MaxLights];
 
     public class ModelData
     {
@@ -1433,6 +1674,7 @@ void main() {
         public string Name { get; set; } = "";
     }
     
+    // Per-vertex RGBA color. Normal is at location 2, Color at 3.
     [StructLayout(LayoutKind.Sequential)]
     public struct VertexPositionTextureNormal
     {

@@ -1338,6 +1338,38 @@ public class _8Model
     public LightmapData? Lightmap;
     public List<MaterialRecord> Materials = [];
 
+    // Picks a single representative light for the renderer's existing
+    // single-light pipeline. Static map geometry already has lighting baked
+    // into the per-vertex DIFU colours, so this is mainly for dynamic
+    // entities (critters, props) placed inside the map — they need a
+    // direction + colour to shade against, and the hardcoded "noon sun"
+    // fallback at (5000, 4000, 10000) tends to look wrong indoors.
+    //
+    // Heuristic: pick the light with the largest radius * brightness
+    // product, weighted by light type (point lights count for less than
+    // spotlights since they're usually small fill lights). Returns null when
+    // the map has no LGTD chunk or no usable lights.
+    public LightRecord? GetDominantLight()
+    {
+        if (Lights.Count == 0) return null;
+        LightRecord? best = null;
+        float bestScore = float.NegativeInfinity;
+        foreach (var l in Lights)
+        {
+            if (!float.IsFinite(l.Position.X) || !float.IsFinite(l.Position.Y) || !float.IsFinite(l.Position.Z))
+                continue;
+            var brightness = l.Color.X + l.Color.Y + l.Color.Z;
+            var typeBoost = l.IsSpotlight ? 1.5f : 1.0f;
+            var score = brightness * MathF.Max(l.Radius, 0.001f) * MathF.Max(l.Intensity, 0.001f) * typeBoost;
+            if (score > bestScore)
+            {
+                bestScore = score;
+                best = l;
+            }
+        }
+        return best;
+    }
+
     // ----- TXTD -----
     // Slot 0 is the engine's reserved "no texture" sentinel; real names start at index 1.
     public List<string> TextureNames = [];
@@ -1564,8 +1596,8 @@ public class _8Model
                         for (var v = 0; v < vc; v++)
                         {
                             var x = -f.ReadSingle();
-                            var y = f.ReadSingle();
                             var z = f.ReadSingle();
+                            var y = f.ReadSingle();
                             GVN[baseIdx + v] = new Vector3(x, z, y);
                         }
                         wanted &= ~0x200;
@@ -1824,35 +1856,97 @@ public class _8Model
 
 public sealed class LightRecord
 {
+    // Light type values found in the Type field (offset 0x04). 0 = spotlight
+    // (carries valid Direction + cone angles); 1 = point light variant A;
+    // 2 = point light variant B. Variants 1 and 2 differ in their FalloffStart
+    // values across the sample set (1 ≈ 1.0, 2 ≈ 0.4–0.5) which suggests one
+    // is linear-attenuation and the other inverse-square — engine code that
+    // distinguishes them isn't decoded yet, but the value is preserved so a
+    // future shader pass can pick the right falloff curve.
+    public const int TypeSpot = 0;
+    public const int TypePointA = 1;
+    public const int TypePointB = 2;
+
     public byte[] Raw = Array.Empty<byte>();
-    // Layout inferred from MarkTest LGTR (64 bytes); fields beyond what's named here
-    // are still under analysis and remain accessible via Raw.
+
+    // 0x00 — int32. Always 0 in the maps that ship with multiple lights;
+    // MarkTest's single test spotlight has value 1. Unknown semantics; could
+    // be a "primary / casts shadow" flag or just a serialization id.
+    public int Flags;
+
+    // 0x04 — light type enum (see TypeSpot / TypePointA / TypePointB).
+    public int Type;
+
+    // 0x08..0x10 — RGB colour as floats in [0, 1].
     public Vector3 Color;
+
+    // 0x14..0x1C — world position. Already remapped into the renderer's
+    // coordinate convention (X negated, Y/Z swapped) so it matches the GVP
+    // positions produced by VTXD.
     public Vector3 Position;
+
+    // 0x20..0x28 — direction (unit vector). NaN for point-light types; valid
+    // for spotlights. Same coordinate remap as Position.
     public Vector3 Direction;
+
+    // 0x2C — attenuation parameter. For point-light type 1 it tends to land
+    // near 1.0; for type 2 around 0.4–0.5; for the spotlight it was 2.0 in
+    // MarkTest. Stored verbatim — see comment on Type for caveat.
+    public float FalloffStart;
+
+    // 0x30 — light radius (max influence range), in world units.
     public float Radius;
+
+    // 0x34 — overall intensity multiplier. Always 1.0 in observed samples,
+    // but exposed so future maps can dim/boost lights.
     public float Intensity;
+
+    // 0x38 / 0x3C — spotlight cone angles in radians (inner / outer).
+    // MarkTest's spotlight: ~0.4363 (~25°) inner, ~0.5236 (~30°) outer. Zero
+    // for point lights — they don't use them.
+    public float ConeInnerRad;
+    public float ConeOuterRad;
+
+    public bool IsSpotlight => Type == TypeSpot;
+    public bool IsPointLight => Type == TypePointA || Type == TypePointB;
 
     public static LightRecord Parse(byte[] raw)
     {
         var r = new LightRecord { Raw = raw };
+        if (raw.Length >= 0x04) r.Flags = BitConverter.ToInt32(raw, 0x00);
+        if (raw.Length >= 0x08) r.Type = BitConverter.ToInt32(raw, 0x04);
         if (raw.Length >= 0x14)
             r.Color = new Vector3(
                 BitConverter.ToSingle(raw, 0x08),
                 BitConverter.ToSingle(raw, 0x0C),
                 BitConverter.ToSingle(raw, 0x10));
         if (raw.Length >= 0x20)
-            r.Position = new Vector3(
-                BitConverter.ToSingle(raw, 0x14),
-                BitConverter.ToSingle(raw, 0x18),
-                BitConverter.ToSingle(raw, 0x1C));
+        {
+            // The renderer's world space is (-fileX, fileY, fileZ): VTXD
+            // negates X and swaps Y/Z, then Add8Model un-swaps Y/Z back
+            // when building the final vertex buffer. The net transform is
+            // just an X negation. Lights have to land in the same frame as
+            // the geometry the shader compares them against, so we apply
+            // only the X negation here — applying VTXD's Y/Z swap as well
+            // would Y/Z-mirror every light relative to its room and make
+            // dynamic shading look like normals showing through.
+            var x = BitConverter.ToSingle(raw, 0x14);
+            var y = BitConverter.ToSingle(raw, 0x18);
+            var z = BitConverter.ToSingle(raw, 0x1C);
+            r.Position = new Vector3(-x, y, z);
+        }
         if (raw.Length >= 0x2C)
-            r.Direction = new Vector3(
-                BitConverter.ToSingle(raw, 0x20),
-                BitConverter.ToSingle(raw, 0x24),
-                BitConverter.ToSingle(raw, 0x28));
-        if (raw.Length >= 0x30) r.Radius = BitConverter.ToSingle(raw, 0x2C);
-        if (raw.Length >= 0x34) r.Intensity = BitConverter.ToSingle(raw, 0x30);
+        {
+            var x = BitConverter.ToSingle(raw, 0x20);
+            var y = BitConverter.ToSingle(raw, 0x24);
+            var z = BitConverter.ToSingle(raw, 0x28);
+            r.Direction = new Vector3(-x, y, z);
+        }
+        if (raw.Length >= 0x30) r.FalloffStart = BitConverter.ToSingle(raw, 0x2C);
+        if (raw.Length >= 0x34) r.Radius = BitConverter.ToSingle(raw, 0x30);
+        if (raw.Length >= 0x38) r.Intensity = BitConverter.ToSingle(raw, 0x34);
+        if (raw.Length >= 0x3C) r.ConeInnerRad = BitConverter.ToSingle(raw, 0x38);
+        if (raw.Length >= 0x40) r.ConeOuterRad = BitConverter.ToSingle(raw, 0x3C);
         return r;
     }
 }
