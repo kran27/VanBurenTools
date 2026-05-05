@@ -19,7 +19,7 @@ public partial class ModLoader
     private List<ModInfo> _modList = [];
     private string[] _bArray;
     private string[] _deployedMods = [];
-    
+
     public ModLoader()
     {
         InitializeComponent();
@@ -66,7 +66,7 @@ public partial class ModLoader
         ListView1.BackColor = BackgroundColour;
         ListView1.ForeColor = Theme.Colors.LightText;
         ListView1.AllowColumnReorder = false;
-        
+
         LoadMods();
     }
 
@@ -220,7 +220,7 @@ public partial class ModLoader
                 g.DrawLine(p, e.Bounds.Left + 5, e.Bounds.Top + 9, e.Bounds.Left + 7, e.Bounds.Top + 12);
                 g.DrawLine(p, e.Bounds.Left + 7, e.Bounds.Top + 12, e.Bounds.Left + 11, e.Bounds.Top + 6);
             }
-            
+
             g.DrawString(e.Item.Text, e.Item.Font, txtbrsh, e.Bounds.Left + size + 4, e.Bounds.Top + 1);
         }
         else if (ReferenceEquals(e.Item.SubItems[1], e.SubItem))
@@ -432,7 +432,7 @@ public partial class ModLoader
     private void IncSTFRefs(string fp, int incVal)
     {
         var b = File.ReadAllBytes(fp);
-        
+
         dynamic? file = (fp.GetExtension().ToLower()) switch
         {
             "amo" => b.ReadAMO(),
@@ -465,7 +465,7 @@ public partial class ModLoader
         if (file.GCRE is GCREc gcre)
             foreach (var gwam in gcre.GWAM.Where(gwam => gwam.NameSR > 3281))
                 gwam.NameSR += incVal;
-        
+
         if (file is Map map)
             foreach (var note in map.EMNO.Where(note => note.sr > 3281))
                 note.sr += incVal;
@@ -479,20 +479,20 @@ public partial class ModLoader
             File.Copy(Settings.Default.STFDir + ".bak", Settings.Default.STFDir, true);
         else
             File.Copy(Settings.Default.STFDir, Settings.Default.STFDir + ".bak");
-        
+
         const string tmpDir = @"Mods\tmp";
         if (Directory.Exists(tmpDir))
             Directory.Delete(tmpDir, true);
         if (Directory.Exists("Override\\Deployed"))
             Directory.Delete("Override\\Deployed", true);
-        
+
         _bArray = Extensions.STFToTXT(File.ReadAllBytes(Settings.Default.STFDir)).ToArray();
         var originalStf = _bArray;
 
         Settings.Default.DeployedMods =
             string.Join(",", ListView1.CheckedItems.Cast<ListViewItem>().Select(lvi => lvi.Name));
         Settings.Default.Save();
-        
+
         foreach (int i in ListView1.CheckedIndices)
         {
             var zip = ZipFile.OpenRead(_modList[i].Zip.FullName);
@@ -503,7 +503,11 @@ public partial class ModLoader
                 if (!entry2.Name.Equals("english.stf", StringComparison.CurrentCultureIgnoreCase) &&
                     !entry2.Name.Equals("mod.info", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    entry2.ExtractToFile(Path.Combine(tmpDir, entry2.Name), true);
+                    var extractionPath = GetSafeExtractionPath(tmpDir, entry2.Name);
+                    if (extractionPath != null)
+                    {
+                        entry2.ExtractToFile(extractionPath, true);
+                    }
                 }
             }
 
@@ -525,15 +529,33 @@ public partial class ModLoader
             {
                 if (entry.Name.Equals("english.stf", StringComparison.CurrentCultureIgnoreCase) ||
                     entry.Name.Equals("mod.info", StringComparison.CurrentCultureIgnoreCase)) continue;
-                var fp = Path.Combine(tmpDir, entry.Name);
-                IncSTFRefs(fp, tmp.Item2);
+                var fp = GetSafeExtractionPath(tmpDir, entry.Name);
+                if (fp != null)
+                {
+                    IncSTFRefs(fp, tmp.Item2);
+                }
             }
         }
-        
+
         // write the merged english.stf to the output file
         File.WriteAllBytes(Settings.Default.STFDir, Extensions.TXTToSTF(originalStf));
-        
+
         if (Directory.Exists(tmpDir))
             Directory.Move(tmpDir, "Override\\Deployed");
+    }
+
+    private static string? GetSafeExtractionPath(string destinationDirectory, string entryName)
+    {
+        if (string.IsNullOrWhiteSpace(entryName)) return null;
+
+        var fullDestinationPath = Path.GetFullPath(destinationDirectory).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+
+        // Ensure backslashes are handled as separators, even on non-Windows platforms.
+        var normalizedEntryName = entryName.Replace('\\', Path.DirectorySeparatorChar);
+
+        var combinedPath = Path.Combine(destinationDirectory, normalizedEntryName);
+        var fullCombinedPath = Path.GetFullPath(combinedPath);
+
+        return fullCombinedPath.StartsWith(fullDestinationPath, StringComparison.OrdinalIgnoreCase) ? fullCombinedPath : null;
     }
 }
