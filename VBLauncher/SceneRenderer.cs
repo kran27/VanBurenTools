@@ -220,6 +220,100 @@ void main() {
     fsout_color = vec4(albedo * lighting, 1.0);
 }";
 
+    // Vertex shader for the lightmap-modulated .8 path. Takes a second
+    // float2 (LightmapCoords) — the LMUV channel from VTXB — and forwards
+    // it to the fragment stage. Otherwise mirrors the static VertexCode.
+    private const string LightmappedVertexCode = @"#version 450
+
+layout(set = 0, binding = 0) uniform ProjectionBuffer { mat4 Projection; };
+layout(set = 0, binding = 1) uniform ViewBuffer       { mat4 View;       };
+layout(set = 1, binding = 0) uniform WorldBuffer      { mat4 World;      };
+
+layout(location = 0) in vec3 Position;
+layout(location = 1) in vec2 TexCoords;
+layout(location = 2) in vec3 Normal;
+layout(location = 3) in vec4 Color;
+layout(location = 4) in vec2 LightmapCoords;
+
+layout(location = 0) out vec2 fsin_texCoords;
+layout(location = 1) out vec3 fsin_normal;
+layout(location = 2) out vec3 fsin_worldPos;
+layout(location = 3) out vec4 fsin_color;
+layout(location = 4) out vec2 fsin_lmCoords;
+
+void main() {
+    vec4 worldPos4 = World * vec4(Position, 1.0);
+    fsin_worldPos = worldPos4.xyz;
+    fsin_normal   = normalize(mat3(World) * Normal);
+    fsin_texCoords = TexCoords;
+    fsin_lmCoords  = LightmapCoords;
+    fsin_color     = Color;
+    gl_Position = Projection * View * worldPos4;
+}";
+
+    // Fragment shader for the lightmap-modulated .8 path. Mirrors the engine's
+    // BASE_LM_2X fixed-function setup: stage 0 = base * vertex diffuse, stage 1
+    // = lightmap * current * 2X. The vertex DIFU is pre-doubled at .8-load time
+    // (VanBurenFormats half-brightness decode), so the two doublings collapse —
+    // we sample the lightmap at native and don't multiply by 2 again. For
+    // batches with no lightmap (lmPage == -1) the renderer binds a 1×1 white
+    // texture, which makes this shader degrade to plain `tex × diffuse`.
+    //
+    // We touch uLights.AmbientCamera the same way OpaqueFragmentCode does — not
+    // because we need it for shading (the bake covers static lighting and the
+    // LM covers atlased detail), but to keep the binding alive across
+    // SPIRV-Cross → HLSL → fxc; without the reference the cbuffer drops out of
+    // the D3D11 shader and the pipeline silently refuses to draw.
+    private const string LightmappedFragmentCode = @"#version 450
+#define MAX_LIGHTS 16
+
+layout(location = 0) in vec2 fsin_texCoords;
+layout(location = 1) in vec3 fsin_normal;
+layout(location = 2) in vec3 fsin_worldPos;
+layout(location = 3) in vec4 fsin_color;
+layout(location = 4) in vec2 fsin_lmCoords;
+
+layout(location = 0) out vec4 fsout_color;
+
+layout(set = 1, binding = 1) uniform texture2D SurfaceTexture;
+layout(set = 1, binding = 2) uniform sampler   SurfaceSampler;
+layout(set = 1, binding = 3) uniform texture2D LightmapTexture;
+layout(set = 1, binding = 4) uniform sampler   LightmapSampler;
+
+layout(set = 0, binding = 3) uniform LightInfo {
+    vec4 Header;
+    vec4 AmbientCamera;
+    vec4 CameraPos;
+    vec4 Lights[MAX_LIGHTS * 4];
+} uLights;
+
+void main() {
+    vec4 tex = texture(sampler2D(SurfaceTexture,  SurfaceSampler),  fsin_texCoords);
+    vec4 lm  = texture(sampler2D(LightmapTexture, LightmapSampler), fsin_lmCoords);
+    // No alpha-discard: many .8 TGAs ship with junk/zero alpha (same reason
+    // OpaqueFragmentCode skips it). Pipeline is SingleOverrideBlend so alpha
+    // is ignored at output anyway. IMAGE_ALPHA cutout cases are routed to
+    // the existing alpha-tested pipeline, not here.
+    //
+    // No fsin_color multiply on the LM path. The engine's BASE_LM_2X stage
+    // chain technically does `tex × diffuse × LM × 2X`, but on lightmapped
+    // surfaces the per-vertex DIFU bake encodes the *same* directional
+    // lighting that already lives in the LM atlas — applying both produces
+    // a double-shaded look (visually reads as a normal-direction tint
+    // because both bakes correlate with surface normals). The .8 reader
+    // already pre-doubles DIFU for the no-LM path; keeping that intact and
+    // sampling LM at native gives the correct result on lightmapped faces.
+    //
+    // AmbientCamera ref is REAL, not a `* 0.0` placeholder — SPIRV-Cross /
+    // fxc happily constant-fold a `* 0` away, which strips the LightInfo
+    // cbuffer from the compiled D3D11 shader and misaligns the resource set
+    // (projViewLayout has 3 bindings, the compiled shader would have 2).
+    // Symptom: draws silently produce no output. We mix a small ambient
+    // lift into the LM term so the binding survives every backend.
+    vec3 ambient = uLights.AmbientCamera.xyz * 0.1;
+    fsout_color = vec4(tex.rgb * (lm.rgb + ambient), 1.0);
+}";
+
     private static readonly string SkinnedVertexCode = @"#version 450
 
 layout(set = 0, binding = 0) uniform ProjectionBuffer { mat4 Projection; };
@@ -773,21 +867,26 @@ void main() {
              materialIndices[i] = new List<ushort>();
         }
         
-        // Group faces by (texture, material). MDX (1-based into MAT) picks the
-        // bound texture; MFL (0-based into Materials) picks the technique. The
-        // same texture atlas can be referenced by multiple materials with
-        // different techniques (e.g. foliage atlas: BASE_2X for trunks +
-        // BASE_IMAGE_ALPHA_2X for alpha-tested leaf cards), so we have to split
-        // on both. MDX==0 collapses to a single "no texture" bucket regardless
-        // of the material it carries.
-        var materialFaces = new Dictionary<(int Mdx, int Mat), List<int>>();
+        // Group faces by (texture, material, lightmap page). MDX (1-based into
+        // MAT) picks the bound base texture; MFL (0-based into Materials)
+        // picks the technique; LMI is the per-face lightmap atlas index (-1
+        // = no LM). The same base texture atlas can appear with multiple
+        // materials AND multiple lightmap pages, so we have to split on all
+        // three. MDX==0 collapses to a single "no texture" bucket regardless
+        // of the material/lightmap it carries.
+        var materialFaces = new Dictionary<(int Mdx, int Mat, int Lm), List<int>>();
 
         for (int i = 0; i < model.IDX.Count; i++)
         {
             var mdxindex = model.MDX[i];
             if (mdxindex == 0) mdxindex = -1;
             var matIdx = i < model.MFL.Count ? (int)model.MFL[i] : 0;
-            var key = (mdxindex, matIdx);
+            var lmPage = i < model.LMI.Count ? model.LMI[i] : -1;
+            // Force "no LM" when the file didn't ship VTXB.LMUV at all — the
+            // GVL list will be empty in that case, so any lmPage we picked up
+            // from IDXS is unusable.
+            if (model.GVL.Count == 0) lmPage = -1;
+            var key = (mdxindex, matIdx, lmPage);
             if (!materialFaces.TryGetValue(key, out var bucket))
             {
                 bucket = new List<int>();
@@ -796,15 +895,27 @@ void main() {
             bucket.Add(i);
         }
 
-        Console.WriteLine($"[SceneRenderer] Add8Model: GVP Count {model.GVP.Count}, IDX Count {model.IDX.Count}, MAT Count {model.MAT.Count}, Materials Count {model.Materials.Count}");
-        Console.WriteLine($"[SceneRenderer] Add8Model: Material Faces Breakdown: {string.Join(", ", materialFaces.Select(k => $"(Tex={k.Key.Mdx}, Mat={k.Key.Mat}): {k.Value.Count} faces"))}");
+        Console.WriteLine($"[SceneRenderer] Add8Model: GVP Count {model.GVP.Count}, IDX Count {model.IDX.Count}, MAT Count {model.MAT.Count}, Materials Count {model.Materials.Count}, GVL Count {model.GVL.Count}, LightmapStart {model.LightmapStart}");
+        Console.WriteLine($"[SceneRenderer] Add8Model: Material Faces Breakdown: {string.Join(", ", materialFaces.Select(k => $"(Tex={k.Key.Mdx}, Mat={k.Key.Mat}, Lm={k.Key.Lm}): {k.Value.Count} faces"))}");
 
         foreach (var kvp in materialFaces)
         {
             var matIndex = kvp.Key.Mdx;
             var matRecordIndex = kvp.Key.Mat;
+            var lmPage = kvp.Key.Lm;
             var faceIndices = kvp.Value;
             if (faceIndices.Count == 0) continue;
+
+            // Materials whose technique name is literally "INVISIBLE" are
+            // collision/trigger meshes the engine never draws (e.g. mineshaft
+            // walkability volumes in Test_Int_Mines1_10x10.8). The B3D path
+            // already returns early on this name; mirror that here so .8
+            // collision geometry doesn't bleed through as visible polygons.
+            if (matRecordIndex >= 0 && matRecordIndex < model.Materials.Count
+                && model.Materials[matRecordIndex].Name == "INVISIBLE")
+            {
+                continue;
+            }
 
             string textureName = null;
             if (matIndex > 0 && matIndex <= model.MAT.Count)
@@ -820,14 +931,40 @@ void main() {
                 && matRecordIndex < model.Materials.Count
                 && model.Materials[matRecordIndex].UsesImageAlpha;
 
+            // Lightmap routing: only enable the LM pipeline when the IDXS group
+            // actually selected a baked atlas AND the file ships LMUVs. Faces
+            // with lmPage == -1 keep the existing opaque/alpha pipelines so the
+            // unlit "skybox-style" non-LM batches don't pay for a 1×1 white
+            // sample — and we don't lose the dynamic-light additive on them.
+            var useLightmap = lmPage >= 0 && model.GVL.Count > 0;
+
+            // Resolve the lightmap atlas filename via TXTD: lmPage is an offset
+            // into the .ctx-suffixed segment, so the actual entry is
+            // TextureNames[LightmapStart + lmPage]. The engine swaps the
+            // extension to .dds/.tga at load time; we strip and look up .tga.
+            string lmTextureName = null;
+            if (useLightmap)
+            {
+                var txtdIdx = model.LightmapStart + lmPage;
+                if (txtdIdx > 0 && txtdIdx < model.TextureNames.Count)
+                    lmTextureName = Path.GetFileNameWithoutExtension(model.TextureNames[txtdIdx]);
+                else
+                    useLightmap = false; // out of range = no usable lightmap entry
+            }
+
+            Pipeline chosenPipeline;
+            if (useLightmap)        chosenPipeline = _lightmappedPipeline;
+            else if (useImageAlpha) chosenPipeline = null; // _pipeline (alpha-tested)
+            else                    chosenPipeline = _opaquePipeline;
+
             var modelData = new ModelData
             {
-                Name = $"8Model_Tex{matIndex}_Mat{matRecordIndex}",
+                Name = $"8Model_Tex{matIndex}_Mat{matRecordIndex}_Lm{lmPage}",
                 WorldMatrix = Matrix4x4.Identity,
-                Pipeline = useImageAlpha ? null : _opaquePipeline
+                Pipeline = chosenPipeline
             };
-            
-            // Process Texture
+
+            // Base texture (shared between LM and non-LM paths)
             if (string.IsNullOrEmpty(textureName))
             {
                  modelData.SurfaceTexture = Create1x1TextureFromColor(_graphicsDevice, factory, 0.5f, 0.5f, 0.5f); // Grey default
@@ -848,9 +985,36 @@ void main() {
                     modelData.SurfaceTextureView = factory.CreateTextureView(modelData.SurfaceTexture);
                 }
             }
-             
-            modelData.WorldTextureSet = factory.CreateResourceSet(new ResourceSetDescription(
-                _worldTextureLayout, _worldBuffer, modelData.SurfaceTextureView, _graphicsDevice.Aniso4xSampler));
+
+            // Lightmap texture (only on the LM path). Atlases are clamped at
+            // edges to keep neighbouring tiles from bleeding through, and
+            // sampled with the engine's standard linear filter — atlases are
+            // already pre-baked at native resolution so anisotropic filtering
+            // gains nothing.
+            if (useLightmap)
+            {
+                ImageSharpTexture lmTx = ResourceSystem.FindResource(lmTextureName, "tga");
+                if (lmTx != null)
+                {
+                    modelData.LightmapTextureView = factory.CreateTextureView(lmTx.CreateDeviceTexture(_graphicsDevice, factory));
+                }
+                else
+                {
+                    Console.WriteLine($"[SceneRenderer] Add8Model: Missing lightmap '{lmTextureName}' (lmPage {lmPage}, TXTD[{model.LightmapStart + lmPage}]); falling back to white");
+                    modelData.LightmapTextureView = _whiteLightmapView;
+                }
+
+                modelData.WorldTextureSet = factory.CreateResourceSet(new ResourceSetDescription(
+                    _worldTextureLayoutLM,
+                    _worldBuffer,
+                    modelData.SurfaceTextureView, _graphicsDevice.Aniso4xSampler,
+                    modelData.LightmapTextureView, _graphicsDevice.LinearSampler));
+            }
+            else
+            {
+                modelData.WorldTextureSet = factory.CreateResourceSet(new ResourceSetDescription(
+                    _worldTextureLayout, _worldBuffer, modelData.SurfaceTextureView, _graphicsDevice.Aniso4xSampler));
+            }
 
             // Triangles are "exploded" into 3 fresh vertices each, so each chunk
             // tops out at ushort.MaxValue / 3 = 21845 faces (65535 / 3). Past that,
@@ -863,8 +1027,10 @@ void main() {
             for (var faceCursor = 0; faceCursor < faceIndices.Count; faceCursor += FacesPerChunk, chunkIndex++)
             {
                 var chunkEnd = Math.Min(faceCursor + FacesPerChunk, faceIndices.Count);
-                var uniqueVertices = new List<VertexPositionTextureNormal>((chunkEnd - faceCursor) * 3);
-                var newIndices = new List<ushort>((chunkEnd - faceCursor) * 3);
+                var capacity = (chunkEnd - faceCursor) * 3;
+                var uniqueVertices = useLightmap ? null : new List<VertexPositionTextureNormal>(capacity);
+                var lmVertices = useLightmap ? new List<VertexPositionTextureNormalLM>(capacity) : null;
+                var newIndices = new List<ushort>(capacity);
 
                 for (var fi = faceCursor; fi < chunkEnd; fi++)
                 {
@@ -913,14 +1079,29 @@ void main() {
                     Vector4 c1 = model.GVD.Count > idx1 ? ColorToVec4(model.GVD[idx1]) : Vector4.One;
                     Vector4 c2 = model.GVD.Count > idx2 ? ColorToVec4(model.GVD[idx2]) : Vector4.One;
 
-                    uniqueVertices.Add(new VertexPositionTextureNormal(p0, uv0, n0, c0));
-                    uniqueVertices.Add(new VertexPositionTextureNormal(p1, uv1, n1, c1));
-                    uniqueVertices.Add(new VertexPositionTextureNormal(p2, uv2, n2, c2));
-
-                    ushort baseIdx = (ushort)(uniqueVertices.Count - 3);
-                    newIndices.Add(baseIdx);
-                    newIndices.Add((ushort)(baseIdx + 1));
-                    newIndices.Add((ushort)(baseIdx + 2));
+                    if (useLightmap)
+                    {
+                        Vector2 lm0 = model.GVL.Count > idx0 ? model.GVL[idx0] : Vector2.Zero;
+                        Vector2 lm1 = model.GVL.Count > idx1 ? model.GVL[idx1] : Vector2.Zero;
+                        Vector2 lm2 = model.GVL.Count > idx2 ? model.GVL[idx2] : Vector2.Zero;
+                        lmVertices.Add(new VertexPositionTextureNormalLM(p0, uv0, n0, c0, lm0));
+                        lmVertices.Add(new VertexPositionTextureNormalLM(p1, uv1, n1, c1, lm1));
+                        lmVertices.Add(new VertexPositionTextureNormalLM(p2, uv2, n2, c2, lm2));
+                        ushort baseIdx = (ushort)(lmVertices.Count - 3);
+                        newIndices.Add(baseIdx);
+                        newIndices.Add((ushort)(baseIdx + 1));
+                        newIndices.Add((ushort)(baseIdx + 2));
+                    }
+                    else
+                    {
+                        uniqueVertices.Add(new VertexPositionTextureNormal(p0, uv0, n0, c0));
+                        uniqueVertices.Add(new VertexPositionTextureNormal(p1, uv1, n1, c1));
+                        uniqueVertices.Add(new VertexPositionTextureNormal(p2, uv2, n2, c2));
+                        ushort baseIdx = (ushort)(uniqueVertices.Count - 3);
+                        newIndices.Add(baseIdx);
+                        newIndices.Add((ushort)(baseIdx + 1));
+                        newIndices.Add((ushort)(baseIdx + 2));
+                    }
                 }
 
                 var chunkData = totalChunks == 1
@@ -932,16 +1113,28 @@ void main() {
                         Pipeline = modelData.Pipeline,
                         SurfaceTexture = modelData.SurfaceTexture,
                         SurfaceTextureView = modelData.SurfaceTextureView,
+                        LightmapTextureView = modelData.LightmapTextureView,
                         WorldTextureSet = modelData.WorldTextureSet
                     };
 
-                chunkData.Vertices = uniqueVertices;
                 chunkData.Indices = newIndices;
 
-                chunkData.VertexBuffer = factory.CreateBuffer(new BufferDescription(
-                    (uint)(chunkData.Vertices.Count * VertexPositionTextureNormal.SizeInBytes),
-                    BufferUsage.VertexBuffer));
-                _graphicsDevice.UpdateBuffer(chunkData.VertexBuffer, 0, chunkData.Vertices.ToArray());
+                if (useLightmap)
+                {
+                    chunkData.LightmappedVertices = lmVertices;
+                    chunkData.VertexBuffer = factory.CreateBuffer(new BufferDescription(
+                        (uint)(lmVertices.Count * VertexPositionTextureNormalLM.SizeInBytes),
+                        BufferUsage.VertexBuffer));
+                    _graphicsDevice.UpdateBuffer(chunkData.VertexBuffer, 0, lmVertices.ToArray());
+                }
+                else
+                {
+                    chunkData.Vertices = uniqueVertices;
+                    chunkData.VertexBuffer = factory.CreateBuffer(new BufferDescription(
+                        (uint)(uniqueVertices.Count * VertexPositionTextureNormal.SizeInBytes),
+                        BufferUsage.VertexBuffer));
+                    _graphicsDevice.UpdateBuffer(chunkData.VertexBuffer, 0, uniqueVertices.ToArray());
+                }
 
                 chunkData.IndexBuffer = factory.CreateBuffer(new BufferDescription(
                     (uint)(chunkData.Indices.Count * sizeof(ushort)),
@@ -949,7 +1142,8 @@ void main() {
                 _graphicsDevice.UpdateBuffer(chunkData.IndexBuffer, 0, chunkData.Indices.ToArray());
 
                 _models.Add(chunkData);
-                Console.WriteLine($"Added 8Model mesh part {matIndex} chunk {chunkIndex + 1}/{totalChunks}: {uniqueVertices.Count} vertices, {newIndices.Count} indices. Texture: {textureName ?? "None"}");
+                var vcount = useLightmap ? lmVertices.Count : uniqueVertices.Count;
+                Console.WriteLine($"Added 8Model mesh part {matIndex} chunk {chunkIndex + 1}/{totalChunks}: {vcount} vertices, {newIndices.Count} indices. Texture: {textureName ?? "None"}, LM: {lmTextureName ?? "—"}");
             }
         }
         Console.WriteLine($"Finished adding 8Model. Total model parts: {_models.Count}");
@@ -1093,6 +1287,37 @@ void main() {
         // model viewer (which never calls AddMap) still has a usable sun.
         UploadMapLights(null, new Vector3(1f));
 
+        // ---- Lightmapped .8 pipeline ----
+        _whiteLightmapTexture = Create1x1TextureFromColor(_graphicsDevice, factory, 1f, 1f, 1f);
+        _whiteLightmapView = factory.CreateTextureView(_whiteLightmapTexture);
+
+        _worldTextureLayoutLM = factory.CreateResourceLayout(new ResourceLayoutDescription(
+            new ResourceLayoutElementDescription("WorldBuffer",      ResourceKind.UniformBuffer,    ShaderStages.Vertex),
+            new ResourceLayoutElementDescription("SurfaceTexture",   ResourceKind.TextureReadOnly,  ShaderStages.Fragment),
+            new ResourceLayoutElementDescription("SurfaceSampler",   ResourceKind.Sampler,          ShaderStages.Fragment),
+            new ResourceLayoutElementDescription("LightmapTexture",  ResourceKind.TextureReadOnly,  ShaderStages.Fragment),
+            new ResourceLayoutElementDescription("LightmapSampler",  ResourceKind.Sampler,          ShaderStages.Fragment)));
+
+        var lmVert = new ShaderDescription(ShaderStages.Vertex,   Encoding.UTF8.GetBytes(LightmappedVertexCode),   "main");
+        var lmFrag = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(LightmappedFragmentCode), "main");
+        var lmShaders = factory.CreateFromSpirv(lmVert, lmFrag);
+
+        var lmVertexLayout = new VertexLayoutDescription(
+            new VertexElementDescription("Position",       VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
+            new VertexElementDescription("TexCoords",      VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2),
+            new VertexElementDescription("Normal",         VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
+            new VertexElementDescription("Color",          VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float4),
+            new VertexElementDescription("LightmapCoords", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float2));
+
+        _lightmappedPipeline = factory.CreateGraphicsPipeline(new GraphicsPipelineDescription(
+            BlendStateDescription.SingleOverrideBlend,
+            DepthStencilStateDescription.DepthOnlyLessEqual,
+            new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.CounterClockwise, true, false),
+            PrimitiveTopology.TriangleList,
+            new ShaderSetDescription(new[] { lmVertexLayout }, lmShaders),
+            new[] { projViewLayout, _worldTextureLayoutLM },
+            _sceneFramebuffer.OutputDescription));
+
         // Skinned pipeline. Reuses the existing fragment shader so lighting/texturing
         // stays consistent. Resource sets: 0=projView/light, 1=world+texture, 2=bones.
         _boneLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(
@@ -1189,6 +1414,20 @@ void main() {
     }
 
     private Pipeline _opaquePipeline;
+
+    // Lightmapped pipeline + its 5-binding resource layout. Set 1 carries:
+    //   b0 WorldBuffer, b1 SurfaceTexture, b2 SurfaceSampler,
+    //   b3 LightmapTexture, b4 LightmapSampler.
+    private Pipeline _lightmappedPipeline;
+    private ResourceLayout _worldTextureLayoutLM;
+
+    // Shared 1×1 white texture bound to the lightmap stage for batches whose
+    // IDXS group declared "no lightmap" (lmPage == -1). Sampling white through
+    // the LM stage degrades the shader's `tex × diffuse × lm` to plain
+    // `tex × diffuse`, so non-lightmapped faces in an otherwise lightmapped .8
+    // mesh render correctly without a separate pipeline.
+    private Texture _whiteLightmapTexture;
+    private TextureView _whiteLightmapView;
 
     public void AddModel(B3DModel model, int materialIndex, List<Vector2>? uvs = null)
     {
@@ -1342,6 +1581,11 @@ void main() {
             model.IndexBuffer?.Dispose();
             model.SurfaceTexture?.Dispose();
             model.SurfaceTextureView?.Dispose();
+            // Don't dispose the shared white-fallback view — it's owned by the
+            // renderer for the lifetime of the SceneRenderer and reused across
+            // every "no LM" batch.
+            if (model.LightmapTextureView != null && model.LightmapTextureView != _whiteLightmapView)
+                model.LightmapTextureView.Dispose();
             model.WorldTextureSet?.Dispose();
         }
         _models.Clear();
@@ -1385,6 +1629,8 @@ void main() {
             model.IndexBuffer?.Dispose();
             model.SurfaceTexture?.Dispose();
             model.SurfaceTextureView?.Dispose();
+            if (model.LightmapTextureView != null && model.LightmapTextureView != _whiteLightmapView)
+                model.LightmapTextureView.Dispose();
             model.WorldTextureSet?.Dispose();
             _models.RemoveAt(index);
         }
@@ -1442,9 +1688,10 @@ void main() {
             cl.DrawIndexed((uint)model.Indices.Count, 1, 0, 0, 0);
         }
 
-        // Render each model
-        foreach (var model in _models.Where(m => m.Pipeline == _opaquePipeline)) draw(model);
-        foreach (var model in _models.Where(m => m.Pipeline != _opaquePipeline)) draw(model);
+        // Render each model. Opaque + lightmapped first (depth-write), then
+        // alpha-blended last so partial transparencies composite over them.
+        foreach (var model in _models.Where(m => m.Pipeline == _opaquePipeline || m.Pipeline == _lightmappedPipeline)) draw(model);
+        foreach (var model in _models.Where(m => m.Pipeline != _opaquePipeline && m.Pipeline != _lightmappedPipeline)) draw(model);
 
         // Skinned models: advance time, sample animation, bridge into B3D space, upload
         // bone palette, draw. Each model owns its own time accumulator + cached pose so
@@ -1579,6 +1826,12 @@ void main() {
                  max = Vector3.Max(max, v.Position);
                  hasVerts = true;
             }
+            foreach(var v in m.LightmappedVertices)
+            {
+                 min = Vector3.Min(min, v.Position);
+                 max = Vector3.Max(max, v.Position);
+                 hasVerts = true;
+            }
         }
         foreach (var m in _skinnedModels)
         {
@@ -1663,11 +1916,21 @@ void main() {
     public class ModelData
     {
         public List<VertexPositionTextureNormal> Vertices { get; set; } = new();
+        // Lightmapped batches use this list instead of `Vertices`. We keep both
+        // because the two formats have different stride (48 vs 56 bytes) and
+        // share no Veldrid pipeline. Only one of the two is non-empty for any
+        // given ModelData; FocusCamera reads positions out of whichever is
+        // populated.
+        public List<VertexPositionTextureNormalLM> LightmappedVertices { get; set; } = new();
+        public bool IsLightmapped => LightmappedVertices.Count > 0;
         public List<ushort> Indices { get; set; } = new();
         public DeviceBuffer VertexBuffer { get; set; }
         public DeviceBuffer IndexBuffer { get; set; }
         public Texture SurfaceTexture { get; set; }
         public TextureView SurfaceTextureView { get; set; }
+        // Set only on lightmapped batches. The 1×1 white fallback is shared
+        // across all batches with lmPage == -1 — see _whiteLightmapView.
+        public TextureView LightmapTextureView { get; set; }
         public ResourceSet WorldTextureSet { get; set; }
         public Pipeline Pipeline { get; set; }
         public Matrix4x4 WorldMatrix { get; set; } = Matrix4x4.Identity;
@@ -1694,6 +1957,31 @@ void main() {
             TexCoords = uv;
             Normal = normal;
             Color = color;
+        }
+    }
+
+    // Lightmapped variant: same Position/UV/Normal/Color as the base vertex,
+    // plus a second float2 for the LMUV channel from .8 VTXB. Used only by the
+    // _lightmappedPipeline; ordinary B3D and non-LM .8 batches keep the 48-byte
+    // VertexPositionTextureNormal so we don't pay 8 bytes/vertex everywhere.
+    [StructLayout(LayoutKind.Sequential)]
+    public struct VertexPositionTextureNormalLM
+    {
+        public Vector3 Position;
+        public Vector2 TexCoords;
+        public Vector3 Normal;
+        public Vector4 Color;
+        public Vector2 LightmapCoords;
+
+        public const uint SizeInBytes = 12 + 8 + 12 + 16 + 8; // 56 bytes
+
+        public VertexPositionTextureNormalLM(Vector3 pos, Vector2 uv, Vector3 normal, Vector4 color, Vector2 lmUv)
+        {
+            Position = pos;
+            TexCoords = uv;
+            Normal = normal;
+            Color = color;
+            LightmapCoords = lmUv;
         }
     }
 

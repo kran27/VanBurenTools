@@ -571,7 +571,7 @@ public class B3DModel
             b3d.Model_Vertex_Position.Add(Coordinate);
             b3d.Model_Vertex_Texcoords.Add(Unknown2);
 
-            Normal.X = f.ReadSingle();
+            Normal.X = -f.ReadSingle();
             Normal.Y = f.ReadSingle();
             Normal.Z = f.ReadSingle();
             b3d.Model_Vertex_Normal.Add(Normal);
@@ -1374,6 +1374,15 @@ public class _8Model
     // Slot 0 is the engine's reserved "no texture" sentinel; real names start at index 1.
     public List<string> TextureNames = [];
 
+    // First TXTD index whose name is a lightmap label (".ctx"-suffixed). Indices
+    // [1..LightmapStart-1] are real base-texture filenames; indices
+    // [LightmapStart..count-1] are <MapName>_<n>.ctx labels that the engine
+    // dereferences as ordinary textures with the extension swapped to .dds/.tga.
+    // Per-face lightmap selection (LMI) is stored as `lmPage` ∈ [0, count-1-LightmapStart];
+    // the actual TXTD entry to load is TextureNames[LightmapStart + lmPage].
+    // 0 when the file has no baked lightmap section.
+    public int LightmapStart;
+
     // ----- VTXD per-CNode buffers, concatenated for backwards compat with consumers -----
     // X is negated and Y/Z are swapped to match the existing renderer convention.
     public List<Vector3> GVP = []; // positions
@@ -1388,6 +1397,11 @@ public class _8Model
     // ----- TREE-derived face data -----
     public List<int[]> IDX = [];
     public List<int> MDX = [];
+    // Per-face lightmap page index. -1 = no lightmap (face renders without the
+    // second texture stage). Otherwise an offset into the .ctx-suffixed segment
+    // of TextureNames, i.e. the lightmap atlas to load is
+    // TextureNames[LightmapStart + LMI[face]] with extension swapped to .tga.
+    public List<int> LMI = [];
     // Per-face material index, sourced from the low byte of each IDXS group's
     // header word (see DecodeIDXS). Parallel to IDX/MDX: MDX gives the bound
     // texture (1-based into the filtered MAT list); MFL picks which
@@ -1534,7 +1548,7 @@ public class _8Model
         if (ReadTag(f) != "TXTD") throw new InvalidDataException("Expected TXTD");
         var size = f.ReadInt32();
         var end = f.BaseStream.Position + size;
-        f.ReadInt32(); // count1 — material count, currently unused here
+        LightmapStart = f.ReadInt32();
         var count2 = f.ReadInt32();
         TextureNames.Add(""); // engine's [0] sentinel
         for (var i = 1; i < count2 && f.BaseStream.Position + 8 <= end; i++)
@@ -1776,26 +1790,30 @@ public class _8Model
 
     // IDXS payload is a sequence of groups, each headed by a "material switch":
     //   - 0x80NN  w1  (0x4000+ww2)  w3  m   : verbose form (per-group state)
-    //   - 0x40NN  w1                m       : compact form
+    //   - 0x40NN  w1                m       : compact form (lmPage update only)
     //   - 0x00NN                            : minimal — tmp itself is m
     //   followed by `count` (u16, =3*tris) and `tris` triangles of u16 indices.
     //
-    // What each header field means (reverse-engineered from F3.exe's
-    // Octree2Gfx::ConstructRenderData, which builds per-batch render structs at
-    // sub_4BDEA0:0x4bf252 — `material = materials[batch[3]]`):
-    //   m       — texture index (1-based into the filtered MAT list, 0 = no
-    //             texture; selects which TGA gets bound for the group).
-    //   tmp&0xFF — the 0-based MaterialRecord index for the group. This is what
-    //             picks the technique (BASE, BASE_IMAGE_ALPHA_2X, etc.) and the
-    //             blend op. The same texture (m) can appear with multiple
-    //             tmp_low values, so a foliage atlas can mix opaque trunks
-    //             (tmp_low → BASE_2X) with alpha-tested cards (tmp_low →
-    //             BASE_IMAGE_ALPHA_2X).
-    //   w1, w3   — vertex-range bounds within the cnode's vertex buffer (used
-    //             for D3D's DrawIndexedPrimitive minIndex/numVertices). Not
-    //             needed for our renderer — we draw the whole index buffer.
-    //   w2 - 0x4000 — secondary state bit (FX/lighting variant); engine reads
-    //                it but the visible effect is small and we ignore it.
+    // Field meanings (reverse-engineered from F3.exe's Octree2Gfx::
+    // ConstructRenderData at 0x4bdea0; the per-batch struct uses field +20 for
+    // baseTexIdx and field +16 for lmTexIdx, both indexing the same unified
+    // texture-handle table at this+72):
+    //   m       — base texture index (1-based into the filtered MAT list,
+    //             0 = no texture; selects the surface TGA for the group).
+    //   matIdx (NN in verbose) — 0-based MaterialRecord index. Picks the
+    //             technique (BASE_LM_2X, BASE_IMAGE_ALPHA_2X, etc.) and blend
+    //             op; the same texture can appear with multiple matIdx values
+    //             so a foliage atlas mixes opaque trunks + alpha-tested cards.
+    //   lmPage  — index of the lightmap atlas, encoded differently per form:
+    //             verbose: w2 = 0x4000 + (lmPage+1), w2==0x4000 means none;
+    //             compact: NN = lmPage+1, NN==0 means none.
+    //             Resolves to TextureNames[LightmapStart + lmPage].
+    //   w1, w3  — vertex-range bounds within the cnode's vertex buffer (D3D
+    //             DrawIndexedPrimitive minIndex/numVertices). Not needed.
+    //
+    // **Inheritance**: each form only updates the fields it carries, the others
+    // carry over from the prior batch. Specifically: compact does NOT update
+    // matIdx (despite the historical mis-decoding), and minimal only updates m.
     private void DecodeIDXS(BinaryReader f, long end, int cnodeIdx)
     {
         var baseOffset = cnodeIdx >= 0 && cnodeIdx < CNodeOffsets.Count - 1
@@ -1803,6 +1821,7 @@ public class _8Model
             : 0;
         var m = 0;
         var matIdx = 0;
+        var lmPage = -1;
         while (f.BaseStream.Position + 12 <= end)
         {
             var tmp = f.ReadUInt16();
@@ -1811,21 +1830,23 @@ public class _8Model
             {
                 matIdx = tmp & 0xFF;
                 f.ReadUInt16();
-                _ = f.ReadUInt16() - 0x4000;
+                var w2 = f.ReadUInt16();
+                lmPage = w2 == 0x4000 ? -1 : (w2 - 0x4000) - 1;
                 f.ReadUInt16();
                 m = f.ReadUInt16();
             }
             else if ((tmp & 0xFF00) == 0x4000)
             {
-                matIdx = tmp & 0xFF;
+                var nn = tmp & 0xFF;
+                lmPage = nn == 0 ? -1 : nn - 1;
                 f.ReadUInt16();
                 m = f.ReadUInt16();
             }
             else if ((tmp & 0xFF00) == 0)
             {
                 m = tmp;
-                // Minimal form has no per-group material; the engine inherits
-                // the previously-set one. Keep matIdx as-is across iterations.
+                // Minimal form has no per-group material or lmPage; the engine
+                // inherits both from the previous batch.
             }
             var sz = f.ReadUInt16();
             for (var i = 0; i < sz / 3; i++)
@@ -1837,6 +1858,7 @@ public class _8Model
                 IDX.Add([a, c, b]);
                 MDX.Add(m);
                 MFL.Add((uint)matIdx);
+                LMI.Add(lmPage);
             }
         }
     }
