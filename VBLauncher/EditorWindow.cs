@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -155,6 +156,35 @@ public partial class EditorWindow
     private SceneRenderer _sceneRenderer = null!;
     private GrpBrowserImGui _grpBrowserImGui = null!;
 
+    // FNV-1a 32-bit hash of the current file's serialized form, captured
+    // on every successful scene rebuild. Each DrawX-that-loads-the-scene
+    // re-computes this every frame and rebuilds the scene if it differs,
+    // so editor-side edits to skl/inventory/EME2/etc. are reflected in
+    // the 3D viewport immediately. ResetTempValues() resets it to 0 so a
+    // fresh file load always triggers the first-rebuild path.
+    private uint _lastRenderHash;
+
+    // Hashes the resource via its existing ToByte() serializer. Any
+    // change to a field that affects ToByte's output will produce a
+    // different hash; fields that don't are inert (cheap insurance
+    // against missing edge cases per type). Returns 0 on null/error so
+    // callers don't blow up while a partially-edited file is invalid.
+    private static uint ComputeRenderHash(dynamic? file)
+    {
+        if (file == null) return 0;
+        try
+        {
+            uint h = 2166136261u;
+            foreach (byte b in (IEnumerable<byte>)file.ToByte())
+            {
+                h ^= b;
+                h *= 16777619u;
+            }
+            return h;
+        }
+        catch { return 0; }
+    }
+
     public void Run()
     {
         ResourceSystem.Initialize();
@@ -207,7 +237,24 @@ public partial class EditorWindow
         
         var desktopResolution = Screen.PrimaryScreen.Bounds.Size;
         _sceneRenderer = new SceneRenderer(_graphicsDevice, _imguiRenderer, _window, _commandList, desktopResolution.Width, desktopResolution.Height);
-        _grpBrowserImGui = new GrpBrowserImGui(_graphicsDevice, _imguiRenderer, _sceneRenderer);
+        // The browser is a fully separate top-level OS window — owns its
+        // own Sdl2Window / swapchain / ImGui context / renderer / scene,
+        // and doesn't touch the editor's _currentFile or main viewport
+        // unless the user explicitly clicks "Load in Editor" on a
+        // browsed resource.
+        _grpBrowserImGui = new GrpBrowserImGui(_graphicsDevice,
+            loadInEditor: (name, ext, resource) =>
+            {
+                // Mirror LoadFile()'s prologue: STF is required by all
+                // drawer methods (DrawGENT calls STFBox which indexes into
+                // _stf). Without this we'd null-deref the moment the user
+                // clicks Load in Editor on a CRT/etc.
+                if (!CheckAndLoadStf()) return;
+                ResetTempValues();
+                _filename = name;
+                _extension = "." + ext;
+                _currentFile = resource!;
+            });
 
         MainLoop();
     }
@@ -249,6 +296,11 @@ public partial class EditorWindow
             _commandList.End();
             _graphicsDevice.SubmitCommands(_commandList);
             _graphicsDevice.SwapBuffers(_graphicsDevice.MainSwapchain);
+
+            // Pump + render the standalone GRP browser window if it's open.
+            // No-op when the user hasn't toggled it visible. Has its own
+            // ImGui context so we save/restore the editor context around it.
+            _grpBrowserImGui.Frame((float)targetFrameTime);
 
             Sdl2WindowExtensions.UpdateMouseCursor();
 
@@ -482,8 +534,8 @@ public partial class EditorWindow
                     ExtractAllGRPFiles();
                 if (ImGui.MenuItem("Extract + Convert All .grp Files"))
                     ExtractAllGRPFiles(true);
-                if (ImGui.MenuItem("Show .grp Browser", "", _grpBrowserImGui.Visible))
-                    _grpBrowserImGui.Visible = !_grpBrowserImGui.Visible;
+                if (ImGui.MenuItem("Show .grp Browser", "", _grpBrowserImGui.IsOpen))
+                    _grpBrowserImGui.Toggle();
 
                 if (ImGui.MenuItem(".png to .rle"))
                 {
@@ -517,7 +569,9 @@ public partial class EditorWindow
         // Create a fullscreen window for docking
         ImGui.DockSpaceOverViewport(ImGui.GetMainViewport());
 
-        _grpBrowserImGui.Draw();
+        // Browser is its own OS window now — nothing to draw inline here.
+        // GrpBrowserImGui.Frame() is called from MainLoop() after the
+        // editor's swapbuffers.
 
         if (_sceneRenderer.Initialized && !_sceneRenderer.IsCleared()) {
             bool hovered = false;
@@ -582,6 +636,7 @@ public partial class EditorWindow
     private void ResetTempValues()
     {
         _sceneRenderer.Reset();
+        _lastRenderHash = 0;
         _eeovSelected = -1;
         _eeovTemp = "";
         _gcreSpecial = 0;
@@ -644,10 +699,24 @@ public partial class EditorWindow
 
     private void DrawEntity()
     {
+        // Live preview: rebuild the scene whenever the resource's
+        // serialized form changes (=user edited a relevant field). On
+        // first load, also focus the camera. Subsequent edit-driven
+        // rebuilds skip FocusCamera so the user doesn't lose their
+        // current viewing angle on every keystroke.
+        var hash = ComputeRenderHash(_currentFile);
         if (_sceneRenderer.IsCleared())
         {
+            _sceneRenderer.CameraMode = CameraMode.Orbit;
             _sceneRenderer.AddEntity(_currentFile);
             _sceneRenderer.FocusCamera();
+            _lastRenderHash = hash;
+        }
+        else if (hash != _lastRenderHash)
+        {
+            _sceneRenderer.Reset();
+            _sceneRenderer.AddEntity(_currentFile);
+            _lastRenderHash = hash;
         }
         DrawEEN2();
         DrawGENT();
@@ -669,9 +738,23 @@ public partial class EditorWindow
 
     private void DrawMap()
     {
+        var hash = ComputeRenderHash(_currentFile);
         if (_sceneRenderer.IsCleared())
         {
+            // Free-fly is what you want for maps and full octree scenes
+            // where you need to navigate inside the geometry.
+            _sceneRenderer.CameraMode = CameraMode.Free;
             _sceneRenderer.AddMap((Map)_currentFile);
+            _lastRenderHash = hash;
+        }
+        else if (hash != _lastRenderHash)
+        {
+            // Rebuild on edits (EME2 entity placement, EMAP.s1 octree
+            // ref, etc.) without re-framing the camera so the user keeps
+            // their current vantage point.
+            _sceneRenderer.Reset();
+            _sceneRenderer.AddMap((Map)_currentFile);
+            _lastRenderHash = hash;
         }
         DrawEMAP();
         DrawEME2();
@@ -695,9 +778,19 @@ public partial class EditorWindow
 
     private void DrawARM()
     {
+        var hash = ComputeRenderHash(_currentFile);
         if (_sceneRenderer.IsCleared())
         {
+            _sceneRenderer.CameraMode = CameraMode.Orbit;
             _sceneRenderer.AddARM(_currentFile);
+            _sceneRenderer.FocusCamera();
+            _lastRenderHash = hash;
+        }
+        else if (hash != _lastRenderHash)
+        {
+            _sceneRenderer.Reset();
+            _sceneRenderer.AddARM(_currentFile);
+            _lastRenderHash = hash;
         }
         DrawITM();
         DrawGIAR();

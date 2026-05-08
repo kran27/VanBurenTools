@@ -428,6 +428,12 @@ void main() {
     private ResourceSet _projViewSet;
     private float _rotation;
     private Texture _sceneColorTarget;
+    // Public accessor for the resolved scene color target. Needed when
+    // additional ImGui renderers (e.g. the standalone GRP-browser window)
+    // want to sample the scene through their own per-context binding —
+    // each ImGuiRenderer holds its own texture-id table, so a binding
+    // registered with one renderer is meaningless to another.
+    public Texture SceneColorTarget => _sceneColorTarget;
     private Texture _sceneDepthTexture;
     private Texture _msaaColorTarget;
     private Texture _msaaDepthTexture;
@@ -510,6 +516,108 @@ void main() {
         // door-mesh correction matrix.
         if (model.FormatVer != 1 || model.IsLegacyV35) return worldMatrix;
         return LegacyB3DCorrection * (worldMatrix ?? Matrix4x4.Identity);
+    }
+
+    // Minimal preview path for G3DModel (the legacy ASCII .g3d format).
+    // The format ships positions + UVs + face indices and nothing else —
+    // no materials, no normals, no per-vertex color. We compute flat
+    // face-normals on the fly, render with a grey 1×1 default texture,
+    // and apply the legacy GrpBrowser's coord fix-up (X+90°, Z-90°,
+    // 1/96 scale) so the result lands in the same orientation the old
+    // HelixToolkit preview used.
+    public void AddG3DModel(G3DModel g3d, Matrix4x4? worldMatrix = null)
+    {
+        if (!Initialized)
+            throw new InvalidOperationException("SceneRenderer must be initialized before adding models");
+        if (g3d.Model_Faces_Index.Count == 0) return;
+
+        var factory = _graphicsDevice.ResourceFactory;
+        var modelData = new ModelData
+        {
+            Name = "g3d",
+            WorldMatrix = worldMatrix ?? Matrix4x4.Identity,
+            Pipeline = _opaquePipeline,
+        };
+
+        // Legacy GrpBrowser hardcoded CR_Monsta_default_LG.tga — there's
+        // only one shipping .g3d (Critters/CR_Monsta.g3d) and its UVs are
+        // authored against that specific atlas, so we do the same. Falls
+        // back to a grey 1×1 if the texture isn't found (e.g. on a
+        // stripped install).
+        ImageSharpTexture monstaTex = ResourceSystem.FindResource("CR_Monsta_default_LG", "tga");
+        if (monstaTex != null)
+        {
+            modelData.SurfaceTextureView = factory.CreateTextureView(
+                monstaTex.CreateDeviceTexture(_graphicsDevice, factory));
+        }
+        else
+        {
+            modelData.SurfaceTexture = Create1x1TextureFromColor(_graphicsDevice, factory, 0.6f, 0.6f, 0.6f);
+            modelData.SurfaceTextureView = factory.CreateTextureView(modelData.SurfaceTexture);
+        }
+        modelData.WorldTextureSet = factory.CreateResourceSet(new ResourceSetDescription(
+            _worldTextureLayout, _worldBuffer, modelData.SurfaceTextureView, _graphicsDevice.Aniso4xSampler));
+
+        // The legacy WPF preview applied X+90° then Z-90° because HelixToolkit
+        // defaults to Z-up; our renderer is Y-up, so identity is correct here
+        // (the file is already authored with +Y as up).
+        var fixUp = Matrix4x4.Identity;
+        const float invScale = 1f / 96f;
+
+        // Triangles get exploded to 3 unique verts each so we can stash a
+        // flat per-face normal without averaging across shared edges. Same
+        // chunking strategy Add8Model uses to stay under ushort.MaxValue.
+        const int facesPerChunk = ushort.MaxValue / 3;
+        var totalFaces = g3d.Model_Faces_Index.Count;
+        var totalChunks = (totalFaces + facesPerChunk - 1) / facesPerChunk;
+        for (var faceCursor = 0; faceCursor < totalFaces; faceCursor += facesPerChunk)
+        {
+            var chunkEnd = Math.Min(faceCursor + facesPerChunk, totalFaces);
+            var verts = new List<VertexPositionTextureNormal>((chunkEnd - faceCursor) * 3);
+            var idxs = new List<ushort>((chunkEnd - faceCursor) * 3);
+            for (var fi = faceCursor; fi < chunkEnd; fi++)
+            {
+                var face = g3d.Model_Faces_Index[fi];
+                Vector3 P(int i) => Vector3.Transform(g3d.Model_Vertex_Position[i] * invScale, fixUp);
+                var p0 = P(face[0]); var p1 = P(face[1]); var p2 = P(face[2]);
+
+                var n = Vector3.Cross(p1 - p0, p2 - p0);
+                if (n.LengthSquared() > 1e-12f) n = Vector3.Normalize(n);
+                else n = Vector3.UnitY;
+
+                Vector2 UV(int i) => i < g3d.Model_Vertex_Texcoords.Count ? g3d.Model_Vertex_Texcoords[i] : Vector2.Zero;
+
+                verts.Add(new VertexPositionTextureNormal(p0, UV(face[0]), n, Vector4.One));
+                verts.Add(new VertexPositionTextureNormal(p1, UV(face[1]), n, Vector4.One));
+                verts.Add(new VertexPositionTextureNormal(p2, UV(face[2]), n, Vector4.One));
+                ushort baseIdx = (ushort)(verts.Count - 3);
+                idxs.Add(baseIdx);
+                idxs.Add((ushort)(baseIdx + 1));
+                idxs.Add((ushort)(baseIdx + 2));
+            }
+
+            var chunkData = totalChunks == 1
+                ? modelData
+                : new ModelData
+                {
+                    Name = $"g3d_chunk{faceCursor / facesPerChunk}",
+                    WorldMatrix = modelData.WorldMatrix,
+                    Pipeline = modelData.Pipeline,
+                    SurfaceTexture = modelData.SurfaceTexture,
+                    SurfaceTextureView = modelData.SurfaceTextureView,
+                    WorldTextureSet = modelData.WorldTextureSet,
+                };
+
+            chunkData.Vertices = verts;
+            chunkData.Indices = idxs;
+            chunkData.VertexBuffer = factory.CreateBuffer(new BufferDescription(
+                (uint)(verts.Count * VertexPositionTextureNormal.SizeInBytes), BufferUsage.VertexBuffer));
+            _graphicsDevice.UpdateBuffer(chunkData.VertexBuffer, 0, verts.ToArray());
+            chunkData.IndexBuffer = factory.CreateBuffer(new BufferDescription(
+                (uint)(idxs.Count * sizeof(ushort)), BufferUsage.IndexBuffer));
+            _graphicsDevice.UpdateBuffer(chunkData.IndexBuffer, 0, idxs.ToArray());
+            _models.Add(chunkData);
+        }
     }
 
     public void AddB3DModel(B3DModel model, Matrix4x4? worldMatrix = null, List<Vector2>? uvs = null)

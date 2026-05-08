@@ -24,11 +24,12 @@ public partial class EditorWindow
 
     private void OpenFromGRP()
     {
-        ResetTempValues();
-        using var grpb = new GrpBrowser(["amo", "arm", "con", "crt", "dor", "int", "itm", "map", "use", "wea", "veg"]);
-        grpb.ShowDialog();
-        _filename = grpb.FileName;
-        LoadFile(grpb.FileBytes, "." + grpb.Extension);
+        // The legacy modal WinForms dialog is gone — we just open the
+        // standalone ImGui GRP browser and the user clicks "Load in
+        // Editor" on the right pane when they pick a file. Hand-off
+        // happens through the loadInEditor callback wired in Run().
+        if (!_grpBrowserImGui.IsOpen)
+            _grpBrowserImGui.Open();
     }
 
     private void SaveFile()
