@@ -54,6 +54,24 @@ public class B3DModel
     // Names of the nodes encountered (in tree-walk order). For carjunk that's
     // ["Scene Root", "DS_carjunk_01_glass"]; for many props it's just ["Scene Root"].
     public List<string> NodeNames = [];
+
+    // Hierarchical scene graph built during parsing. SceneRoot is the outermost
+    // 0x0A block (typically named "Scene Root"); its children are nested 0x0A
+    // blocks. Each B3DSceneNode owns the 0x0D transforms and submesh-keys
+    // declared inside its own 0x0A. SceneNodeBySubmesh maps the material-name
+    // key (the same key used in SubModels / MatNameToTexture) to the node it
+    // was declared in, so the renderer can walk parent chains for per-submesh
+    // world matrices. Both are null/empty for files with no scene graph.
+    public B3DSceneNode? SceneRoot;
+    public Dictionary<string, B3DSceneNode> SceneNodeBySubmesh = new();
+
+    // Token 0x1C value byte. The engine stores this as model[0]; in
+    // RecurseChildNode (0x527fd0) it gates a quaternion-conjugate + Z-flip on
+    // every node transform during the scene-graph walk:
+    //   if (model[0] == 0) { negate quat.xyz; negate translation.z; }
+    // We capture it here so the renderer can apply the same flip when present.
+    public byte Token1CByte;
+    public bool HasToken1C;
     
     public Dictionary<string, TMaterials> MaterialDict = new();
     public Dictionary<string, List<int>> SubModels = new();
@@ -188,8 +206,21 @@ public class B3DModel
                     break;
                 }
                 case 0x0A:
-                    ParseNode(f, b3d);
+                {
+                    // First top-level 0x0A is the model's Scene Root; subsequent
+                    // top-level 0x0A blocks (rare, but we handle them) become
+                    // siblings under the same root so the scene graph stays
+                    // single-rooted for the renderer's walk.
+                    B3DSceneNode node;
+                    if (SceneRoot == null) { node = new B3DSceneNode(); SceneRoot = node; }
+                    else
+                    {
+                        node = new B3DSceneNode { Parent = SceneRoot };
+                        SceneRoot.Children.Add(node);
+                    }
+                    ParseNode(f, b3d, node);
                     break;
+                }
                 case 0x0E:
                 {
                     var bone = new TBone(f);
@@ -214,7 +245,14 @@ public class B3DModel
                     f.ReadBytes(28);
                     break;
                 case 0x1C:
-                    f.ReadByte(); // version value; presence of this tag is the modern-format signal
+                    // Engine: this byte is stored at model[0] and gates a coord-handedness
+                    // flip during the scene-graph walk (RecurseChildNode at 0x527fd0):
+                    //   if (model[0] == 0) negate per-node quat.xyz and translation.z.
+                    // Capture both the raw byte and the "saw it" flag so the renderer
+                    // can apply the same fix-up. Token 0x1C is also the modern-format
+                    // signal (sets FormatVer=0).
+                    b3d.Token1CByte = f.ReadByte();
+                    b3d.HasToken1C = true;
                     b3d.FormatVer = 0;
                     break;
                 case 0x35:
@@ -250,11 +288,20 @@ public class B3DModel
                     break;
                 }
                 case 0x13:
+                {
                     // Legacy-V35 NODE_BEGIN (modern equivalent: 0x0A). The inner-tag set
                     // is also remapped (0x14 end, 0x16 name, 0x19 surface) so ParseNode
                     // dispatches based on b3d.IsLegacyV35.
-                    ParseNode(f, b3d);
+                    B3DSceneNode node;
+                    if (SceneRoot == null) { node = new B3DSceneNode(); SceneRoot = node; }
+                    else
+                    {
+                        node = new B3DSceneNode { Parent = SceneRoot };
+                        SceneRoot.Children.Add(node);
+                    }
+                    ParseNode(f, b3d, node);
                     break;
+                }
                 default:
                     Console.WriteLine($"Unknown top-level B3D tag: 0x{token:X2} at position {f.BaseStream.Position}");
                     return;
@@ -266,11 +313,8 @@ public class B3DModel
     // running until 0x0B. 0x0F (G3D_Surface = vertex/face data) lives inside the node, NOT at
     // the top level. 0x0A inside a node spawns a child — recurse. Empty tags like 0x0C/0x0D
     // are consumed for stream alignment but the data isn't currently retained downstream.
-    private void ParseNode(BinaryReader f, B3DModel b3d)
+    private void ParseNode(BinaryReader f, B3DModel b3d, B3DSceneNode currentNode)
     {
-        // Most-recent 0x0C name in this node block. The 0x0D transform that follows
-        // belongs to whichever 0x0C node we last passed.
-        string currentNodeName = "";
         while (f.BaseStream.Position < f.BaseStream.Length)
         {
             var token = f.ReadByte();
@@ -281,19 +325,29 @@ public class B3DModel
                     return;
                 case 0x0A:
                 case 0x13: // legacy-V35 NODE_BEGIN
-                    ParseNode(f, b3d);
+                {
+                    var child = new B3DSceneNode { Parent = currentNode };
+                    currentNode.Children.Add(child);
+                    ParseNode(f, b3d, child);
                     break;
+                }
                 case 0x0B:
                 case 0x14: // legacy-V35 NODE_END
                     return;
                 case 0x0C:
                 case 0x16 when b3d.IsLegacyV35: // legacy-V35 NODE_NAME (re-uses 0x16 inside nodes)
-                    currentNodeName = new string(StringRead(f)); // node Name (sub_4D0670 → sub_4D0450)
-                    NodeNames.Add(currentNodeName);
+                    // 0x0C names the *current* scene node. NodeNames is kept around for
+                    // backwards-compat with the diagnostic dump.
+                    currentNode.Name = new string(StringRead(f)); // node Name (sub_4D0670 → sub_4D0450)
+                    NodeNames.Add(currentNode.Name);
                     break;
                 case 0x0D:
-                    NodeTransforms.Add(ReadTransform(f, currentNodeName));
+                {
+                    var xf = ReadTransform(f, currentNode.Name);
+                    currentNode.Transforms.Add(xf);
+                    NodeTransforms.Add(xf);
                     break;
+                }
                 case 0x0F:
                 case 0x19 when b3d.IsLegacyV35: // legacy-V35 G3D_Surface
                 {
@@ -301,20 +355,26 @@ public class B3DModel
                     for (var index = 0; index < vn.material_data.Count; index++)
                     {
                         var MD = vn.material_data[index];
+                        string key;
                         if (MD is TMaterial_Data44 MD44)
                         {
-                            SubModels[new string(MD44.Name)] = vn.face_indices[index];
-                            MatNameToTexture[new string(MD44.Name)] = new string(MD44.Zone);
+                            key = new string(MD44.Name);
+                            SubModels[key] = vn.face_indices[index];
+                            MatNameToTexture[key] = new string(MD44.Zone);
                         }
                         else if (MD is TMaterial_Data MD64)
                         {
-                            SubModels[new string(MD64.Name)] = MD64.face_indices;
-                            MatNameToTexture[new string(MD64.Name)] = new string(MD64.Mtl_ID);
+                            key = new string(MD64.Name);
+                            SubModels[key] = MD64.face_indices;
+                            MatNameToTexture[key] = new string(MD64.Mtl_ID);
                         }
                         else
                         {
                             Console.WriteLine("Unknown material data type in Vertex_Node: " + MD.GetType());
+                            continue;
                         }
+                        currentNode.SubmeshKeys.Add(key);
+                        SceneNodeBySubmesh[key] = currentNode;
                     }
                     Vertex_Nodes.Add(vn);
                     break;
@@ -339,33 +399,28 @@ public class B3DModel
         }
     }
 
-    // Mirrors G3D_Transform::Read at sub_4D0A00. Padded-string Name + 1-byte flag + conditional
-    // 24 / 32 / 24-byte payloads (translation / rotation matrix / scale). The owning node's
-    // name (last 0x0C in the same node block) is passed in so the renderer can correlate.
+    // Mirrors G3D_Transform::Read at sub_4D0A00. Padded-string Name + 1-byte
+    // flag + conditional payloads. Engine wire sizes (verified against
+    // sub_4C9400 / sub_4C97A0):
+    //   bit 0 → 3 floats translation
+    //   bit 1 → 4 floats rotation: (axis_x, axis_y, axis_z, angle_degrees)
+    //                              quat = (axis_normalised × sin(deg·π/360),
+    //                                      cos(deg·π/360))
+    //   bit 2 → 3 floats scale
+    // Earlier 6/8/6 reads here were over-shooting and corrupting downstream
+    // tokens — that's the parsing bug that was hiding the per-template
+    // rotations the engine bakes into Scene Root → child node transforms.
     private static NodeTransform ReadTransform(BinaryReader f, string nodeName)
     {
         var nx = new NodeTransform { OwnerNodeName = nodeName };
         nx.TransformName = new string(StringRead(f));
         nx.Flags = f.ReadByte();
         if ((nx.Flags & 0x01) != 0)
-        {
-            // 6 floats — first 3 look like translation; engine usage of the rest TBD.
-            var t = new float[6];
-            for (var i = 0; i < 6; i++) t[i] = f.ReadSingle();
-            nx.TranslationRaw = t;
-        }
+            nx.Translation = new Vector3(f.ReadSingle(), f.ReadSingle(), f.ReadSingle());
         if ((nx.Flags & 0x02) != 0)
-        {
-            var r = new float[8];
-            for (var i = 0; i < 8; i++) r[i] = f.ReadSingle();
-            nx.RotationRaw = r;
-        }
+            nx.RotationAxisAngle = new Vector4(f.ReadSingle(), f.ReadSingle(), f.ReadSingle(), f.ReadSingle());
         if ((nx.Flags & 0x04) != 0)
-        {
-            var s = new float[6];
-            for (var i = 0; i < 6; i++) s[i] = f.ReadSingle();
-            nx.ScaleRaw = s;
-        }
+            nx.Scale = new Vector3(f.ReadSingle(), f.ReadSingle(), f.ReadSingle());
         return nx;
     }
 
@@ -472,8 +527,37 @@ public class B3DModel
             topMats = $"TopMats({Materials.Count})={string.Join("", parts)}";
         }
 
+        // Scene-graph dump: every node + its transforms + submesh keys, depth-first.
+        // This is the fallback diagnostic for investigating per-template rotation when
+        // the bbox/Token16/Bones signals all look identical between a working and a
+        // mis-rotated prop.
+        string sceneTree = "noScene";
+        if (SceneRoot != null)
+        {
+            var sb = new StringBuilder();
+            void Walk(B3DSceneNode n, int d)
+            {
+                sb.Append(' ', d * 2);
+                sb.Append('[').Append(string.IsNullOrEmpty(n.Name) ? "?" : n.Name).Append(']');
+                foreach (var t in n.Transforms)
+                {
+                    sb.Append(" T(");
+                    if (t.Translation.HasValue) sb.Append("t=").Append(t.Translation.Value);
+                    if (t.RotationAxisAngle.HasValue) sb.Append(" rDeg=").Append(t.RotationAxisAngle.Value);
+                    if (t.Scale.HasValue) sb.Append(" s=").Append(t.Scale.Value);
+                    sb.Append(')');
+                }
+                if (n.SubmeshKeys.Count > 0)
+                    sb.Append(" mesh:").Append(string.Join(",", n.SubmeshKeys));
+                sb.Append(" | ");
+                foreach (var c in n.Children) Walk(c, d + 1);
+            }
+            Walk(SceneRoot, 0);
+            sceneTree = sb.ToString();
+        }
+
         var flavor = IsLegacyV35 ? "V35" : (FormatVer == 0 ? "modern" : "legacy");
-        return $"Flavor={flavor,-6} FmtVer={FormatVer} cs={coordSys,-12} Token16={t16,-4} T06={t06} NodeXform={NodeTransforms.Count} VN_u1={VertNode_U1} VN_u2={VertNode_U2} {boneSummary} {bbox} {predRot} nodes=[{nodes}] {matExtra} {topMats}";
+        return $"Flavor={flavor,-6} FmtVer={FormatVer} cs={coordSys,-12} Token16={t16,-4} T06={t06} T1C={(HasToken1C ? Token1CByte.ToString() : "-")} NodeXform={NodeTransforms.Count} {boneSummary} {bbox} {predRot} nodes=[{nodes}] scene={{{sceneTree}}} {matExtra} {topMats}";
     }
 
     public static char[] StringRead(BinaryReader f)
@@ -1231,10 +1315,82 @@ public sealed class NodeTransform
 {
     public string OwnerNodeName = ""; // most-recent 0x0C name in the same node block
     public string TransformName = ""; // padded-string name read by the transform itself
-    public byte Flags;                // bit0 → translation block, bit1 → rotation block, bit2 → scale block
-    public float[]? TranslationRaw;   // 6 floats when Flags & 0x01
-    public float[]? RotationRaw;      // 8 floats when Flags & 0x02
-    public float[]? ScaleRaw;         // 6 floats when Flags & 0x04
+    public byte Flags;                // bit0 → translation, bit1 → rotation, bit2 → scale
+
+    // Engine sizes (sub_4D0A00 → sub_4C9400 / sub_4C97A0):
+    //   translation = 3 floats
+    //   rotation    = 4 floats: (axis_x, axis_y, axis_z, angle_degrees)
+    //                 Engine converts via: half = deg * π/360, quat = (axis * sin(half), cos(half))
+    //                 (dbl_708048 = 2π, file constant 1/720, so dbl_708048 / 720 = π/360)
+    //   scale       = 3 floats
+    // Earlier 6/8/6 reads here were over-shooting and clobbering subsequent blocks —
+    // that's why per-template orientation has been invisible in our parsed data.
+    public Vector3? Translation;
+    public Vector4? RotationAxisAngle; // xyz = axis, w = degrees
+    public Vector3? Scale;
+
+    // Composes the node's local transform in S → R → T order. This matches the
+    // engine's apply order in RecurseChildNode (it premultiplies each level's
+    // transform onto its child). Returns identity when no flags are set.
+    public Matrix4x4 ToLocalMatrix()
+    {
+        var m = Matrix4x4.Identity;
+        if (Scale.HasValue) m *= Matrix4x4.CreateScale(Scale.Value);
+        if (RotationAxisAngle.HasValue)
+        {
+            var v = RotationAxisAngle.Value;
+            var axis = new Vector3(v.X, v.Y, v.Z);
+            var len = axis.Length();
+            // Engine normalises with 1/sqrt before sin/cos. Zero-length axis fall
+            // back to identity rather than NaN-out the matrix.
+            if (len > 1e-8f) axis /= len;
+            else { m *= Matrix4x4.Identity; goto afterRot; }
+            var half = v.W * MathF.PI / 360f;
+            var s = MathF.Sin(half);
+            m *= Matrix4x4.CreateFromQuaternion(
+                new Quaternion(axis.X * s, axis.Y * s, axis.Z * s, MathF.Cos(half)));
+            afterRot:;
+        }
+        if (Translation.HasValue) m *= Matrix4x4.CreateTranslation(Translation.Value);
+        return m;
+    }
+}
+
+// Hierarchical scene node parsed from b3d 0x0A blocks. Each node knows its
+// parent, its children, the local transforms it carries (token 0x0D), and the
+// material-keys of any submeshes it owns (token 0x0F). The renderer composes
+// world matrices by walking parent chains from a submesh up to the root —
+// without this, all submeshes share the model's outer transform and any
+// per-node rotation (the source of the mysterious 180°/-90° offsets) gets
+// silently dropped.
+public sealed class B3DSceneNode
+{
+    public string Name = "";
+    public B3DSceneNode? Parent;
+    public List<B3DSceneNode> Children = new();
+    public List<NodeTransform> Transforms = new();
+    public List<string> SubmeshKeys = new(); // material-name keys into B3DModel.SubModels
+
+    public Matrix4x4 LocalMatrix
+    {
+        get
+        {
+            var m = Matrix4x4.Identity;
+            foreach (var t in Transforms) m *= t.ToLocalMatrix();
+            return m;
+        }
+    }
+
+    public Matrix4x4 WorldMatrix
+    {
+        get
+        {
+            var m = LocalMatrix;
+            for (var p = Parent; p != null; p = p.Parent)
+                m *= p.LocalMatrix;
+            return m;
+        }
+    }
 }
 
 public class G3DModel

@@ -35,7 +35,11 @@ public static class ResourceSystem
         if (_isInitialized)
             return;
         try {
-            _grpb = new GrpBrowser(null);
+            // headless: skip the WinForms+WPF UI setup. ResourceSystem only
+            // needs the GRP data layer (ReadRHT / readExtensions / lump
+            // tables); instantiating the WPF Viewport3D was throwing the
+            // "type initializer threw an exception" failure on this path.
+            _grpb = new GrpBrowser(null, previewMode: false, headless: true);
             _grpb.ReadRHT();
             _grpb.readExtensions();
             for (var i = 0; i < _grpb.NumberOfEntries; i++)

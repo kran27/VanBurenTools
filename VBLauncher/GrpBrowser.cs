@@ -166,7 +166,27 @@ public partial class GrpBrowser
     #endregion
 
     public GrpBrowser(string[]? filter, bool previewMode = false)
+        : this(filter, previewMode, headless: false) { }
+
+    // Headless constructor: skips every WinForms control + WPF (HelixToolkit
+    // Viewport3D) instantiation. Used by ResourceSystem and the bulk-extract
+    // path which only need the GRP data layer (ReadRHT / readExtensions /
+    // GetFileBytesByIndex / DecodeRLEToImageSharp). Bypassing the WPF static
+    // init avoids the "Viewport3D type initializer threw" failure that hits
+    // when a host's WPF dispatcher isn't fully primed at the moment we read
+    // the resource catalog.
+    internal GrpBrowser(string[]? filter, bool previewMode, bool headless)
     {
+        if (filter is { Length: > 0 })
+            this.filter = filter;
+        if (headless) return;
+
+        viewport = new HelixViewport3D
+        {
+            CameraRotationMode = CameraRotationMode.Turntable,
+            RotateAroundMouseDownPoint = true
+        };
+        model = new ModelVisual3D();
         host = new ElementHost
         {
             Name = "Model Viewer",
@@ -174,8 +194,6 @@ public partial class GrpBrowser
             Child = viewport
         };
         this.previewMode = previewMode;
-        if (filter is { Length: > 0 })
-            this.filter = filter;
         InitializeComponent();
     }
 
@@ -1490,15 +1508,17 @@ public partial class GrpBrowser
 
     #endregion
 
-    private HelixViewport3D viewport = new()
-    {
-        CameraRotationMode = CameraRotationMode.Turntable,
-        RotateAroundMouseDownPoint = true
-    };
-
+    // Lazy-instantiated by the UI constructor. Must NOT have a field
+    // initializer — `new HelixViewport3D()` (and `new ModelVisual3D()`)
+    // trigger WPF static init at object construction time, which fails in
+    // headless contexts (the data-layer-only path used by ResourceSystem).
+    // The UI constructor sets these fields explicitly; the headless
+    // constructor leaves them null and the WPF preview methods (only
+    // reachable from a shown form) never run.
+    private HelixViewport3D viewport;
     private ElementHost host;
 
-    private ModelVisual3D model = new();
+    private ModelVisual3D model;
 
     // actually figured out rle finally :D
     public Bitmap DecodeRLE(byte[] b)

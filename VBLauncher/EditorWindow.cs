@@ -153,6 +153,7 @@ public partial class EditorWindow
     private Sdl2Window _window = null!;
     
     private SceneRenderer _sceneRenderer = null!;
+    private GrpBrowserImGui _grpBrowserImGui = null!;
 
     public void Run()
     {
@@ -206,6 +207,7 @@ public partial class EditorWindow
         
         var desktopResolution = Screen.PrimaryScreen.Bounds.Size;
         _sceneRenderer = new SceneRenderer(_graphicsDevice, _imguiRenderer, _window, _commandList, desktopResolution.Width, desktopResolution.Height);
+        _grpBrowserImGui = new GrpBrowserImGui(_graphicsDevice, _imguiRenderer, _sceneRenderer);
 
         MainLoop();
     }
@@ -306,7 +308,8 @@ public partial class EditorWindow
         colors[0] = ColToVec(ThemeProvider.Theme.Colors.LightText);
         colors[1] = ColToVec(ThemeProvider.Theme.Colors.DisabledText);
         colors[2] = ColToVec(ThemeProvider.Theme.Colors.DefaultBackground);
-        colors[3] = new Vector4(1f, 0f, 0f, 1f);
+        colors[3] = ColToVec(ThemeProvider.Theme.Colors.DefaultBackground); // ChildBg — was a placeholder red until something used BeginChild
+
         colors[4] = ColToVec(ThemeProvider.Theme.Colors.DefaultBackground);
         colors[5] = ColToVec(ThemeProvider.Theme.Colors.GreySelection);
         colors[6] = new Vector4(0f, 0f, 0f, 0f);
@@ -479,11 +482,8 @@ public partial class EditorWindow
                     ExtractAllGRPFiles();
                 if (ImGui.MenuItem("Extract + Convert All .grp Files"))
                     ExtractAllGRPFiles(true);
-                if (ImGui.MenuItem("Show .grp Browser"))
-                {
-                    using var grpb = new GrpBrowser(null, true);
-                    grpb.ShowDialog();
-                }
+                if (ImGui.MenuItem("Show .grp Browser", "", _grpBrowserImGui.Visible))
+                    _grpBrowserImGui.Visible = !_grpBrowserImGui.Visible;
 
                 if (ImGui.MenuItem(".png to .rle"))
                 {
@@ -516,6 +516,8 @@ public partial class EditorWindow
 
         // Create a fullscreen window for docking
         ImGui.DockSpaceOverViewport(ImGui.GetMainViewport());
+
+        _grpBrowserImGui.Draw();
 
         if (_sceneRenderer.Initialized && !_sceneRenderer.IsCleared()) {
             bool hovered = false;

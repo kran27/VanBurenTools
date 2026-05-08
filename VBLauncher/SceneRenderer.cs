@@ -708,11 +708,14 @@ void main() {
         {
             try
             {
-                // Per-template rotation correction (if any) is now derived from the
-                // model's geometry inside ApplyLegacyCorrection — see
-                // BboxOrientationCorrectionRadians. This loop just applies the EME2
-                // placement transform.
-                var transform = Matrix4x4.CreateRotationY(ent.l.W) *
+                // Negate ent.l.W: System.Numerics CreateRotationY rotates opposite
+                // to D3D9's left-handed D3DXMatrixRotationY for the same θ. Combined
+                // with our vertex-side X-negation (TVertex64/44 → x = -file.x), the
+                // engine's rotation comes out reversed in our renderer. The visible
+                // delta is 2·W: a prop with EME2.l.W = π/2 looked 180° rotated, a
+                // prop at π/4 looked 90° rotated. Negating here puts both back in
+                // sync with the engine's left-handed placement.
+                var transform = Matrix4x4.CreateRotationY(-ent.l.W) *
                                 Matrix4x4.CreateTranslation(-ent.l.X, ent.l.Y, ent.l.Z);
 
                 var entity = ResourceSystem.FindResource(ent.name);
@@ -733,7 +736,7 @@ void main() {
                 var crt = ResourceSystem.FindResource("default_pc.crt");
                 if (crt != null)
                 {
-                    var transform = Matrix4x4.CreateRotationY(ep.r) * 
+                    var transform = Matrix4x4.CreateRotationY(-ep.r) *
                                     Matrix4x4.CreateTranslation(-ep.p.X, ep.p.Y, ep.p.Z);
                     AddEntity(crt, transform);
                 }
@@ -1479,10 +1482,21 @@ void main() {
 
         var factory = _graphicsDevice.ResourceFactory;
         var matRecord = model.MaterialDict[texId];
+
+        // Scene-graph composition: every shipped b3d we've checked has its
+        // SceneRoot child node empty of 0x0D transforms, so submeshLocal ends
+        // up identity in practice. Wired anyway because the parser populates
+        // SceneNodeBySubmesh[texId] correctly when a file *does* carry node
+        // transforms — covers custom/mod content that uses the format more
+        // fully than the shipped data.
+        var submeshLocal = model.SceneNodeBySubmesh.TryGetValue(texId, out var sceneNode)
+            ? sceneNode.WorldMatrix
+            : Matrix4x4.Identity;
+
         var modelData = new ModelData
         {
             Name = texId,
-            WorldMatrix = worldMatrix ?? Matrix4x4.Identity, // Use provided matrix or Identity
+            WorldMatrix = submeshLocal * (worldMatrix ?? Matrix4x4.Identity),
             // Default-opaque so meshes with junk-alpha TGAs don't render see-through.
             // Opt into the alpha pipeline only for materials the engine treats as
             // transparent: IMAGE_ALPHA cutout, VERTEX_ALPHA (e.g. hair), or any
@@ -1844,24 +1858,22 @@ void main() {
         }
 
         if (!hasVerts) return;
-        
-        var center = (min + max) / 2f;
-        var extent = max - min;
-        var maxDim = Math.Max(extent.X, Math.Max(extent.Y, extent.Z));
-        
-        if (maxDim < 1f) maxDim = 10f; // Ensure minimum zoom
 
-        Console.WriteLine($"Map Bounds: Min {min} Max {max} Center {center} Size {maxDim}");
+        Console.WriteLine($"Bounds: Min {min} Max {max} (mode {_camera.Mode})");
+        // Camera owns the framing logic now — Free vs Orbit need different
+        // setups (Free positions an eye and points it at the center; Orbit
+        // also seeds Target + Distance so subsequent rmb/wheel input feels
+        // anchored). Both modes share the same bbox math via FocusOnBounds.
+        _camera.FocusOnBounds(min, max);
+    }
 
-        // Set camera position to see the whole bounds
-        // Assuming Y-up: 
-        // Position should be Up (Y+) and Back (Z+) from center.
-        
-        float dist = maxDim * 1.2f;
-        
-        _camera.Position = center + new Vector3(0, dist * 0.8f, dist);
-        _camera.Yaw = 0; // Look along Z (?)
-        _camera.Pitch = -0.5f; // Look down slightly
+    // Camera mode is part of the renderer's public surface so callers like
+    // GrpBrowserImGui can pick orbit-style for prop previews and free-fly
+    // for maps without poking at internal state.
+    public CameraMode CameraMode
+    {
+        get => _camera.Mode;
+        set => _camera.Mode = value;
     }
 
     // Maximum number of LGTR records we forward to the shader. The biggest
@@ -2086,10 +2098,18 @@ void main() {
 
         var factory = _graphicsDevice.ResourceFactory;
         var matRecord = b3d.MaterialDict[texId];
+
+        // Mirrors the static AddModel composition — identity for shipped data
+        // (no 0x0D blocks anywhere in the install), but ready for files that
+        // do carry them.
+        var submeshLocal = b3d.SceneNodeBySubmesh.TryGetValue(texId, out var sceneNode)
+            ? sceneNode.WorldMatrix
+            : Matrix4x4.Identity;
+
         var modelData = new SkinnedModelData
         {
             Name = texId,
-            WorldMatrix = worldMatrix ?? Matrix4x4.Identity,
+            WorldMatrix = submeshLocal * (worldMatrix ?? Matrix4x4.Identity),
             GrSkeleton = gr2Skeleton,
             GrAnim = gr2Anim,
             B3dToGr2 = b3dToGr2,
