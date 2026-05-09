@@ -421,19 +421,26 @@ public sealed class GrpBrowserImGui
         var avail = ImGui.GetContentRegionAvail();
         var hasBelow = _selPropertyDump != null || _selText != null || _selHexDump != null;
         var viewH = hasBelow ? MathF.Max(180f, avail.Y * 0.6f) : MathF.Max(180f, avail.Y - 8f);
-        var size = new Vector2(MathF.Max(64f, avail.X), MathF.Max(64f, viewH));
         if (_scene != null && _scene.Initialized && _scene.ImGuiBinding != IntPtr.Zero)
         {
-            ImGui.Image(_scene.ImGuiBinding, size);
-            // Allow camera input only while the user is actively
-            // interacting with this image (matches the editor's hover
-            // gating). Camera state lives on the browser's SceneRenderer,
-            // independent of the editor's.
+            // Same UV-crop pattern the editor uses: render to a sub-rect
+            // of the fixed-size framebuffer and sample only that region
+            // 1:1 so the viewport pane doesn't bilinear-blur the texture.
+            uint pixelW = (uint)MathF.Max(1, MathF.Floor(avail.X));
+            uint pixelH = (uint)MathF.Max(1, MathF.Floor(viewH));
+            pixelW = Math.Min(pixelW, _scene.FbWidth);
+            pixelH = Math.Min(pixelH, _scene.FbHeight);
+            if (_scene.Width != pixelW || _scene.Height != pixelH)
+                _scene.HandleWindowResize(pixelW, pixelH);
+            var size = new Vector2(pixelW, pixelH);
+            var uv1 = new Vector2(pixelW / (float)_scene.FbWidth,
+                                   pixelH / (float)_scene.FbHeight);
+            ImGui.Image(_scene.ImGuiBinding, size, Vector2.Zero, uv1);
             _scene.AllowInput = ImGui.IsItemHovered();
         }
         else
         {
-            ImGui.Dummy(size);
+            ImGui.Dummy(new Vector2(MathF.Max(64f, avail.X), MathF.Max(64f, viewH)));
         }
     }
 
@@ -517,7 +524,10 @@ public sealed class GrpBrowserImGui
         {
             case "8":   _scene.Add8Model((_8Model)resource); _scene.FocusCamera(); _selIsScene = true; break;
             case "b3d": _scene.AddB3DModel((B3DModel)resource); _scene.FocusCamera(); _selIsScene = true; break;
-            case "map": _scene.AddMap((Map)resource); _selIsScene = true; break;
+            // AddMap no longer focuses on its own (so editor edits don't
+            // snap the camera each frame). Browser's a one-shot preview
+            // — frame the camera on the first load.
+            case "map": _scene.AddMap((Map)resource); _scene.FocusCamera(); _selIsScene = true; break;
             case "g3d":
             {
                 // ResourceSystem stores .g3d as the raw text; rebuild a

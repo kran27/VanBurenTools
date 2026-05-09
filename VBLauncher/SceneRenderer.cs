@@ -371,6 +371,77 @@ void main() {
     fsout_color = vec4(0.2, 1.0, 0.2, 1.0);
 }";
 
+    // Distinct colour for hover-AABB lines so the user can tell selection
+    // outlines apart from the green skeleton overlay.
+    private const string OutlineFragmentCode = @"#version 450
+layout(location = 0) out vec4 fsout_color;
+void main() {
+    fsout_color = vec4(1.0, 0.65, 0.1, 1.0);
+}";
+
+    // ---- Wide-line shader: line→screen-space-quad ----
+    //
+    // GPU LineList rasterization (D3D11 fixed-function lines, default
+    // Vulkan/GL line behaviour) uses a diamond-exit rule that's notorious
+    // for skipping pixels on diagonals — 1px lines come out gappy. This
+    // shader sidesteps the rasterizer's line behaviour entirely by
+    // expanding each line into a triangle pair sized in screen space.
+    //
+    // Per logical "line" we emit 4 quad vertices, each tagged with:
+    //   thisPos  : the endpoint this vertex anchors to
+    //   otherPos : the OTHER endpoint of the line (used to compute the
+    //              line's screen-space direction inside the VS)
+    //   side     : ±1, controls which side of the line this vertex sits
+    //
+    // The vertex shader projects both endpoints to NDC, computes a 2D
+    // perpendicular, and offsets `thisPos` by `thickness/2` pixels in
+    // that direction. Result: a clean N-pixel-wide stroke regardless of
+    // backend or line angle.
+    private const string WideLineVertexCode = @"#version 450
+
+layout(set = 0, binding = 0) uniform ProjectionBuffer { mat4 Projection; };
+layout(set = 0, binding = 1) uniform ViewBuffer       { mat4 View;       };
+layout(set = 1, binding = 0) uniform LineParams {
+    vec4 ViewportThickness; // xy = viewport size px, z = thickness px
+    vec4 LineColor;
+};
+
+layout(location = 0) in vec3 thisPos;
+layout(location = 1) in vec3 otherPos;
+layout(location = 2) in float side;
+
+layout(location = 0) out vec4 fsin_color;
+
+void main() {
+    mat4 vp = Projection * View;
+    vec4 a = vp * vec4(thisPos,  1.0);
+    vec4 b = vp * vec4(otherPos, 1.0);
+
+    vec2 aNdc = a.xy / a.w;
+    vec2 bNdc = b.xy / b.w;
+    vec2 dir = bNdc - aNdc;
+    if (dot(dir, dir) < 1e-12) dir = vec2(1.0, 0.0);
+    dir = normalize(dir);
+    vec2 perp = vec2(-dir.y, dir.x);
+
+    vec2 viewportPx = ViewportThickness.xy;
+    float thickPx = ViewportThickness.z;
+    vec2 ndcOffset = perp * (thickPx / viewportPx) * 2.0;
+
+    vec4 outPos = a;
+    outPos.xy += ndcOffset * outPos.w * side;
+
+    gl_Position = outPos;
+    fsin_color = LineColor;
+}";
+
+    private const string WideLineFragmentCode = @"#version 450
+layout(location = 0) in vec4 fsin_color;
+layout(location = 0) out vec4 fsout_color;
+void main() {
+    fsout_color = fsin_color;
+}";
+
     // Hard cap on bone palette size. 128 mat4 = 8 KB uniform buffer, well within the
     // typical 16 KB minimum guarantee. AddSkinnedB3DModel throws if a skeleton exceeds.
     private const int MaxBones = 128;
@@ -412,6 +483,97 @@ void main() {
     private Pipeline _skinnedPipeline;
     private Pipeline _opaqueSkinnedPipeline;
     private Pipeline _linePipeline;
+
+    // Hover-outline plumbing. _outlineLinePipeline draws orange lines via
+    // OutlineFragmentCode; _outlineLineBuffer holds the 24 vertices of the
+    // current hovered AABB (12 edges × 2 endpoints). Re-uploaded each
+    // frame the hover changes.
+    private Pipeline _outlineLinePipeline;
+    private DeviceBuffer _outlineLineBuffer;
+    private readonly Vector3[] _outlineLineScratch = new Vector3[24];
+
+    // Map-overlay plumbing. Lazily-built additional colour pipelines
+    // (cyan/magenta/orange) on top of the gizmo X/Y/Z/Highlight ones,
+    // plus a single oversize line buffer reused across overlay batches.
+    // _currentMap is captured by AddMap so DrawScene can rebuild the
+    // overlays from authoritative map records every frame (cheap — a
+    // few hundred line segments at most).
+    private Pipeline _overlayCyanPipeline;
+    private Pipeline _overlayMagentaPipeline;
+    private Pipeline _overlayOrangePipeline;
+    private DeviceBuffer _overlayLineBuffer;
+    private const int MaxOverlayVerts = 4096;
+    private readonly Vector3[] _overlayLineScratch = new Vector3[MaxOverlayVerts];
+    private Map? _currentMap;
+    public bool ShowMapOverlays { get; set; } = true;
+
+    // Wide-line pipeline (gappy-1px-line workaround). Each "line" is 4
+    // vertices that the VS extrudes into a screen-space quad. Buffers
+    // are oversized once (256 lines / 1024 vertices / 1536 indices) and
+    // reused across draws.
+    private Pipeline _wideLinePipeline;
+    private ResourceLayout _wideLineParamLayout;
+    private DeviceBuffer _wideLineParamBuffer;
+    private ResourceSet _wideLineParamSet;
+    private DeviceBuffer _wideLineVB;
+    private DeviceBuffer _wideLineIB;
+    private const int MaxWideLines = 256;
+    private readonly WideLineVertex[] _wideLineVerts = new WideLineVertex[MaxWideLines * 4];
+    private readonly ushort[] _wideLineIndices = new ushort[MaxWideLines * 6];
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct WideLineVertex
+    {
+        public Vector3 ThisPos;
+        public Vector3 OtherPos;
+        public float Side;
+        public WideLineVertex(Vector3 t, Vector3 o, float s) { ThisPos = t; OtherPos = o; Side = s; }
+        public const uint SizeInBytes = 12 + 12 + 4;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct WideLineParams
+    {
+        public Vector4 ViewportThickness; // xy = viewport px, z = thickness px
+        public Vector4 Color;
+    }
+
+    // Per-entity grouping. Each AddEntity / per-prop placement in AddMap
+    // bumps _nextGroupId and tags every ModelData created during that
+    // call. Picking returns a group id; we render a wireframe AABB
+    // around all ModelData sharing the hovered group. Direct
+    // AddB3DModel / Add8Model / Add G3DModel calls (no enclosing
+    // entity) leave GroupId as -1 — those aren't hoverable.
+    private int _nextGroupId = 1;
+    private int _currentGroupId = -1;
+
+    // Hover state, set by the host (EditorWindow) each frame from a
+    // mouse-relative TryRaycast call. Null when nothing is hovered.
+    public int? HoveredGroupId { get; set; }
+
+    // Currently selected (clicked) group. Lives across frames until the
+    // user clicks elsewhere or the scene resets. Drives the translate
+    // gizmo (3 axis lines drawn at its world-space centre) and is the
+    // target of TranslateGroup during drag.
+    public int? SelectedGroupId { get; set; }
+
+    // group id → source EME2 record. Populated by AddMap as it iterates
+    // entities so the host can commit gizmo-driven world-space deltas
+    // back to the .l field on drag-release.
+    private readonly Dictionary<int, EME2c> _groupToMapEntity = new();
+    public IReadOnlyDictionary<int, EME2c> GroupToMapEntity => _groupToMapEntity;
+
+    // Same idea for EMEP entry-point records (the default-PC markers).
+    // EME2 and EMEP have different shapes (Vector4 vs Vector3+float) so
+    // they live in separate dicts; the host checks both on gizmo commit.
+    private readonly Dictionary<int, EMEPc> _groupToEntryPoint = new();
+    public IReadOnlyDictionary<int, EMEPc> GroupToEntryPoint => _groupToEntryPoint;
+
+    // Currently-active gizmo axis (-1 = none, 0 = X, 1 = Y, 2 = Z). Set
+    // by the host when it detects a hover/drag on an axis line; the
+    // SceneRenderer just reads this to colour the gizmo accordingly.
+    private int _gizmoActiveAxis = -1;
+    public int GizmoActiveAxis { get => _gizmoActiveAxis; set => _gizmoActiveAxis = value; }
     private ResourceLayout _lineProjViewLayout;
     private ResourceLayout _lineWorldLayout;
     private ResourceSet _lineProjViewSet;
@@ -435,8 +597,12 @@ void main() {
     // registered with one renderer is meaningless to another.
     public Texture SceneColorTarget => _sceneColorTarget;
     private Texture _sceneDepthTexture;
-    private Texture _msaaColorTarget;
-    private Texture _msaaDepthTexture;
+    // MSAA render targets. The scene framebuffer renders into these at
+    // SampleCountMsaa, then resolves into _sceneColorTarget (1 sample,
+    // sampled by ImGui) at the end of DrawScene.
+    private Texture _sceneColorMsaa;
+    private Texture _sceneDepthMsaa;
+    private const TextureSampleCount SampleCountMsaa = TextureSampleCount.Count8;
     private Framebuffer _sceneFramebuffer;
     private DeviceBuffer _viewBuffer;
     private DeviceBuffer _worldBuffer;
@@ -674,6 +840,28 @@ void main() {
     
     public void AddEntity(Entity entity, Matrix4x4? worldMatrix = null)
     {
+        // Allocate a group id and tag every ModelData / SkinnedModelData
+        // produced during this call. Snapshotting the list size before
+        // we recurse means we don't have to thread the id through every
+        // nested AddARM / AddB3DModel / AddSkinnedB3DModel call site.
+        var groupId = _nextGroupId++;
+        var modelsBefore = _models.Count;
+        var skinnedBefore = _skinnedModels.Count;
+        try
+        {
+            AddEntityCore(entity, worldMatrix);
+        }
+        finally
+        {
+            for (var i = modelsBefore; i < _models.Count; i++)
+                _models[i].GroupId = groupId;
+            for (var i = skinnedBefore; i < _skinnedModels.Count; i++)
+                _skinnedModels[i].GroupId = groupId;
+        }
+    }
+
+    private void AddEntityCore(Entity entity, Matrix4x4? worldMatrix)
+    {
         var baseModelName = entity.EEN2.skl;
         if (string.IsNullOrEmpty(baseModelName))
         {
@@ -789,6 +977,10 @@ void main() {
 
     public void AddMap(Map map)
     {
+        // Capture for the per-frame overlay rebuild — DrawMapOverlays
+        // walks EPTH/EMTR/EMSD/EMEF/EMNO/EMNP off this reference.
+        _currentMap = map;
+
         // Add Map Geometry
         _8Model? loaded8 = null;
         if (!string.IsNullOrEmpty(map.EMAP.s1))
@@ -827,7 +1019,15 @@ void main() {
                                 Matrix4x4.CreateTranslation(-ent.l.X, ent.l.Y, ent.l.Z);
 
                 var entity = ResourceSystem.FindResource(ent.name);
-                if (entity != null) AddEntity(entity, transform);
+                if (entity != null)
+                {
+                    // Snapshot the group id AddEntity allocates for this
+                    // call so the host can resolve "selected group →
+                    // EME2 record" when committing gizmo edits.
+                    var nextGroup = _nextGroupId;
+                    AddEntity(entity, transform);
+                    _groupToMapEntity[nextGroup] = ent;
+                }
             }
             catch (Exception ex)
             {
@@ -846,7 +1046,9 @@ void main() {
                 {
                     var transform = Matrix4x4.CreateRotationY(-ep.r) *
                                     Matrix4x4.CreateTranslation(-ep.p.X, ep.p.Y, ep.p.Z);
+                    var nextGroup = _nextGroupId;
                     AddEntity(crt, transform);
+                    _groupToEntryPoint[nextGroup] = ep;
                 }
             }
             catch (Exception ex)
@@ -867,7 +1069,10 @@ void main() {
         var emapTint = (new Vector3(1) + EditorWindow.ColToVec3(map.EMAP.col)) / 2;
         UploadMapLights(loaded8?.Lights, emapTint, loaded8?.GetDominantLight());
 
-        FocusCamera();
+        // Caller decides whether to FocusCamera. The editor's hash-driven
+        // map rebuild path (DrawMap on every edit) calls AddMap many times
+        // per session, and re-framing the camera on each rebuild snaps
+        // the user out of wherever they were navigating to.
     }
 
     // Translates a list of LightRecord entries into the GpuLight array the
@@ -1262,10 +1467,24 @@ void main() {
     
     public void HandleWindowResize(uint width, uint height)
     {
+        // The framebuffer texture stays at its original (desktop) size —
+        // by design, so we don't recreate GPU resources on every viewport
+        // resize. Width/Height here are the *active render rectangle*
+        // inside that texture; DrawScene clips its viewport to it and
+        // the editor's ImGui.Image samples only that sub-region (UV-
+        // cropped to FbWidth/FbHeight) so 1:1 sampling holds.
         Width = width;
         Height = height;
         _camera.WindowResized(width, height);
     }
+
+    // Underlying framebuffer texture size (desktop resolution at
+    // construction). Different from Width/Height which is the active
+    // render rect. Editor uses these to compute UV crop for ImGui.Image
+    // so the viewport pane samples scene texels 1:1 instead of
+    // bilinear-resampling the whole texture into a smaller rect.
+    public uint FbWidth => _sceneColorTarget?.Width ?? Width;
+    public uint FbHeight => _sceneColorTarget?.Height ?? Height;
 
     private void CreateSceneFramebuffer()
     {
@@ -1284,17 +1503,26 @@ void main() {
             1,
             PixelFormat.D24_UNorm_S8_UInt,
             TextureUsage.DepthStencil));
-        
-        _msaaColorTarget = factory.CreateTexture(TextureDescription.Texture2D(
-            Width, Height, 1, 1, PixelFormat.R8_G8_B8_A8_UNorm,
-            TextureUsage.RenderTarget, TextureSampleCount.Count8));
 
-        _msaaDepthTexture = factory.CreateTexture(TextureDescription.Texture2D(
-            Width, Height, 1, 1, PixelFormat.D24_UNorm_S8_UInt,
-            TextureUsage.DepthStencil, TextureSampleCount.Count8));
+        // 8x MSAA color + depth. Framebuffer renders here; we
+        // ResolveTexture into _sceneColorTarget at the end of DrawScene
+        // so ImGui samples a clean 1-sample texture.
+        _sceneColorMsaa = factory.CreateTexture(new TextureDescription(
+            Width, Height, 1, 1, 1,
+            PixelFormat.R8_G8_B8_A8_UNorm,
+            TextureUsage.RenderTarget,
+            TextureType.Texture2D,
+            SampleCountMsaa));
+
+        _sceneDepthMsaa = factory.CreateTexture(new TextureDescription(
+            Width, Height, 1, 1, 1,
+            PixelFormat.D24_UNorm_S8_UInt,
+            TextureUsage.DepthStencil,
+            TextureType.Texture2D,
+            SampleCountMsaa));
 
         _sceneFramebuffer = factory.CreateFramebuffer(new FramebufferDescription(
-            _msaaDepthTexture, _msaaColorTarget));
+            _sceneDepthMsaa, _sceneColorMsaa));
 
         ImGuiBinding = _imguiRenderer.GetOrCreateImGuiBinding(
             _graphicsDevice.ResourceFactory, _sceneColorTarget);
@@ -1521,7 +1749,129 @@ void main() {
         _skeletonLineBuffer = factory.CreateBuffer(new BufferDescription(
             (uint)(_skeletonLineScratch.Length * 12), BufferUsage.VertexBuffer));
 
+        // Hover-outline pipeline. Same vertex layout as the skeleton lines
+        // but a different fragment shader (orange) and depth disabled so
+        // the AABB always shows over the geometry inside it.
+        var outlineFrag = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(OutlineFragmentCode), "main");
+        var outlineShaders = factory.CreateFromSpirv(lineVert, outlineFrag);
+        _outlineLinePipeline = factory.CreateGraphicsPipeline(new GraphicsPipelineDescription(
+            BlendStateDescription.SingleOverrideBlend,
+            DepthStencilStateDescription.Disabled,
+            new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.CounterClockwise, true, false),
+            PrimitiveTopology.LineList,
+            new ShaderSetDescription(
+                new[]
+                {
+                    new VertexLayoutDescription(
+                        new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3))
+                },
+                outlineShaders),
+            new[] { _lineProjViewLayout, _lineWorldLayout },
+            _sceneFramebuffer.OutputDescription));
+        _outlineLineBuffer = factory.CreateBuffer(new BufferDescription(
+            (uint)(_outlineLineScratch.Length * 12), BufferUsage.VertexBuffer));
+
+        // ---- Wide-line pipeline ----
+        _wideLineParamLayout = factory.CreateResourceLayout(new ResourceLayoutDescription(
+            new ResourceLayoutElementDescription("LineParams", ResourceKind.UniformBuffer, ShaderStages.Vertex)));
+        _wideLineParamBuffer = factory.CreateBuffer(new BufferDescription(
+            (uint)Marshal.SizeOf<WideLineParams>(), BufferUsage.UniformBuffer));
+        _wideLineParamSet = factory.CreateResourceSet(new ResourceSetDescription(
+            _wideLineParamLayout, _wideLineParamBuffer));
+
+        var wlVert = new ShaderDescription(ShaderStages.Vertex,   Encoding.UTF8.GetBytes(WideLineVertexCode),   "main");
+        var wlFrag = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(WideLineFragmentCode), "main");
+        var wlShaders = factory.CreateFromSpirv(wlVert, wlFrag);
+        var wlVertexLayout = new VertexLayoutDescription(
+            new VertexElementDescription("thisPos",  VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
+            new VertexElementDescription("otherPos", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3),
+            new VertexElementDescription("side",     VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float1));
+        _wideLinePipeline = factory.CreateGraphicsPipeline(new GraphicsPipelineDescription(
+            BlendStateDescription.SingleAlphaBlend,
+            DepthStencilStateDescription.Disabled,
+            new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.CounterClockwise, true, false),
+            PrimitiveTopology.TriangleList,
+            new ShaderSetDescription(new[] { wlVertexLayout }, wlShaders),
+            new[] { _lineProjViewLayout, _wideLineParamLayout },
+            _sceneFramebuffer.OutputDescription));
+        _wideLineVB = factory.CreateBuffer(new BufferDescription(
+            MaxWideLines * 4 * WideLineVertex.SizeInBytes, BufferUsage.VertexBuffer));
+        _wideLineIB = factory.CreateBuffer(new BufferDescription(
+            MaxWideLines * 6 * sizeof(ushort), BufferUsage.IndexBuffer));
+
+        // ---- Map-overlay vertex buffer + extra colour pipelines ----
+        _overlayLineBuffer = factory.CreateBuffer(new BufferDescription(
+            (uint)(_overlayLineScratch.Length * 12), BufferUsage.VertexBuffer));
+        Pipeline MakeOverlay(string fragSrc)
+        {
+            var v = new ShaderDescription(ShaderStages.Vertex,   Encoding.UTF8.GetBytes(LineVertexCode), "main");
+            var f = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(fragSrc),        "main");
+            var s = factory.CreateFromSpirv(v, f);
+            return factory.CreateGraphicsPipeline(new GraphicsPipelineDescription(
+                BlendStateDescription.SingleAlphaBlend,
+                DepthStencilStateDescription.DepthOnlyLessEqual,
+                new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.CounterClockwise, true, false),
+                PrimitiveTopology.LineList,
+                new ShaderSetDescription(
+                    new[] { new VertexLayoutDescription(new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3)) },
+                    s),
+                new[] { _lineProjViewLayout, _lineWorldLayout },
+                _sceneFramebuffer.OutputDescription));
+        }
+        _overlayCyanPipeline    = MakeOverlay("#version 450\nlayout(location=0) out vec4 c;\nvoid main(){c=vec4(0.20,0.85,0.95,0.95);}");
+        _overlayMagentaPipeline = MakeOverlay("#version 450\nlayout(location=0) out vec4 c;\nvoid main(){c=vec4(0.95,0.30,0.85,0.95);}");
+        _overlayOrangePipeline  = MakeOverlay("#version 450\nlayout(location=0) out vec4 c;\nvoid main(){c=vec4(1.00,0.55,0.10,0.95);}");
+
         Initialized = true;
+    }
+
+    // Submits a batch of lines through the wide-line (extruded-quad)
+    // pipeline. Caller passes `lines` as alternating start/end Vector3s
+    // (a flat array of even length; pair i is lines[2i], lines[2i+1]).
+    // Lines are clipped at MaxWideLines per draw — extra are dropped.
+    private void DrawWideLines(CommandList cl, ReadOnlySpan<Vector3> lines, Vector4 color, float thicknessPx)
+    {
+        var lineCount = Math.Min(lines.Length / 2, MaxWideLines);
+        if (lineCount == 0) return;
+
+        for (var i = 0; i < lineCount; i++)
+        {
+            var a = lines[i * 2];
+            var b = lines[i * 2 + 1];
+            var v = i * 4;
+            var idx = i * 6;
+            _wideLineVerts[v + 0] = new WideLineVertex(a, b, +1f);
+            _wideLineVerts[v + 1] = new WideLineVertex(a, b, -1f);
+            _wideLineVerts[v + 2] = new WideLineVertex(b, a, -1f);
+            _wideLineVerts[v + 3] = new WideLineVertex(b, a, +1f);
+            // Two triangles forming the quad. Winding wound to face the
+            // camera regardless of line direction; CullMode.None on the
+            // pipeline makes that moot but keeps things tidy.
+            _wideLineIndices[idx + 0] = (ushort)(v + 0);
+            _wideLineIndices[idx + 1] = (ushort)(v + 1);
+            _wideLineIndices[idx + 2] = (ushort)(v + 2);
+            _wideLineIndices[idx + 3] = (ushort)(v + 0);
+            _wideLineIndices[idx + 4] = (ushort)(v + 2);
+            _wideLineIndices[idx + 5] = (ushort)(v + 3);
+        }
+
+        var prms = new WideLineParams
+        {
+            ViewportThickness = new Vector4(Width, Height, thicknessPx, 0f),
+            Color = color,
+        };
+        cl.UpdateBuffer(_wideLineParamBuffer, 0, prms);
+        // Upload the whole array each call; indices only reference the
+        // filled-in head. Saves us pinning for a partial-range UpdateBuffer.
+        cl.UpdateBuffer(_wideLineVB, 0, _wideLineVerts);
+        cl.UpdateBuffer(_wideLineIB, 0, _wideLineIndices);
+
+        cl.SetPipeline(_wideLinePipeline);
+        cl.SetGraphicsResourceSet(0, _lineProjViewSet);
+        cl.SetGraphicsResourceSet(1, _wideLineParamSet);
+        cl.SetVertexBuffer(0, _wideLineVB);
+        cl.SetIndexBuffer(_wideLineIB, IndexFormat.UInt16);
+        cl.DrawIndexed((uint)(lineCount * 6));
     }
 
     private Pipeline _opaquePipeline;
@@ -1695,8 +2045,21 @@ void main() {
         return _models.Count == 0 && _skinnedModels.Count == 0;
     }
 
-    public void Reset()
+    public void Reset(bool preserveSelection = false)
     {
+        // Hover always clears — picking re-runs next frame and re-sets it
+        // if the cursor still overlaps something. Selection optionally
+        // survives: live-preview rebuilds (edit a property → repopulate
+        // models in deterministic order) want to keep the user's
+        // current selected entity, since group ids are stable across the
+        // rebuild. A fresh file load (ResetTempValues) clears it.
+        HoveredGroupId = null;
+        if (!preserveSelection) SelectedGroupId = null;
+        _groupToMapEntity.Clear();
+        _groupToEntryPoint.Clear();
+        _currentMap = null;
+        _nextGroupId = 1;
+
         foreach (var model in _models)
         {
             model.VertexBuffer?.Dispose();
@@ -1778,7 +2141,8 @@ void main() {
     
     public void DrawScene(float deltaTime)
     {
-        if (!Initialized || (_models.Count == 0 && _skinnedModels.Count == 0))
+        if (!Initialized) return;
+        if (_models.Count == 0 && _skinnedModels.Count == 0)
             return;
 
         var cl = _commandList;
@@ -1788,6 +2152,12 @@ void main() {
 
         cl.Begin();
         cl.SetFramebuffer(_sceneFramebuffer);
+        // Clip the rasterizer + scissor to the active render rect, so we
+        // only touch the top-left sub-region the editor's viewport pane
+        // is actually showing. Outside that rect the framebuffer keeps
+        // whatever was last drawn — fine, the editor's UV crop hides it.
+        cl.SetViewport(0, new Viewport(0f, 0f, Width, Height, 0f, 1f));
+        cl.SetScissorRect(0, 0, 0, Width, Height);
         cl.ClearColorTarget(0, RgbaFloat.Black);
         cl.ClearDepthStencil(1f);
 
@@ -1844,9 +2214,667 @@ void main() {
         foreach (var model in _skinnedModels.Where(m => m.Pipeline == _opaqueSkinnedPipeline)) drawSkinned(model);
         foreach (var model in _skinnedModels.Where(m => m.Pipeline != _opaqueSkinnedPipeline)) drawSkinned(model);
 
-        cl.ResolveTexture(_msaaColorTarget, _sceneColorTarget);
+        // Hover-AABB outline for the currently picked group. Drawn last so
+        // it composites on top of the resolved scene without being depth-
+        // tested against itself; depth is disabled on _outlineLinePipeline
+        // so the wireframe punches through any geometry between the
+        // camera and the entity.
+        if (ShowMapOverlays && _currentMap != null)
+            DrawMapOverlays(cl, _currentMap);
+
+        if (HoveredGroupId.HasValue)
+            DrawHoverOutline(cl, HoveredGroupId.Value);
+
+        // Translate gizmo for the selected entity. _selectedAxisHover is
+        // -1 when no axis is being hovered/dragged, otherwise 0/1/2 and
+        // that axis renders in highlight colour.
+        if (SelectedGroupId.HasValue && TryGetGroupCenter(SelectedGroupId.Value, out var pivot))
+            DrawTranslateGizmo(cl, pivot, _gizmoActiveAxis);
+
+        // Resolve the 8x MSAA color into the 1-sample target ImGui
+        // samples. Depth doesn't need to be resolved.
+        cl.ResolveTexture(_sceneColorMsaa, _sceneColorTarget);
+
         cl.End();
         _graphicsDevice.SubmitCommands(cl);
+    }
+
+    // Aggregate world-space AABB for every model tagged with `groupId`,
+    // then upload 12 line segments (24 vertices) to the outline buffer
+    // and draw them. Caller must already be inside cl.Begin / before End.
+    // Build per-frame line geometry for every spatial map record we know
+    // how to visualise, batched per colour and submitted through the
+    // overlay vertex buffer. Cheap (a few hundred segments per map) so
+    // we don't bother caching across frames.
+    private void DrawMapOverlays(CommandList cl, Map map)
+    {
+        // Trigger ring + planar handles share these (X = red trigger
+        // colour, Highlight = yellow EMSD, Y = green EMNP). They're
+        // lazily built on first gizmo draw, but overlays may run before
+        // any selection happens — force-init so SetPipeline can't NRE.
+        EnsureGizmoPipelines();
+
+        // Record→world: AddMap negates X for entity placement
+        // (CreateTranslation(-l.X, l.Y, l.Z)). Mirror that here so
+        // overlays land on top of the geometry they refer to.
+        static Vector3 W(Vector3 r) => new(-r.X, r.Y, r.Z);
+        static Vector3 W4(Vector4 r) => new(-r.X, r.Y, r.Z);
+
+        var segs = new List<Vector3>(256);
+
+        // ---- EPTH paths: cyan polylines through `p` in order ----
+        segs.Clear();
+        foreach (var path in map.EPTH)
+        {
+            for (var i = 0; i + 1 < path.p.Count; i++)
+            {
+                segs.Add(W4(path.p[i]));
+                segs.Add(W4(path.p[i + 1]));
+            }
+            // Vertex markers so individual waypoints are pickable visually.
+            foreach (var pt in path.p) AppendMarker(segs, W4(pt), 1.5f);
+        }
+        SubmitOverlayBatch(cl, segs, _overlayCyanPipeline);
+
+        // ---- Triggers: red closed-loop polygon of EMTR points.
+        segs.Clear();
+        foreach (var trig in map.Triggers)
+        {
+            var pts = trig.EMTR.r;
+            if (pts.Count < 2) continue;
+            for (var i = 0; i < pts.Count; i++)
+            {
+                segs.Add(W(pts[i]));
+                segs.Add(W(pts[(i + 1) % pts.Count]));
+            }
+        }
+        SubmitOverlayBatch(cl, segs, _gizmoXPipeline);
+
+        // ---- EMSD sound markers: yellow octahedrons ----
+        segs.Clear();
+        foreach (var s in map.EMSD)
+            AppendMarker(segs, W(s.l), 2.5f);
+        SubmitOverlayBatch(cl, segs, _gizmoHighlightPipeline);
+
+        // ---- EMEF effect markers: magenta octahedrons ----
+        segs.Clear();
+        foreach (var e in map.EMEF)
+            AppendMarker(segs, W4(e.l), 2.5f);
+        SubmitOverlayBatch(cl, segs, _overlayMagentaPipeline);
+
+        // ---- EMNO: 2D record (Vector2 l). Treat as ground-plane
+        //      (X, Z) and draw an orange marker on Y=0. If this turns
+        //      out to be a different plane the user will tell us.
+        segs.Clear();
+        foreach (var n in map.EMNO)
+            AppendMarker(segs, new Vector3(-n.l.X, 0f, n.l.Y), 2.5f);
+        SubmitOverlayBatch(cl, segs, _overlayOrangePipeline);
+
+        // ---- EMNP node-points: green markers, one per chunk.
+        //      Semantics aren't fully nailed down — drawn as discrete
+        //      points; if they're meant to be connected (navmesh edges
+        //      etc.) we'll wire that up once confirmed.
+        segs.Clear();
+        if (map.EMNP != null)
+        {
+            foreach (var c in map.EMNP.chunks)
+                AppendMarker(segs, W(c.l), 2.0f);
+        }
+        SubmitOverlayBatch(cl, segs, _gizmoYPipeline);
+    }
+
+    // Push line segments to the overlay buffer in batches that fit
+    // within MaxOverlayVerts. Pipeline + bindings are set once per batch.
+    private void SubmitOverlayBatch(CommandList cl, List<Vector3> segs, Pipeline pipe)
+    {
+        if (segs.Count == 0) return;
+        cl.UpdateBuffer(_worldBuffer, 0, Matrix4x4.Identity);
+        cl.SetPipeline(pipe);
+        cl.SetGraphicsResourceSet(0, _lineProjViewSet);
+        cl.SetGraphicsResourceSet(1, _lineWorldSet);
+        cl.SetVertexBuffer(0, _overlayLineBuffer);
+
+        var written = 0;
+        while (written < segs.Count)
+        {
+            var chunk = Math.Min(MaxOverlayVerts, segs.Count - written);
+            // Force chunk to even (line list pairs).
+            if ((chunk & 1) != 0) chunk -= 1;
+            if (chunk <= 0) break;
+            for (var i = 0; i < chunk; i++) _overlayLineScratch[i] = segs[written + i];
+            cl.UpdateBuffer(_overlayLineBuffer, 0, _overlayLineScratch);
+            cl.Draw((uint)chunk);
+            written += chunk;
+        }
+    }
+
+    // 12-edge octahedron centred at `c` with apex distance `r`. 24 verts.
+    private static void AppendMarker(List<Vector3> dst, Vector3 c, float r)
+    {
+        var px = c + new Vector3( r, 0, 0);
+        var nx = c + new Vector3(-r, 0, 0);
+        var py = c + new Vector3(0,  r, 0);
+        var ny = c + new Vector3(0, -r, 0);
+        var pz = c + new Vector3(0, 0,  r);
+        var nz = c + new Vector3(0, 0, -r);
+        // Top ring: py to each ±x ±z
+        dst.Add(py); dst.Add(px);
+        dst.Add(py); dst.Add(nx);
+        dst.Add(py); dst.Add(pz);
+        dst.Add(py); dst.Add(nz);
+        // Bottom ring: ny to each ±x ±z
+        dst.Add(ny); dst.Add(px);
+        dst.Add(ny); dst.Add(nx);
+        dst.Add(ny); dst.Add(pz);
+        dst.Add(ny); dst.Add(nz);
+        // Equator
+        dst.Add(px); dst.Add(pz);
+        dst.Add(pz); dst.Add(nx);
+        dst.Add(nx); dst.Add(nz);
+        dst.Add(nz); dst.Add(px);
+    }
+
+    private void DrawHoverOutline(CommandList cl, int groupId)
+    {
+        var min = new Vector3(float.PositiveInfinity);
+        var max = new Vector3(float.NegativeInfinity);
+        var any = false;
+        foreach (var m in _models)
+        {
+            if (m.GroupId != groupId) continue;
+            if (TryGetModelWorldAabb(m, out var lo, out var hi))
+            {
+                min = Vector3.Min(min, lo);
+                max = Vector3.Max(max, hi);
+                any = true;
+            }
+        }
+        foreach (var m in _skinnedModels)
+        {
+            if (m.GroupId != groupId) continue;
+            if (TryGetSkinnedModelWorldAabb(m, out var lo, out var hi))
+            {
+                min = Vector3.Min(min, lo);
+                max = Vector3.Max(max, hi);
+                any = true;
+            }
+        }
+        if (!any) return;
+
+        FillAabbLineList(_outlineLineScratch, min, max);
+        cl.UpdateBuffer(_outlineLineBuffer, 0, _outlineLineScratch);
+        cl.UpdateBuffer(_worldBuffer, 0, Matrix4x4.Identity);
+        cl.SetPipeline(_outlineLinePipeline);
+        cl.SetGraphicsResourceSet(0, _lineProjViewSet);
+        cl.SetGraphicsResourceSet(1, _lineWorldSet);
+        cl.SetVertexBuffer(0, _outlineLineBuffer);
+        cl.Draw(24);
+    }
+
+    // Expand a model's local-space vertex bbox via its 8-corner transform
+    // into world space. Cheaper than transforming every vertex per-frame
+    // and accurate enough for hover picking + outline.
+    private static bool TryGetModelWorldAabb(ModelData m, out Vector3 min, out Vector3 max)
+    {
+        min = new Vector3(float.PositiveInfinity);
+        max = new Vector3(float.NegativeInfinity);
+        var any = false;
+        foreach (var v in m.Vertices) { min = Vector3.Min(min, v.Position); max = Vector3.Max(max, v.Position); any = true; }
+        foreach (var v in m.LightmappedVertices) { min = Vector3.Min(min, v.Position); max = Vector3.Max(max, v.Position); any = true; }
+        if (!any) return false;
+        TransformAabbCorners(min, max, m.WorldMatrix, out min, out max);
+        return true;
+    }
+
+    private static bool TryGetSkinnedModelWorldAabb(SkinnedModelData m, out Vector3 min, out Vector3 max)
+    {
+        min = new Vector3(float.PositiveInfinity);
+        max = new Vector3(float.NegativeInfinity);
+        if (m.Vertices.Count == 0) return false;
+        foreach (var v in m.Vertices) { min = Vector3.Min(min, v.Position); max = Vector3.Max(max, v.Position); }
+        // Skinned bones may move verts a long way from their bind-pose
+        // bbox; we still use bind-pose AABB for picking. Accurate enough
+        // for "hover the prop" feedback.
+        TransformAabbCorners(min, max, m.WorldMatrix, out min, out max);
+        return true;
+    }
+
+    private static void TransformAabbCorners(Vector3 lo, Vector3 hi, Matrix4x4 m,
+        out Vector3 outLo, out Vector3 outHi)
+    {
+        Span<Vector3> corners = stackalloc Vector3[8]
+        {
+            new(lo.X, lo.Y, lo.Z), new(hi.X, lo.Y, lo.Z),
+            new(lo.X, hi.Y, lo.Z), new(hi.X, hi.Y, lo.Z),
+            new(lo.X, lo.Y, hi.Z), new(hi.X, lo.Y, hi.Z),
+            new(lo.X, hi.Y, hi.Z), new(hi.X, hi.Y, hi.Z),
+        };
+        outLo = new Vector3(float.PositiveInfinity);
+        outHi = new Vector3(float.NegativeInfinity);
+        for (var i = 0; i < 8; i++)
+        {
+            var p = Vector3.Transform(corners[i], m);
+            outLo = Vector3.Min(outLo, p);
+            outHi = Vector3.Max(outHi, p);
+        }
+    }
+
+    private static void FillAabbLineList(Vector3[] dst, Vector3 lo, Vector3 hi)
+    {
+        // 12 edges of an axis-aligned box — bottom 4, top 4, vertical 4.
+        var c000 = new Vector3(lo.X, lo.Y, lo.Z);
+        var c100 = new Vector3(hi.X, lo.Y, lo.Z);
+        var c010 = new Vector3(lo.X, hi.Y, lo.Z);
+        var c110 = new Vector3(hi.X, hi.Y, lo.Z);
+        var c001 = new Vector3(lo.X, lo.Y, hi.Z);
+        var c101 = new Vector3(hi.X, lo.Y, hi.Z);
+        var c011 = new Vector3(lo.X, hi.Y, hi.Z);
+        var c111 = new Vector3(hi.X, hi.Y, hi.Z);
+        // bottom (y = lo.Y)
+        dst[0]  = c000; dst[1]  = c100;
+        dst[2]  = c100; dst[3]  = c101;
+        dst[4]  = c101; dst[5]  = c001;
+        dst[6]  = c001; dst[7]  = c000;
+        // top (y = hi.Y)
+        dst[8]  = c010; dst[9]  = c110;
+        dst[10] = c110; dst[11] = c111;
+        dst[12] = c111; dst[13] = c011;
+        dst[14] = c011; dst[15] = c010;
+        // vertical edges
+        dst[16] = c000; dst[17] = c010;
+        dst[18] = c100; dst[19] = c110;
+        dst[20] = c001; dst[21] = c011;
+        dst[22] = c101; dst[23] = c111;
+    }
+
+    // Mouse-pick. `mouse` is in pixels relative to the viewport image
+    // top-left; sized [0, viewportWidth] × [0, viewportHeight]. Returns
+    // the closest pickable group's id, or null if the ray misses
+    // everything pickable. Uses the camera's current proj * view matrix
+    // to unproject the mouse point into a world-space ray and tests it
+    // against each ModelData's world-space AABB.
+    public int? TryPickGroup(Vector2 mouse, Vector2 viewportSize)
+    {
+        if (!Initialized) return null;
+        if (viewportSize.X <= 1f || viewportSize.Y <= 1f) return null;
+
+        var ndcX = mouse.X / viewportSize.X * 2f - 1f;
+        var ndcY = 1f - mouse.Y / viewportSize.Y * 2f;
+
+        var vp = _camera.ViewMatrix * _camera.ProjectionMatrix;
+        if (!Matrix4x4.Invert(vp, out var invVp)) return null;
+
+        var nearH = Vector4.Transform(new Vector4(ndcX, ndcY, 0f, 1f), invVp);
+        var farH  = Vector4.Transform(new Vector4(ndcX, ndcY, 1f, 1f), invVp);
+        if (nearH.W == 0f || farH.W == 0f) return null;
+        var nearW = new Vector3(nearH.X, nearH.Y, nearH.Z) / nearH.W;
+        var farW  = new Vector3(farH.X,  farH.Y,  farH.Z)  / farH.W;
+        var origin = nearW;
+        var dir = farW - nearW;
+        var len = dir.Length();
+        if (len < 1e-6f) return null;
+        dir /= len;
+
+        int? best = null;
+        var bestT = float.PositiveInfinity;
+        // Group by group-id so we don't pick an entity multiple times for
+        // its sub-meshes; we still want the closest-hit ENTITY.
+        foreach (var m in _models)
+        {
+            if (m.GroupId < 0) continue;
+            if (!TryGetModelWorldAabb(m, out var lo, out var hi)) continue;
+            if (RayAabb(origin, dir, lo, hi, out var t) && t < bestT)
+            {
+                bestT = t;
+                best = m.GroupId;
+            }
+        }
+        foreach (var m in _skinnedModels)
+        {
+            if (m.GroupId < 0) continue;
+            if (!TryGetSkinnedModelWorldAabb(m, out var lo, out var hi)) continue;
+            if (RayAabb(origin, dir, lo, hi, out var t) && t < bestT)
+            {
+                bestT = t;
+                best = m.GroupId;
+            }
+        }
+        return best;
+    }
+
+    // Slab method ray-AABB. Returns the nearest positive intersection
+    // distance via `t` (= 0 if the origin is inside the box). `dir` is
+    // assumed normalised but doesn't have to be — we just want the
+    // sign of t.
+    private static bool RayAabb(Vector3 origin, Vector3 dir, Vector3 lo, Vector3 hi, out float t)
+    {
+        float tmin = float.NegativeInfinity, tmax = float.PositiveInfinity;
+        for (var axis = 0; axis < 3; axis++)
+        {
+            var o = axis == 0 ? origin.X : axis == 1 ? origin.Y : origin.Z;
+            var d = axis == 0 ? dir.X    : axis == 1 ? dir.Y    : dir.Z;
+            var l = axis == 0 ? lo.X     : axis == 1 ? lo.Y     : lo.Z;
+            var h = axis == 0 ? hi.X     : axis == 1 ? hi.Y     : hi.Z;
+            if (MathF.Abs(d) < 1e-8f)
+            {
+                if (o < l || o > h) { t = 0f; return false; }
+                continue;
+            }
+            var t1 = (l - o) / d;
+            var t2 = (h - o) / d;
+            if (t1 > t2) (t1, t2) = (t2, t1);
+            if (t1 > tmin) tmin = t1;
+            if (t2 < tmax) tmax = t2;
+            if (tmin > tmax) { t = 0f; return false; }
+        }
+        if (tmax < 0f) { t = 0f; return false; }
+        t = tmin > 0f ? tmin : 0f;
+        return true;
+    }
+
+    // -------- Gizmo support --------
+
+    // World-space centre of all ModelData (and SkinnedModelData) in the
+    // group, used as the gizmo's pivot. Returns false when the group
+    // has no geometry (e.g. its AddEntity bailed out).
+    public bool TryGetGroupCenter(int groupId, out Vector3 center)
+    {
+        var min = new Vector3(float.PositiveInfinity);
+        var max = new Vector3(float.NegativeInfinity);
+        var any = false;
+        foreach (var m in _models)
+        {
+            if (m.GroupId != groupId) continue;
+            if (TryGetModelWorldAabb(m, out var lo, out var hi))
+            {
+                min = Vector3.Min(min, lo);
+                max = Vector3.Max(max, hi);
+                any = true;
+            }
+        }
+        foreach (var m in _skinnedModels)
+        {
+            if (m.GroupId != groupId) continue;
+            if (TryGetSkinnedModelWorldAabb(m, out var lo, out var hi))
+            {
+                min = Vector3.Min(min, lo);
+                max = Vector3.Max(max, hi);
+                any = true;
+            }
+        }
+        if (!any) { center = default; return false; }
+        center = (min + max) * 0.5f;
+        return true;
+    }
+
+    // Apply an in-world translation to every ModelData / SkinnedModelData
+    // tagged with `groupId`. Used during a gizmo drag so the visual moves
+    // with the cursor without requiring a full scene rebuild.
+    public void TranslateGroup(int groupId, Vector3 worldDelta)
+    {
+        var t = Matrix4x4.CreateTranslation(worldDelta);
+        for (var i = 0; i < _models.Count; i++)
+        {
+            if (_models[i].GroupId != groupId) continue;
+            _models[i].WorldMatrix = _models[i].WorldMatrix * t;
+        }
+        for (var i = 0; i < _skinnedModels.Count; i++)
+        {
+            if (_skinnedModels[i].GroupId != groupId) continue;
+            _skinnedModels[i].WorldMatrix = _skinnedModels[i].WorldMatrix * t;
+        }
+    }
+
+    // Rotate every group model around the world-Y axis through `pivot`
+    // by `angleRadians`. Used by the rotation gizmo: same rebuild-free
+    // visual update story as TranslateGroup.
+    public void RotateGroup(int groupId, float angleRadians, Vector3 pivot)
+    {
+        var r = Matrix4x4.CreateTranslation(-pivot)
+              * Matrix4x4.CreateRotationY(angleRadians)
+              * Matrix4x4.CreateTranslation(pivot);
+        for (var i = 0; i < _models.Count; i++)
+        {
+            if (_models[i].GroupId != groupId) continue;
+            _models[i].WorldMatrix = _models[i].WorldMatrix * r;
+        }
+        for (var i = 0; i < _skinnedModels.Count; i++)
+        {
+            if (_skinnedModels[i].GroupId != groupId) continue;
+            _skinnedModels[i].WorldMatrix = _skinnedModels[i].WorldMatrix * r;
+        }
+    }
+
+    // Generate the world-space points for the rotation ring drawn in the
+    // XZ plane through `pivot` at radius `RotationRingRadius(pivot)`.
+    // Caller projects them to screen for hit-testing or draws them as
+    // a line strip.
+    public void GetRotationRingPoints(Vector3 pivot, Span<Vector3> outPoints)
+    {
+        var radius = RotationRingRadius(pivot);
+        var n = outPoints.Length;
+        for (var i = 0; i < n; i++)
+        {
+            var theta = MathF.Tau * i / n;
+            outPoints[i] = pivot + new Vector3(MathF.Cos(theta) * radius, 0f, MathF.Sin(theta) * radius);
+        }
+    }
+
+    // The rotation ring lives just past the end of the translate axes so
+    // it's hit-testable independently of them but still visually grouped.
+    public float RotationRingRadius(Vector3 pivot) => GizmoAxisLength(pivot) * 0.70f;
+
+    // Half-length of one side of a planar-translate quad. Drawn at
+    // (pivot + a*PlaneHandleOffset) ± a*PlaneHandleHalf along each of
+    // the two in-plane axes; small + close to the pivot so the squares
+    // don't crowd the ring or the axis tips.
+    public float PlaneHandleOffset(Vector3 pivot) => GizmoAxisLength(pivot) * 0.20f;
+    public float PlaneHandleHalf(Vector3 pivot)   => GizmoAxisLength(pivot) * 0.11f;
+
+    // Returns the four world-space corners (in winding order) of one of
+    // the planar-translate handles. `planeIndex` follows the gizmo axis
+    // numbering: 4 = XY, 5 = XZ, 6 = YZ.
+    public void GetPlaneHandleCorners(int planeIndex, Vector3 pivot, Span<Vector3> outCorners)
+    {
+        var (a, b) = PlaneAxes(planeIndex);
+        var off = PlaneHandleOffset(pivot);
+        var half = PlaneHandleHalf(pivot);
+        var center = pivot + (a + b) * off;
+        outCorners[0] = center - a * half - b * half;
+        outCorners[1] = center + a * half - b * half;
+        outCorners[2] = center + a * half + b * half;
+        outCorners[3] = center - a * half + b * half;
+    }
+
+    public (Vector3 a, Vector3 b) PlaneAxes(int planeIndex) => planeIndex switch
+    {
+        4 => (Vector3.UnitX, Vector3.UnitY),
+        5 => (Vector3.UnitX, Vector3.UnitZ),
+        _ => (Vector3.UnitY, Vector3.UnitZ),
+    };
+
+    // Composed view * projection matrix. Used by host-side gizmo code
+    // for screen→world projections without exposing the private
+    // _camera field.
+    public Matrix4x4 GetViewProjection() => _camera.ViewMatrix * _camera.ProjectionMatrix;
+
+    // Project a world-space point into viewport-pixel coordinates. `vis`
+    // = false when the point is behind the camera or off the near
+    // plane — caller should ignore the returned screen pos in that case.
+    public bool WorldToScreen(Vector3 worldPos, Vector2 viewportSize, out Vector2 screenPos)
+    {
+        var clip = Vector4.Transform(new Vector4(worldPos, 1f), _camera.ViewMatrix * _camera.ProjectionMatrix);
+        if (clip.W <= 0f) { screenPos = default; return false; }
+        var ndcX = clip.X / clip.W;
+        var ndcY = clip.Y / clip.W;
+        // ndcZ in [-1, 1] for visible depth; behind near plane → ndcZ < -1.
+        screenPos = new Vector2(
+            (ndcX * 0.5f + 0.5f) * viewportSize.X,
+            (1f - (ndcY * 0.5f + 0.5f)) * viewportSize.Y);
+        return clip.Z > 0f;
+    }
+
+    // Camera-distance-scaled gizmo length so the handles stay roughly the
+    // same size on screen regardless of where the entity sits in world.
+    public float GizmoAxisLength(Vector3 worldPivot)
+    {
+        var camPos = _camera.Position;
+        var dist = Vector3.Distance(camPos, worldPivot);
+        // The /6 factor was tuned by eye against the editor's typical
+        // entity scale (~1m mesh, ~10x global scale) — handles end up
+        // ~50–80px on screen at default FOV.
+        return MathF.Max(0.05f, dist / 6f);
+    }
+
+    // Project the gizmo's three axis lines (X red, Y green, Z blue)
+    // emanating from `pivot` into the viewport line buffer and draw them
+    // through the existing line pipeline. Optional `highlightAxis`
+    // (0 = X, 1 = Y, 2 = Z, -1 = none) renders that axis in white instead
+    // of its colour so the user gets feedback while hovering an axis.
+    //
+    // The line pipeline only takes positions, not colours, so we emit
+    // each axis as a separate draw call with a different fragment
+    // shader binding... actually our pipeline is one-colour-per-shader,
+    // so we just route the three axes through 3 colour-specific
+    // pipelines we lazily build below.
+    public void DrawTranslateGizmo(CommandList cl, Vector3 pivot, int highlightAxis = -1)
+    {
+        var len = GizmoAxisLength(pivot);
+        var x = pivot + Vector3.UnitX * len;
+        var y = pivot + Vector3.UnitY * len;
+        var z = pivot + Vector3.UnitZ * len;
+
+        // X / Y / Z axes
+        WriteGizmoSegment(cl, pivot, x, highlightAxis == 0 ? GizmoAxisPipeline.Highlight : GizmoAxisPipeline.X);
+        WriteGizmoSegment(cl, pivot, y, highlightAxis == 1 ? GizmoAxisPipeline.Highlight : GizmoAxisPipeline.Y);
+        WriteGizmoSegment(cl, pivot, z, highlightAxis == 2 ? GizmoAxisPipeline.Highlight : GizmoAxisPipeline.Z);
+
+        // Yaw rotation ring (axis 3) in the XZ plane.
+        Span<Vector3> ring = stackalloc Vector3[48];
+        GetRotationRingPoints(pivot, ring);
+        var ringPipe = highlightAxis == 3 ? GizmoAxisPipeline.Highlight : GizmoAxisPipeline.Gray;
+        for (var i = 0; i < ring.Length; i++)
+            WriteGizmoSegment(cl, ring[i], ring[(i + 1) % ring.Length], ringPipe);
+
+        // Planar-translate handles (4=XY, 5=XZ, 6=YZ) — semi-transparent
+        // gray fill (highlight on hover/drag) with a gray outline on top.
+        for (var p = 4; p <= 6; p++)
+        {
+            Span<Vector3> corners = stackalloc Vector3[4];
+            GetPlaneHandleCorners(p, pivot, corners);
+            var hot = highlightAxis == p;
+            WriteGizmoQuadFill(cl, corners, hot);
+            var pipe = hot ? GizmoAxisPipeline.Highlight : GizmoAxisPipeline.Gray;
+            WriteGizmoSegment(cl, corners[0], corners[1], pipe);
+            WriteGizmoSegment(cl, corners[1], corners[2], pipe);
+            WriteGizmoSegment(cl, corners[2], corners[3], pipe);
+            WriteGizmoSegment(cl, corners[3], corners[0], pipe);
+        }
+    }
+
+    private enum GizmoAxisPipeline { X, Y, Z, Highlight, Gray }
+
+    // Lazily-created per-colour line pipelines for the gizmo. Each one
+    // hard-codes a single output colour; the line vertex shader just
+    // writes proj*view*world*pos and the matching frag emits the colour.
+    private Pipeline _gizmoXPipeline;
+    private Pipeline _gizmoYPipeline;
+    private Pipeline _gizmoZPipeline;
+    private Pipeline _gizmoHighlightPipeline;
+    private Pipeline _gizmoGrayPipeline;
+    // Fill pipelines for the planar-translate squares: triangle list +
+    // alpha blend so the quad shows the geometry behind it tinted gray.
+    private Pipeline _gizmoFillGrayPipeline;
+    private Pipeline _gizmoFillHighlightPipeline;
+    private DeviceBuffer _gizmoLineBuffer;
+    private DeviceBuffer _gizmoFillBuffer; // 6 verts (two triangles)
+
+    private void EnsureGizmoPipelines()
+    {
+        if (_gizmoXPipeline != null) return;
+        var factory = _graphicsDevice.ResourceFactory;
+        Pipeline Make(string fragSrc)
+        {
+            var v = new ShaderDescription(ShaderStages.Vertex, Encoding.UTF8.GetBytes(LineVertexCode), "main");
+            var f = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(fragSrc), "main");
+            var s = factory.CreateFromSpirv(v, f);
+            return factory.CreateGraphicsPipeline(new GraphicsPipelineDescription(
+                BlendStateDescription.SingleOverrideBlend,
+                DepthStencilStateDescription.Disabled,
+                new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.CounterClockwise, true, false),
+                PrimitiveTopology.LineList,
+                new ShaderSetDescription(
+                    new[] { new VertexLayoutDescription(new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3)) },
+                    s),
+                new[] { _lineProjViewLayout, _lineWorldLayout },
+                _sceneFramebuffer.OutputDescription));
+        }
+        _gizmoXPipeline = Make("#version 450\nlayout(location=0) out vec4 c;\nvoid main(){c=vec4(1.0,0.25,0.25,1.0);}");
+        _gizmoYPipeline = Make("#version 450\nlayout(location=0) out vec4 c;\nvoid main(){c=vec4(0.30,1.0,0.35,1.0);}");
+        _gizmoZPipeline = Make("#version 450\nlayout(location=0) out vec4 c;\nvoid main(){c=vec4(0.35,0.55,1.0,1.0);}");
+        _gizmoHighlightPipeline = Make("#version 450\nlayout(location=0) out vec4 c;\nvoid main(){c=vec4(1.0,1.0,0.5,1.0);}");
+        _gizmoGrayPipeline = Make("#version 450\nlayout(location=0) out vec4 c;\nvoid main(){c=vec4(0.6,0.6,0.6,1.0);}");
+
+        Pipeline MakeFill(string fragSrc)
+        {
+            var v = new ShaderDescription(ShaderStages.Vertex, Encoding.UTF8.GetBytes(LineVertexCode), "main");
+            var f = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(fragSrc), "main");
+            var s = factory.CreateFromSpirv(v, f);
+            return factory.CreateGraphicsPipeline(new GraphicsPipelineDescription(
+                BlendStateDescription.SingleAlphaBlend,
+                DepthStencilStateDescription.Disabled,
+                new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.CounterClockwise, true, false),
+                PrimitiveTopology.TriangleList,
+                new ShaderSetDescription(
+                    new[] { new VertexLayoutDescription(new VertexElementDescription("Position", VertexElementSemantic.TextureCoordinate, VertexElementFormat.Float3)) },
+                    s),
+                new[] { _lineProjViewLayout, _lineWorldLayout },
+                _sceneFramebuffer.OutputDescription));
+        }
+        _gizmoFillGrayPipeline      = MakeFill("#version 450\nlayout(location=0) out vec4 c;\nvoid main(){c=vec4(0.6,0.6,0.6,0.30);}");
+        _gizmoFillHighlightPipeline = MakeFill("#version 450\nlayout(location=0) out vec4 c;\nvoid main(){c=vec4(1.0,1.0,0.5,0.45);}");
+
+        _gizmoLineBuffer = factory.CreateBuffer(new BufferDescription(2 * 12, BufferUsage.VertexBuffer));
+        _gizmoFillBuffer = factory.CreateBuffer(new BufferDescription(6 * 12, BufferUsage.VertexBuffer));
+    }
+
+    // Draw the four-corner quad as two triangles through the alpha-
+    // blended fill pipeline. Caller supplies winding-order corners.
+    private void WriteGizmoQuadFill(CommandList cl, ReadOnlySpan<Vector3> corners, bool highlight)
+    {
+        EnsureGizmoPipelines();
+        var verts = new[]
+        {
+            corners[0], corners[1], corners[2],
+            corners[0], corners[2], corners[3],
+        };
+        cl.UpdateBuffer(_gizmoFillBuffer, 0, verts);
+        cl.UpdateBuffer(_worldBuffer, 0, Matrix4x4.Identity);
+        cl.SetPipeline(highlight ? _gizmoFillHighlightPipeline : _gizmoFillGrayPipeline);
+        cl.SetGraphicsResourceSet(0, _lineProjViewSet);
+        cl.SetGraphicsResourceSet(1, _lineWorldSet);
+        cl.SetVertexBuffer(0, _gizmoFillBuffer);
+        cl.Draw(6);
+    }
+
+    private void WriteGizmoSegment(CommandList cl, Vector3 a, Vector3 b, GizmoAxisPipeline pipeChoice)
+    {
+        EnsureGizmoPipelines();
+        var pipeline = pipeChoice switch
+        {
+            GizmoAxisPipeline.X => _gizmoXPipeline,
+            GizmoAxisPipeline.Y => _gizmoYPipeline,
+            GizmoAxisPipeline.Z => _gizmoZPipeline,
+            GizmoAxisPipeline.Gray => _gizmoGrayPipeline,
+            _ => _gizmoHighlightPipeline,
+        };
+        cl.UpdateBuffer(_gizmoLineBuffer, 0, new[] { a, b });
+        cl.UpdateBuffer(_worldBuffer, 0, Matrix4x4.Identity);
+        cl.SetPipeline(pipeline);
+        cl.SetGraphicsResourceSet(0, _lineProjViewSet);
+        cl.SetGraphicsResourceSet(1, _lineWorldSet);
+        cl.SetVertexBuffer(0, _gizmoLineBuffer);
+        cl.Draw(2);
     }
 
     private void AdvanceAndUpload(CommandList cl, SkinnedModelData model, float deltaTime)
@@ -2055,6 +3083,12 @@ void main() {
         public Pipeline Pipeline { get; set; }
         public Matrix4x4 WorldMatrix { get; set; } = Matrix4x4.Identity;
         public string Name { get; set; } = "";
+        // Hover-grouping id. -1 means "not part of any pickable entity"
+        // (used by .8 octree geometry, raw .b3d previews, etc.). All
+        // ModelData created within a single AddEntity / per-prop AddMap
+        // iteration share the same id, so hover-outlines highlight the
+        // whole prop rather than just the one body part the ray hit.
+        public int GroupId { get; set; } = -1;
     }
     
     // Per-vertex RGBA color. Normal is at location 2, Color at 3.
@@ -2149,6 +3183,8 @@ void main() {
         public Pipeline Pipeline { get; set; }
         public Matrix4x4 WorldMatrix { get; set; } = Matrix4x4.Identity;
         public string Name { get; set; } = "";
+        // See ModelData.GroupId — same purpose, applied to skinned parts.
+        public int GroupId { get; set; } = -1;
 
         // Animation state — owned per part. Multiple body parts driven by the same
         // skeleton currently sample independently; tolerable redundancy for now.

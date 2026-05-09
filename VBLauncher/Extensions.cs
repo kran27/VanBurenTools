@@ -70,13 +70,28 @@ public static class Extensions
 
     public static EMEPc ToEMEPc(this byte[] b)
     {
-        return new EMEPc
+        var ep = new EMEPc { index = b[12] };
+        if (b.Length >= 109)
         {
-            index = b[12],
-            p = new Vector3(BitConverter.ToSingle(b, 73), BitConverter.ToSingle(b, 77),
-                BitConverter.ToSingle(b, 81)),
-            r = BitConverter.ToSingle(b, 105)
-        };
+            // Standard 109-byte form: 60 bytes of socket payload sit
+            // between index and position.
+            ep.p = new Vector3(BitConverter.ToSingle(b, 73), BitConverter.ToSingle(b, 77),
+                BitConverter.ToSingle(b, 81));
+            ep.r = BitConverter.ToSingle(b, 105);
+        }
+        else if (b.Length >= 29)
+        {
+            // Compact 29-byte form seen in zz_TestMapsTest_Mesa_2.map:
+            // index (1 byte) immediately followed by position (3 floats)
+            // and rotation (1 float). No socket payload. Round-trips
+            // back to 109-byte form via EMEPc.ToByte (acceptable — only
+            // the test map ever shipped the compact layout).
+            ep.p = new Vector3(BitConverter.ToSingle(b, 13), BitConverter.ToSingle(b, 17),
+                BitConverter.ToSingle(b, 21));
+            ep.r = BitConverter.ToSingle(b, 25);
+        }
+        // else: too small to parse meaningfully — leave defaults.
+        return ep;
     }
 
     public static EMEFc ToEMEFc(this byte[] b)

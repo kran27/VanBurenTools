@@ -156,6 +156,28 @@ public partial class EditorWindow
     private SceneRenderer _sceneRenderer = null!;
     private GrpBrowserImGui _grpBrowserImGui = null!;
 
+    // Gizmo input state. Lives across frames while the user is dragging.
+    //   _gizmoDragAxis  -1 = idle, 0/1/2 = translate X/Y/Z, 3 = yaw
+    //                   rotate (around world Y), 4/5/6 = planar
+    //                   translate XY/XZ/YZ.
+    //   _gizmoDragStartCenter   entity pivot at drag start (world space).
+    //   _gizmoDragAppliedDelta  total translation already pushed via
+    //                           TranslateGroup, so we can write the
+    //                           final delta into EME2.l/EMEP on release
+    //                           without touching the entity until then.
+    //   _gizmoDragAppliedAngle  same but for the rotation ring — total
+    //                           yaw applied via RotateGroup since drag
+    //                           start, in radians.
+    //   _gizmoDragStartAngle    initial pivot→cursor angle in the XZ
+    //                           plane, captured at click. Δangle is
+    //                           computed against this each frame.
+    private int _gizmoDragAxis = -1;
+    private Vector3 _gizmoDragStartCenter;
+    private Vector2 _gizmoDragStartMouse;
+    private Vector3 _gizmoDragAppliedDelta;
+    private float _gizmoDragAppliedAngle;
+    private float _gizmoDragStartAngle;
+
     // FNV-1a 32-bit hash of the current file's serialized form, captured
     // on every successful scene rebuild. Each DrawX-that-loads-the-scene
     // re-computes this every frame and rebuilds the scene if it differs,
@@ -163,6 +185,370 @@ public partial class EditorWindow
     // the 3D viewport immediately. ResetTempValues() resets it to 0 so a
     // fresh file load always triggers the first-rebuild path.
     private uint _lastRenderHash;
+
+    // Per-frame routing for viewport picking + translate-gizmo input.
+    // `imageHovered` reflects whether the mouse is over the scene image
+    // this frame; `viewportPx` is its pixel size. Behaviour:
+    //   - Hover any pickable AABB → orange outline (HoveredGroupId).
+    //   - Left click on a pickable → SelectedGroupId = hit (or null on
+    //     click into empty space).
+    //   - With something selected and not yet dragging, hovering the
+    //     selection's gizmo axis line (within ~6 px in screen space)
+    //     paints that axis yellow.
+    //   - Left mouse press while hovering an axis enters drag mode for
+    //     that axis. Cursor delta is projected onto the axis in world
+    //     space and applied via TranslateGroup, leaving EME2 alone
+    //     until release.
+    //   - Drag release commits the accumulated delta to the source
+    //     EME2.l record; the existing hash-rebuild path picks up the
+    //     change next frame.
+    private void HandleViewportPickAndGizmo(bool imageHovered, Vector2 viewportPx)
+    {
+        // Cursor relative to the image. Used by both pick and axis test.
+        var imgMin = ImGui.GetItemRectMin();
+        var mp = ImGui.GetMousePos() - imgMin;
+
+        // ---- HoveredGroupId (always-on AABB feedback) ----
+        if (imageHovered && _gizmoDragAxis < 0)
+        {
+            _sceneRenderer.HoveredGroupId = _sceneRenderer.TryPickGroup(mp, viewportPx);
+        }
+        else
+        {
+            _sceneRenderer.HoveredGroupId = null;
+        }
+
+        // ---- Gizmo axis hover (yellow when over an axis line) ----
+        var hoveredAxis = -1;
+        if (imageHovered && _gizmoDragAxis < 0
+            && _sceneRenderer.SelectedGroupId.HasValue
+            && _sceneRenderer.TryGetGroupCenter(_sceneRenderer.SelectedGroupId.Value, out var pivot))
+        {
+            hoveredAxis = PickGizmoAxis(pivot, mp, viewportPx);
+            _sceneRenderer.GizmoActiveAxis = hoveredAxis;
+        }
+        else if (_gizmoDragAxis < 0)
+        {
+            _sceneRenderer.GizmoActiveAxis = -1;
+        }
+
+        // ---- Click handling ----
+        if (imageHovered && ImGui.IsMouseClicked(ImGuiMouseButton.Left) && _gizmoDragAxis < 0)
+        {
+            if (hoveredAxis >= 0)
+            {
+                _gizmoDragAxis = hoveredAxis;
+                _gizmoDragStartMouse = mp;
+                _sceneRenderer.GizmoActiveAxis = hoveredAxis;
+                if (_sceneRenderer.SelectedGroupId.HasValue
+                    && _sceneRenderer.TryGetGroupCenter(_sceneRenderer.SelectedGroupId.Value, out var startC))
+                {
+                    _gizmoDragStartCenter = startC;
+                }
+                _gizmoDragAppliedDelta = Vector3.Zero;
+                _gizmoDragAppliedAngle = 0f;
+                if (hoveredAxis == 3
+                    && TryRayPlanePivot(mp, viewportPx, _gizmoDragStartCenter, Vector3.UnitY, out var startHit))
+                {
+                    _gizmoDragStartAngle = MathF.Atan2(startHit.Z - _gizmoDragStartCenter.Z,
+                                                       startHit.X - _gizmoDragStartCenter.X);
+                }
+            }
+            else
+            {
+                // Plain pick — set or clear selection.
+                _sceneRenderer.SelectedGroupId = _sceneRenderer.TryPickGroup(mp, viewportPx);
+            }
+        }
+
+        // ---- Drag in progress ----
+        if (_gizmoDragAxis >= 0)
+        {
+            if (ImGui.IsMouseDown(ImGuiMouseButton.Left))
+            {
+                if (!_sceneRenderer.SelectedGroupId.HasValue)
+                {
+                    _gizmoDragAxis = -1;
+                    return;
+                }
+
+                if (_gizmoDragAxis <= 2)
+                {
+                    // Single-axis translate: project cursor onto the axis
+                    // line in world space; delta along the axis = drag.
+                    var axis = _gizmoDragAxis switch
+                    {
+                        0 => Vector3.UnitX,
+                        1 => Vector3.UnitY,
+                        _ => Vector3.UnitZ,
+                    };
+                    var startWorld = ScreenToAxisPoint(_gizmoDragStartMouse, viewportPx, _gizmoDragStartCenter, axis);
+                    var nowWorld   = ScreenToAxisPoint(mp,                    viewportPx, _gizmoDragStartCenter, axis);
+                    var totalDelta = (nowWorld - startWorld) * axis;
+
+                    var incremental = totalDelta - _gizmoDragAppliedDelta;
+                    if (incremental.LengthSquared() > 1e-12f)
+                    {
+                        _sceneRenderer.TranslateGroup(_sceneRenderer.SelectedGroupId.Value, incremental);
+                        _gizmoDragAppliedDelta = totalDelta;
+                    }
+                }
+                else if (_gizmoDragAxis == 3)
+                {
+                    // Yaw rotate: project cursor onto the XZ plane
+                    // through pivot, take the angle from pivot to hit.
+                    if (TryRayPlanePivot(mp, viewportPx, _gizmoDragStartCenter, Vector3.UnitY, out var hit))
+                    {
+                        var nowAngle = MathF.Atan2(hit.Z - _gizmoDragStartCenter.Z,
+                                                   hit.X - _gizmoDragStartCenter.X);
+                        // Negated so a clockwise drag (in the viewer's
+                        // sense) rotates the entity clockwise. atan2 in
+                        // XZ runs the opposite direction once you fold
+                        // in CreateRotationY's sign convention.
+                        var totalAngle = -WrapAngle(nowAngle - _gizmoDragStartAngle);
+                        var incremental = totalAngle - _gizmoDragAppliedAngle;
+                        if (MathF.Abs(incremental) > 1e-6f)
+                        {
+                            _sceneRenderer.RotateGroup(_sceneRenderer.SelectedGroupId.Value, incremental, _gizmoDragStartCenter);
+                            _gizmoDragAppliedAngle = totalAngle;
+                        }
+                    }
+                }
+                else
+                {
+                    // Planar translate: project both cursor positions
+                    // onto the plane through pivot whose normal is the
+                    // out-of-plane axis. Delta = current - start.
+                    var (a, b) = _sceneRenderer.PlaneAxes(_gizmoDragAxis);
+                    var planeNormal = Vector3.Cross(a, b); // unit
+                    if (TryRayPlanePivot(_gizmoDragStartMouse, viewportPx, _gizmoDragStartCenter, planeNormal, out var pStart)
+                     && TryRayPlanePivot(mp,                    viewportPx, _gizmoDragStartCenter, planeNormal, out var pNow))
+                    {
+                        var totalDelta = pNow - pStart;
+                        // Constrain to the plane (eliminate any normal-axis numerics).
+                        totalDelta -= Vector3.Dot(totalDelta, planeNormal) * planeNormal;
+
+                        var incremental = totalDelta - _gizmoDragAppliedDelta;
+                        if (incremental.LengthSquared() > 1e-12f)
+                        {
+                            _sceneRenderer.TranslateGroup(_sceneRenderer.SelectedGroupId.Value, incremental);
+                            _gizmoDragAppliedDelta = totalDelta;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                CommitGizmoDragToRecord();
+                _gizmoDragAxis = -1;
+                _gizmoDragAppliedDelta = Vector3.Zero;
+                _gizmoDragAppliedAngle = 0f;
+                _sceneRenderer.GizmoActiveAxis = -1;
+            }
+        }
+    }
+
+    // Write the accumulated drag delta(s) back to whichever record
+    // owns the selected group. Translation X is negated because AddMap
+    // builds the placement transform with -ent.l.X / -ep.p.X. Rotation
+    // sign matches the negation in CreateRotationY(-ent.l.W).
+    private void CommitGizmoDragToRecord()
+    {
+        if (!_sceneRenderer.SelectedGroupId.HasValue) return;
+        var gid = _sceneRenderer.SelectedGroupId.Value;
+        if (_sceneRenderer.GroupToMapEntity.TryGetValue(gid, out var ent))
+        {
+            ent.l = new Vector4(
+                ent.l.X - _gizmoDragAppliedDelta.X,
+                ent.l.Y + _gizmoDragAppliedDelta.Y,
+                ent.l.Z + _gizmoDragAppliedDelta.Z,
+                ent.l.W - _gizmoDragAppliedAngle);
+        }
+        else if (_sceneRenderer.GroupToEntryPoint.TryGetValue(gid, out var ep))
+        {
+            ep.p = new Vector3(
+                ep.p.X - _gizmoDragAppliedDelta.X,
+                ep.p.Y + _gizmoDragAppliedDelta.Y,
+                ep.p.Z + _gizmoDragAppliedDelta.Z);
+            ep.r -= _gizmoDragAppliedAngle;
+        }
+    }
+
+    // Cast the cursor ray and intersect it with the plane through
+    // `planePoint` whose normal is `planeNormal`. Used for the rotation
+    // ring (Y-up plane) and the planar-translate handles. Returns false
+    // when the ray is parallel to the plane.
+    private bool TryRayPlanePivot(Vector2 mp, Vector2 viewportPx, Vector3 planePoint, Vector3 planeNormal, out Vector3 hit)
+    {
+        hit = default;
+        var ndcX = mp.X / viewportPx.X * 2f - 1f;
+        var ndcY = 1f - mp.Y / viewportPx.Y * 2f;
+        if (!Matrix4x4.Invert(_sceneRenderer.GetViewProjection(), out var invVp)) return false;
+        var nearH = Vector4.Transform(new Vector4(ndcX, ndcY, 0f, 1f), invVp);
+        var farH  = Vector4.Transform(new Vector4(ndcX, ndcY, 1f, 1f), invVp);
+        if (nearH.W == 0f || farH.W == 0f) return false;
+        var nearW = new Vector3(nearH.X, nearH.Y, nearH.Z) / nearH.W;
+        var farW  = new Vector3(farH.X,  farH.Y,  farH.Z)  / farH.W;
+        var rayDir = Vector3.Normalize(farW - nearW);
+        var denom = Vector3.Dot(rayDir, planeNormal);
+        if (MathF.Abs(denom) < 1e-6f) return false;
+        var t = Vector3.Dot(planePoint - nearW, planeNormal) / denom;
+        if (t < 0f) return false;
+        hit = nearW + rayDir * t;
+        return true;
+    }
+
+    private static float WrapAngle(float a)
+    {
+        a = (a + MathF.PI) % MathF.Tau;
+        if (a < 0f) a += MathF.Tau;
+        return a - MathF.PI;
+    }
+
+    // Distance in screen pixels at which an axis "counts" as hovered.
+    private const float GizmoPickRadiusPx = 8f;
+
+    // Returns the axis/handle the mouse is over (closest match within
+    // the per-handle hit radius), or -1 for none. Numbering matches
+    // _gizmoDragAxis: 0/1/2 = X/Y/Z, 3 = yaw ring, 4/5/6 = XY/XZ/YZ
+    // planar squares. Order checks so planes win over the axes that
+    // border them (planes are inside the axis end-points), and the
+    // rotation ring is only picked when the mouse isn't over an axis.
+    private int PickGizmoAxis(Vector3 pivot, Vector2 mp, Vector2 viewportPx)
+    {
+        // 1. Planar-translate squares — point-in-quad test on the
+        //    screen-projected corners. Tested first because they sit
+        //    inside the axis lines and would lose otherwise.
+        for (var p = 4; p <= 6; p++)
+        {
+            Span<Vector3> corners3 = stackalloc Vector3[4];
+            _sceneRenderer.GetPlaneHandleCorners(p, pivot, corners3);
+            Span<Vector2> corners2 = stackalloc Vector2[4];
+            var allOnScreen = true;
+            for (var i = 0; i < 4; i++)
+            {
+                if (!_sceneRenderer.WorldToScreen(corners3[i], viewportPx, out corners2[i]))
+                {
+                    allOnScreen = false; break;
+                }
+            }
+            if (allOnScreen && PointInQuad(mp, corners2)) return p;
+        }
+
+        // 2. Translate axes
+        var len = _sceneRenderer.GizmoAxisLength(pivot);
+        Span<Vector3> ends = stackalloc Vector3[]
+        {
+            pivot + Vector3.UnitX * len,
+            pivot + Vector3.UnitY * len,
+            pivot + Vector3.UnitZ * len,
+        };
+        var bestAxis = -1;
+        var bestDist = GizmoPickRadiusPx;
+        if (_sceneRenderer.WorldToScreen(pivot, viewportPx, out var p0))
+        {
+            for (var i = 0; i < 3; i++)
+            {
+                if (!_sceneRenderer.WorldToScreen(ends[i], viewportPx, out var p1)) continue;
+                var d = PointSegmentDistance(mp, p0, p1);
+                if (d < bestDist)
+                {
+                    bestDist = d;
+                    bestAxis = i;
+                }
+            }
+        }
+        if (bestAxis >= 0) return bestAxis;
+
+        // 3. Rotation ring — closest screen-space distance to any
+        //    segment of the projected ring polygon.
+        Span<Vector3> ring3 = stackalloc Vector3[48];
+        _sceneRenderer.GetRotationRingPoints(pivot, ring3);
+        Span<Vector2> ring2 = stackalloc Vector2[48];
+        Span<bool> ringOk = stackalloc bool[48];
+        for (var i = 0; i < ring3.Length; i++)
+            ringOk[i] = _sceneRenderer.WorldToScreen(ring3[i], viewportPx, out ring2[i]);
+        var ringBest = GizmoPickRadiusPx;
+        for (var i = 0; i < ring3.Length; i++)
+        {
+            var j = (i + 1) % ring3.Length;
+            if (!ringOk[i] || !ringOk[j]) continue;
+            var d = PointSegmentDistance(mp, ring2[i], ring2[j]);
+            if (d < ringBest) ringBest = d;
+        }
+        return ringBest < GizmoPickRadiusPx ? 3 : -1;
+    }
+
+    private static bool PointInQuad(Vector2 p, Span<Vector2> q)
+    {
+        // Treat as two triangles (0,1,2) + (0,2,3); convex quads only,
+        // which the planar handles always are.
+        return PointInTri(p, q[0], q[1], q[2]) || PointInTri(p, q[0], q[2], q[3]);
+    }
+
+    private static bool PointInTri(Vector2 p, Vector2 a, Vector2 b, Vector2 c)
+    {
+        float Sign(Vector2 p1, Vector2 p2, Vector2 p3) =>
+            (p1.X - p3.X) * (p2.Y - p3.Y) - (p2.X - p3.X) * (p1.Y - p3.Y);
+        var d1 = Sign(p, a, b);
+        var d2 = Sign(p, b, c);
+        var d3 = Sign(p, c, a);
+        var hasNeg = d1 < 0 || d2 < 0 || d3 < 0;
+        var hasPos = d1 > 0 || d2 > 0 || d3 > 0;
+        return !(hasNeg && hasPos);
+    }
+
+    private static float PointSegmentDistance(Vector2 p, Vector2 a, Vector2 b)
+    {
+        var ab = b - a;
+        var ap = p - a;
+        var lenSq = ab.LengthSquared();
+        if (lenSq < 1e-6f) return Vector2.Distance(p, a);
+        var t = Math.Clamp(Vector2.Dot(ap, ab) / lenSq, 0f, 1f);
+        var proj = a + ab * t;
+        return Vector2.Distance(p, proj);
+    }
+
+    // Project the screen-space mouse position into world space and
+    // intersect that ray with the line { axisPoint + t*axisDir | t∈ℝ },
+    // returning the closest point on the axis line. Used during drag to
+    // map cursor motion to a world-space translation.
+    private Vector3 ScreenToAxisPoint(Vector2 mp, Vector2 viewportPx, Vector3 axisPoint, Vector3 axisDir)
+    {
+        // Build a world-space ray from the camera through `mp`.
+        var ndcX = mp.X / viewportPx.X * 2f - 1f;
+        var ndcY = 1f - mp.Y / viewportPx.Y * 2f;
+        if (!Matrix4x4.Invert(_sceneRenderer.GetViewProjection(), out var invVp))
+            return axisPoint;
+        var nearH = Vector4.Transform(new Vector4(ndcX, ndcY, 0f, 1f), invVp);
+        var farH  = Vector4.Transform(new Vector4(ndcX, ndcY, 1f, 1f), invVp);
+        if (nearH.W == 0f || farH.W == 0f) return axisPoint;
+        var nearW = new Vector3(nearH.X, nearH.Y, nearH.Z) / nearH.W;
+        var farW  = new Vector3(farH.X,  farH.Y,  farH.Z)  / farH.W;
+        var rayOrigin = nearW;
+        var rayDir = Vector3.Normalize(farW - nearW);
+
+        // Closest-point on two lines (the camera ray and the gizmo axis
+        // line). Standard formula: solve for s on the ray that minimises
+        // distance to the axis line.
+        var a = axisDir;          // axis dir (unit)
+        var b = rayDir;           // ray dir (unit)
+        var w0 = axisPoint - rayOrigin;
+        var aDotB = Vector3.Dot(a, b);
+        var denom = 1f - aDotB * aDotB;
+        if (MathF.Abs(denom) < 1e-6f) return axisPoint; // parallel
+        // Closest point on line a from line b:
+        //   s = ((u·v)(v·w0) − u·w0) / (1 − (u·v)²)
+        // The previous version divided by -denom, returning -s, which made
+        // the entity move in the opposite direction from the cursor.
+        var sc = (aDotB * Vector3.Dot(b, w0) - Vector3.Dot(a, w0)) / denom;
+        return axisPoint + a * sc;
+    }
+
+    // Hashes the resource via its existing ViewMatrix * ProjectionMatrix
+    // composition so HandleViewportPickAndGizmo can do its own
+    // projections without re-implementing the camera. (Kept inside the
+    // renderer because the camera is private there.)
 
     // Hashes the resource via its existing ToByte() serializer. Any
     // change to a field that affects ToByte's output will produce a
@@ -521,6 +907,9 @@ public partial class EditorWindow
                 if (ImGui.MenuItem("Print Camera Location/Rotation"))
                     _sceneRenderer.PrintCameraDiagnostics();
 
+                if (ImGui.MenuItem("Show Map Overlays", "", _sceneRenderer.ShowMapOverlays))
+                    _sceneRenderer.ShowMapOverlays = !_sceneRenderer.ShowMapOverlays;
+
                 ImGui.EndMenu();
             }
 
@@ -581,23 +970,52 @@ public partial class EditorWindow
             ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(0, 0));
             ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new Vector2(0, 0));
             ImGui.PushStyleVar(ImGuiStyleVar.ItemInnerSpacing, new Vector2(0, 0));
+            // Zero out the 1px frame border that AltUI's style applies to
+            // every frame widget. ImageButton honours that border by
+            // shrinking the displayed image by 2px and offsetting it
+            // (+1, +1), which destroys 1:1 texture sampling — every
+            // 1px line in the scene ends up averaged across two
+            // display pixels and develops gaps.
+            ImGui.PushStyleVar(ImGuiStyleVar.FrameBorderSize, 0f);
             ImGui.PushStyleColor(ImGuiCol.Button, Vector4.Zero); // Remove button background
             ImGui.PushStyleColor(ImGuiCol.ButtonHovered, Vector4.Zero); // Remove hover background
             ImGui.PushStyleColor(ImGuiCol.ButtonActive, Vector4.Zero); // Remove active background
             var availableSize = ImGui.GetContentRegionAvail();
+            // Logical (ImGui) display size is integer-floored so the
+            // ImageButton lays out on whole-pixel boundaries.
             uint pixelW = (uint)MathF.Max(1, MathF.Floor(availableSize.X));
             uint pixelH = (uint)MathF.Max(1, MathF.Floor(availableSize.Y));
+            // Clamp to the underlying framebuffer texture's actual
+            // dimensions. The framebuffer is fixed at desktop size at
+            // SceneRenderer construction; we render to a sub-rect inside
+            // it and crop the display via UVs so each texel maps 1:1 to
+            // a viewport pixel — never resampled.
+            pixelW = Math.Min(pixelW, _sceneRenderer.FbWidth);
+            pixelH = Math.Min(pixelH, _sceneRenderer.FbHeight);
             var drawSize = new Vector2(pixelW, pixelH);
             if (_sceneRenderer.Width != pixelW || _sceneRenderer.Height != pixelH)
             {
                 _sceneRenderer.HandleWindowResize(pixelW, pixelH);
             }
-            ImGui.ImageButton("SceneImage", _sceneRenderer.ImGuiBinding, drawSize);
-            _sceneRenderer.AllowInput = ImGui.IsItemHovered();
+            // UV crop: top-left (pixelW × pixelH) of the framebuffer
+            // texture. Anything outside this rect in the framebuffer is
+            // stale / unrendered and intentionally never sampled.
+            var uv0 = new Vector2(0f, 0f);
+            var uv1 = new Vector2(
+                pixelW / (float)_sceneRenderer.FbWidth,
+                pixelH / (float)_sceneRenderer.FbHeight);
+            ImGui.ImageButton("SceneImage", _sceneRenderer.ImGuiBinding, drawSize, uv0, uv1);
+            var imageHovered = ImGui.IsItemHovered();
+            // Disable WASD/orbit while a gizmo drag is in flight so the
+            // camera doesn't fly around when the user holds left mouse.
+            _sceneRenderer.AllowInput = imageHovered && _gizmoDragAxis < 0;
+
+            HandleViewportPickAndGizmo(imageHovered, drawSize);
+
             ImGui.End();
 
             ImGui.PopStyleColor(3); // Restore button styles
-            ImGui.PopStyleVar(3);   // Restore style variables
+            ImGui.PopStyleVar(4);   // FramePadding, ItemSpacing, ItemInnerSpacing, FrameBorderSize
         }
         
         switch (_currentFile)
@@ -714,7 +1132,7 @@ public partial class EditorWindow
         }
         else if (hash != _lastRenderHash)
         {
-            _sceneRenderer.Reset();
+            _sceneRenderer.Reset(preserveSelection: true);
             _sceneRenderer.AddEntity(_currentFile);
             _lastRenderHash = hash;
         }
@@ -745,14 +1163,17 @@ public partial class EditorWindow
             // where you need to navigate inside the geometry.
             _sceneRenderer.CameraMode = CameraMode.Free;
             _sceneRenderer.AddMap((Map)_currentFile);
+            _sceneRenderer.FocusCamera();
             _lastRenderHash = hash;
         }
         else if (hash != _lastRenderHash)
         {
             // Rebuild on edits (EME2 entity placement, EMAP.s1 octree
             // ref, etc.) without re-framing the camera so the user keeps
-            // their current vantage point.
-            _sceneRenderer.Reset();
+            // their current vantage point. Selection survives because
+            // group ids are allocated in deterministic EME2 order — the
+            // user's selected entity gets the same id post-rebuild.
+            _sceneRenderer.Reset(preserveSelection: true);
             _sceneRenderer.AddMap((Map)_currentFile);
             _lastRenderHash = hash;
         }
@@ -788,7 +1209,7 @@ public partial class EditorWindow
         }
         else if (hash != _lastRenderHash)
         {
-            _sceneRenderer.Reset();
+            _sceneRenderer.Reset(preserveSelection: true);
             _sceneRenderer.AddARM(_currentFile);
             _lastRenderHash = hash;
         }
