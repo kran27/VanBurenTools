@@ -655,7 +655,7 @@ public class B3DModel
             b3d.Model_Vertex_Position.Add(Coordinate);
             b3d.Model_Vertex_Texcoords.Add(Unknown2);
 
-            Normal.X = -f.ReadSingle();
+            Normal.X = f.ReadSingle();
             Normal.Y = f.ReadSingle();
             Normal.Z = f.ReadSingle();
             b3d.Model_Vertex_Normal.Add(Normal);

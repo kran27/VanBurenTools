@@ -3217,6 +3217,11 @@ void main() {
             throw new InvalidOperationException(
                 $"Skeleton has {gr2Skeleton.Skeleton.Bones.Count} bones, max {MaxBones}. Raise MaxBones (and the GLSL array size) to support it.");
 
+        // Match the static AddB3DModel path: legacy / VT=3 b3ds (no token
+        // 0x1C → FormatVer==1) need the 10× world scale. Without this the
+        // skinned variants (e.g. IT_MainMenu_boxcar) render at 1/10 size.
+        worldMatrix = ApplyLegacyCorrection(b3d, worldMatrix);
+
         var b3dToGr2 = GrannyFormats.MapB3dBonesToGr2Skeleton(b3d.Bones, gr2Skeleton.Skeleton);
 
         for (var matIdx = 0; matIdx < b3d.SubModels.Keys.Count; matIdx++)
