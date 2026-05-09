@@ -155,6 +155,7 @@ public partial class EditorWindow
     
     private SceneRenderer _sceneRenderer = null!;
     private GrpBrowserImGui _grpBrowserImGui = null!;
+    private AssetLibraryImGui _assetLibrary = null!;
 
     // Gizmo input state. Lives across frames while the user is dragging.
     //   _gizmoDragAxis  -1 = idle, 0/1/2 = translate X/Y/Z, 3 = yaw
@@ -396,6 +397,35 @@ public partial class EditorWindow
         if (t < 0f) return false;
         hit = nearW + rayDir * t;
         return true;
+    }
+
+    // Delete-key removal for the currently-selected map entity. Walks
+    // the same dictionaries CommitGizmoDragToRecord does (group → EME2c
+    // or EMEPc) and removes the matching record from the loaded Map's
+    // list. The hash-driven rebuild picks up the change next frame.
+    // Skipped while ImGui is consuming keyboard input (so Delete still
+    // works in inspector text fields), and during an active gizmo drag.
+    private void HandleDeleteSelected()
+    {
+        if (_gizmoDragAxis >= 0) return;
+        if (!_sceneRenderer.SelectedGroupId.HasValue) return;
+        if (_currentFile is not Map map) return;
+        if (ImGui.GetIO().WantTextInput) return;
+        if (!ImGui.IsKeyPressed(ImGuiKey.Delete)) return;
+
+        var gid = _sceneRenderer.SelectedGroupId.Value;
+        if (_sceneRenderer.GroupToMapEntity.TryGetValue(gid, out var ent))
+        {
+            map.EME2.Remove(ent);
+        }
+        else if (_sceneRenderer.GroupToEntryPoint.TryGetValue(gid, out var ep))
+        {
+            map.EMEP.Remove(ep);
+        }
+        else return;
+
+        _sceneRenderer.SelectedGroupId = null;
+        _sceneRenderer.HoveredGroupId = null;
     }
 
     private static float WrapAngle(float a)
@@ -642,6 +672,32 @@ public partial class EditorWindow
                 _currentFile = resource!;
             });
 
+        // Asset library: standalone window, used to drop new entities
+        // into the currently-loaded map. The placement callback below
+        // appends to the loaded Map's EME2 list and selects the new
+        // entry so the gizmo appears immediately and the user can move
+        // it. Bails silently when no map is loaded — the menu item is
+        // available regardless, so the user finds out by clicking.
+        _assetLibrary = new AssetLibraryImGui(_graphicsDevice,
+            placeInMap: (name, ext) =>
+            {
+                if (_currentFile is not Map map) return;
+                var spawn = _sceneRenderer.GetCameraGroundTarget();
+                // World→record: AddMap places entities at (-l.X, l.Y, l.Z)
+                // so we negate X back when storing.
+                var ent = new EME2c
+                {
+                    name = $"{name}.{ext}",
+                    l = new Vector4(-spawn.X, spawn.Y, spawn.Z, 0f),
+                };
+                map.EME2.Add(ent);
+                // The next DrawMap() will see the hash mismatch, rebuild
+                // the scene with the new entity, and the user's gizmo
+                // can grab it. Pre-select by group id: the new entity
+                // gets the highest id since it's appended last.
+                _sceneRenderer.SelectedGroupId = map.EME2.Count;
+            });
+
         MainLoop();
     }
 
@@ -687,6 +743,7 @@ public partial class EditorWindow
             // No-op when the user hasn't toggled it visible. Has its own
             // ImGui context so we save/restore the editor context around it.
             _grpBrowserImGui.Frame((float)targetFrameTime);
+            _assetLibrary.Frame((float)targetFrameTime);
 
             Sdl2WindowExtensions.UpdateMouseCursor();
 
@@ -925,6 +982,8 @@ public partial class EditorWindow
                     ExtractAllGRPFiles(true);
                 if (ImGui.MenuItem("Show .grp Browser", "", _grpBrowserImGui.IsOpen))
                     _grpBrowserImGui.Toggle();
+                if (ImGui.MenuItem("Asset Library", "", _assetLibrary.IsOpen))
+                    _assetLibrary.Toggle();
 
                 if (ImGui.MenuItem(".png to .rle"))
                 {
@@ -1011,6 +1070,7 @@ public partial class EditorWindow
             _sceneRenderer.AllowInput = imageHovered && _gizmoDragAxis < 0;
 
             HandleViewportPickAndGizmo(imageHovered, drawSize);
+            HandleDeleteSelected();
 
             ImGui.End();
 

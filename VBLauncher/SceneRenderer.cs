@@ -2698,6 +2698,97 @@ void main() {
     // _camera field.
     public Matrix4x4 GetViewProjection() => _camera.ViewMatrix * _camera.ProjectionMatrix;
 
+    // Combine the world-space AABBs of every model currently in the
+    // scene (static + skinned). Used by the thumbnail renderer to frame
+    // an entity that was just AddEntity'd. Returns false if nothing
+    // pickable is present.
+    public bool TryGetCombinedAabb(out Vector3 min, out Vector3 max)
+    {
+        min = new Vector3(float.PositiveInfinity);
+        max = new Vector3(float.NegativeInfinity);
+        var any = false;
+        foreach (var m in _models)
+        {
+            if (TryGetModelWorldAabb(m, out var lo, out var hi))
+            {
+                min = Vector3.Min(min, lo);
+                max = Vector3.Max(max, hi);
+                any = true;
+            }
+        }
+        foreach (var m in _skinnedModels)
+        {
+            if (TryGetSkinnedModelWorldAabb(m, out var lo, out var hi))
+            {
+                min = Vector3.Min(min, lo);
+                max = Vector3.Max(max, hi);
+                any = true;
+            }
+        }
+        return any;
+    }
+
+    // Set up an isometric framing of the bbox + a single bright
+    // directional "headlight" coming from the camera. The thumbnail
+    // renderer calls this just before DrawScene to produce a uniform,
+    // glamour-shot-style render of whatever was just added.
+    public void ConfigureForThumbnail(Vector3 min, Vector3 max)
+    {
+        var center = (min + max) * 0.5f;
+        var extent = max - min;
+        var maxDim = MathF.Max(extent.X, MathF.Max(extent.Y, extent.Z));
+        if (maxDim < 1f) maxDim = 1f;
+
+        // Classic 45°/35.264° isometric direction. Pull the camera
+        // ~5× farther than the bbox + drop FOV to ~20° to approximate
+        // an orthographic look — wider FOV at short distance produced
+        // visible perspective skew on tall items (boxcar etc.). The
+        // narrow FOV × longer distance keeps the bbox the same on-
+        // screen size while flattening the projection.
+        var isoDir = Vector3.Normalize(new Vector3(1f, 1f, 1f));
+        var dist = maxDim * 5f;
+        var eye = center + isoDir * dist;
+        _camera.FieldOfView = 0.35f;
+        _camera.NearDistance = MathF.Max(0.05f, dist * 0.05f);
+        _camera.FarDistance = dist * 4f;
+        _camera.SetLookAt(eye, center);
+
+        // Camera-positioned directional light. Type 4 in the shader
+        // skips distance falloff and reads PositionType.xyz as the
+        // light direction L (surface lit when N·L > 0). For a headlight
+        // we want L ≈ -cameraForward so surfaces facing the camera
+        // light up — i.e. point L from the scene back toward the eye.
+        var camForward = Vector3.Normalize(center - eye);
+        var L = -camForward;
+        Array.Clear(_gpuLights);
+        _gpuLights[0] = new GpuLight
+        {
+            PositionType     = new Vector4(L.X, L.Y, L.Z, 4f),
+            ColorRadius      = new Vector4(1f, 1f, 1f, 1_000_000f),
+            DirectionFalloff = new Vector4(0f, 0f, 0f, 0.99f),
+            ConeAndFlags     = new Vector4(1f, 1f, 0f, 0f),
+        };
+        _lightHeader.Header = new Vector4(1f, 0f, 0f, 0f);
+        _lightHeader.AmbientCamera = new Vector4(0.45f, 0.45f, 0.48f, 0f);
+    }
+
+    // Pick a sensible world-space spawn point for "drop me here" actions
+    // (asset library placement, etc.). Strategy: shoot a ray from the
+    // camera through the screen centre and intersect Y = 0; if the ray
+    // doesn't cross the ground plane (camera looking up / parallel),
+    // fall back to camera + forward × 50.
+    public Vector3 GetCameraGroundTarget()
+    {
+        var origin = _camera.Position;
+        var forward = _camera.Forward;
+        if (MathF.Abs(forward.Y) > 1e-4f)
+        {
+            var t = -origin.Y / forward.Y;
+            if (t > 0f && t < 1e5f) return origin + forward * t;
+        }
+        return origin + forward * 50f;
+    }
+
     // Project a world-space point into viewport-pixel coordinates. `vis`
     // = false when the point is behind the camera or off the near
     // plane — caller should ignore the returned screen pos in that case.

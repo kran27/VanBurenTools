@@ -62,7 +62,7 @@ public class Camera
     public Vector3 Position { get => _position; set { _position = value; UpdateViewMatrix(); } }
 
     public float FarDistance { get => _far; set { _far = value; UpdatePerspectiveMatrix(); } }
-    public float FieldOfView => _fov;
+    public float FieldOfView { get => _fov; set { _fov = value; UpdatePerspectiveMatrix(); } }
     public float NearDistance { get => _near; set { _near = value; UpdatePerspectiveMatrix(); } }
 
     public float AspectRatio => _windowWidth / _windowHeight;
@@ -316,6 +316,24 @@ public class Camera
         Quaternion lookRotation = Quaternion.CreateFromYawPitchRoll(Yaw, Pitch, 0f);
         Vector3 lookDir = Vector3.Transform(-Vector3.UnitZ, lookRotation);
         return lookDir;
+    }
+
+    // Direct view-matrix override. Bypasses the yaw/pitch state entirely
+    // by computing a LookAt and stashing the resulting direction back into
+    // _yaw/_pitch (so subsequent free/orbit input picks up where this
+    // override left off). Used by the thumbnail renderer to position the
+    // camera at a fixed isometric angle without going through input.
+    public void SetLookAt(Vector3 from, Vector3 to)
+    {
+        _position = from;
+        var dir = to - from;
+        if (dir.LengthSquared() < 1e-8f) dir = -Vector3.UnitZ;
+        dir = Vector3.Normalize(dir);
+        _lookDirection = dir;
+        _pitch = MathF.Asin(MathF.Max(-1f, MathF.Min(1f, dir.Y)));
+        _yaw = MathF.Atan2(dir.X, -dir.Z);
+        _viewMatrix = Matrix4x4.CreateLookAt(_position, to, Vector3.UnitY);
+        ViewChanged?.Invoke(_viewMatrix);
     }
 
     public CameraInfo GetCameraInfo() => new()
