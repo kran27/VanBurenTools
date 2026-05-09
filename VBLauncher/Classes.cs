@@ -611,32 +611,84 @@ public class GCREc
 
 public class GWAMc
 {
-    public int Anim = 0;
-    public int AP = 0;
-    public int DmgType = 0;
-    public int MaxDmg = 0;
-    public int MinDmg = 0;
-    public int NameSR = 0;
-    public int Range = 0;
-    public int ShotsFired = 0;
-    public string VegName = 0.ToString();
+    public int Version = 5;
+
+    public int Anim;
+    public int DmgType;
+    public int ShotsFired;
+    public int F3;
+    public int F4;
+    public int F5;
+    public int Range;
+    public int F7;
+    public int F8;
+    public int MinDmg;
+    public int MaxDmg;
+    public byte Bool0;
+
+    public int F12;
+    public byte Bool1;
+    public int AP;
+    public byte Consumed;
+    public byte Thrown;
+
+    public int PoseOverride;
+
+    public int NameSR;
+
+    public string VegName = "";
+
+    public byte Byte31 = 1;
+    public byte Byte32;
 
     public IEnumerable<byte> ToByte()
     {
-        var ret = new byte[79 + VegName.Length + 1];
+        using var ms = new MemoryStream();
+        using var bw = new BinaryWriter(ms);
+
+        bw.Write(Anim);
+        bw.Write(DmgType);
+        bw.Write(ShotsFired);
+        bw.Write(F3);
+        bw.Write(F4);
+        bw.Write(F5);
+        bw.Write(Range);
+        bw.Write(F7);
+        bw.Write(F8);
+        bw.Write(MinDmg);
+        bw.Write(MaxDmg);
+        bw.Write(Bool0);
+
+        if (Version != 0)
+        {
+            bw.Write(F12);
+            bw.Write(Bool1);
+            bw.Write(AP);
+            bw.Write(Consumed);
+            bw.Write(Thrown);
+        }
+
+        if (Version >= 2) bw.Write(PoseOverride);
+        if (Version >= 3) bw.Write(NameSR);
+        if (Version >= 4)
+        {
+            var nb = Encoding.ASCII.GetBytes(VegName);
+            bw.Write((ushort)nb.Length);
+            bw.Write(nb);
+        }
+        if (Version >= 5)
+        {
+            bw.Write(Byte31);
+            bw.Write(Byte32);
+        }
+
+        var body = ms.ToArray();
+        var total = 12 + body.Length;
+        var ret = new byte[total];
         ret.Write(0, "GWAM");
-        ret.Write(4, 5);
-        ret.Write(8, 80 + VegName.Length);
-        ret.Write(12, Anim);
-        ret.Write(16, DmgType);
-        ret.Write(20, ShotsFired);
-        ret.Write(36, Range);
-        ret.Write(48, MinDmg);
-        ret.Write(52, MaxDmg);
-        ret.Write(62, AP);
-        ret.Write(72, NameSR);
-        ret.Write(78, VegName);
-        ret.Write(ret.Length - 2, 1);
+        ret.Write(4, Version);
+        ret.Write(8, total);
+        ret.Write(12, body);
         return ret;
     }
 }
@@ -1015,9 +1067,71 @@ public class GIAMc
 
 public class GIWPc
 {
+    public int Version;
+
+    public int WeaponClass;
+    public int F237;
+    public int F239;
+    public int F240;
+    public int F242;
+    public string Name = "";
+    public int F250;
+    public int F251;
+    public int F252;
+    public int F253;
+    public int F254;
+    public int F255;
+    public int F256;
+
+    public int F238;
+    public int F241;
+
+    public List<GWAMc> AttackModes = [];
+
     public IEnumerable<byte> ToByte()
     {
-        return [];
+        using var ms = new MemoryStream();
+        using var bw = new BinaryWriter(ms);
+
+        bw.Write(WeaponClass);
+        bw.Write(F237);
+        bw.Write(F239);
+        bw.Write(F240);
+        bw.Write(F242);
+
+        var nb = Encoding.ASCII.GetBytes(Name);
+        bw.Write((ushort)nb.Length);
+        bw.Write(nb);
+
+        bw.Write(F250);
+        bw.Write(F251);
+        bw.Write(F252);
+        bw.Write(F253);
+        bw.Write(F254);
+        bw.Write(F255);
+        bw.Write(F256);
+        bw.Write(AttackModes.Count);
+
+        if (Version != 0)
+        {
+            bw.Write(F238);
+            bw.Write(F241);
+        }
+
+        foreach (var am in AttackModes)
+        {
+            am.Version = Version;
+            bw.Write(am.ToByte().ToArray());
+        }
+
+        var body = ms.ToArray();
+        var total = 12 + body.Length;
+        var ret = new byte[total];
+        ret.Write(0, "GIWP");
+        ret.Write(4, Version);
+        ret.Write(8, total);
+        ret.Write(12, body);
+        return ret;
     }
 }
 

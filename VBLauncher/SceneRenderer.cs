@@ -295,14 +295,12 @@ void main() {
     // is ignored at output anyway. IMAGE_ALPHA cutout cases are routed to
     // the existing alpha-tested pipeline, not here.
     //
-    // No fsin_color multiply on the LM path. The engine's BASE_LM_2X stage
-    // chain technically does `tex × diffuse × LM × 2X`, but on lightmapped
-    // surfaces the per-vertex DIFU bake encodes the *same* directional
-    // lighting that already lives in the LM atlas — applying both produces
-    // a double-shaded look (visually reads as a normal-direction tint
-    // because both bakes correlate with surface normals). The .8 reader
-    // already pre-doubles DIFU for the no-LM path; keeping that intact and
-    // sampling LM at native gives the correct result on lightmapped faces.
+    // BASE_LM_2X engine stages collapse to `tex × DIFU_disk × LM × 2`. Our
+    // .8 reader pre-doubles DIFU on decode (half-brightness bake), so the
+    // formula in our space is `tex × fsin_color × LM` — no extra ×2. Earlier
+    // we dropped fsin_color here on the theory that DIFU + LM duplicated
+    // the same lighting, but it left painted/stained vertex tints invisible
+    // on LM faces; matching the engine's real stage chain restores them.
     //
     // AmbientCamera ref is REAL, not a `* 0.0` placeholder — SPIRV-Cross /
     // fxc happily constant-fold a `* 0` away, which strips the LightInfo
@@ -311,7 +309,129 @@ void main() {
     // Symptom: draws silently produce no output. We mix a small ambient
     // lift into the LM term so the binding survives every backend.
     vec3 ambient = uLights.AmbientCamera.xyz * 0.1;
-    fsout_color = vec4(tex.rgb * (lm.rgb + ambient), 1.0);
+    // Keep fsin_normal / fsin_worldPos alive in the compiled HLSL. The
+    // vertex shader writes them at locations 1 and 2; if the fragment
+    // doesn't reference them, SPIRV-Cross drops the inputs and the
+    // remaining TEXCOORD slots get renumbered — fsin_color (location 3)
+    // ends up being read out of fsin_normal's slot, which paints the
+    // surface using the world normal as RGB (top → green, sides → red/blue).
+    // Multiply by AmbientCamera.w (a uniform that we set to 0) so the
+    // contribution is invisible but the compiler can't fold the load
+    // away.
+    // Plain BASE_LM technique: tex × DIFU × LM, no modulation.
+    fsout_color = vec4(tex.rgb * fsin_color.rgb * (lm.rgb + ambient), 1.0);
+}";
+
+    // BASE_LM_2X variant. Engine stage chain ends in MODULATE2X, which
+    // is `clamp(prev × LM × 2, 0, 1)` — boosts the baked LM intensity
+    // (atlases are baked at half-brightness so the doubling lands them
+    // at displayed values). Per-material routing in Add8Model decides
+    // which pipeline a tile takes based on its technique name.
+    private const string Lightmapped2XFragmentCode = @"#version 450
+#define MAX_LIGHTS 16
+
+layout(location = 0) in vec2 fsin_texCoords;
+layout(location = 1) in vec3 fsin_normal;
+layout(location = 2) in vec3 fsin_worldPos;
+layout(location = 3) in vec4 fsin_color;
+layout(location = 4) in vec2 fsin_lmCoords;
+
+layout(location = 0) out vec4 fsout_color;
+
+layout(set = 1, binding = 1) uniform texture2D SurfaceTexture;
+layout(set = 1, binding = 2) uniform sampler   SurfaceSampler;
+layout(set = 1, binding = 3) uniform texture2D LightmapTexture;
+layout(set = 1, binding = 4) uniform sampler   LightmapSampler;
+
+layout(set = 0, binding = 3) uniform LightInfo {
+    vec4 Header;
+    vec4 AmbientCamera;
+    vec4 CameraPos;
+    vec4 Lights[MAX_LIGHTS * 4];
+} uLights;
+
+void main() {
+    vec4 tex = texture(sampler2D(SurfaceTexture,  SurfaceSampler),  fsin_texCoords);
+    vec4 lm  = texture(sampler2D(LightmapTexture, LightmapSampler), fsin_lmCoords);
+    vec3 ambient = uLights.AmbientCamera.xyz * 0.1;
+    vec3 keepAlive = (fsin_normal + fsin_worldPos) * uLights.AmbientCamera.w;
+    // ×2 clamped per MODULATE2X. Clamping the LM term BEFORE multiplying
+    // by DIFU prevents bright atlas samples from compensating for DIFU's
+    // fade-to-black at the periphery.
+    vec3 lmMod = min(lm.rgb * 2.0, vec3(1.0));
+    fsout_color = vec4(tex.rgb * fsin_color.rgb * (lmMod + ambient) + keepAlive, 1.0);
+}";
+
+    // Alpha-tested LM fragment shader. Same shading math as the regular
+    // LM path, but adds the texture-alpha discard so foliage / fence /
+    // grate cutouts work on lightmapped .8 surfaces. Without this, the
+    // useImageAlpha materials would be forced onto _pipeline (which has
+    // discard but no LM modulation) and end up brighter than their LM
+    // neighbours.
+    private const string AlphaLightmappedFragmentCode = @"#version 450
+#define MAX_LIGHTS 16
+
+layout(location = 0) in vec2 fsin_texCoords;
+layout(location = 1) in vec3 fsin_normal;
+layout(location = 2) in vec3 fsin_worldPos;
+layout(location = 3) in vec4 fsin_color;
+layout(location = 4) in vec2 fsin_lmCoords;
+
+layout(location = 0) out vec4 fsout_color;
+
+layout(set = 1, binding = 1) uniform texture2D SurfaceTexture;
+layout(set = 1, binding = 2) uniform sampler   SurfaceSampler;
+layout(set = 1, binding = 3) uniform texture2D LightmapTexture;
+layout(set = 1, binding = 4) uniform sampler   LightmapSampler;
+
+layout(set = 0, binding = 3) uniform LightInfo {
+    vec4 Header;
+    vec4 AmbientCamera;
+    vec4 CameraPos;
+    vec4 Lights[MAX_LIGHTS * 4];
+} uLights;
+
+void main() {
+    vec4 tex = texture(sampler2D(SurfaceTexture,  SurfaceSampler),  fsin_texCoords);
+    if (tex.a < 0.45) discard;
+    vec4 lm  = texture(sampler2D(LightmapTexture, LightmapSampler), fsin_lmCoords);
+    vec3 ambient = uLights.AmbientCamera.xyz * 0.1;
+    vec3 keepAlive = (fsin_normal + fsin_worldPos) * uLights.AmbientCamera.w;
+    fsout_color = vec4(tex.rgb * fsin_color.rgb * (lm.rgb + ambient) + keepAlive, 1.0);
+}";
+
+    // Alpha-tested 2X variant: BASE_LM_IMAGE_ALPHA_2X / similar.
+    private const string AlphaLightmapped2XFragmentCode = @"#version 450
+#define MAX_LIGHTS 16
+
+layout(location = 0) in vec2 fsin_texCoords;
+layout(location = 1) in vec3 fsin_normal;
+layout(location = 2) in vec3 fsin_worldPos;
+layout(location = 3) in vec4 fsin_color;
+layout(location = 4) in vec2 fsin_lmCoords;
+
+layout(location = 0) out vec4 fsout_color;
+
+layout(set = 1, binding = 1) uniform texture2D SurfaceTexture;
+layout(set = 1, binding = 2) uniform sampler   SurfaceSampler;
+layout(set = 1, binding = 3) uniform texture2D LightmapTexture;
+layout(set = 1, binding = 4) uniform sampler   LightmapSampler;
+
+layout(set = 0, binding = 3) uniform LightInfo {
+    vec4 Header;
+    vec4 AmbientCamera;
+    vec4 CameraPos;
+    vec4 Lights[MAX_LIGHTS * 4];
+} uLights;
+
+void main() {
+    vec4 tex = texture(sampler2D(SurfaceTexture,  SurfaceSampler),  fsin_texCoords);
+    if (tex.a < 0.45) discard;
+    vec4 lm  = texture(sampler2D(LightmapTexture, LightmapSampler), fsin_lmCoords);
+    vec3 ambient = uLights.AmbientCamera.xyz * 0.1;
+    vec3 keepAlive = (fsin_normal + fsin_worldPos) * uLights.AmbientCamera.w;
+    vec3 lmMod = min(lm.rgb * 2.0, vec3(1.0));
+    fsout_color = vec4(tex.rgb * fsin_color.rgb * (lmMod + ambient) + keepAlive, 1.0);
 }";
 
     private static readonly string SkinnedVertexCode = @"#version 450
@@ -1247,11 +1367,11 @@ void main() {
                 && matRecordIndex < model.Materials.Count
                 && model.Materials[matRecordIndex].UsesImageAlpha;
 
-            // Lightmap routing: only enable the LM pipeline when the IDXS group
-            // actually selected a baked atlas AND the file ships LMUVs. Faces
-            // with lmPage == -1 keep the existing opaque/alpha pipelines so the
-            // unlit "skybox-style" non-LM batches don't pay for a 1×1 white
-            // sample — and we don't lose the dynamic-light additive on them.
+            // Lightmap routing: enable the LM pipeline whenever the IDXS
+            // group selected a baked atlas AND the file ships LMUVs.
+            // Faces with lmPage == -1 keep the existing opaque/alpha
+            // pipelines so we don't lose the dynamic-light additive on
+            // them.
             var useLightmap = lmPage >= 0 && model.GVL.Count > 0;
 
             // Resolve the lightmap atlas filename via TXTD: lmPage is an offset
@@ -1268,10 +1388,20 @@ void main() {
                     useLightmap = false; // out of range = no usable lightmap entry
             }
 
+            // Detect MODULATE2X variant from the engine's technique name
+            // (BASE_LM_2X, BASE_LM_IMAGE_ALPHA_2X, etc.). The .8's
+            // MaterialRecord.Name is the technique string the engine
+            // matches against off_6FC800.
+            var techniqueName = matRecordIndex >= 0 && matRecordIndex < model.Materials.Count
+                ? model.Materials[matRecordIndex].Name
+                : "";
+            var is2X = techniqueName.EndsWith("_2X", StringComparison.OrdinalIgnoreCase);
+
             Pipeline chosenPipeline;
-            if (useLightmap)        chosenPipeline = _lightmappedPipeline;
-            else if (useImageAlpha) chosenPipeline = null; // _pipeline (alpha-tested)
-            else                    chosenPipeline = _opaquePipeline;
+            if (useLightmap && useImageAlpha) chosenPipeline = is2X ? _alphaLightmapped2XPipeline : _alphaLightmappedPipeline;
+            else if (useLightmap)             chosenPipeline = is2X ? _lightmapped2XPipeline : _lightmappedPipeline;
+            else if (useImageAlpha)           chosenPipeline = null; // _pipeline (alpha-tested, dynamic light)
+            else                              chosenPipeline = _opaquePipeline;
 
             var modelData = new ModelData
             {
@@ -1324,7 +1454,7 @@ void main() {
                     _worldTextureLayoutLM,
                     _worldBuffer,
                     modelData.SurfaceTextureView, _graphicsDevice.Aniso4xSampler,
-                    modelData.LightmapTextureView, _graphicsDevice.LinearSampler));
+                    modelData.LightmapTextureView, _lightmapSampler));
             }
             else
             {
@@ -1630,6 +1760,16 @@ void main() {
         _whiteLightmapTexture = Create1x1TextureFromColor(_graphicsDevice, factory, 1f, 1f, 1f);
         _whiteLightmapView = factory.CreateTextureView(_whiteLightmapTexture);
 
+        // Custom sampler for lightmap atlases. The default LinearSampler
+        // wraps (REPEAT), so an LMUV that nudges past a tile's reserved
+        // sub-rect samples the neighbouring tile's bake — produces bright
+        // bleed on edge tiles where the sub-rect inset isn't generous
+        // enough. CLAMP keeps the sample anchored to the tile's own pixels.
+        _lightmapSampler = factory.CreateSampler(new SamplerDescription(
+            SamplerAddressMode.Clamp, SamplerAddressMode.Clamp, SamplerAddressMode.Clamp,
+            SamplerFilter.MinLinear_MagLinear_MipLinear,
+            null, 0, 0, 0, 0, SamplerBorderColor.OpaqueBlack));
+
         _worldTextureLayoutLM = factory.CreateResourceLayout(new ResourceLayoutDescription(
             new ResourceLayoutElementDescription("WorldBuffer",      ResourceKind.UniformBuffer,    ShaderStages.Vertex),
             new ResourceLayoutElementDescription("SurfaceTexture",   ResourceKind.TextureReadOnly,  ShaderStages.Fragment),
@@ -1654,6 +1794,42 @@ void main() {
             new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.CounterClockwise, true, false),
             PrimitiveTopology.TriangleList,
             new ShaderSetDescription(new[] { lmVertexLayout }, lmShaders),
+            new[] { projViewLayout, _worldTextureLayoutLM },
+            _sceneFramebuffer.OutputDescription));
+
+        // Alpha-tested LM variant. Same vertex shader + layout + resource
+        // bindings; only the fragment shader differs (texture-alpha discard).
+        var alphaLmFrag = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(AlphaLightmappedFragmentCode), "main");
+        var alphaLmShaders = factory.CreateFromSpirv(lmVert, alphaLmFrag);
+        _alphaLightmappedPipeline = factory.CreateGraphicsPipeline(new GraphicsPipelineDescription(
+            BlendStateDescription.SingleOverrideBlend,
+            DepthStencilStateDescription.DepthOnlyLessEqual,
+            new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.CounterClockwise, true, false),
+            PrimitiveTopology.TriangleList,
+            new ShaderSetDescription(new[] { lmVertexLayout }, alphaLmShaders),
+            new[] { projViewLayout, _worldTextureLayoutLM },
+            _sceneFramebuffer.OutputDescription));
+
+        // 2X variants — same vertex layout/bindings, just different fragment.
+        var lm2xFrag = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(Lightmapped2XFragmentCode), "main");
+        var lm2xShaders = factory.CreateFromSpirv(lmVert, lm2xFrag);
+        _lightmapped2XPipeline = factory.CreateGraphicsPipeline(new GraphicsPipelineDescription(
+            BlendStateDescription.SingleOverrideBlend,
+            DepthStencilStateDescription.DepthOnlyLessEqual,
+            new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.CounterClockwise, true, false),
+            PrimitiveTopology.TriangleList,
+            new ShaderSetDescription(new[] { lmVertexLayout }, lm2xShaders),
+            new[] { projViewLayout, _worldTextureLayoutLM },
+            _sceneFramebuffer.OutputDescription));
+
+        var alphaLm2xFrag = new ShaderDescription(ShaderStages.Fragment, Encoding.UTF8.GetBytes(AlphaLightmapped2XFragmentCode), "main");
+        var alphaLm2xShaders = factory.CreateFromSpirv(lmVert, alphaLm2xFrag);
+        _alphaLightmapped2XPipeline = factory.CreateGraphicsPipeline(new GraphicsPipelineDescription(
+            BlendStateDescription.SingleOverrideBlend,
+            DepthStencilStateDescription.DepthOnlyLessEqual,
+            new RasterizerStateDescription(FaceCullMode.None, PolygonFillMode.Solid, FrontFace.CounterClockwise, true, false),
+            PrimitiveTopology.TriangleList,
+            new ShaderSetDescription(new[] { lmVertexLayout }, alphaLm2xShaders),
             new[] { projViewLayout, _worldTextureLayoutLM },
             _sceneFramebuffer.OutputDescription));
 
@@ -1889,6 +2065,14 @@ void main() {
     // mesh render correctly without a separate pipeline.
     private Texture _whiteLightmapTexture;
     private TextureView _whiteLightmapView;
+    private Sampler _lightmapSampler;
+    private Pipeline _alphaLightmappedPipeline;
+    // 2X variants — engine technique names ending in `_2X` use a
+    // MODULATE2X stage on the LM atlas; clamping happens at the LM
+    // term, not the whole product, so DIFU's fade-to-black at the
+    // periphery isn't compensated by saturated atlas samples.
+    private Pipeline _lightmapped2XPipeline;
+    private Pipeline _alphaLightmapped2XPipeline;
 
     public void AddModel(B3DModel model, int materialIndex, List<Vector2>? uvs = null)
     {
@@ -2182,8 +2366,11 @@ void main() {
 
         // Render each model. Opaque + lightmapped first (depth-write), then
         // alpha-blended last so partial transparencies composite over them.
-        foreach (var model in _models.Where(m => m.Pipeline == _opaquePipeline || m.Pipeline == _lightmappedPipeline)) draw(model);
-        foreach (var model in _models.Where(m => m.Pipeline != _opaquePipeline && m.Pipeline != _lightmappedPipeline)) draw(model);
+        bool IsLmFamily(Pipeline p) =>
+            p == _opaquePipeline || p == _lightmappedPipeline || p == _alphaLightmappedPipeline
+            || p == _lightmapped2XPipeline || p == _alphaLightmapped2XPipeline;
+        foreach (var model in _models.Where(m => IsLmFamily(m.Pipeline))) draw(model);
+        foreach (var model in _models.Where(m => !IsLmFamily(m.Pipeline))) draw(model);
 
         // Skinned models: advance time, sample animation, bridge into B3D space, upload
         // bone palette, draw. Each model owns its own time accumulator + cached pose so

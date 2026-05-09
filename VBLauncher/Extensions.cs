@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -252,18 +253,55 @@ public static class Extensions
 
     public static GWAMc ToGWAMc(this byte[] b)
     {
-        return new GWAMc
+        var ms = new MemoryStream(b);
+        var br = new BinaryReader(ms);
+        br.BaseStream.Seek(4, SeekOrigin.Begin); // skip "GWAM"
+        return ReadGWAMBody(br);
+    }
+
+    private static GWAMc ReadGWAMBody(BinaryReader br)
+    {
+        var version = br.ReadInt32();
+        br.ReadInt32(); // total chunk size
+
+        var am = new GWAMc { Version = version };
+
+        am.Anim = br.ReadInt32();
+        am.DmgType = br.ReadInt32();
+        am.ShotsFired = br.ReadInt32();
+        am.F3 = br.ReadInt32();
+        am.F4 = br.ReadInt32();
+        am.F5 = br.ReadInt32();
+        am.Range = br.ReadInt32();
+        am.F7 = br.ReadInt32();
+        am.F8 = br.ReadInt32();
+        am.MinDmg = br.ReadInt32();
+        am.MaxDmg = br.ReadInt32();
+        am.Bool0 = br.ReadByte();
+
+        if (version != 0)
         {
-            Anim = BitConverter.ToInt32(b, 12),
-            DmgType = BitConverter.ToInt32(b, 16),
-            ShotsFired = BitConverter.ToInt32(b, 20),
-            Range = BitConverter.ToInt32(b, 36),
-            MinDmg = BitConverter.ToInt32(b, 48),
-            MaxDmg = BitConverter.ToInt32(b, 52),
-            AP = BitConverter.ToInt32(b, 62),
-            NameSR = BitConverter.ToInt32(b, 72),
-            VegName = GetString(b, 78, b[76])
-        };
+            am.F12 = br.ReadInt32();
+            am.Bool1 = br.ReadByte();
+            am.AP = br.ReadInt32();
+            am.Consumed = br.ReadByte();
+            am.Thrown = br.ReadByte();
+        }
+
+        if (version >= 2) am.PoseOverride = br.ReadInt32();
+        if (version >= 3) am.NameSR = br.ReadInt32();
+        if (version >= 4)
+        {
+            var nl = br.ReadUInt16();
+            am.VegName = nl > 0 ? Encoding.ASCII.GetString(br.ReadBytes(nl)) : "";
+        }
+        if (version >= 5)
+        {
+            am.Byte31 = br.ReadByte();
+            am.Byte32 = br.ReadByte();
+        }
+
+        return am;
     }
 
     public static GCREc ToGCREc(this byte[] b)
@@ -480,7 +518,51 @@ public static class Extensions
 
     public static GIWPc ToGIWPc(this byte[] b)
     {
-        return new GIWPc();
+        var ms = new MemoryStream(b);
+        var br = new BinaryReader(ms);
+
+        br.BaseStream.Seek(4, SeekOrigin.Begin); // skip "GIWP"
+        var version = br.ReadInt32();
+        var totalSize = br.ReadInt32();
+
+        var w = new GIWPc { Version = version };
+
+        w.WeaponClass = br.ReadInt32();
+        w.F237 = br.ReadInt32();
+        w.F239 = br.ReadInt32();
+        w.F240 = br.ReadInt32();
+        w.F242 = br.ReadInt32();
+
+        var nameLen = br.ReadUInt16();
+        w.Name = nameLen > 0 ? Encoding.ASCII.GetString(br.ReadBytes(nameLen)) : "";
+
+        w.F250 = br.ReadInt32();
+        w.F251 = br.ReadInt32();
+        w.F252 = br.ReadInt32();
+        w.F253 = br.ReadInt32();
+        w.F254 = br.ReadInt32();
+        w.F255 = br.ReadInt32();
+        w.F256 = br.ReadInt32();
+        var attackModeCount = br.ReadInt32();
+
+        if (version != 0)
+        {
+            w.F238 = br.ReadInt32();
+            w.F241 = br.ReadInt32();
+        }
+
+        for (var i = 0; i < attackModeCount; i++)
+            w.AttackModes.Add(ReadGWAM(br));
+
+        return w;
+    }
+
+    private static GWAMc ReadGWAM(BinaryReader br)
+    {
+        var id = br.ReadInt32();
+        if (id != 0x4D415747) // 'GWAM'
+            throw new InvalidDataException($"Expected GWAM sub-chunk, got 0x{id:X8}");
+        return ReadGWAMBody(br);
     }
 
     public static Socket ReadSocket(this byte[] b, int i)

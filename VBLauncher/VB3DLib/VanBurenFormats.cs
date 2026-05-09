@@ -1775,14 +1775,16 @@ public class _8Model
                     case "DIFU" when (wanted & 0x400) != 0:
                         // Stored as half-brightness BGRA: each channel is the displayed
                         // value / 2 so the engine can encode overbright (>1.0) lighting
-                        // by multiplying by 2 at sample time. We decode + clamp here.
+                        // by multiplying by 2 at sample time. We previously pre-doubled
+                        // here and clamped to 255, which discarded the upper half of
+                        // smooth fade-to-black gradients (any channel ≥ 128 saturated
+                        // to full white before the shader could see the difference).
+                        // Now we keep the file values verbatim and apply the ×2 in
+                        // the LM fragment shader where it can be clamped post-blend.
                         for (var v = 0; v < vc; v++)
                         {
                             byte bl = f.ReadByte(), gr = f.ReadByte(), rd = f.ReadByte(), al = f.ReadByte();
-                            int r = Math.Min(rd * 2, 255);
-                            int g = Math.Min(gr * 2, 255);
-                            int b = Math.Min(bl * 2, 255);
-                            GVD[baseIdx + v] = Color.FromArgb(al, r, g, b);
+                            GVD[baseIdx + v] = Color.FromArgb(al, rd, gr, bl);
                         }
                         wanted &= ~0x400;
                         break;
