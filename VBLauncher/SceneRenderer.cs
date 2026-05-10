@@ -318,8 +318,11 @@ void main() {
     // Multiply by AmbientCamera.w (a uniform that we set to 0) so the
     // contribution is invisible but the compiler can't fold the load
     // away.
-    // Plain BASE_LM technique: tex × DIFU × LM, no modulation.
-    fsout_color = vec4(tex.rgb * fsin_color.rgb * (lm.rgb + ambient), 1.0);
+    // Plain BASE_LM technique: tex × DIFU × LM × DIFU.a (alpha is the
+    // fade-to-black mask the engine bakes into the diffuse). Ambient
+    // additive tint also faded.
+    float fade = fsin_color.a;
+    fsout_color = vec4(tex.rgb * fsin_color.rgb * lm.rgb * fade + uLights.AmbientCamera.xyz * tex.rgb * fade, 1.0);
 }";
 
     // BASE_LM_2X variant. Engine stage chain ends in MODULATE2X, which
@@ -353,13 +356,19 @@ layout(set = 0, binding = 3) uniform LightInfo {
 void main() {
     vec4 tex = texture(sampler2D(SurfaceTexture,  SurfaceSampler),  fsin_texCoords);
     vec4 lm  = texture(sampler2D(LightmapTexture, LightmapSampler), fsin_lmCoords);
-    vec3 ambient = uLights.AmbientCamera.xyz * 0.1;
+    vec3 ambient = uLights.AmbientCamera.xyz;
     vec3 keepAlive = (fsin_normal + fsin_worldPos) * uLights.AmbientCamera.w;
-    // ×2 clamped per MODULATE2X. Clamping the LM term BEFORE multiplying
-    // by DIFU prevents bright atlas samples from compensating for DIFU's
-    // fade-to-black at the periphery.
-    vec3 lmMod = min(lm.rgb * 2.0, vec3(1.0));
-    fsout_color = vec4(tex.rgb * fsin_color.rgb * (lmMod + ambient) + keepAlive, 1.0);
+    // Engine MODULATE2X is `clamp(tex × DIFU × LM × 2, 0, 1)` with the
+    // additional fade contribution from DIFU's ALPHA channel — verified
+    // empirically against the .8 bake: 128 deep-fade verts have alpha=0,
+    // 120 gradient verts have alpha 96-127, 832 interior verts have
+    // alpha=255 — a perfect tracking of intended brightness. Without
+    // multiplying by alpha the gradient-zone tiles read brighter than
+    // the interior because their LM bake is at full sky intensity while
+    // their DIFU.rgb is mid-range. Folding alpha in collapses the fade
+    // properly to true black at the periphery.
+    float fade = fsin_color.a;
+    fsout_color = vec4(tex.rgb * fsin_color.rgb * lm.rgb * 2.0 * fade + ambient * tex.rgb * fade + keepAlive, 1.0);
 }";
 
     // Alpha-tested LM fragment shader. Same shading math as the regular
@@ -395,9 +404,9 @@ void main() {
     vec4 tex = texture(sampler2D(SurfaceTexture,  SurfaceSampler),  fsin_texCoords);
     if (tex.a < 0.45) discard;
     vec4 lm  = texture(sampler2D(LightmapTexture, LightmapSampler), fsin_lmCoords);
-    vec3 ambient = uLights.AmbientCamera.xyz * 0.1;
     vec3 keepAlive = (fsin_normal + fsin_worldPos) * uLights.AmbientCamera.w;
-    fsout_color = vec4(tex.rgb * fsin_color.rgb * (lm.rgb + ambient) + keepAlive, 1.0);
+    float fade = fsin_color.a;
+    fsout_color = vec4(tex.rgb * fsin_color.rgb * lm.rgb * fade + uLights.AmbientCamera.xyz * tex.rgb * fade + keepAlive, 1.0);
 }";
 
     // Alpha-tested 2X variant: BASE_LM_IMAGE_ALPHA_2X / similar.
@@ -428,10 +437,10 @@ void main() {
     vec4 tex = texture(sampler2D(SurfaceTexture,  SurfaceSampler),  fsin_texCoords);
     if (tex.a < 0.45) discard;
     vec4 lm  = texture(sampler2D(LightmapTexture, LightmapSampler), fsin_lmCoords);
-    vec3 ambient = uLights.AmbientCamera.xyz * 0.1;
+    vec3 ambient = uLights.AmbientCamera.xyz;
     vec3 keepAlive = (fsin_normal + fsin_worldPos) * uLights.AmbientCamera.w;
-    vec3 lmMod = min(lm.rgb * 2.0, vec3(1.0));
-    fsout_color = vec4(tex.rgb * fsin_color.rgb * (lmMod + ambient) + keepAlive, 1.0);
+    float fade = fsin_color.a;
+    fsout_color = vec4(tex.rgb * fsin_color.rgb * lm.rgb * 2.0 * fade + ambient * tex.rgb * fade + keepAlive, 1.0);
 }";
 
     private static readonly string SkinnedVertexCode = @"#version 450
@@ -1186,7 +1195,12 @@ void main() {
         // attenuation. Static .8 geometry uses the opaque shader which ignores
         // these — its lighting is pre-baked into per-vertex DIFU — but every
         // dynamic entity (critter, prop, default-PC) shades against this list.
-        var emapTint = (new Vector3(1) + EditorWindow.ColToVec3(map.EMAP.col)) / 2;
+        // Pass EMAP.col verbatim. The earlier `(1 + col) / 2` averaging
+        // biased pitch-black maps toward (0.5, 0.5, 0.5) ambient, which
+        // (combined with the additive `ambient × tex` lift in the LM
+        // shader) put a permanent glow on every surface — periphery
+        // tiles couldn't fade fully to black even with DIFU=0.
+        var emapTint = EditorWindow.ColToVec3(map.EMAP.col);
         UploadMapLights(loaded8?.Lights, emapTint, loaded8?.GetDominantLight());
 
         // Caller decides whether to FocusCamera. The editor's hash-driven
@@ -1279,9 +1293,10 @@ void main() {
         }
 
         _lightHeader.Header = new Vector4(n, 0f, 0f, 0f);
-        // matches the old shader's `0.3 * albedo` ambient baseline.
-        var amb = ambient * 0.3f;
-        _lightHeader.AmbientCamera = new Vector4(amb, 0f);
+        // Pass the EMAP tint at full strength — the LM shader applies it
+        // additively × tex, so a typical EMAP.col stays in (0,1) range
+        // without further scaling.
+        _lightHeader.AmbientCamera = new Vector4(ambient, 0f);
     }
     
     public void Add8Model(_8Model model)

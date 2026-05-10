@@ -1065,26 +1065,30 @@ public class GIAMc
     }
 }
 
+// GIWP fields named from IDA cross-references against F3.exe (GameWeapon::* methods).
+// WeaponClass enum: 1..5 = small arms (CalculateRangedToHit path, skill 0),
+// 6..8 = melee (CalculateMeleeToHit path, skill 1), 9..10 = big guns. Thrown weapons
+// override via the Thrown bool on each AttackMode. 0 in 40/51 shipped files = unset (test data).
 public class GIWPc
 {
-    public int Version;
+    public int Version = 1;
 
     public int WeaponClass;
-    public int F237;
-    public int F239;
-    public int F240;
-    public int F242;
-    public string Name = "";
-    public int F250;
-    public int F251;
-    public int F252;
-    public int F253;
-    public int F254;
-    public int F255;
-    public int F256;
+    public int PrimaryCaliber = -1;
+    public int PrimaryReloadDuration;
+    public int SecondaryCaliber = -1;
+    public int SecondaryReloadDuration;
+    public string ResourceName = "";  // Always empty in shipped data; std::string slot present in disk format.
+    public int Unknown250;            // Constructor default 1; copied across saves; no gameplay reader found.
+    public int PrimaryAmmoLoaded;
+    public int PrimaryAmmoCapacity;
+    public int SecondaryAmmoLoaded;
+    public int SecondaryAmmoCapacity;
+    public int Unknown255;            // 0 in 50/51 files; one weapon has 50.
+    public int Unknown256;            // Always 0 across all 51 shipped weapons; reserved.
 
-    public int F238;
-    public int F241;
+    public int PrimaryModifier;
+    public int SecondaryModifier;
 
     public List<GWAMc> AttackModes = [];
 
@@ -1094,28 +1098,28 @@ public class GIWPc
         using var bw = new BinaryWriter(ms);
 
         bw.Write(WeaponClass);
-        bw.Write(F237);
-        bw.Write(F239);
-        bw.Write(F240);
-        bw.Write(F242);
+        bw.Write(PrimaryCaliber);
+        bw.Write(PrimaryReloadDuration);
+        bw.Write(SecondaryCaliber);
+        bw.Write(SecondaryReloadDuration);
 
-        var nb = Encoding.ASCII.GetBytes(Name);
+        var nb = Encoding.ASCII.GetBytes(ResourceName);
         bw.Write((ushort)nb.Length);
         bw.Write(nb);
 
-        bw.Write(F250);
-        bw.Write(F251);
-        bw.Write(F252);
-        bw.Write(F253);
-        bw.Write(F254);
-        bw.Write(F255);
-        bw.Write(F256);
+        bw.Write(Unknown250);
+        bw.Write(PrimaryAmmoLoaded);
+        bw.Write(PrimaryAmmoCapacity);
+        bw.Write(SecondaryAmmoLoaded);
+        bw.Write(SecondaryAmmoCapacity);
+        bw.Write(Unknown255);
+        bw.Write(Unknown256);
         bw.Write(AttackModes.Count);
 
         if (Version != 0)
         {
-            bw.Write(F238);
-            bw.Write(F241);
+            bw.Write(PrimaryModifier);
+            bw.Write(SecondaryModifier);
         }
 
         foreach (var am in AttackModes)

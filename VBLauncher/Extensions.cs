@@ -528,27 +528,27 @@ public static class Extensions
         var w = new GIWPc { Version = version };
 
         w.WeaponClass = br.ReadInt32();
-        w.F237 = br.ReadInt32();
-        w.F239 = br.ReadInt32();
-        w.F240 = br.ReadInt32();
-        w.F242 = br.ReadInt32();
+        w.PrimaryCaliber = br.ReadInt32();
+        w.PrimaryReloadDuration = br.ReadInt32();
+        w.SecondaryCaliber = br.ReadInt32();
+        w.SecondaryReloadDuration = br.ReadInt32();
 
         var nameLen = br.ReadUInt16();
-        w.Name = nameLen > 0 ? Encoding.ASCII.GetString(br.ReadBytes(nameLen)) : "";
+        w.ResourceName = nameLen > 0 ? Encoding.ASCII.GetString(br.ReadBytes(nameLen)) : "";
 
-        w.F250 = br.ReadInt32();
-        w.F251 = br.ReadInt32();
-        w.F252 = br.ReadInt32();
-        w.F253 = br.ReadInt32();
-        w.F254 = br.ReadInt32();
-        w.F255 = br.ReadInt32();
-        w.F256 = br.ReadInt32();
+        w.Unknown250 = br.ReadInt32();
+        w.PrimaryAmmoLoaded = br.ReadInt32();
+        w.PrimaryAmmoCapacity = br.ReadInt32();
+        w.SecondaryAmmoLoaded = br.ReadInt32();
+        w.SecondaryAmmoCapacity = br.ReadInt32();
+        w.Unknown255 = br.ReadInt32();
+        w.Unknown256 = br.ReadInt32();
         var attackModeCount = br.ReadInt32();
 
         if (version != 0)
         {
-            w.F238 = br.ReadInt32();
-            w.F241 = br.ReadInt32();
+            w.PrimaryModifier = br.ReadInt32();
+            w.SecondaryModifier = br.ReadInt32();
         }
 
         for (var i = 0; i < attackModeCount; i++)
