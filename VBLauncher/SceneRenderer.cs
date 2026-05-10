@@ -61,6 +61,14 @@ void main() {
     //   v1: xyz = Color,     w = Radius
     //   v2: xyz = Direction, w = FalloffStart
     //   v3: x = ConeInnerCos, y = ConeOuterCos, z = HasDirection (0/1), w = unused
+    // Engine `Gfx_RS_Base` (alpha-tested) FFP shader: `Lighting = 0` is
+    // hardcoded in Create(), so D3D fixed-function lighting never runs.
+    // The whole stage chain is just MODULATE2X on per-vertex DIFU; no
+    // dynamic-light contribution from D3DLIGHT. Verified in
+    // sub_53BA20 (Gfx_RS_Base::Gfx_RS_Base) — `bLighting=0`. We
+    // reference AmbientCamera.w via keepAlive so SPIRV-Cross can't
+    // strip the LightInfo cbuffer (else the resource set misaligns and
+    // draws are silently dropped).
     private static readonly string FragmentCode = @"#version 450
 #define MAX_LIGHTS 16
 
@@ -75,82 +83,24 @@ layout(set = 1, binding = 1) uniform texture2D SurfaceTexture;
 layout(set = 1, binding = 2) uniform sampler  SurfaceSampler;
 
 layout(set = 0, binding = 3) uniform LightInfo {
-    vec4 Header;             // x = LightCount, yzw unused
-    vec4 AmbientCamera;      // xyz = AmbientColor, w unused
-    vec4 CameraPos;          // xyz = camera position, w unused
+    vec4 Header;
+    vec4 AmbientCamera;
+    vec4 CameraPos;
     vec4 Lights[MAX_LIGHTS * 4];
 } uLights;
 
 void main() {
     vec4 tex = texture(sampler2D(SurfaceTexture, SurfaceSampler), fsin_texCoords);
     if (tex.a < 0.45) discard;
-    vec3 albedo = tex.rgb * fsin_color.rgb;
-
-    vec3 N = normalize(fsin_normal);
-    vec3 lighting = uLights.AmbientCamera.xyz;
-    int lightCount = int(uLights.Header.x);
-
-    for (int i = 0; i < MAX_LIGHTS; i++) {
-        // Branchless ‘slot is in use’ mask — multiplying the contribution
-        // by this scalar nukes the slot when i >= lightCount, which keeps
-        // the loop body free of early-exits (fxc-friendly).
-        float slotMask = step(float(i), float(lightCount - 1));
-
-        int base = i * 4;
-        vec4 v0 = uLights.Lights[base + 0];
-        vec4 v1 = uLights.Lights[base + 1];
-        vec4 v2 = uLights.Lights[base + 2];
-        vec4 v3 = uLights.Lights[base + 3];
-
-        vec3 toLight = v0.xyz - fsin_worldPos;
-        float dist = length(toLight);
-        vec3 L = toLight / max(dist, 0.0001);
-        float NdotL = max(dot(N, L), 0.0);
-
-        float radius = v1.w;
-        float startDist = radius * v2.w;
-        float distAtt = clamp((radius - dist) / max(radius - startDist, 0.0001), 0.0, 1.0);
-        distAtt = distAtt * distAtt * step(dist, radius);
-
-        // Directional light bypass: Type == 4 (used for dominant world light)
-        // behaves as an infinite directional light with no distance falloff.
-        float isDirectional = step(3.5, v0.w) * step(v0.w, 4.5);
-        distAtt = mix(distAtt, 1.0, isDirectional);
-        L = mix(L, normalize(v0.xyz), isDirectional);
-        NdotL = max(dot(N, L), 0.0);
-
-        // Spotlight cone — branchless. Pull a safe direction (sub in +Z
-        // when the slot has no direction so normalize() doesn't see zero
-        // or NaN), compute the smoothstep cone mask unconditionally, then
-        // pick between the cone mask and a constant 1.0 via mix() based
-        // on the precomputed ‘is spotlight with direction’ flag.
-        float coneInnerCos = v3.x;
-        float coneOuterCos = v3.y;
-        float hasDirection = v3.z;
-        vec3 safeDir = mix(vec3(0.0, 0.0, 1.0), v2.xyz, hasDirection);
-        float cosTheta = dot(-normalize(safeDir), L);
-        float spotMask = smoothstep(coneOuterCos, coneInnerCos, cosTheta);
-        // useSpot = 1 only when Type == 0 AND HasDirection.  Type is stored
-        // in v0.w; abs(type) is 0 for spot and ≥1 for the point variants,
-        // so 1 - min(abs(type), 1) collapses to 1.0 for spots only.
-        float useSpot = (1.0 - min(abs(v0.w), 1.0)) * hasDirection;
-        float coneFactor = mix(1.0, spotMask, useSpot);
-
-        lighting += v1.xyz * NdotL * distAtt * coneFactor * slotMask;
-    }
-
-    fsout_color = vec4(albedo * lighting, fsin_color.a);
+    vec3 keepAlive = (fsin_normal + fsin_worldPos) * uLights.AmbientCamera.w;
+    fsout_color = vec4(tex.rgb * fsin_color.rgb * 2.0 + keepAlive, fsin_color.a);
 }";
 
-    // .8 map geometry has lighting baked into the per-vertex DIFU colour
-    // (fsin_color.rgb), so we don't run the per-fragment light loop here —
-    // it would just double-up on what bake already captured. We do still
-    // read AmbientCamera.xyz: partly as a tiny scene-mood top-up for fully
-    // shadowed corners, and partly so SPIRV-Cross can't strip the cbuffer
-    // declaration. Without that reference the cross-compiler emits HLSL
-    // with no register(b2) binding, the D3D11 shader's resource interface
-    // stops matching the pipeline's projViewLayout, and the whole opaque
-    // pipeline silently refuses to draw.
+    // Engine `Gfx_RS_Base` (opaque, no alpha test) FFP shader: same
+    // story as FragmentCode — `bLighting=0` is hardcoded so D3D
+    // dynamic lighting never runs. Per-vertex DIFU goes straight
+    // into the texture stage chain: clamp(tex × DIFU × 2). DIFU.alpha
+    // multiplied through as the engine's bake fade mask.
     private const string OpaqueFragmentCode = @"#version 450
 #define MAX_LIGHTS 16
 
@@ -165,59 +115,16 @@ layout(set = 1, binding = 1) uniform texture2D SurfaceTexture;
 layout(set = 1, binding = 2) uniform sampler  SurfaceSampler;
 
 layout(set = 0, binding = 3) uniform LightInfo {
-    vec4 Header;             // x = LightCount, yzw unused
-    vec4 AmbientCamera;      // xyz = AmbientColor, w unused
-    vec4 CameraPos;          // xyz = camera position, w unused
+    vec4 Header;
+    vec4 AmbientCamera;
+    vec4 CameraPos;
     vec4 Lights[MAX_LIGHTS * 4];
 } uLights;
 
 void main() {
     vec4 tex = texture(sampler2D(SurfaceTexture, SurfaceSampler), fsin_texCoords);
-    vec3 albedo = tex.rgb * fsin_color.rgb;
-
-    vec3 N = normalize(fsin_normal);
-    vec3 lighting = uLights.AmbientCamera.xyz;
-    int lightCount = int(uLights.Header.x);
-
-    for (int i = 0; i < MAX_LIGHTS; i++) {
-        float slotMask = step(float(i), float(lightCount - 1));
-
-        int base = i * 4;
-        vec4 v0 = uLights.Lights[base + 0];
-        vec4 v1 = uLights.Lights[base + 1];
-        vec4 v2 = uLights.Lights[base + 2];
-        vec4 v3 = uLights.Lights[base + 3];
-
-        vec3 toLight = v0.xyz - fsin_worldPos;
-        float dist = length(toLight);
-        vec3 L = toLight / max(dist, 0.0001);
-        float NdotL = max(dot(N, L), 0.0);
-
-        float radius = v1.w;
-        float startDist = radius * v2.w;
-        float distAtt = clamp((radius - dist) / max(radius - startDist, 0.0001), 0.0, 1.0);
-        distAtt = distAtt * distAtt * step(dist, radius);
-
-        // Directional light bypass: Type == 4 (used for dominant world light)
-        // behaves as an infinite directional light with no distance falloff.
-        float isDirectional = step(3.5, v0.w) * step(v0.w, 4.5);
-        distAtt = mix(distAtt, 1.0, isDirectional);
-        L = mix(L, normalize(v0.xyz), isDirectional);
-        NdotL = max(dot(N, L), 0.0);
-
-        float coneInnerCos = v3.x;
-        float coneOuterCos = v3.y;
-        float hasDirection = v3.z;
-        vec3 safeDir = mix(vec3(0.0, 0.0, 1.0), v2.xyz, hasDirection);
-        float cosTheta = dot(-normalize(safeDir), L);
-        float spotMask = smoothstep(coneOuterCos, coneInnerCos, cosTheta);
-        float useSpot = (1.0 - min(abs(v0.w), 1.0)) * hasDirection;
-        float coneFactor = mix(1.0, spotMask, useSpot);
-
-        lighting += v1.xyz * NdotL * distAtt * coneFactor * slotMask;
-    }
-
-    fsout_color = vec4(albedo * lighting, 1.0);
+    vec3 keepAlive = (fsin_normal + fsin_worldPos) * uLights.AmbientCamera.w;
+    fsout_color = vec4(tex.rgb * fsin_color.rgb * 2.0 * fsin_color.a + keepAlive, 1.0);
 }";
 
     // Vertex shader for the lightmap-modulated .8 path. Takes a second
@@ -358,16 +265,11 @@ void main() {
     vec4 lm  = texture(sampler2D(LightmapTexture, LightmapSampler), fsin_lmCoords);
     vec3 ambient = uLights.AmbientCamera.xyz;
     vec3 keepAlive = (fsin_normal + fsin_worldPos) * uLights.AmbientCamera.w;
-    // Engine MODULATE2X is `clamp(tex × DIFU × LM × 2, 0, 1)` with the
-    // additional fade contribution from DIFU's ALPHA channel — verified
-    // empirically against the .8 bake: 128 deep-fade verts have alpha=0,
-    // 120 gradient verts have alpha 96-127, 832 interior verts have
-    // alpha=255 — a perfect tracking of intended brightness. Without
-    // multiplying by alpha the gradient-zone tiles read brighter than
-    // the interior because their LM bake is at full sky intensity while
-    // their DIFU.rgb is mid-range. Folding alpha in collapses the fade
-    // properly to true black at the periphery.
     float fade = fsin_color.a;
+    // No dynamic LGTD contribution here — LM atlas already captured all
+    // static-light bakes. Adding live LGTD on top double-counts and
+    // pushes interior tiles past saturation, making them brighter and
+    // less colored than entities lit by the same LGTD live.
     fsout_color = vec4(tex.rgb * fsin_color.rgb * lm.rgb * 2.0 * fade + ambient * tex.rgb * fade + keepAlive, 1.0);
 }";
 
@@ -440,7 +342,42 @@ void main() {
     vec3 ambient = uLights.AmbientCamera.xyz;
     vec3 keepAlive = (fsin_normal + fsin_worldPos) * uLights.AmbientCamera.w;
     float fade = fsin_color.a;
-    fsout_color = vec4(tex.rgb * fsin_color.rgb * lm.rgb * 2.0 * fade + ambient * tex.rgb * fade + keepAlive, 1.0);
+
+    vec3 N = normalize(fsin_normal);
+    vec3 dynLight = vec3(0.0);
+    int lightCount = int(uLights.Header.x);
+    for (int i = 0; i < MAX_LIGHTS; i++) {
+        float slotMask = step(float(i), float(lightCount - 1));
+        int base = i * 4;
+        vec4 v0 = uLights.Lights[base + 0];
+        vec4 v1 = uLights.Lights[base + 1];
+        vec4 v2 = uLights.Lights[base + 2];
+        vec4 v3 = uLights.Lights[base + 3];
+        vec3 toLight = v0.xyz - fsin_worldPos;
+        float dist = length(toLight);
+        vec3 L = toLight / max(dist, 0.0001);
+        float NdotL = max(dot(N, L), 0.0);
+        float radius = v1.w;
+        float startDist = radius * v2.w;
+        float distAtt = clamp((radius - dist) / max(radius - startDist, 0.0001), 0.0, 1.0);
+        distAtt = distAtt * distAtt * step(dist, radius);
+        float isDirectional = step(3.5, v0.w) * step(v0.w, 4.5);
+        distAtt = distAtt * (1.0 - isDirectional);
+        L = mix(L, normalize(v0.xyz), isDirectional);
+        NdotL = max(dot(N, L), 0.0);
+        float coneInnerCos = v3.x;
+        float coneOuterCos = v3.y;
+        float hasDirection = v3.z;
+        vec3 safeDir = mix(vec3(0.0, 0.0, 1.0), v2.xyz, hasDirection);
+        float cosTheta = dot(-normalize(safeDir), L);
+        float spotMask = smoothstep(coneOuterCos, coneInnerCos, cosTheta);
+        float useSpot = (1.0 - min(abs(v0.w), 1.0)) * hasDirection;
+        float coneFactor = mix(1.0, spotMask, useSpot);
+        dynLight += v1.xyz * NdotL * distAtt * coneFactor * slotMask;
+    }
+
+    vec3 baked = tex.rgb * fsin_color.rgb * lm.rgb * 2.0;
+    fsout_color = vec4((baked + ambient * tex.rgb + tex.rgb * dynLight) * fade + keepAlive, 1.0);
 }";
 
     private static readonly string SkinnedVertexCode = @"#version 450
@@ -1195,11 +1132,6 @@ void main() {
         // attenuation. Static .8 geometry uses the opaque shader which ignores
         // these — its lighting is pre-baked into per-vertex DIFU — but every
         // dynamic entity (critter, prop, default-PC) shades against this list.
-        // Pass EMAP.col verbatim. The earlier `(1 + col) / 2` averaging
-        // biased pitch-black maps toward (0.5, 0.5, 0.5) ambient, which
-        // (combined with the additive `ambient × tex` lift in the LM
-        // shader) put a permanent glow on every surface — periphery
-        // tiles couldn't fade fully to black even with DIFU=0.
         var emapTint = EditorWindow.ColToVec3(map.EMAP.col);
         UploadMapLights(loaded8?.Lights, emapTint, loaded8?.GetDominantLight());
 

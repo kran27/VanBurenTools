@@ -2199,30 +2199,112 @@ public partial class EditorWindow
         if (_currentFile.GIAM is not GIAMc giam) return;
         ImGui.Begin("GIAM");
         ImGui.PushItemWidth(-1);
-        ImGui.Text("Ammo Type");
-        ImGui.Combo("##AmmoType", ref giam.ammoType, _ammoTypes, _ammoTypes.Length);
-        ImGui.Text("Minimum Damage");
-        ImGui.InputInt("##MinDamage", ref giam.minDmg);
-        ImGui.Text("Maximum Damage");
-        ImGui.InputInt("##MaxDamage", ref giam.maxDmg);
-        ImGui.Text("Range Modifier");
-        ImGui.InputInt("##Range", ref giam.unk1);
-        ImGui.Text("Crit Chance");
-        ImGui.InputInt("##CritChance", ref giam.critChance);
-        ImGui.Text("Unknown");
-        ImGui.InputInt("##Unknown", ref giam.engUnk1);
-        ImGui.Text("Unknown");
-        ImGui.InputInt("##Unknown2", ref giam.unk2);
-        ImGui.Text("Bullets Per Shot");
-        ImGui.InputInt("##Unknown3", ref giam.unk3);
+        ImGui.Text("Caliber");
+        ImGui.Combo("##Caliber", ref giam.Caliber, _ammoTypes, _ammoTypes.Length);
+        ImGui.Text("Ammo Extra (+238)");
+        ImGui.InputInt("##AmmoExtra238", ref giam.AmmoExtra238);
+        ImGui.Text("Damage Bonus");
+        ImGui.InputInt("##DamageBonus", ref giam.DamageBonus);
+        ImGui.Text("DR Penalty (armor pen)");
+        ImGui.InputInt("##DRPenalty", ref giam.DRPenalty);
+        ImGui.Text("Skill Bonus (to-hit)");
+        ImGui.InputInt("##SkillBonus", ref giam.SkillBonus);
+        if (giam.Version >= 1)
+        {
+            ImGui.Text("Damage Type");
+            ImGui.InputInt("##DamageType", ref giam.DamageType);
+            ImGui.Text("Ammo Category");
+            ImGui.InputInt("##AmmoCategory", ref giam.AmmoCategory);
+        }
+        if (giam.Version >= 2)
+        {
+            ImGui.Text("Ammo Modifier (variant id)");
+            ImGui.InputInt("##AmmoModifier", ref giam.AmmoModifier);
+            ImGui.Text("Range Bonus");
+            ImGui.InputInt("##RangeBonus", ref giam.RangeBonus);
+        }
         ImGui.PopItemWidth();
         ImGui.End();
     }
 
     private void DrawGIWP()
     {
+        if (_currentFile is not WEA wea || wea.GIWP is not GIWPc giwp) return;
         ImGui.Begin("GIWP");
-        ImGui.Text("GIWP not implemented yet.");
+        ImGui.PushItemWidth(-1);
+
+        ImGui.Text("Weapon Class (1-5 small arms, 6-8 melee, 9-10 big guns)");
+        ImGui.InputInt("##WeaponClass", ref giwp.WeaponClass);
+
+        ImGui.Separator();
+        ImGui.Text("Primary Ammo");
+        ImGui.Text("Caliber");
+        ImGui.InputInt("##PrimaryCaliber", ref giwp.PrimaryCaliber);
+        ImGui.Text("Reload Duration (ticks)");
+        ImGui.InputInt("##PrimaryReloadDuration", ref giwp.PrimaryReloadDuration);
+        ImGui.Text("Loaded / Capacity");
+        ImGui.InputInt("##PrimaryAmmoLoaded", ref giwp.PrimaryAmmoLoaded);
+        ImGui.InputInt("##PrimaryAmmoCapacity", ref giwp.PrimaryAmmoCapacity);
+        if (giwp.Version != 0)
+        {
+            ImGui.Text("Modifier (set at runtime by reload)");
+            ImGui.InputInt("##PrimaryModifier", ref giwp.PrimaryModifier);
+        }
+
+        ImGui.Separator();
+        ImGui.Text("Secondary Ammo");
+        ImGui.Text("Caliber");
+        ImGui.InputInt("##SecondaryCaliber", ref giwp.SecondaryCaliber);
+        ImGui.Text("Reload Duration (ticks)");
+        ImGui.InputInt("##SecondaryReloadDuration", ref giwp.SecondaryReloadDuration);
+        ImGui.Text("Loaded / Capacity");
+        ImGui.InputInt("##SecondaryAmmoLoaded", ref giwp.SecondaryAmmoLoaded);
+        ImGui.InputInt("##SecondaryAmmoCapacity", ref giwp.SecondaryAmmoCapacity);
+        if (giwp.Version != 0)
+        {
+            ImGui.Text("Modifier (set at runtime by reload)");
+            ImGui.InputInt("##SecondaryModifier", ref giwp.SecondaryModifier);
+        }
+
+        ImGui.Separator();
+        ImGui.Text("Resource name (always empty in shipped data)");
+        ImGui.InputText("##ResourceName", ref giwp.ResourceName, 64u);
+
+        ImGui.Separator();
+        ImGui.Text("Engine-reserved (no observed gameplay use)");
+        ImGui.InputInt("##Unknown250", ref giwp.Unknown250);
+        ImGui.InputInt("##Unknown255", ref giwp.Unknown255);
+        ImGui.InputInt("##Unknown256", ref giwp.Unknown256);
+
+        ImGui.Separator();
+        ImGui.Text($"Attack Modes ({giwp.AttackModes.Count})");
+        for (var i = 0; i < giwp.AttackModes.Count; i++)
+        {
+            var am = giwp.AttackModes[i];
+            if (!ImGui.CollapsingHeader($"Attack Mode {i} (Anim={am.Anim}, AP={am.AP})##am{i}"))
+                continue;
+            ImGui.Indent();
+            ImGui.InputInt($"Anim##am{i}", ref am.Anim);
+            ImGui.InputInt($"DmgType (0=ballistic 2=elec 4=normal 5=energy)##am{i}", ref am.DmgType);
+            ImGui.InputInt($"ShotsFired##am{i}", ref am.ShotsFired);
+            ImGui.InputInt($"Range##am{i}", ref am.Range);
+            ImGui.InputInt($"MinDmg##am{i}", ref am.MinDmg);
+            ImGui.InputInt($"MaxDmg##am{i}", ref am.MaxDmg);
+            if (am.Version != 0)
+            {
+                ImGui.InputInt($"AP##am{i}", ref am.AP);
+                var consumed = am.Consumed != 0;
+                if (ImGui.Checkbox($"Consumed##am{i}", ref consumed)) am.Consumed = (byte)(consumed ? 1 : 0);
+                var thrown = am.Thrown != 0;
+                if (ImGui.Checkbox($"Thrown##am{i}", ref thrown)) am.Thrown = (byte)(thrown ? 1 : 0);
+            }
+            if (am.Version >= 2) ImGui.InputInt($"PoseOverride##am{i}", ref am.PoseOverride);
+            if (am.Version >= 3) ImGui.InputInt($"NameSR (string id)##am{i}", ref am.NameSR);
+            if (am.Version >= 4) ImGui.InputText($"VegName (.veg fx)##am{i}", ref am.VegName, 128u);
+            ImGui.Unindent();
+        }
+
+        ImGui.PopItemWidth();
         ImGui.End();
     }
 }

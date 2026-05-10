@@ -1034,33 +1034,53 @@ public class _2MWTChunk
     }
 }
 
+// GIAM (ammo) — 9 dwords, version 2 in shipping data.
+// Field semantics named from F3.exe reads in sub_408160 (ammo body parser) and the
+// combat math in GameWeapon::CalculateDamage / CalculateRangedToHit / GetEffectiveRange.
+// Disk version gating: payload+0..+16 always; +20/+24 if v>=1; +28/+32 if v>=2.
 public class GIAMc
 {
-    public int ammoType = 0;
-    public int critChance = 0; // guessed field, AmmoBB.amo is 20
-    public int engUnk1 = 0; // all energy weapons have a value of 5
-    public int maxDmg = 0;
-    public int minDmg = 0;
-    public int unk1 = 0; // Ammo30.amo is 10, Ammo12_ga.amo is -25, .22 Injector is 24, .22/9mm is 5
-    public int unk2 = 0; // Small Energy Cell is 3, Microfusion Cell is 2, Naphate is 1
+    public int Version = 2;
 
-    public int
-        unk3 = 0; // 1 for cartridge based ammo, 5 for shotgun shells, 0 for explosive, bb, rivet, and energy (possibly bullets per shot?)
+    public int Caliber = 0;          // ammo[+236]; matches weapon's PrimaryCaliber/SecondaryCaliber for the load-check.
+    public int AmmoExtra238 = 0;     // ammo[+238]; written by parser, read in destructor/copy paths but not in combat math.
+    public int DamageBonus = 0;      // ammo[+239]; CalculateDamage: weapon_damage += DamageBonus.
+    public int DRPenalty = 0;        // ammo[+240]; CalculateDamage: target_DR is reduced by this (negative = adds DR like buckshot).
+    public int SkillBonus = 0;       // ammo[+241]; CalculateRangedToHit/CalculateMeleeToHit: skill += SkillBonus.
+
+    // version >= 1
+    public int DamageType = 0;       // ammo[+243]; energy ammo all = 5 (matches GWAM.DmgType=5 for energy weapons).
+    public int AmmoCategory = 0;     // ammo[+244]; Small Energy Cell=3, Micro Fusion=2, Naphate=1 — energy-cell grouping.
+
+    // version >= 2
+    public int AmmoModifier = 0;     // ammo[+237]; paired with Caliber for ammo lookup. ReloadPrimaryAmmo: weapon[+238] := ammo[+237].
+    public int RangeBonus = 0;       // ammo[+242]; GetEffectiveRange: range = weapon_base_range + RangeBonus. (Was missing entirely from prior tool.)
 
     public IEnumerable<byte> ToByte()
     {
-        var ret = new byte[36];
+        var payloadSize = 5 * 4;
+        if (Version >= 1) payloadSize += 8;
+        if (Version >= 2) payloadSize += 8;
+        var total = 12 + payloadSize;
+        var ret = new byte[total];
         ret.Write(0, "GIAM");
-        ret.Write(4, 2);
-        ret.Write(8, 48);
-        ret.Write(12, ammoType);
-        ret.Write(16, minDmg);
-        ret.Write(20, maxDmg);
-        ret.Write(24, unk1);
-        ret.Write(28, critChance);
-        ret.Write(32, engUnk1);
-        ret.Write(36, unk2);
-        ret.Write(40, unk3);
+        ret.Write(4, Version);
+        ret.Write(8, total);
+        ret.Write(12, Caliber);
+        ret.Write(16, AmmoExtra238);
+        ret.Write(20, DamageBonus);
+        ret.Write(24, DRPenalty);
+        ret.Write(28, SkillBonus);
+        if (Version >= 1)
+        {
+            ret.Write(32, DamageType);
+            ret.Write(36, AmmoCategory);
+        }
+        if (Version >= 2)
+        {
+            ret.Write(40, AmmoModifier);
+            ret.Write(44, RangeBonus);
+        }
         return ret;
     }
 }

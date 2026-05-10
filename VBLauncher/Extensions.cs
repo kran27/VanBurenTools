@@ -503,17 +503,27 @@ public static class Extensions
 
     public static GIAMc ToGIAMc(this byte[] b)
     {
-        return new GIAMc
+        var version = BitConverter.ToInt32(b, 4);
+        var g = new GIAMc
         {
-            ammoType = BitConverter.ToInt32(b, 12),
-            minDmg = BitConverter.ToInt32(b, 16),
-            maxDmg = BitConverter.ToInt32(b, 20),
-            unk1 = BitConverter.ToInt32(b, 24),
-            critChance = BitConverter.ToInt32(b, 28),
-            engUnk1 = BitConverter.ToInt32(b, 32),
-            unk2 = BitConverter.ToInt32(b, 36),
-            unk3 = BitConverter.ToInt32(b, 40)
+            Version = version,
+            Caliber = BitConverter.ToInt32(b, 12),
+            AmmoExtra238 = BitConverter.ToInt32(b, 16),
+            DamageBonus = BitConverter.ToInt32(b, 20),
+            DRPenalty = BitConverter.ToInt32(b, 24),
+            SkillBonus = BitConverter.ToInt32(b, 28)
         };
+        if (version >= 1)
+        {
+            g.DamageType = BitConverter.ToInt32(b, 32);
+            g.AmmoCategory = BitConverter.ToInt32(b, 36);
+        }
+        if (version >= 2)
+        {
+            g.AmmoModifier = BitConverter.ToInt32(b, 40);
+            g.RangeBonus = BitConverter.ToInt32(b, 44);
+        }
+        return g;
     }
 
     public static GIWPc ToGIWPc(this byte[] b)
