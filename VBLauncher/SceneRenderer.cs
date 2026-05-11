@@ -61,14 +61,15 @@ void main() {
     //   v1: xyz = Color,     w = Radius
     //   v2: xyz = Direction, w = FalloffStart
     //   v3: x = ConeInnerCos, y = ConeOuterCos, z = HasDirection (0/1), w = unused
-    // Engine `Gfx_RS_Base` (alpha-tested) FFP shader: `Lighting = 0` is
-    // hardcoded in Create(), so D3D fixed-function lighting never runs.
-    // The whole stage chain is just MODULATE2X on per-vertex DIFU; no
-    // dynamic-light contribution from D3DLIGHT. Verified in
-    // sub_53BA20 (Gfx_RS_Base::Gfx_RS_Base) — `bLighting=0`. We
-    // reference AmbientCamera.w via keepAlive so SPIRV-Cross can't
-    // strip the LightInfo cbuffer (else the resource set misaligns and
-    // draws are silently dropped).
+    // Engine FFP for entities: SetMaterial conditionally enables
+    // `Lighting=TRUE` per mesh, which makes D3D apply D3DLIGHT
+    // semantics: vert_diffuse = AMB_LIGHT × MAT_AMB + Σ DIFF_LIGHT ×
+    // MAT_DIFF × NdotL × att. With DiffuseMaterialSource = Color1
+    // (the typical entity case) MAT_AMB/MAT_DIFF come from per-vertex
+    // DIFU. Then the texture stage chain runs MODULATE2X on top:
+    //   output = clamp(tex × vert_diffuse × 2)
+    // We compute per-fragment for visual equivalence; per-vertex would
+    // match D3D fixed-function exactly.
     private static readonly string FragmentCode = @"#version 450
 #define MAX_LIGHTS 16
 
@@ -92,15 +93,46 @@ layout(set = 0, binding = 3) uniform LightInfo {
 void main() {
     vec4 tex = texture(sampler2D(SurfaceTexture, SurfaceSampler), fsin_texCoords);
     if (tex.a < 0.45) discard;
-    vec3 keepAlive = (fsin_normal + fsin_worldPos) * uLights.AmbientCamera.w;
-    fsout_color = vec4(tex.rgb * fsin_color.rgb * 2.0 + keepAlive, fsin_color.a);
+
+    vec3 N = normalize(fsin_normal);
+    vec3 ambient = uLights.AmbientCamera.xyz;
+    vec3 lit = ambient;
+    int lightCount = int(uLights.Header.x);
+    for (int i = 0; i < MAX_LIGHTS; i++) {
+        float slotMask = step(float(i), float(lightCount - 1));
+        int base = i * 4;
+        vec4 v0 = uLights.Lights[base + 0];
+        vec4 v1 = uLights.Lights[base + 1];
+        vec4 v2 = uLights.Lights[base + 2];
+        vec4 v3 = uLights.Lights[base + 3];
+        vec3 toLight = v0.xyz - fsin_worldPos;
+        float dist = length(toLight);
+        vec3 L = toLight / max(dist, 0.0001);
+        float NdotL = max(dot(N, L), 0.0);
+        float radius = v1.w;
+        float startDist = radius * v2.w;
+        float distAtt = clamp((radius - dist) / max(radius - startDist, 0.0001), 0.0, 1.0);
+        distAtt = distAtt * distAtt * step(dist, radius);
+        float isDirectional = step(3.5, v0.w) * step(v0.w, 4.5);
+        distAtt = mix(distAtt, 1.0, isDirectional);
+        L = mix(L, normalize(v0.xyz), isDirectional);
+        NdotL = max(dot(N, L), 0.0);
+        float coneInnerCos = v3.x;
+        float coneOuterCos = v3.y;
+        float hasDirection = v3.z;
+        vec3 safeDir = mix(vec3(0.0, 0.0, 1.0), v2.xyz, hasDirection);
+        float cosTheta = dot(-normalize(safeDir), L);
+        float spotMask = smoothstep(coneOuterCos, coneInnerCos, cosTheta);
+        float useSpot = (1.0 - min(abs(v0.w), 1.0)) * hasDirection;
+        float coneFactor = mix(1.0, spotMask, useSpot);
+        lit += v1.xyz * NdotL * distAtt * coneFactor * slotMask;
+    }
+    fsout_color = vec4(tex.rgb * fsin_color.rgb * lit * 2.0, fsin_color.a);
 }";
 
-    // Engine `Gfx_RS_Base` (opaque, no alpha test) FFP shader: same
-    // story as FragmentCode — `bLighting=0` is hardcoded so D3D
-    // dynamic lighting never runs. Per-vertex DIFU goes straight
-    // into the texture stage chain: clamp(tex × DIFU × 2). DIFU.alpha
-    // multiplied through as the engine's bake fade mask.
+    // Engine FFP for entities (opaque variant): same as FragmentCode but
+    // no alpha-test discard. D3DLIGHT semantics applied per-vertex by
+    // engine, then MODULATE2X stage chain. We compute per-fragment.
     private const string OpaqueFragmentCode = @"#version 450
 #define MAX_LIGHTS 16
 
@@ -123,8 +155,40 @@ layout(set = 0, binding = 3) uniform LightInfo {
 
 void main() {
     vec4 tex = texture(sampler2D(SurfaceTexture, SurfaceSampler), fsin_texCoords);
-    vec3 keepAlive = (fsin_normal + fsin_worldPos) * uLights.AmbientCamera.w;
-    fsout_color = vec4(tex.rgb * fsin_color.rgb * 2.0 * fsin_color.a + keepAlive, 1.0);
+
+    vec3 N = normalize(fsin_normal);
+    vec3 lit = uLights.AmbientCamera.xyz;
+    int lightCount = int(uLights.Header.x);
+    for (int i = 0; i < MAX_LIGHTS; i++) {
+        float slotMask = step(float(i), float(lightCount - 1));
+        int base = i * 4;
+        vec4 v0 = uLights.Lights[base + 0];
+        vec4 v1 = uLights.Lights[base + 1];
+        vec4 v2 = uLights.Lights[base + 2];
+        vec4 v3 = uLights.Lights[base + 3];
+        vec3 toLight = v0.xyz - fsin_worldPos;
+        float dist = length(toLight);
+        vec3 L = toLight / max(dist, 0.0001);
+        float NdotL = max(dot(N, L), 0.0);
+        float radius = v1.w;
+        float startDist = radius * v2.w;
+        float distAtt = clamp((radius - dist) / max(radius - startDist, 0.0001), 0.0, 1.0);
+        distAtt = distAtt * distAtt * step(dist, radius);
+        float isDirectional = step(3.5, v0.w) * step(v0.w, 4.5);
+        distAtt = mix(distAtt, 1.0, isDirectional);
+        L = mix(L, normalize(v0.xyz), isDirectional);
+        NdotL = max(dot(N, L), 0.0);
+        float coneInnerCos = v3.x;
+        float coneOuterCos = v3.y;
+        float hasDirection = v3.z;
+        vec3 safeDir = mix(vec3(0.0, 0.0, 1.0), v2.xyz, hasDirection);
+        float cosTheta = dot(-normalize(safeDir), L);
+        float spotMask = smoothstep(coneOuterCos, coneInnerCos, cosTheta);
+        float useSpot = (1.0 - min(abs(v0.w), 1.0)) * hasDirection;
+        float coneFactor = mix(1.0, spotMask, useSpot);
+        lit += v1.xyz * NdotL * distAtt * coneFactor * slotMask;
+    }
+    fsout_color = vec4(tex.rgb * fsin_color.rgb * lit * 2.0 * fsin_color.a, 1.0);
 }";
 
     // Vertex shader for the lightmap-modulated .8 path. Takes a second

@@ -16,6 +16,7 @@ using ImGuiNET;
 using VBLauncher.My.Resources;
 using VBLauncher.Properties;
 using Veldrid;
+using Veldrid.ImageSharp;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
 
@@ -1115,6 +1116,8 @@ public partial class EditorWindow
     {
         _sceneRenderer.Reset();
         _lastRenderHash = 0;
+        _intSelectedObj = 0;
+        ClearIntTextureCache();
         _eeovSelected = -1;
         _eeovTemp = "";
         _gcreSpecial = 0;
@@ -1329,21 +1332,378 @@ public partial class EditorWindow
         if (pushed) ImGui.PopFont();
     }
 
+    // Read-only .int viewer. Cache is keyed by texture filename and rebuilt
+    // lazily on first use; cleared in ResetTempValues when a new file loads.
+    private int _intSelectedObj;
+    private float _intCanvasZoom = 1.0f;
+    private bool _intShowDebugFields;
+    private bool _intShowFullScene = true;
+    private bool _intHighlightSelected = true;
+    // Render mode: 0 = all 9 fragments raw; 1 = center slot only; 2 = use
+    // postName3[1] as a per-object border-render flag (nonzero ⇒ draw all 9,
+    // zero ⇒ draw only the center). Default to the border-flag mode since it
+    // matches the engine's actual gating; switch to mode 0 to debug.
+    private int _intFragmentMode = 2;
+    private static readonly string[] _intFragmentModeNames =
+        ["All 9 (raw)", "Center only (slot 4)", "Border-flag (postName3[1])"];
+    private readonly Dictionary<string, IntPtr> _intTexBindings = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, Vector2> _intTexSizes = new(StringComparer.OrdinalIgnoreCase);
+    private readonly List<Texture> _intTexOwners = [];
+
+    private void ClearIntTextureCache()
+    {
+        foreach (var t in _intTexOwners)
+        {
+            try { _imguiRenderer?.RemoveImGuiBinding(t); } catch { /* tearing down */ }
+            try { t.Dispose(); } catch { /* already gone */ }
+        }
+        _intTexOwners.Clear();
+        _intTexBindings.Clear();
+        _intTexSizes.Clear();
+    }
+
+    // Look up a texture by filename via ResourceSystem and bind it to the
+    // ImGui renderer. Falls back from .tga → .bmp (and vice versa) since
+    // .int files reference both. Returns IntPtr.Zero if not found.
+    private IntPtr GetIntTextureBinding(string texName, out Vector2 size)
+    {
+        size = Vector2.Zero;
+        if (string.IsNullOrEmpty(texName)) return IntPtr.Zero;
+        if (_intTexBindings.TryGetValue(texName, out var cached))
+        {
+            size = _intTexSizes[texName];
+            return cached;
+        }
+
+        ImageSharpTexture? img = ResourceSystem.FindResource(texName) as ImageSharpTexture;
+        if (img == null)
+        {
+            // .tga ↔ .bmp swap fallback — .int files reference both extensions.
+            var swapped = texName.EndsWith(".tga", StringComparison.OrdinalIgnoreCase)
+                ? texName[..^4] + ".bmp"
+                : texName.EndsWith(".bmp", StringComparison.OrdinalIgnoreCase)
+                    ? texName[..^4] + ".tga"
+                    : null;
+            if (swapped != null)
+                img = ResourceSystem.FindResource(swapped) as ImageSharpTexture;
+        }
+        if (img == null)
+        {
+            _intTexBindings[texName] = IntPtr.Zero;
+            _intTexSizes[texName] = Vector2.Zero;
+            return IntPtr.Zero;
+        }
+
+        var factory = _graphicsDevice.ResourceFactory;
+        var tex = img.CreateDeviceTexture(_graphicsDevice, factory);
+        var binding = _imguiRenderer.GetOrCreateImGuiBinding(factory, tex);
+        _intTexOwners.Add(tex);
+        _intTexBindings[texName] = binding;
+        size = new Vector2(tex.Width, tex.Height);
+        _intTexSizes[texName] = size;
+        return binding;
+    }
+
     private void DrawINT()
     {
         ImGui.Begin("INT");
-        if (_currentFile is not INT gui) return;
-        // create preview of the INT file
-        if (ImGui.Button("Preview"))
+        if (_currentFile is not INT gui) { ImGui.End(); return; }
+
+        ImGui.Text($"{gui.name}  rev={gui.revision}  objects={gui.objects.Count}");
+        ImGui.SameLine();
+        ImGui.SetNextItemWidth(220);
+        ImGui.Combo("Fragments", ref _intFragmentMode, _intFragmentModeNames, _intFragmentModeNames.Length);
+        ImGui.SameLine();
+        ImGui.Checkbox("Full scene", ref _intShowFullScene);
+        ImGui.SameLine();
+        ImGui.Checkbox("Highlight selected", ref _intHighlightSelected);
+        ImGui.SameLine();
+        ImGui.Checkbox("Debug fields", ref _intShowDebugFields);
+        ImGui.SameLine();
+        ImGui.SetNextItemWidth(120);
+        ImGui.SliderFloat("Zoom", ref _intCanvasZoom, 0.25f, 2.0f, "%.2fx");
+
+        if (gui.objects.Count == 0) { ImGui.End(); return; }
+        if (_intSelectedObj < 0 || _intSelectedObj >= gui.objects.Count) _intSelectedObj = 0;
+
+        var avail = ImGui.GetContentRegionAvail();
+        ImGui.BeginChild("##intObjs", new Vector2(260, avail.Y), true);
+        for (var i = 0; i < gui.objects.Count; i++)
         {
-            var ip = new IntViewer();
-            ip.Width = 1040;
-            ip.Height = 807;
-            ip.Show();
-            ip.LoadData(gui);
+            var o = gui.objects[i];
+            var kindName = o.magic.ToString();
+            var label = $"[{(kindName.Length > 0 ? char.ToUpper(kindName[0]) : '?')}] {o.name}##{i}";
+            if (ImGui.Selectable(label, i == _intSelectedObj))
+                _intSelectedObj = i;
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip($"magic={(int)o.magic} ({kindName})\nrect1 {o.rect1.x1},{o.rect1.y1} → {o.rect1.x2},{o.rect1.y2}\nini={o.ini}");
         }
+        ImGui.EndChild();
+
+        ImGui.SameLine();
+
+        ImGui.BeginChild("##intRight", new Vector2(0, avail.Y), false);
+        DrawIntObjectInspector(gui, gui.objects[_intSelectedObj]);
+        ImGui.EndChild();
 
         ImGui.End();
+    }
+
+    private void DrawIntObjectInspector(INT gui, INT.obj o)
+    {
+        if (ImGui.BeginTabBar("##intTabs"))
+        {
+            if (ImGui.BeginTabItem("Properties"))
+            {
+                DrawIntPropertiesTab(o);
+                ImGui.EndTabItem();
+            }
+            if (ImGui.BeginTabItem("Fragments (9-slice)"))
+            {
+                DrawIntFragmentsTab(o);
+                ImGui.EndTabItem();
+            }
+            if (ImGui.BeginTabItem("Canvas"))
+            {
+                DrawIntCanvasTab(gui, o);
+                ImGui.EndTabItem();
+            }
+            ImGui.EndTabBar();
+        }
+    }
+
+    private void DrawIntPropertiesTab(INT.obj o)
+    {
+        ImGui.Text($"Kind: {o.magic} (magic={(int)o.magic})");
+        ImGui.Text($"Name: {o.name}");
+        ImGui.Text($"INI:  {o.ini}");
+        ImGui.Text($"rect1: ({o.rect1.x1}, {o.rect1.y1}) → ({o.rect1.x2}, {o.rect1.y2})  [{o.rect1.Width}×{o.rect1.Height}]");
+        ImGui.Text($"rect2: ({o.rect2.x1}, {o.rect2.y1}) → ({o.rect2.x2}, {o.rect2.y2})  [{o.rect2.Width}×{o.rect2.Height}]");
+        ImGui.Text($"colorTint: 0x{o.colorTint:X8}  BGRA (0x80=full)  → display 0x{INT.ExpandBGRA(o.colorTint):X8}");
+        if (!string.IsNullOrEmpty(o.label))
+            ImGui.Text($"Label: {o.label}");
+
+        if (o.buttonSounds is INT.ButtonSounds bs)
+        {
+            ImGui.Separator(); ImGui.TextDisabled("Button sounds");
+            ImGui.Text($"down:  {bs.soundDown}");
+            ImGui.Text($"up:    {bs.soundUp}");
+            ImGui.Text($"hover: {bs.soundHover}");
+        }
+
+        if (o.trailerBlocks is { Count: > 0 } blocks)
+        {
+            ImGui.Separator(); ImGui.TextDisabled($"Font / style ({blocks.Count} block{(blocks.Count == 1 ? "" : "s")})");
+            for (var i = 0; i < blocks.Count; i++)
+            {
+                var fb = blocks[i];
+                var resolved = ResolveStringRef(fb.stringRef);
+                var justifyName = (fb.pad is { Length: > 2 }) ? fb.pad[2] switch
+                {
+                    0 => "left", 1 => "right", 2 => "center", var x => $"?({x})"
+                } : "?";
+                ImGui.Text($"#{i}: stringRef={fb.stringRef}  font=\"{fb.font}\"  size={fb.fontSize}  color=0x{fb.color:X8}  justify={justifyName}");
+                if (!string.IsNullOrEmpty(resolved))
+                {
+                    ImGui.SameLine();
+                    ImGui.TextDisabled($"→ \"{resolved}\"");
+                }
+            }
+        }
+
+        if (_intShowDebugFields)
+        {
+            ImGui.Separator(); ImGui.TextDisabled("Raw / undecoded");
+            ImGui.Text($"postName3:  {BitConverter.ToString(o.postName3 ?? [])}");
+            ImGui.Text($"postRect2Byte: 0x{o.postRect2Byte:X2}");
+            ImGui.Text($"lblW={o.lblW}  lblH={o.lblH}  lblA={o.lblA}  lblB={o.lblB}");
+            ImGui.Text($"strRef=0x{o.strRef:X8}  lblFloat={o.lblFloat}");
+            ImGui.Text($"last={o.last}");
+            if (o.buttonRev12Int.HasValue)
+                ImGui.Text($"buttonRev12Int={o.buttonRev12Int.Value}");
+            if (o.trailerBlocks is { Count: > 0 } blocks2)
+            {
+                ImGui.Separator(); ImGui.TextDisabled("FontBlock pad bytes");
+                for (var i = 0; i < blocks2.Count; i++)
+                    ImGui.Text($"#{i}: {BitConverter.ToString(blocks2[i].pad ?? [])}");
+            }
+        }
+    }
+
+    private static readonly string[] _intSlotNames =
+        ["UL", "UM", "UR", "L", "M", "R", "LL", "LM", "LR"];
+
+    private void DrawIntFragmentsTab(INT.obj o)
+    {
+        if (ImGui.BeginTable("##intFrags", 8,
+                ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
+        {
+            ImGui.TableSetupColumn("Slot");
+            ImGui.TableSetupColumn("Use");
+            ImGui.TableSetupColumn("Texture");
+            ImGui.TableSetupColumn("Src");
+            ImGui.TableSetupColumn("Dst");
+            ImGui.TableSetupColumn("Tile");
+            ImGui.TableSetupColumn("Tint");
+            ImGui.TableSetupColumn("fEnd");
+            ImGui.TableHeadersRow();
+            for (var i = 0; i < o.fragments.Count; i++)
+            {
+                var f = o.fragments[i];
+                var willDraw = ShouldDrawFragment(o, i);
+                ImGui.TableNextRow();
+                ImGui.TableNextColumn(); ImGui.Text(_intSlotNames[i]);
+                ImGui.TableNextColumn(); ImGui.TextDisabled(willDraw ? "draw" : "skip");
+                ImGui.TableNextColumn(); ImGui.Text(string.IsNullOrEmpty(f.texture) ? "(none)" : f.texture);
+                ImGui.TableNextColumn(); ImGui.Text($"{f.srcW}×{f.srcH}");
+                ImGui.TableNextColumn(); ImGui.Text($"{f.rect.Width}×{f.rect.Height}");
+                ImGui.TableNextColumn(); ImGui.Text(DescribeTileMode(f));
+                ImGui.TableNextColumn(); ImGui.Text($"0x{f.tint:X8}");
+                ImGui.TableNextColumn(); ImGui.Text(f.fEnd.ToString());
+            }
+            ImGui.EndTable();
+        }
+    }
+
+    private static string DescribeTileMode(INT.fragment f)
+    {
+        // We render with the texture's intrinsic dimensions as the tile unit, so
+        // tiling happens whenever dst > tex_intrinsic. The src field appears to
+        // be a hint, not the actual tile flag — derive mode from real geometry.
+        var tilesX = f.srcW > 1 && f.rect.Width > f.srcW;
+        var tilesY = f.srcH > 1 && f.rect.Height > f.srcH;
+        if (tilesX && tilesY) return "TileBoth";
+        if (tilesX) return "TileX";
+        if (tilesY) return "TileY";
+        return "Stretch";
+    }
+
+    private bool ShouldDrawFragment(INT.obj o, int slot)
+    {
+        return _intFragmentMode switch
+        {
+            1 => slot == 4,
+            // postName3[1] gates the border (non-center) slots: nonzero = render
+            // the 8 border slots of the 9-slice; zero = render only the center.
+            2 => slot == 4 || (o.postName3 is { Length: > 1 } p && p[1] != 0),
+            _ => true,
+        };
+    }
+
+    // The engine draws every .int into a fixed 1024×768 backbuffer; anything
+    // outside that area is clipped. Mirror that here so the editor preview
+    // matches what's visible in-game.
+    private static INT.rect SceneBounds() =>
+        new() { x1 = 0, y1 = 0, x2 = 1024, y2 = 768 };
+
+    private void DrawIntCanvasTab(INT gui, INT.obj selected)
+    {
+        // Game backbuffer is fixed 1024×768; everything outside is clipped. In
+        // single-object mode we still place the object at its absolute coords
+        // inside that 1024×768 canvas (its rect1 is in screen-space).
+        INT.rect bounds = SceneBounds();
+        var w = bounds.Width * _intCanvasZoom;
+        var h = bounds.Height * _intCanvasZoom;
+        ImGui.Text($"Canvas {(_intShowFullScene ? "(full scene)" : "(object only)")} 1024×768 @ {_intCanvasZoom:F2}x");
+        ImGui.BeginChild("##intCanvas", ImGui.GetContentRegionAvail(), true, ImGuiWindowFlags.HorizontalScrollbar);
+        var origin = ImGui.GetCursorScreenPos();
+        var dl = ImGui.GetWindowDrawList();
+        // Dark backdrop sized to the engine's 1024×768 game viewport.
+        dl.AddRectFilled(origin, origin + new Vector2(w, h), 0xff181818);
+        // Clip every draw to the viewport so off-canvas geometry doesn't leak.
+        ImGui.PushClipRect(origin, origin + new Vector2(w, h), true);
+
+        if (_intShowFullScene)
+        {
+            for (var oi = 0; oi < gui.objects.Count; oi++)
+                DrawIntObject(dl, origin, gui.objects[oi], oi == _intSelectedObj && _intHighlightSelected);
+        }
+        else
+        {
+            DrawIntObject(dl, origin, selected, _intHighlightSelected);
+        }
+
+        ImGui.PopClipRect();
+        ImGui.Dummy(new Vector2(w, h));
+        ImGui.EndChild();
+    }
+
+    private void DrawIntObject(ImDrawListPtr dl, Vector2 origin, INT.obj o, bool highlighted)
+    {
+        for (var i = 0; i < o.fragments.Count; i++)
+        {
+            if (!ShouldDrawFragment(o, i)) continue;
+            DrawFragment(dl, origin, o.fragments[i]);
+        }
+        DrawObjectText(dl, origin, o);
+        if (highlighted)
+        {
+            var p1 = origin + new Vector2(o.rect1.x1, o.rect1.y1) * _intCanvasZoom;
+            var p2 = origin + new Vector2(o.rect1.x2, o.rect1.y2) * _intCanvasZoom;
+            dl.AddRect(p1, p2, 0xff00ffff, 0, 0, 2.0f);
+        }
+    }
+
+    private string ResolveStringRef(int sr)
+    {
+        if (sr <= 0 || _stf is null) return "";
+        var idx = sr - 1; // string table is 1-indexed (matches STFBox)
+        if (idx < 0 || idx >= _stf.Length) return $"#{sr}";
+        return _stf[idx] ?? "";
+    }
+
+    // Render visible text for Label/Edit objects via the global string table
+    // (_stf) using FontBlock.stringRef as a 1-based index — same lookup the
+    // STFBox editor widget uses for entity name refs.
+    private void DrawObjectText(ImDrawListPtr dl, Vector2 origin, INT.obj o)
+    {
+        if (o.magic != INT.magic.label && o.magic != INT.magic.edit) return;
+        if (o.trailerBlocks is not { Count: > 0 } blocks) return;
+        var fb = blocks[0];
+        var text = ResolveStringRef(fb.stringRef);
+        if (string.IsNullOrEmpty(text)) text = !string.IsNullOrEmpty(o.label) ? o.label : $"#{fb.stringRef}";
+        var color = INT.ToImGuiColor(fb.color);
+
+        var rectP1 = origin + new Vector2(o.rect1.x1, o.rect1.y1) * _intCanvasZoom;
+        var rectP2 = origin + new Vector2(o.rect1.x2, o.rect1.y2) * _intCanvasZoom;
+        var rectW = rectP2.X - rectP1.X;
+        var rectH = rectP2.Y - rectP1.Y;
+
+        var textSize = ImGui.CalcTextSize(text);
+        // pad[2]: 0=left, 1=right, 2=center horizontal alignment.
+        var justify = (fb.pad is { Length: > 2 } pad) ? pad[2] : (byte)0;
+        var x = justify switch
+        {
+            1 => rectP2.X - textSize.X,
+            2 => rectP1.X + (rectW - textSize.X) * 0.5f,
+            _ => rectP1.X,
+        };
+        // Vertically center within the rect — ImGui's default font has no
+        // baseline metric we can rely on, so this is the cleanest default.
+        var y = rectP1.Y + (rectH - textSize.Y) * 0.5f;
+        dl.AddText(new Vector2(x, y), color, text);
+    }
+
+    private void DrawFragment(ImDrawListPtr dl, Vector2 origin, INT.fragment f)
+    {
+        if (string.IsNullOrEmpty(f.texture)) return;
+        var binding = GetIntTextureBinding(f.texture, out _);
+        if (binding == IntPtr.Zero) return;
+
+        var z = _intCanvasZoom;
+        var dstX = origin.X + f.rect.x1 * z;
+        var dstY = origin.Y + f.rect.y1 * z;
+        var dstW = f.rect.Width * z;
+        var dstH = f.rect.Height * z;
+        if (dstW <= 0 || dstH <= 0) return;
+
+        // Stretch the entire texture to fill the destination rect — single
+        // AddImage call. Avoids the miscalibrated tile loop that scaled
+        // buttons to ~1.5x.
+        var tint = INT.ToImGuiColor(f.tint);
+        if (tint == 0) tint = 0xffffffff;
+        dl.AddImage(binding, new Vector2(dstX, dstY), new Vector2(dstX + dstW, dstY + dstH),
+            Vector2.Zero, Vector2.One, tint);
     }
 
     private void DrawEEN2()

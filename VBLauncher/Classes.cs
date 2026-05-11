@@ -1862,11 +1862,11 @@ public class INT
 
     public enum magic
     {
-        Window,
-        Button,
-        Picture,
-        Label,
-        Edit,
+        window = 0,
+        button = 1,
+        picture = 2,
+        label = 3,
+        edit = 4,
     }
 
     public struct rect
@@ -1875,137 +1875,266 @@ public class INT
         public int y1;
         public int x2;
         public int y2;
+        public int Width => x2 - x1;
+        public int Height => y2 - y1;
     }
 
     public struct fragment
     {
-        public int width;
-        public int height;
+        public int srcW;     // source TGA intrinsic width (corners 32; edges/center 1)
+        public int srcH;     // source TGA intrinsic height
+        public int fA, fB;   // observed always 0
+        public int fC;       // observed almost always 1
         public string texture;
-        public rect rect;
+        public float fFloat; // observed ~0.114 — likely alpha/blend
+        public uint tint;    // BGRA, B/G/R clamped to 0x80 max (so 0x808080 ≈ "full white"); A is opacity
+        public rect rect;    // destination rect within parent window
+        public int fEnd;     // slot-anchor: per-slot constants (UL=1, UM=0, UR=2, L=3/0, M=2, R=0, LL=1, LM=0, LR=-1)
+    }
+
+    public struct FontBlock
+    {
+        public int stringRef;  // string-table reference (label text lookup; varies per label)
+        public string font;    // font face name e.g. "Gothic 821 Condensed BT", "Fallouty"
+        public int fontSize;
+        public int flag;       // observed always 1
+        public uint color;     // BGRA, B/G/R clamped to 0x80 max
+        public byte[] pad;     // 26 bytes; pad[2] = horizontal justification (0=left, 1=right, 2=center)
+    }
+
+    public struct ButtonSounds
+    {
+        public byte[] head5;        // 5 bytes, observed all 00
+        public string soundDown;    // pressed wav
+        public string soundUp;      // released wav
+        public string soundHover;   // hover wav
     }
 
     public struct obj
     {
-        public int magic;
+        public magic magic;
+        public ButtonSounds? buttonSounds;  // present when magic==button in rev3
+        public int? buttonRev12Int;         // present when magic==button in rev<3
         public rect rect1;
         public string name;
+        public byte[] postName3;            // 3 bytes after name
         public string ini;
+        public uint colorTint;              // 4 bytes after ini, BGRA (B/G/R clamped to 0x80)
         public rect rect2;
+        public byte postRect2Byte;
+        // rev>=2 label/font block
+        public int lblW;
+        public int lblH;
+        public int lblA;
+        public int lblB;
+        public uint strRef;                 // often 0xFFFFFFFF
+        public string label;                // label/string text
+        public float lblFloat;              // ~font size or 0
+        // rev==1 fallback
+        public int rev1A;
+        public int rev1B;
         public List<fragment> fragments;
+        public int last;
+        public List<FontBlock> trailerBlocks;  // present when magic in {label,edit} && last==0; carries label string-refs + font
     }
 
     public string name = "";
+    public int revision;
+    public byte headerPad;
+    public int headerInt;
     public List<obj> objects = [];
 
     public INT(byte[] b)
     {
-        var ms = new MemoryStream();
-        ms.Write(b, 0, b.Length);
-        var br = new BinaryReader(ms);
-        br.BaseStream.Seek(0, SeekOrigin.Begin);
+        using var ms = new MemoryStream(b);
+        using var br = new BinaryReader(ms);
 
-        // TODO: implement two font logic (uncertain my ImHex pattern handles properly)
-        // var twofont = false;
-
-        // any reads not marked with a comment are unknown values that may be stored later (assumed type)
-
-        br.ReadBytes(7); // header, ignore
-        var revision = br.ReadByte() - 0x30; // 0x30 to convert ASCII to int
+        var sig = br.ReadBytes(7);
+        // sig should be "GUI V1." — engine signature; revision follows as ASCII digit
+        revision = br.ReadByte() - 0x30;
         var name_length = br.ReadInt32();
         name = new string(br.ReadChars(name_length));
-        br.ReadByte();
-        br.ReadInt32();
+        headerPad = br.ReadByte();
+        headerInt = br.ReadInt32();
+
         while (br.BaseStream.Position < br.BaseStream.Length)
         {
             var obj = new obj();
-            obj.magic = br.ReadInt32();
-            if (obj.magic == 1)
+            obj.magic = (magic)br.ReadInt32();
+            if (obj.magic == magic.button)
             {
                 if (revision == 3)
                 {
-                    // i have not researched this bit of data
-                    br.ReadBytes(5);
-                    var s1 = br.ReadInt32();
-                    br.ReadBytes(s1);
-                    var s2 = br.ReadInt32();
-                    br.ReadBytes(s2);
-                    var s3 = br.ReadInt32();
-                    br.ReadBytes(s3);
+                    var bs = new ButtonSounds();
+                    bs.head5 = br.ReadBytes(5);
+                    bs.soundDown  = new string(br.ReadChars(br.ReadInt32()));
+                    bs.soundUp    = new string(br.ReadChars(br.ReadInt32()));
+                    bs.soundHover = new string(br.ReadChars(br.ReadInt32()));
+                    obj.buttonSounds = bs;
                 }
                 else
                 {
-                    br.ReadInt32();
+                    obj.buttonRev12Int = br.ReadInt32();
                 }
             }
-            obj.rect1 = new rect();
-            obj.rect1.x1 = br.ReadInt32();
-            obj.rect1.y1 = br.ReadInt32();
-            obj.rect1.x2 = br.ReadInt32();
-            obj.rect1.y2 = br.ReadInt32();
-            var name_length2 = br.ReadInt32();
-            obj.name = new string(br.ReadChars(name_length2));
-            br.ReadBytes(3);
-            var ini_length = br.ReadInt32();
-            obj.ini = new string(br.ReadChars(ini_length));
-            br.ReadBytes(4);
-            obj.rect2 = new rect();
-            obj.rect2.x1 = br.ReadInt32();
-            obj.rect2.y1 = br.ReadInt32();
-            obj.rect2.x2 = br.ReadInt32();
-            obj.rect2.y2 = br.ReadInt32();
-            br.ReadByte();
+            obj.rect1 = ReadRect(br);
+            obj.name = new string(br.ReadChars(br.ReadInt32()));
+            obj.postName3 = br.ReadBytes(3);
+            obj.ini = new string(br.ReadChars(br.ReadInt32()));
+            obj.colorTint = br.ReadUInt32();
+            obj.rect2 = ReadRect(br);
+            obj.postRect2Byte = br.ReadByte();
             if (revision != 1)
             {
-                // for now, not storing this data
-                var width = br.ReadInt32();
-                var height = br.ReadInt32();
-                br.ReadInt32();
-                br.ReadInt32();
-                var string_ref = br.ReadInt32();
-                var string_length = br.ReadInt32();
-                var str = new string(br.ReadChars(string_length));
-                br.ReadSingle();
+                obj.lblW = br.ReadInt32();
+                obj.lblH = br.ReadInt32();
+                obj.lblA = br.ReadInt32();
+                obj.lblB = br.ReadInt32();
+                obj.strRef = br.ReadUInt32();
+                obj.label = new string(br.ReadChars(br.ReadInt32()));
+                obj.lblFloat = br.ReadSingle();
             }
             else
             {
-                br.ReadInt32();
-                br.ReadInt32();
+                obj.rev1A = br.ReadInt32();
+                obj.rev1B = br.ReadInt32();
+                obj.label = "";
             }
-            // read 9 fragments
-            obj.fragments = new List<fragment>();
+            obj.fragments = new List<fragment>(9);
             for (var i = 0; i < 9; i++)
             {
                 var frag = new fragment();
-                frag.width = br.ReadInt32();
-                frag.height = br.ReadInt32();
-                br.ReadInt32();
-                br.ReadInt32();
-                br.ReadInt32();
-                var tex_length = br.ReadInt32();
-                frag.texture = new string(br.ReadChars(tex_length));
-                br.ReadSingle();
-                br.ReadInt32();
-                frag.rect = new rect();
-                frag.rect.x1 = br.ReadInt32();
-                frag.rect.y1 = br.ReadInt32();
-                frag.rect.x2 = br.ReadInt32();
-                frag.rect.y2 = br.ReadInt32();
-                br.ReadInt32();
+                frag.srcW = br.ReadInt32();
+                frag.srcH = br.ReadInt32();
+                frag.fA = br.ReadInt32();
+                frag.fB = br.ReadInt32();
+                frag.fC = br.ReadInt32();
+                frag.texture = new string(br.ReadChars(br.ReadInt32()));
+                frag.fFloat = br.ReadSingle();
+                frag.tint = br.ReadUInt32();
+                frag.rect = ReadRect(br);
+                frag.fEnd = br.ReadInt32();
                 obj.fragments.Add(frag);
             }
-            var last = br.ReadInt32();
-            if (obj.magic >= 3 && last == 0)
+            obj.last = br.ReadInt32();
+            obj.trailerBlocks = new List<FontBlock>();
+            if ((int)obj.magic >= 3 && obj.last == 0)
             {
-                br.ReadInt32();
-                var string_length = br.ReadInt32();
-                var str = new string(br.ReadChars(string_length));
-                br.ReadBytes(42);
+                obj.trailerBlocks.Add(ReadFontBlock(br));
+                while (LooksLikeFontBlockStart(br))
+                    obj.trailerBlocks.Add(ReadFontBlock(br));
             }
             objects.Add(obj);
         }
-        br.Close();
-        ms.Close();
+    }
+
+    private static rect ReadRect(BinaryReader br) => new()
+    {
+        x1 = br.ReadInt32(),
+        y1 = br.ReadInt32(),
+        x2 = br.ReadInt32(),
+        y2 = br.ReadInt32(),
+    };
+
+    // The engine's GUI::Window constructor pre-populates each fragment slot with a
+    // default texture name of the form "zzmain{kind}-{slot-role}.tga" at a default
+    // size (16×16 corners, 64×16/16×64 edges, 64×64 center). Files that don't use
+    // nine-slice for a given slot leave those defaults in place. This detects them.
+    public static bool IsPlaceholderFragment(fragment f, magic m, int slot)
+    {
+        if (string.IsNullOrEmpty(f.texture)) return true;
+        var kindWord = m switch
+        {
+            magic.window => "window",
+            magic.button => "button",
+            magic.picture => "picture",
+            magic.label => "label",
+            magic.edit => "edit",
+            _ => null,
+        };
+        if (kindWord == null) return false;
+        if (!f.texture.StartsWith($"zzmain{kindWord}-", StringComparison.OrdinalIgnoreCase))
+            return false;
+        var (defW, defH) = slot switch
+        {
+            0 or 2 or 6 or 8 => (16, 16),
+            1 or 7           => (64, 16),
+            3 or 5           => (16, 64),
+            4                => (64, 64),
+            _                => (16, 16),
+        };
+        return f.srcW == defW && f.srcH == defH;
+    }
+
+    // Color stored in .int files is BGRA with B/G/R clamped to a 0x80 maximum
+    // (so 0x808080 represents "full white"). Expand to standard 0..255 RGBA for
+    // display in editors / ImGui.
+    public static uint ExpandBGRA(uint bgra)
+    {
+        var b = (bgra >> 0) & 0xFF;
+        var g = (bgra >> 8) & 0xFF;
+        var r = (bgra >> 16) & 0xFF;
+        var a = (bgra >> 24) & 0xFF;
+        // Scale 0..0x80 → 0..0xFF; clamp anything above.
+        static uint scale(uint c) => Math.Min(255u, c * 2);
+        return (a << 24) | (scale(r) << 16) | (scale(g) << 8) | scale(b);
+    }
+
+    // ImGui draw list expects ABGR (alpha in MSB). Convert from BGRA.
+    public static uint ToImGuiColor(uint bgra)
+    {
+        var b = (bgra >> 0) & 0xFF;
+        var g = (bgra >> 8) & 0xFF;
+        var r = (bgra >> 16) & 0xFF;
+        var a = (bgra >> 24) & 0xFF;
+        static uint scale(uint c) => Math.Min(255u, c * 2);
+        return (a << 24) | (scale(b) << 16) | (scale(g) << 8) | scale(r);
+    }
+
+    private static FontBlock ReadFontBlock(BinaryReader br) => new()
+    {
+        // Schema: stringRef(int) + name(len-prefixed) + 4 NULs + fontSize(int) + flag(int) + color(BGRA) + pad(26).
+        stringRef = br.ReadInt32(),
+        font = new string(br.ReadChars(br.ReadInt32())),
+        fontSize = ReadFontBlockFontSize(br),
+        flag = br.ReadInt32(),
+        color = br.ReadUInt32(),
+        pad = br.ReadBytes(26),
+    };
+
+    private static int ReadFontBlockFontSize(BinaryReader br)
+    {
+        br.ReadBytes(4);
+        return br.ReadInt32();
+    }
+
+    // Heuristic to detect a *second* font block after the first in a multi-block trailer.
+    // The first block is always present when last==0 (magic ∈ {label, edit}), so this
+    // only gates the loop. A font block starts with stringRef + len-prefixed font name.
+    // Bound: stringRef >= 16 disambiguates against the next object's magic (0..4).
+    private static bool LooksLikeFontBlockStart(BinaryReader br)
+    {
+        var s = br.BaseStream;
+        long start = s.Position;
+        if (s.Length - start < 16) return false;
+        try
+        {
+            int stringRef = br.ReadInt32();
+            int strLen = br.ReadInt32();
+            if (stringRef < 16 || stringRef >= 65536) return false;
+            if (strLen <= 0 || strLen >= 64) return false;
+            if (s.Length - s.Position < strLen) return false;
+            for (int i = 0; i < strLen; i++)
+            {
+                int c = br.ReadByte();
+                if (c < 32 || c >= 127) return false;
+            }
+            return true;
+        }
+        finally
+        {
+            s.Position = start;
+        }
     }
 }
 
