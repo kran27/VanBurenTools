@@ -97,6 +97,12 @@ public partial class EditorWindow
     private int _2mwtChunk;
     private CommandList _commandList = null!;
     private ImFontPtr? _consoleFont;
+    // Fonts referenced by .int LabelBlocks. Loaded once at startup at a base
+    // size; rendered at any size via ImDrawListPtr.AddText(font, size, ...).
+    // Lookup is case-insensitive on the font face name as it appears in files.
+    private readonly Dictionary<string, ImFontPtr> _intFonts =
+        new(StringComparer.OrdinalIgnoreCase);
+    private const float IntFontBaseSize = 24f;
     private dynamic _currentFile = null!;
 
     private int _eeovSelected = -1;
@@ -651,6 +657,14 @@ public partial class EditorWindow
             _consoleFont = io.Fonts.AddFontFromFileTTF(@"C:\Windows\Fonts\CascadiaCode.ttf", 16f);
             _imguiRenderer.RecreateFontDeviceTexture();
         }
+
+        // Load the fonts referenced by .int LabelBlocks. The TTFs ship with
+        // the game (Fonts/) for the two custom faces; Arial comes from Windows.
+        // Loaded once at IntFontBaseSize and scaled per-label at draw time.
+        TryAddIntFont("Gothic 821 Condensed BT", "Fonts/TT0807M_.TTF");
+        TryAddIntFont("fallouty",                 "Fonts/r_fallouty.ttf");
+        TryAddIntFont("Arial",                    @"C:\Windows\Fonts\arial.ttf");
+        if (_intFonts.Count > 0) _imguiRenderer.RecreateFontDeviceTexture();
         
         var desktopResolution = Screen.PrimaryScreen.Bounds.Size;
         _sceneRenderer = new SceneRenderer(_graphicsDevice, _imguiRenderer, _window, _commandList, desktopResolution.Width, desktopResolution.Height);
@@ -1339,6 +1353,9 @@ public partial class EditorWindow
     private bool _intShowDebugFields;
     private bool _intShowFullScene = true;
     private bool _intHighlightSelected = true;
+    // Default-hide objects (and their subtrees) where postName3[0] == 1 — those
+    // are pressed/down-state alternates that should only show when activated.
+    private bool _intHidePressed = true;
     // Render mode: 0 = all 9 fragments raw; 1 = center slot only; 2 = use
     // postName3[1] as a per-object border-render flag (nonzero ⇒ draw all 9,
     // zero ⇒ draw only the center). Default to the border-flag mode since it
@@ -1346,6 +1363,9 @@ public partial class EditorWindow
     private int _intFragmentMode = 2;
     private static readonly string[] _intFragmentModeNames =
         ["All 9 (raw)", "Center only (slot 4)", "Border-flag (postName3[1])"];
+    // Set when the canvas changes the selection so the tree pane scrolls
+    // and force-opens the ancestors of the new selection on the next render.
+    private bool _intRevealSelection;
     private readonly Dictionary<string, IntPtr> _intTexBindings = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, Vector2> _intTexSizes = new(StringComparer.OrdinalIgnoreCase);
     private readonly List<Texture> _intTexOwners = [];
@@ -1418,32 +1438,33 @@ public partial class EditorWindow
         ImGui.SameLine();
         ImGui.Checkbox("Highlight selected", ref _intHighlightSelected);
         ImGui.SameLine();
+        ImGui.Checkbox("Hide pressed", ref _intHidePressed);
+        ImGui.SameLine();
         ImGui.Checkbox("Debug fields", ref _intShowDebugFields);
         ImGui.SameLine();
         ImGui.SetNextItemWidth(120);
         ImGui.SliderFloat("Zoom", ref _intCanvasZoom, 0.25f, 2.0f, "%.2fx");
 
         if (gui.objects.Count == 0) { ImGui.End(); return; }
-        if (_intSelectedObj < 0 || _intSelectedObj >= gui.objects.Count) _intSelectedObj = 0;
 
         var avail = ImGui.GetContentRegionAvail();
         ImGui.BeginChild("##intObjs", new Vector2(260, avail.Y), true);
-        for (var i = 0; i < gui.objects.Count; i++)
-        {
-            var o = gui.objects[i];
-            var kindName = o.magic.ToString();
-            var label = $"[{(kindName.Length > 0 ? char.ToUpper(kindName[0]) : '?')}] {o.name}##{i}";
-            if (ImGui.Selectable(label, i == _intSelectedObj))
-                _intSelectedObj = i;
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip($"magic={(int)o.magic} ({kindName})\nrect1 {o.rect1.x1},{o.rect1.y1} → {o.rect1.x2},{o.rect1.y2}\nini={o.ini}");
-        }
+        var flat = new List<(int globalIdx, int depth, INT.obj o)>();
+        FlattenIntObjects(gui.objects, 0, flat);
+        if (_intSelectedObj < 0 || _intSelectedObj >= flat.Count) _intSelectedObj = 0;
+        // Render the object list as a real collapsible tree.
+        var nextIdx = 0;
+        foreach (var root in gui.objects)
+            DrawIntObjectTree(root, ref nextIdx);
+        // The reveal flag was a one-shot — consumed by this draw pass.
+        _intRevealSelection = false;
         ImGui.EndChild();
 
         ImGui.SameLine();
 
         ImGui.BeginChild("##intRight", new Vector2(0, avail.Y), false);
-        DrawIntObjectInspector(gui, gui.objects[_intSelectedObj]);
+        var selectedObj = flat[_intSelectedObj].o;
+        DrawIntObjectInspector(gui, selectedObj);
         ImGui.EndChild();
 
         ImGui.End();
@@ -1480,8 +1501,6 @@ public partial class EditorWindow
         ImGui.Text($"rect1: ({o.rect1.x1}, {o.rect1.y1}) → ({o.rect1.x2}, {o.rect1.y2})  [{o.rect1.Width}×{o.rect1.Height}]");
         ImGui.Text($"rect2: ({o.rect2.x1}, {o.rect2.y1}) → ({o.rect2.x2}, {o.rect2.y2})  [{o.rect2.Width}×{o.rect2.Height}]");
         ImGui.Text($"colorTint: 0x{o.colorTint:X8}  BGRA (0x80=full)  → display 0x{INT.ExpandBGRA(o.colorTint):X8}");
-        if (!string.IsNullOrEmpty(o.label))
-            ImGui.Text($"Label: {o.label}");
 
         if (o.buttonSounds is INT.ButtonSounds bs)
         {
@@ -1491,41 +1510,54 @@ public partial class EditorWindow
             ImGui.Text($"hover: {bs.soundHover}");
         }
 
-        if (o.trailerBlocks is { Count: > 0 } blocks)
+        if (o.labelBlock is INT.LabelBlock lb)
         {
-            ImGui.Separator(); ImGui.TextDisabled($"Font / style ({blocks.Count} block{(blocks.Count == 1 ? "" : "s")})");
-            for (var i = 0; i < blocks.Count; i++)
+            ImGui.Separator(); ImGui.TextDisabled("Label / font block");
+            var resolved = ResolveStringRef(lb.stringRef);
+            var justifyName = lb.Justify switch
             {
-                var fb = blocks[i];
-                var resolved = ResolveStringRef(fb.stringRef);
-                var justifyName = (fb.pad is { Length: > 2 }) ? fb.pad[2] switch
-                {
-                    0 => "left", 1 => "right", 2 => "center", var x => $"?({x})"
-                } : "?";
-                ImGui.Text($"#{i}: stringRef={fb.stringRef}  font=\"{fb.font}\"  size={fb.fontSize}  color=0x{fb.color:X8}  justify={justifyName}");
-                if (!string.IsNullOrEmpty(resolved))
-                {
-                    ImGui.SameLine();
-                    ImGui.TextDisabled($"→ \"{resolved}\"");
-                }
+                0 => "left", 1 => "right", 2 => "center", var x => $"?({x})"
+            };
+            var valignName = lb.VAlign switch
+            {
+                0 => "top", 1 => "bottom", 2 => "center", var x => $"?({x})"
+            };
+            ImGui.Text($"stringRef={lb.stringRef}  font=\"{lb.font}\"  size={lb.fontSize}  color=0x{lb.color:X8}  H={justifyName}  V={valignName}");
+            if (!string.IsNullOrEmpty(resolved))
+            {
+                ImGui.SameLine();
+                ImGui.TextDisabled($"→ \"{resolved}\"");
             }
+        }
+
+        if (o.strings is { Count: > 0 } objStrings)
+        {
+            ImGui.Separator(); ImGui.TextDisabled($"Per-object strings ({objStrings.Count})");
+            foreach (var (idx, val) in objStrings)
+                ImGui.Text($"  [{idx}] \"{val}\"");
+        }
+
+        if (o.children is { Count: > 0 } kids)
+        {
+            ImGui.Separator(); ImGui.TextDisabled($"Children ({kids.Count})");
+            foreach (var c in kids)
+                ImGui.Text($"  - {c.magic} \"{c.name}\"");
         }
 
         if (_intShowDebugFields)
         {
             ImGui.Separator(); ImGui.TextDisabled("Raw / undecoded");
             ImGui.Text($"postName3:  {BitConverter.ToString(o.postName3 ?? [])}");
-            ImGui.Text($"postRect2Byte: 0x{o.postRect2Byte:X2}");
-            ImGui.Text($"lblW={o.lblW}  lblH={o.lblH}  lblA={o.lblA}  lblB={o.lblB}");
-            ImGui.Text($"strRef=0x{o.strRef:X8}  lblFloat={o.lblFloat}");
-            ImGui.Text($"last={o.last}");
+            ImGui.Text($"v2Byte=0x{o.v2Byte:X2}  v2Int=0x{o.v2Int:X8}");
+            if (o.v3Str1 != null)
+                ImGui.Text($"v3 strs=[\"{o.v3Str1}\",\"{o.v3Str2}\",\"{o.v3Str3}\"]  ints=[0x{o.v3Int1:X8}, 0x{o.v3Int2:X8}]");
+            ImGui.Text($"trailerSentinel(v12)={o.trailerSentinel}  childCount={o.childCount}");
             if (o.buttonRev12Int.HasValue)
                 ImGui.Text($"buttonRev12Int={o.buttonRev12Int.Value}");
-            if (o.trailerBlocks is { Count: > 0 } blocks2)
+            if (o.labelBlock is INT.LabelBlock lb2)
             {
-                ImGui.Separator(); ImGui.TextDisabled("FontBlock pad bytes");
-                for (var i = 0; i < blocks2.Count; i++)
-                    ImGui.Text($"#{i}: {BitConverter.ToString(blocks2[i].pad ?? [])}");
+                ImGui.Separator(); ImGui.TextDisabled("LabelBlock undecoded ints");
+                ImGui.Text($"padInt=0x{lb2.padInt:X8}  b3432=0x{lb2.byte3432:X2}  b3433=0x{lb2.byte3433:X2}  justifyInt=0x{lb2.justifyInt:X8}  3612=0x{lb2.int3612:X8}  3616=0x{lb2.int3616:X8}  3620=0x{lb2.int3620:X8}  3624=0x{lb2.int3624:X8}  ext=0x{lb2.versionExtra:X8}");
             }
         }
     }
@@ -1535,17 +1567,16 @@ public partial class EditorWindow
 
     private void DrawIntFragmentsTab(INT.obj o)
     {
-        if (ImGui.BeginTable("##intFrags", 8,
+        if (ImGui.BeginTable("##intFrags", 7,
                 ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
         {
             ImGui.TableSetupColumn("Slot");
             ImGui.TableSetupColumn("Use");
             ImGui.TableSetupColumn("Texture");
-            ImGui.TableSetupColumn("Src");
             ImGui.TableSetupColumn("Dst");
-            ImGui.TableSetupColumn("Tile");
+            ImGui.TableSetupColumn("TileMode");
             ImGui.TableSetupColumn("Tint");
-            ImGui.TableSetupColumn("fEnd");
+            ImGui.TableSetupColumn("vtxTint");
             ImGui.TableHeadersRow();
             for (var i = 0; i < o.fragments.Count; i++)
             {
@@ -1555,27 +1586,96 @@ public partial class EditorWindow
                 ImGui.TableNextColumn(); ImGui.Text(_intSlotNames[i]);
                 ImGui.TableNextColumn(); ImGui.TextDisabled(willDraw ? "draw" : "skip");
                 ImGui.TableNextColumn(); ImGui.Text(string.IsNullOrEmpty(f.texture) ? "(none)" : f.texture);
-                ImGui.TableNextColumn(); ImGui.Text($"{f.srcW}×{f.srcH}");
                 ImGui.TableNextColumn(); ImGui.Text($"{f.rect.Width}×{f.rect.Height}");
                 ImGui.TableNextColumn(); ImGui.Text(DescribeTileMode(f));
                 ImGui.TableNextColumn(); ImGui.Text($"0x{f.tint:X8}");
-                ImGui.TableNextColumn(); ImGui.Text(f.fEnd.ToString());
+                ImGui.TableNextColumn(); ImGui.Text($"0x{f.vtxTint:X8}");
             }
             ImGui.EndTable();
         }
     }
 
-    private static string DescribeTileMode(INT.fragment f)
+    // Engine sub_4B1B00 reads `*(this+0x1C)` as the tile flag:
+    //   0 = stretch, 1 = tile vertically, 2 = tile horizontally,
+    //   3 = tile both, bit 2 (4) = atlas/special UV mode.
+    private static string DescribeTileMode(INT.fragment f) => f.tileMode switch
     {
-        // We render with the texture's intrinsic dimensions as the tile unit, so
-        // tiling happens whenever dst > tex_intrinsic. The src field appears to
-        // be a hint, not the actual tile flag — derive mode from real geometry.
-        var tilesX = f.srcW > 1 && f.rect.Width > f.srcW;
-        var tilesY = f.srcH > 1 && f.rect.Height > f.srcH;
-        if (tilesX && tilesY) return "TileBoth";
-        if (tilesX) return "TileX";
-        if (tilesY) return "TileY";
-        return "Stretch";
+        0 => "Stretch",
+        1 => "TileY",
+        2 => "TileX",
+        3 => "TileBoth",
+        _ => (f.tileMode & 4) != 0 ? $"Atlas({f.tileMode})" : $"?({f.tileMode})",
+    };
+
+    // Walk the object tree depth-first, assigning each visited node a unique
+    // global index (its position in the flat sequence). Used for selection
+    // across the hierarchical tree and as the rendering iteration order.
+    private static void FlattenIntObjects(List<INT.obj> objects, int depth, List<(int, int, INT.obj)> output)
+    {
+        foreach (var o in objects)
+        {
+            output.Add((output.Count, depth, o));
+            if (o.children is { Count: > 0 })
+                FlattenIntObjects(o.children, depth + 1, output);
+        }
+    }
+
+    // Recursive renderer for the collapsible object list. Walks the tree in
+    // the same depth-first order as FlattenIntObjects so the global index
+    // here matches `_intSelectedObj` driven by the canvas/inspector.
+    private void DrawIntObjectTree(INT.obj o, ref int nextIdx)
+    {
+        var myIdx = nextIdx++;
+        var kindName = o.magic.ToString();
+        var label = $"[{(kindName.Length > 0 ? char.ToUpper(kindName[0]) : '?')}] {o.name}";
+        var hasKids = o.children is { Count: > 0 };
+        // Subtree spans [myIdx+1 .. myIdx+subtreeCount] inclusive.
+        var subtreeCount = CountSubtree(o);
+        var selectionInSubtree = _intSelectedObj > myIdx && _intSelectedObj <= myIdx + subtreeCount;
+
+        var flags = ImGuiTreeNodeFlags.OpenOnArrow | ImGuiTreeNodeFlags.OpenOnDoubleClick |
+                    ImGuiTreeNodeFlags.SpanFullWidth;
+        if (myIdx == _intSelectedObj) flags |= ImGuiTreeNodeFlags.Selected;
+        if (!hasKids) flags |= ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen;
+
+        // When a canvas click moved the selection into this subtree, force the
+        // ancestor open and scroll it into view so the user actually sees it.
+        if (_intRevealSelection && (myIdx == _intSelectedObj || selectionInSubtree))
+        {
+            if (selectionInSubtree) ImGui.SetNextItemOpen(true);
+            ImGui.SetScrollHereY();
+        }
+
+        var open = ImGui.TreeNodeEx($"{label}##int{myIdx}", flags);
+        if (ImGui.IsItemClicked() && !ImGui.IsItemToggledOpen())
+            _intSelectedObj = myIdx;
+        if (ImGui.IsItemHovered())
+            ImGui.SetTooltip($"magic={(int)o.magic} ({kindName})\nrect1 {o.rect1.x1},{o.rect1.y1} → {o.rect1.x2},{o.rect1.y2}\nini={o.ini}");
+
+        if (hasKids)
+        {
+            if (open)
+            {
+                foreach (var c in o.children)
+                    DrawIntObjectTree(c, ref nextIdx);
+                ImGui.TreePop();
+            }
+            else
+            {
+                // Skip past the collapsed subtree's indices so we stay in sync
+                // with FlattenIntObjects' depth-first numbering.
+                nextIdx += subtreeCount;
+            }
+        }
+    }
+
+    // Total descendant count (not including `o` itself).
+    private static int CountSubtree(INT.obj o)
+    {
+        if (o.children is not { Count: > 0 } kids) return 0;
+        var n = 0;
+        foreach (var c in kids) n += 1 + CountSubtree(c);
+        return n;
     }
 
     private bool ShouldDrawFragment(INT.obj o, int slot)
@@ -1613,19 +1713,82 @@ public partial class EditorWindow
         // Clip every draw to the viewport so off-canvas geometry doesn't leak.
         ImGui.PushClipRect(origin, origin + new Vector2(w, h), true);
 
+        // Use the same flattened list the object-list pane builds, so the
+        // global index in `_intSelectedObj` lines up with the object that
+        // gets the highlight outline. INT.obj is a struct, so we can't
+        // identify the selected one by reference equality.
+        var flat = new List<(int globalIdx, int depth, INT.obj o)>();
+        FlattenIntObjects(gui.objects, 0, flat);
+        // Build the list of "effectively visible" objects (skipping any subtree
+        // whose root is pressed-hidden — children inherit hidden state). Using a
+        // recursive walk that mirrors FlattenIntObjects' depth-first numbering
+        // so global indices stay aligned with the tree pane and selection.
+        var visible = new List<(int globalIdx, INT.obj o)>();
         if (_intShowFullScene)
         {
-            for (var oi = 0; oi < gui.objects.Count; oi++)
-                DrawIntObject(dl, origin, gui.objects[oi], oi == _intSelectedObj && _intHighlightSelected);
+            int walkIdx = 0;
+            foreach (var root in gui.objects)
+                CollectVisible(root, ref walkIdx, visible);
         }
         else
         {
-            DrawIntObject(dl, origin, selected, _intHighlightSelected);
+            var (selIdx, _, selObj) = flat[_intSelectedObj];
+            int walkIdx = selIdx;
+            CollectVisible(selObj, ref walkIdx, visible);
         }
+        foreach (var (gi, o) in visible)
+            DrawIntObject(dl, origin, o, gi == _intSelectedObj && _intHighlightSelected);
 
         ImGui.PopClipRect();
-        ImGui.Dummy(new Vector2(w, h));
+
+        // Hit-testing: clicking inside the canvas selects the deepest object
+        // whose rect1 contains the cursor — children draw over parents, so the
+        // deepest match is the one the user visually sees on top. Walk the
+        // same flat depth-first list used for rendering; iterate in reverse
+        // so deeper entries (rendered last) win ties.
+        ImGui.InvisibleButton("##intCanvasHit", new Vector2(w, h));
+        if (ImGui.IsItemHovered() && ImGui.IsMouseClicked(0))
+        {
+            var mouse = ImGui.GetMousePos();
+            var vx = (mouse.X - origin.X) / _intCanvasZoom;
+            var vy = (mouse.Y - origin.Y) / _intCanvasZoom;
+            // Only visible (non-hidden-subtree) objects can be hit. Iterate
+            // in reverse so deeper-rendered (topmost) entries win ties.
+            for (var i = visible.Count - 1; i >= 0; i--)
+            {
+                var (gi, o) = visible[i];
+                var r = o.rect1;
+                if (vx >= r.x1 && vx < r.x2 && vy >= r.y1 && vy < r.y2)
+                {
+                    if (_intSelectedObj != gi) _intRevealSelection = true;
+                    _intSelectedObj = gi;
+                    break;
+                }
+            }
+        }
         ImGui.EndChild();
+    }
+
+    private bool IsPressedHidden(INT.obj o) =>
+        _intHidePressed && o.postName3 is { Length: > 0 } p && p[0] == 1;
+
+    // Depth-first walk that emits visible (non-hidden) entries while keeping
+    // global indices in lockstep with FlattenIntObjects. When a node is
+    // pressed-hidden, the entire subtree is skipped (children inherit hidden
+    // state). The index counter still advances over skipped descendants so
+    // later siblings keep their correct global index.
+    private void CollectVisible(INT.obj o, ref int idx, List<(int, INT.obj)> output)
+    {
+        var myIdx = idx++;
+        if (IsPressedHidden(o))
+        {
+            idx += CountSubtree(o);
+            return;
+        }
+        output.Add((myIdx, o));
+        if (o.children is { Count: > 0 } kids)
+            foreach (var c in kids)
+                CollectVisible(c, ref idx, output);
     }
 
     private void DrawIntObject(ImDrawListPtr dl, Vector2 origin, INT.obj o, bool highlighted)
@@ -1644,6 +1807,7 @@ public partial class EditorWindow
         }
     }
 
+
     private string ResolveStringRef(int sr)
     {
         if (sr <= 0 || _stf is null) return "";
@@ -1652,36 +1816,104 @@ public partial class EditorWindow
         return _stf[idx] ?? "";
     }
 
+    private void TryAddIntFont(string faceName, string path)
+    {
+        if (!File.Exists(path)) return;
+        var fp = ImGui.GetIO().Fonts.AddFontFromFileTTF(path, IntFontBaseSize);
+        _intFonts[faceName] = fp;
+    }
+
     // Render visible text for Label/Edit objects via the global string table
-    // (_stf) using FontBlock.stringRef as a 1-based index — same lookup the
+    // (_stf) using LabelBlock.stringRef as a 1-based index — same lookup the
     // STFBox editor widget uses for entity name refs.
     private void DrawObjectText(ImDrawListPtr dl, Vector2 origin, INT.obj o)
     {
         if (o.magic != INT.magic.label && o.magic != INT.magic.edit) return;
-        if (o.trailerBlocks is not { Count: > 0 } blocks) return;
-        var fb = blocks[0];
-        var text = ResolveStringRef(fb.stringRef);
-        if (string.IsNullOrEmpty(text)) text = !string.IsNullOrEmpty(o.label) ? o.label : $"#{fb.stringRef}";
-        var color = INT.ToImGuiColor(fb.color);
+        if (o.labelBlock is not INT.LabelBlock lb) return;
+        var text = ResolveStringRef(lb.stringRef);
+        if (string.IsNullOrEmpty(text)) text = $"#{lb.stringRef}";
+        var color = INT.ToImGuiColor(lb.color);
 
         var rectP1 = origin + new Vector2(o.rect1.x1, o.rect1.y1) * _intCanvasZoom;
         var rectP2 = origin + new Vector2(o.rect1.x2, o.rect1.y2) * _intCanvasZoom;
-        var rectW = rectP2.X - rectP1.X;
-        var rectH = rectP2.Y - rectP1.Y;
+        var rectW = MathF.Max(1, rectP2.X - rectP1.X);
 
-        var textSize = ImGui.CalcTextSize(text);
-        // pad[2]: 0=left, 1=right, 2=center horizontal alignment.
-        var justify = (fb.pad is { Length: > 2 } pad) ? pad[2] : (byte)0;
-        var x = justify switch
+        // Use the LabelBlock's actual font (loaded at startup) and font size,
+        // scaled by the canvas zoom. The engine's font creator interprets
+        // fontSize as a Win32 LOGFONT logical-units value (≈ point size); to
+        // get equivalent pixel height we scale by 96/72 (standard 96-DPI pt→px).
+        var fontSize = MathF.Max(1, lb.fontSize * (96f / 72f) * _intCanvasZoom);
+        var hasCustomFont = _intFonts.TryGetValue(lb.font ?? "", out var font);
+
+        var lines = WrapTextFont(text, rectW, hasCustomFont ? font : null, fontSize);
+        var lineH = fontSize;
+        var rectH = MathF.Max(0, rectP2.Y - rectP1.Y);
+        var blockH = lineH * lines.Count;
+        // versionExtra (LabelBlock.VAlign): 0=top, 1=bottom, 2=center.
+        var yOffset = lb.VAlign switch
         {
-            1 => rectP2.X - textSize.X,
-            2 => rectP1.X + (rectW - textSize.X) * 0.5f,
-            _ => rectP1.X,
+            1 => rectH - blockH,
+            2 => (rectH - blockH) * 0.5f,
+            _ => 0f,
         };
-        // Vertically center within the rect — ImGui's default font has no
-        // baseline metric we can rely on, so this is the cleanest default.
-        var y = rectP1.Y + (rectH - textSize.Y) * 0.5f;
-        dl.AddText(new Vector2(x, y), color, text);
+        for (var li = 0; li < lines.Count; li++)
+        {
+            var line = lines[li];
+            var lineSize = MeasureText(line, hasCustomFont ? font : null, fontSize);
+            var x = lb.Justify switch
+            {
+                1 => rectP2.X - lineSize.X,
+                2 => rectP1.X + (rectW - lineSize.X) * 0.5f,
+                _ => rectP1.X,
+            };
+            var pos = new Vector2(x, rectP1.Y + yOffset + li * lineH);
+            if (hasCustomFont)
+                dl.AddText(font, fontSize, pos, color, line);
+            else
+                dl.AddText(pos, color, line);
+        }
+    }
+
+    // Measure a string using the given font + size (or the default ImGui font
+    // when font is null). Uses PushFont + CalcTextSize then linearly scales
+    // by size/IntFontBaseSize since ImGui.NET in this project doesn't expose
+    // ImFont.CalcTextSizeA.
+    private static Vector2 MeasureText(string text, ImFontPtr? font, float size)
+    {
+        if (font is ImFontPtr f)
+        {
+            ImGui.PushFont(f);
+            var baseSize = ImGui.CalcTextSize(text);
+            ImGui.PopFont();
+            return baseSize * (size / IntFontBaseSize);
+        }
+        return ImGui.CalcTextSize(text);
+    }
+
+    // Greedy word-wrap using the (font, size)-aware measurement so wrap points
+    // line up with what AddText actually draws. Long single words go on their
+    // own line (no character splitting).
+    private static List<string> WrapTextFont(string text, float maxWidth, ImFontPtr? font, float size)
+    {
+        var lines = new List<string>();
+        foreach (var paragraph in text.Split('\n'))
+        {
+            var words = paragraph.Split(' ');
+            var current = "";
+            foreach (var word in words)
+            {
+                var candidate = current.Length == 0 ? word : current + " " + word;
+                if (MeasureText(candidate, font, size).X <= maxWidth)
+                    current = candidate;
+                else
+                {
+                    if (current.Length > 0) lines.Add(current);
+                    current = word;
+                }
+            }
+            lines.Add(current);
+        }
+        return lines;
     }
 
     private void DrawFragment(ImDrawListPtr dl, Vector2 origin, INT.fragment f)

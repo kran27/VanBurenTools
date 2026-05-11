@@ -1879,27 +1879,45 @@ public class INT
         public int Height => y2 - y1;
     }
 
+    // Per ReadGUIFragment (sub_4B20A0): 6 ints into this+0x1C..0x30, then a
+    // length-prefixed texture name, then this+0xC0 (per-vertex tint, replicated
+    // 3×), then this+340 (BGRA color), then 16 bytes rect. Total 52+N bytes.
     public struct fragment
     {
-        public int srcW;     // source TGA intrinsic width (corners 32; edges/center 1)
-        public int srcH;     // source TGA intrinsic height
-        public int fA, fB;   // observed always 0
-        public int fC;       // observed almost always 1
+        public int tileMode;   // this+0x1C; 0=stretch, 1=tileY, 2=tileX, 3=tileBoth, bit2=atlas (per sub_4B1B00)
+        public int i_32;
+        public int i_36;
+        public int i_40;
+        public int i_44;
+        public int i_48;
         public string texture;
-        public float fFloat; // observed ~0.114 — likely alpha/blend
-        public uint tint;    // BGRA, B/G/R clamped to 0x80 max (so 0x808080 ≈ "full white"); A is opacity
-        public rect rect;    // destination rect within parent window
-        public int fEnd;     // slot-anchor: per-slot constants (UL=1, UM=0, UR=2, L=3/0, M=2, R=0, LL=1, LM=0, LR=-1)
+        public uint vtxTint;   // this+0xC0; per-vertex tint, replicated to 3 verts
+        public uint tint;      // this+340; BGRA color, B/G/R clamped to 0x80
+        public rect rect;      // destination rect within parent window
     }
 
-    public struct FontBlock
+    // Label/Edit "extension block" appended after the base GUI object data.
+    // Mirrors the file reads in GUI::Label::ReadGUIObject (sub_4AA640). Fields
+    // are named after the in-memory offsets the engine writes them to.
+    public struct LabelBlock
     {
-        public int stringRef;  // string-table reference (label text lookup; varies per label)
-        public string font;    // font face name e.g. "Gothic 821 Condensed BT", "Fallouty"
-        public int fontSize;
-        public int flag;       // observed always 1
-        public uint color;     // BGRA, B/G/R clamped to 0x80 max
-        public byte[] pad;     // 26 bytes; pad[2] = horizontal justification (0=left, 1=right, 2=center)
+        public int stringRef;   // this+3356; 1-based string-table index for label text
+        public string font;     // this+3388; font face name e.g. "Gothic 821 Condensed BT"
+        public int padInt;      // this+3416; observed always 0
+        public int fontSize;    // this+3420
+        public int flag;        // this+3424; observed always 1
+        public uint color;      // this+3428; BGRA, B/G/R clamped to 0x80
+        public byte byte3432;   // this+3432
+        public byte byte3433;   // this+3433
+        public int justifyInt;  // this+3436; low byte = horizontal justification (0=left,1=right,2=center)
+        public int int3612;
+        public int int3616;
+        public int int3620;
+        public int int3624;
+        public int versionExtra;// this+3652; vertical alignment (0=top, 1=bottom, 2=center). Present when engine version >= 1.
+
+        public byte Justify => (byte)(justifyInt & 0xFF);
+        public byte VAlign  => (byte)(versionExtra & 0xFF);
     }
 
     public struct ButtonSounds
@@ -1913,35 +1931,41 @@ public class INT
     public struct obj
     {
         public magic magic;
-        public ButtonSounds? buttonSounds;  // present when magic==button in rev3
-        public int? buttonRev12Int;         // present when magic==button in rev<3
+        public ButtonSounds? buttonSounds;  // present when magic==button && engineVersion==4
+        public int? buttonRev12Int;         // present when magic==button && engineVersion<4
         public rect rect1;
         public string name;
-        public byte[] postName3;            // 3 bytes after name
+        public byte[] postName3;            // 3 separate single-byte fields after name.
+                                            // [0] = button state (0=up/normal, 1=down/pressed)
+                                            // [1] = render border slots of the 9-slice (0=center only, nonzero=all 9)
+                                            // [2] = ?
         public string ini;
-        public uint colorTint;              // 4 bytes after ini, BGRA (B/G/R clamped to 0x80)
+        public uint colorTint;              // BGRA (B/G/R clamped to 0x80)
         public rect rect2;
-        public byte postRect2Byte;
-        // rev>=2 label/font block
-        public int lblW;
-        public int lblH;
-        public int lblA;
-        public int lblB;
-        public uint strRef;                 // often 0xFFFFFFFF
-        public string label;                // label/string text
-        public float lblFloat;              // ~font size or 0
-        // rev==1 fallback
-        public int rev1A;
-        public int rev1B;
+        // engineVersion >= 2 (V1.1+) post-rect2 block
+        public byte v2Byte;                 // this+96
+        public int v2Int;                   // this+100; passed to vtable+116 setter
+        // engineVersion >= 3 (V1.2+) post-v2 block
+        public string v3Str1;               // this+3256
+        public int v3Int1;                  // this+3284
+        public string v3Str2;               // this+3288
+        public int v3Int2;                  // this+3316
+        public string v3Str3;               // this+3320
         public List<fragment> fragments;
-        public int last;
-        public List<FontBlock> trailerBlocks;  // present when magic in {label,edit} && last==0; carries label string-refs + font
+        // Engine trailer: v12 sentinel + optional string list + v13 child count + recursive children.
+        public int trailerSentinel;         // engine v12; -1 means "no per-object string list"
+        public Dictionary<int, string> strings;  // per-object string buffer (1-based slots from v12)
+        public int childCount;              // engine v13
+        public List<obj> children;          // recursive children (read via same dispatcher)
+        // Label/Edit extension block (engine GUI::Label::ReadGUIObject) — read AFTER children.
+        public LabelBlock? labelBlock;
     }
 
     public string name = "";
-    public int revision;
+    public int revision;                    // 0..3 (engine version - 1; from header byte 'V1.X')
+    public int engineVersion => revision + 1; // 1..4 — used by per-version branches
     public byte headerPad;
-    public int headerInt;
+    public int headerInt;                   // NumFiles (root-object count)
     public List<obj> objects = [];
 
     public INT(byte[] b)
@@ -1950,83 +1974,103 @@ public class INT
         using var br = new BinaryReader(ms);
 
         var sig = br.ReadBytes(7);
-        // sig should be "GUI V1." — engine signature; revision follows as ASCII digit
+        // sig should be "GUI V1." — engine signature; revision follows as ASCII digit ('0'..'3').
         revision = br.ReadByte() - 0x30;
         var name_length = br.ReadInt32();
         name = new string(br.ReadChars(name_length));
         headerPad = br.ReadByte();
         headerInt = br.ReadInt32();
 
-        while (br.BaseStream.Position < br.BaseStream.Length)
+        // The format is hierarchical: read NumFiles root objects, each of which
+        // recursively contains its own children via ReadGUIObject's trailer.
+        for (var i = 0; i < headerInt; i++)
+            objects.Add(ReadObject(br));
+    }
+
+    private obj ReadObject(BinaryReader br)
+    {
+        var o = new obj();
+        o.magic = (magic)br.ReadInt32();
+        // Button (magic=1) overrides the read function with a sound-refs prefix.
+        if (o.magic == magic.button)
         {
-            var obj = new obj();
-            obj.magic = (magic)br.ReadInt32();
-            if (obj.magic == magic.button)
+            if (engineVersion == 4)
             {
-                if (revision == 3)
+                var bs = new ButtonSounds
                 {
-                    var bs = new ButtonSounds();
-                    bs.head5 = br.ReadBytes(5);
-                    bs.soundDown  = new string(br.ReadChars(br.ReadInt32()));
-                    bs.soundUp    = new string(br.ReadChars(br.ReadInt32()));
-                    bs.soundHover = new string(br.ReadChars(br.ReadInt32()));
-                    obj.buttonSounds = bs;
-                }
-                else
-                {
-                    obj.buttonRev12Int = br.ReadInt32();
-                }
-            }
-            obj.rect1 = ReadRect(br);
-            obj.name = new string(br.ReadChars(br.ReadInt32()));
-            obj.postName3 = br.ReadBytes(3);
-            obj.ini = new string(br.ReadChars(br.ReadInt32()));
-            obj.colorTint = br.ReadUInt32();
-            obj.rect2 = ReadRect(br);
-            obj.postRect2Byte = br.ReadByte();
-            if (revision != 1)
-            {
-                obj.lblW = br.ReadInt32();
-                obj.lblH = br.ReadInt32();
-                obj.lblA = br.ReadInt32();
-                obj.lblB = br.ReadInt32();
-                obj.strRef = br.ReadUInt32();
-                obj.label = new string(br.ReadChars(br.ReadInt32()));
-                obj.lblFloat = br.ReadSingle();
+                    head5      = br.ReadBytes(5),
+                    soundDown  = new string(br.ReadChars(br.ReadInt32())),
+                    soundUp    = new string(br.ReadChars(br.ReadInt32())),
+                    soundHover = new string(br.ReadChars(br.ReadInt32())),
+                };
+                o.buttonSounds = bs;
             }
             else
             {
-                obj.rev1A = br.ReadInt32();
-                obj.rev1B = br.ReadInt32();
-                obj.label = "";
+                o.buttonRev12Int = br.ReadInt32();
             }
-            obj.fragments = new List<fragment>(9);
-            for (var i = 0; i < 9; i++)
-            {
-                var frag = new fragment();
-                frag.srcW = br.ReadInt32();
-                frag.srcH = br.ReadInt32();
-                frag.fA = br.ReadInt32();
-                frag.fB = br.ReadInt32();
-                frag.fC = br.ReadInt32();
-                frag.texture = new string(br.ReadChars(br.ReadInt32()));
-                frag.fFloat = br.ReadSingle();
-                frag.tint = br.ReadUInt32();
-                frag.rect = ReadRect(br);
-                frag.fEnd = br.ReadInt32();
-                obj.fragments.Add(frag);
-            }
-            obj.last = br.ReadInt32();
-            obj.trailerBlocks = new List<FontBlock>();
-            if ((int)obj.magic >= 3 && obj.last == 0)
-            {
-                obj.trailerBlocks.Add(ReadFontBlock(br));
-                while (LooksLikeFontBlockStart(br))
-                    obj.trailerBlocks.Add(ReadFontBlock(br));
-            }
-            objects.Add(obj);
         }
+        // Base ReadGUIObject (sub_4B10F0) body
+        o.rect1 = ReadRect(br);
+        o.name = new string(br.ReadChars(br.ReadInt32()));
+        o.postName3 = br.ReadBytes(3);
+        o.ini = new string(br.ReadChars(br.ReadInt32()));
+        o.colorTint = br.ReadUInt32();
+        o.rect2 = ReadRect(br);
+        if (engineVersion >= 2)
+        {
+            o.v2Byte = br.ReadByte();
+            o.v2Int = br.ReadInt32();
+        }
+        if (engineVersion >= 3)
+        {
+            o.v3Str1 = new string(br.ReadChars(br.ReadInt32()));
+            o.v3Int1 = br.ReadInt32();
+            o.v3Str2 = new string(br.ReadChars(br.ReadInt32()));
+            o.v3Int2 = br.ReadInt32();
+            o.v3Str3 = new string(br.ReadChars(br.ReadInt32()));
+        }
+        o.fragments = new List<fragment>(9);
+        for (var i = 0; i < 9; i++)
+            o.fragments.Add(ReadFragment(br));
+
+        // Trailer: v12 sentinel + optional string list + v13 children
+        o.strings = new Dictionary<int, string>();
+        o.trailerSentinel = br.ReadInt32();
+        var v12 = o.trailerSentinel;
+        var safety = 0;
+        while (v12 != -1)
+        {
+            if (++safety > 1024)
+                throw new InvalidDataException($"runaway string list in obj '{o.name}' at position {br.BaseStream.Position}");
+            o.strings[v12] = new string(br.ReadChars(br.ReadInt32()));
+            v12 = br.ReadInt32();
+        }
+        o.childCount = br.ReadInt32();
+        o.children = new List<obj>(o.childCount);
+        for (var i = 0; i < o.childCount; i++)
+            o.children.Add(ReadObject(br));
+
+        // GUI::Label::ReadGUIObject (sub_4AA640) extension block — read AFTER base.
+        if (o.magic == magic.label || o.magic == magic.edit)
+            o.labelBlock = ReadLabelBlock(br);
+
+        return o;
     }
+
+    private static fragment ReadFragment(BinaryReader br) => new()
+    {
+        tileMode = br.ReadInt32(),
+        i_32     = br.ReadInt32(),
+        i_36     = br.ReadInt32(),
+        i_40     = br.ReadInt32(),
+        i_44     = br.ReadInt32(),
+        i_48     = br.ReadInt32(),
+        texture  = new string(br.ReadChars(br.ReadInt32())),
+        vtxTint  = br.ReadUInt32(),
+        tint     = br.ReadUInt32(),
+        rect     = ReadRect(br),
+    };
 
     private static rect ReadRect(BinaryReader br) => new()
     {
@@ -2036,10 +2080,10 @@ public class INT
         y2 = br.ReadInt32(),
     };
 
-    // The engine's GUI::Window constructor pre-populates each fragment slot with a
-    // default texture name of the form "zzmain{kind}-{slot-role}.tga" at a default
-    // size (16×16 corners, 64×16/16×64 edges, 64×64 center). Files that don't use
-    // nine-slice for a given slot leave those defaults in place. This detects them.
+    // Heuristic placeholder detector — kept for the editor's "Smart" filter mode.
+    // Identifies fragments whose texture matches the engine's pre-populated default
+    // pattern. Now uses dst rect dims as the "size" check (the old srcW/srcH fields
+    // were misnamed and don't correspond to a real source-size concept).
     public static bool IsPlaceholderFragment(fragment f, magic m, int slot)
     {
         if (string.IsNullOrEmpty(f.texture)) return true;
@@ -2053,17 +2097,7 @@ public class INT
             _ => null,
         };
         if (kindWord == null) return false;
-        if (!f.texture.StartsWith($"zzmain{kindWord}-", StringComparison.OrdinalIgnoreCase))
-            return false;
-        var (defW, defH) = slot switch
-        {
-            0 or 2 or 6 or 8 => (16, 16),
-            1 or 7           => (64, 16),
-            3 or 5           => (16, 64),
-            4                => (64, 64),
-            _                => (16, 16),
-        };
-        return f.srcW == defW && f.srcH == defH;
+        return f.texture.StartsWith($"zzmain{kindWord}-", StringComparison.OrdinalIgnoreCase);
     }
 
     // Color stored in .int files is BGRA with B/G/R clamped to a 0x80 maximum
@@ -2091,51 +2125,26 @@ public class INT
         return (a << 24) | (scale(b) << 16) | (scale(g) << 8) | scale(r);
     }
 
-    private static FontBlock ReadFontBlock(BinaryReader br) => new()
+    // Schema (50+N bytes): stringRef + length-prefixed font name + padInt +
+    // fontSize + flag + color + byte3432 + byte3433 + justifyInt + 4 ints + versionExtra.
+    private static LabelBlock ReadLabelBlock(BinaryReader br) => new()
     {
-        // Schema: stringRef(int) + name(len-prefixed) + 4 NULs + fontSize(int) + flag(int) + color(BGRA) + pad(26).
-        stringRef = br.ReadInt32(),
-        font = new string(br.ReadChars(br.ReadInt32())),
-        fontSize = ReadFontBlockFontSize(br),
-        flag = br.ReadInt32(),
-        color = br.ReadUInt32(),
-        pad = br.ReadBytes(26),
+        stringRef    = br.ReadInt32(),
+        font         = new string(br.ReadChars(br.ReadInt32())),
+        padInt       = br.ReadInt32(),
+        fontSize     = br.ReadInt32(),
+        flag         = br.ReadInt32(),
+        color        = br.ReadUInt32(),
+        byte3432     = br.ReadByte(),
+        byte3433     = br.ReadByte(),
+        justifyInt   = br.ReadInt32(),
+        int3612      = br.ReadInt32(),
+        int3616      = br.ReadInt32(),
+        int3620      = br.ReadInt32(),
+        int3624      = br.ReadInt32(),
+        versionExtra = br.ReadInt32(),
     };
 
-    private static int ReadFontBlockFontSize(BinaryReader br)
-    {
-        br.ReadBytes(4);
-        return br.ReadInt32();
-    }
-
-    // Heuristic to detect a *second* font block after the first in a multi-block trailer.
-    // The first block is always present when last==0 (magic ∈ {label, edit}), so this
-    // only gates the loop. A font block starts with stringRef + len-prefixed font name.
-    // Bound: stringRef >= 16 disambiguates against the next object's magic (0..4).
-    private static bool LooksLikeFontBlockStart(BinaryReader br)
-    {
-        var s = br.BaseStream;
-        long start = s.Position;
-        if (s.Length - start < 16) return false;
-        try
-        {
-            int stringRef = br.ReadInt32();
-            int strLen = br.ReadInt32();
-            if (stringRef < 16 || stringRef >= 65536) return false;
-            if (strLen <= 0 || strLen >= 64) return false;
-            if (s.Length - s.Position < strLen) return false;
-            for (int i = 0; i < strLen; i++)
-            {
-                int c = br.ReadByte();
-                if (c < 32 || c >= 127) return false;
-            }
-            return true;
-        }
-        finally
-        {
-            s.Position = start;
-        }
-    }
 }
 
 #endregion
