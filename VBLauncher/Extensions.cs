@@ -71,28 +71,29 @@ public static class Extensions
 
     public static EMEPc ToEMEPc(this byte[] b)
     {
-        var ep = new EMEPc { index = b[12] };
-        if (b.Length >= 109)
+        // The engine only accepts the 109-byte EMEP layout. zz_TestMapsTest_Mesa_2
+        // ships some EMEPs in a compact 29-byte form (index + position + rotation,
+        // no socket payload) — promote those up front so the rest of the pipeline
+        // only ever sees the engine-supported shape.
+        if (b.Length < 109 && b.Length >= 29)
         {
-            // Standard 109-byte form: 60 bytes of socket payload sit
-            // between index and position.
-            ep.p = new Vector3(BitConverter.ToSingle(b, 73), BitConverter.ToSingle(b, 77),
-                BitConverter.ToSingle(b, 81));
-            ep.r = BitConverter.ToSingle(b, 105);
+            var promoted = new byte[109];
+            promoted.Write(0, "EMEP");
+            promoted.Write(8, 109);
+            promoted[12] = b[12];
+            Buffer.BlockCopy(b, 13, promoted, 73, 12); // position (3 floats)
+            Buffer.BlockCopy(b, 25, promoted, 105, 4); // rotation (1 float)
+            b = promoted;
         }
-        else if (b.Length >= 29)
+        if (b.Length < 109)
+            return new EMEPc(); // too small to parse meaningfully — leave defaults
+        return new EMEPc
         {
-            // Compact 29-byte form seen in zz_TestMapsTest_Mesa_2.map:
-            // index (1 byte) immediately followed by position (3 floats)
-            // and rotation (1 float). No socket payload. Round-trips
-            // back to 109-byte form via EMEPc.ToByte (acceptable — only
-            // the test map ever shipped the compact layout).
-            ep.p = new Vector3(BitConverter.ToSingle(b, 13), BitConverter.ToSingle(b, 17),
-                BitConverter.ToSingle(b, 21));
-            ep.r = BitConverter.ToSingle(b, 25);
-        }
-        // else: too small to parse meaningfully — leave defaults.
-        return ep;
+            index = b[12],
+            p = new Vector3(BitConverter.ToSingle(b, 73), BitConverter.ToSingle(b, 77),
+                BitConverter.ToSingle(b, 81)),
+            r = BitConverter.ToSingle(b, 105),
+        };
     }
 
     public static EMEFc ToEMEFc(this byte[] b)
