@@ -66,6 +66,14 @@ public static class ResourceSystem
                 var capturedExt = ext;
                 extDict[name] = new LazyResource(() => LoadAsset(capturedIndex, capturedName, capturedExt));
             }
+
+            // Loose files in Override/ shadow whatever sits in the .grp packs —
+            // this is what F3.exe itself does at runtime, and matches how the
+            // game install is shipped (Override/CR_Centipede.b3d sits alongside
+            // Critters.grp). FindResource consults the "Override" pseudo-pack
+            // first, so any name match here wins. Skip unknown extensions to
+            // avoid the LoadAsset MessageBox on stray files (.pdb, .dll, etc.).
+            ScanOverrideDirectory();
         }
         catch (Exception ex)
         {
@@ -82,8 +90,10 @@ public static class ResourceSystem
     // for the formats whose original initializer also swallowed them, so the
     // overall lazy/eager behavioural contract stays the same.
     private static dynamic? LoadAsset(int globalIndex, string name, string ext)
+        => LoadAssetFromBytes(_grpb!.GetFileBytesByIndex(globalIndex), name, ext);
+
+    private static dynamic? LoadAssetFromBytes(byte[] fb, string name, string ext)
     {
-        var fb = _grpb!.GetFileBytesByIndex(globalIndex);
         switch (ext)
         {
             case "bmp":
@@ -167,11 +177,76 @@ public static class ResourceSystem
     
     public static dynamic? FindResource(string name, string ext)
     {
+        // Override first — loose Override/ files shadow whatever's in the
+        // .grp packs (mirrors F3.exe's load priority).
+        if (Resources.TryGetValue(OverridePackName, out var ovrGrp)
+            && ovrGrp.TryGetValue(ext, out var ovrExt)
+            && ovrExt.TryGetValue(name, out var ovr))
+            return ovr is LazyResource ovrLazy ? ovrLazy.Get() : ovr;
+
         foreach (var grpDict in Resources.Values)
+        {
+            if (ReferenceEquals(grpDict, ovrGrp)) continue;
             if (grpDict.TryGetValue(ext, out var extDict) &&
                 extDict.TryGetValue(name, out var res))
                 return res is LazyResource lr ? lr.Get() : res;
+        }
         return null;
+    }
+
+    // Synthetic pack name used to register loose Override/ files. Doesn't
+    // collide with any real .grp pack listed in resource.rht.
+    private const string OverridePackName = "Override";
+
+    // Extensions we know LoadAssetFromBytes can parse. Loose files in Override
+    // with other extensions (.pdb, .dll, .exe, leftover dev artifacts) get
+    // skipped so the user doesn't see a MessageBox per unknown file.
+    private static readonly HashSet<string> _knownExtensions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "bmp", "tga", "rle", "b3d", "8", "amo", "arm", "crt", "itm", "map",
+        "con", "dor", "use", "wea", "veg", "gr2", "skl",
+        "ini", "tok", "sco", "pce", "g3d", "gsf", "psf", "pco", "gls",
+        "wav", "int", "amx", "dlg",
+    };
+
+    private static void ScanOverrideDirectory()
+    {
+        if (!Directory.Exists(OverridePackName)) return;
+
+        if (!Resources.TryGetValue(OverridePackName, out var ovrGrp))
+        {
+            ovrGrp = new Dictionary<string, Dictionary<string, dynamic>>(StringComparer.OrdinalIgnoreCase);
+            Resources[OverridePackName] = ovrGrp;
+        }
+
+        foreach (var path in Directory.EnumerateFiles(OverridePackName, "*.*", SearchOption.AllDirectories))
+        {
+            var name = Path.GetFileNameWithoutExtension(path);
+            var ext = Path.GetExtension(path).TrimStart('.').ToLowerInvariant();
+            if (name.Length == 0 || ext.Length == 0) continue;
+            if (!_knownExtensions.Contains(ext)) continue;
+
+            if (!ovrGrp.TryGetValue(ext, out var extDict))
+            {
+                extDict = new Dictionary<string, dynamic>(StringComparer.OrdinalIgnoreCase);
+                ovrGrp[ext] = extDict;
+            }
+
+            // Last-write-wins on name collisions within Override (e.g. the
+            // same asset existing under Override/ and Override/Deployed/).
+            var capturedPath = path;
+            var capturedName = name;
+            var capturedExt = ext;
+            extDict[name] = new LazyResource(() =>
+            {
+                try { return LoadAssetFromBytes(File.ReadAllBytes(capturedPath), capturedName, capturedExt); }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[Override] Failed to load {capturedPath}: {ex.Message}");
+                    return null;
+                }
+            });
+        }
     }
 
 }

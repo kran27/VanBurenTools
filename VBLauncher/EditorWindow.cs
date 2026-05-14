@@ -266,6 +266,7 @@ public partial class EditorWindow
             {
                 // Plain pick — set or clear selection.
                 _sceneRenderer.SelectedGroupId = _sceneRenderer.TryPickGroup(mp, viewportPx);
+                SyncEme2IndexToSelection();
             }
         }
 
@@ -433,6 +434,19 @@ public partial class EditorWindow
 
         _sceneRenderer.SelectedGroupId = null;
         _sceneRenderer.HoveredGroupId = null;
+    }
+
+    // After a viewport pick (or other change to SelectedGroupId), snap the
+    // EME2 inspector dropdown to the matching record so the right entity is
+    // shown and edited. No-op when nothing is selected, no map is loaded, or
+    // the selection isn't an EME2 record (e.g. entry-point pick).
+    private void SyncEme2IndexToSelection()
+    {
+        if (!_sceneRenderer.SelectedGroupId.HasValue) return;
+        if (_currentFile is not Map map) return;
+        if (!_sceneRenderer.GroupToMapEntity.TryGetValue(_sceneRenderer.SelectedGroupId.Value, out var ent)) return;
+        var idx = map.EME2.IndexOf(ent);
+        if (idx >= 0) _eme2Index = idx;
     }
 
     private static float WrapAngle(float a)
@@ -705,6 +719,13 @@ public partial class EditorWindow
                     name = $"{name}.{ext}",
                     l = new Vector4(-spawn.X, spawn.Y, spawn.Z, 0f),
                 };
+                // Seed EME2.EEOV from the source entity's EEN2.EEOV so the
+                // placement starts with the CRT's defaults rather than an
+                // empty record — F3.exe consumes EME2.EEOV at render time,
+                // so any field the EME2 leaves blank reads as "no override"
+                // even if the CRT itself had a value.
+                if (ResourceSystem.FindResource(ent.name) is Entity sourceEntity)
+                    ent.EEOV = sourceEntity.EEN2.EEOV.Clone();
                 map.EME2.Add(ent);
                 // The next DrawMap() will see the hash mismatch, rebuild
                 // the scene with the new entity, and the user's gizmo

@@ -968,7 +968,7 @@ void main() {
         AddModelIfValid(modelPrefix + '_' + arm.GITM.Sho.Model, arm.GITM.Sho.Tex, UVAtlasMapper.ToShoUV, worldMatrix, gr2Skeleton, gr2Anim);
     }
     
-    public void AddEntity(Entity entity, Matrix4x4? worldMatrix = null)
+    public void AddEntity(Entity entity, Matrix4x4? worldMatrix = null, EEOVc? eeovOverride = null)
     {
         // Allocate a group id and tag every ModelData / SkinnedModelData
         // produced during this call. Snapshotting the list size before
@@ -979,7 +979,7 @@ void main() {
         var skinnedBefore = _skinnedModels.Count;
         try
         {
-            AddEntityCore(entity, worldMatrix);
+            AddEntityCore(entity, worldMatrix, eeovOverride);
         }
         finally
         {
@@ -990,8 +990,13 @@ void main() {
         }
     }
 
-    private void AddEntityCore(Entity entity, Matrix4x4? worldMatrix)
+    private void AddEntityCore(Entity entity, Matrix4x4? worldMatrix, EEOVc? eeovOverride = null)
     {
+        // F3.exe consumes EME2.EEOV when an entity is placed in a map, not the
+        // entity's own EEN2.EEOV — EME2 is the per-placement override. Map
+        // rendering passes the placement EEOV here; standalone CRT preview
+        // passes null and we fall back to the CRT-baked defaults.
+        var effectiveEEOV = eeovOverride ?? entity.EEN2.EEOV;
         var baseModelName = entity.EEN2.skl;
         if (string.IsNullOrEmpty(baseModelName))
         {
@@ -1103,9 +1108,9 @@ void main() {
             var baseUVs = baseModel.Model_Vertex_Texcoords.Select(UVAtlasMapper.ToBaseUV).ToList();
             var baseSkinnedFirstIdx = _skinnedModels.Count;
             if (gr2Skel.HasValue && gr2Anim.HasValue)
-                AddSkinnedB3DModel(baseModel, gr2Skel.Value, gr2Anim.Value, worldMatrix, entity.EEN2.EEOV.s4, baseUVs);
+                AddSkinnedB3DModel(baseModel, gr2Skel.Value, gr2Anim.Value, worldMatrix, effectiveEEOV.s4, baseUVs);
             else
-                AddB3DModel(baseModel, entity.EEN2.EEOV.s4, worldMatrix, baseUVs);
+                AddB3DModel(baseModel, effectiveEEOV.s4, worldMatrix, baseUVs);
 
             // Weapon attachment runs last so its parent's pose has been sampled
             // earlier in the same frame (skinned models are advanced in insertion
@@ -1125,9 +1130,9 @@ void main() {
         }
         
         if (gr2Skel.HasValue && gr2Anim.HasValue)
-            AddSkinnedB3DModel(baseModel, gr2Skel.Value, gr2Anim.Value, worldMatrix, entity.EEN2.EEOV.s4);
+            AddSkinnedB3DModel(baseModel, gr2Skel.Value, gr2Anim.Value, worldMatrix, effectiveEEOV.s4);
         else
-            AddB3DModel(baseModel, entity.EEN2.EEOV.s4, worldMatrix);
+            AddB3DModel(baseModel, effectiveEEOV.s4, worldMatrix);
     }
 
     public void AddMap(Map map)
@@ -1180,7 +1185,10 @@ void main() {
                     // call so the host can resolve "selected group →
                     // EME2 record" when committing gizmo edits.
                     var nextGroup = _nextGroupId;
-                    AddEntity(entity, transform);
+                    // EME2.EEOV is the per-placement override the engine
+                    // consumes (mirrors F3.exe's behaviour — see the
+                    // "EME2 vs CRT-spawn texture override" finding).
+                    AddEntity(entity, transform, ent.EEOV);
                     _groupToMapEntity[nextGroup] = ent;
                 }
             }

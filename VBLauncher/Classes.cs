@@ -265,6 +265,16 @@ public class EEOVc
     public string s4 = "";
     public string s5 = "";
 
+    // Independent copy so EME2 records can be seeded from a CRT's EEOV
+    // without sharing references (subsequent edits to the EME2 mustn't
+    // mutate the CRT's defaults).
+    public EEOVc Clone() => new()
+    {
+        inv = (string[])inv.Clone(),
+        ps4 = ps4,
+        s1 = s1, s2 = s2, s3 = s3, s4 = s4, s5 = s5,
+    };
+
     public IEnumerable<byte> ToByte()
     {
         var invl = inv.Sum(e => e.Length + 2);
