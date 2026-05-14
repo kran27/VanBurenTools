@@ -2297,13 +2297,12 @@ public partial class EditorWindow
         ImGui.SameLine();
         if (ImGui.Button(" - ") && map.EME2.Count > 0)
             map.EME2.RemoveAt(_eme2Index);
-        if (_eme2Index >= map.EME2.Count)
-            _eme2Index = map.EME2.Count - 1;
         if (map.EME2.Count == 0)
         {
             ImGui.End();
             return;
         }
+        _eme2Index = Math.Clamp(_eme2Index, 0, map.EME2.Count - 1);
 
         var eme2 = map.EME2[_eme2Index];
         ImGui.Text("Creature File");
@@ -2337,13 +2336,12 @@ public partial class EditorWindow
         ImGui.SameLine();
         if (ImGui.Button(" - ") && map.EMEP.Count > 0)
             map.EMEP.RemoveAt(_emepIndex);
-        if (_emepIndex >= map.EMEP.Count)
-            _emepIndex = map.EMEP.Count - 1;
         if (map.EMEP.Count == 0)
         {
             ImGui.End();
             return;
         }
+        _emepIndex = Math.Clamp(_emepIndex, 0, map.EMEP.Count - 1);
 
         var emep = map.EMEP[_emepIndex];
         ImGui.Text("Entry Point ID");
@@ -2370,13 +2368,12 @@ public partial class EditorWindow
         ImGui.SameLine();
         if (ImGui.Button(" - ") && map.EMEF.Count > 0)
             map.EMEF.RemoveAt(_emefIndex);
-        if (_emefIndex >= map.EMEF.Count)
-            _emefIndex = map.EMEF.Count - 1;
         if (map.EMEF.Count == 0)
         {
             ImGui.End();
             return;
         }
+        _emefIndex = Math.Clamp(_emefIndex, 0, map.EMEF.Count - 1);
 
         var emef = map.EMEF[_emefIndex];
         ImGui.Text("Effect ID");
@@ -2403,13 +2400,12 @@ public partial class EditorWindow
         ImGui.SameLine();
         if (ImGui.Button(" - ") && map.EMSD.Count > 0)
             map.EMSD.RemoveAt(_emsdIndex);
-        if (_emsdIndex >= map.EMSD.Count)
-            _emsdIndex = map.EMSD.Count - 1;
         if (map.EMSD.Count == 0)
         {
             ImGui.End();
             return;
         }
+        _emsdIndex = Math.Clamp(_emsdIndex, 0, map.EMSD.Count - 1);
 
         var emsd = map.EMSD[_emsdIndex];
         ImGui.Text("Sound ID");
@@ -2478,13 +2474,12 @@ public partial class EditorWindow
             _epthPoint = 0;
         }
 
-        if (_epthIndex >= map.EPTH.Count)
-            _epthIndex = map.EPTH.Count - 1;
         if (map.EPTH.Count == 0)
         {
             ImGui.End();
             return;
         }
+        _epthIndex = Math.Clamp(_epthIndex, 0, map.EPTH.Count - 1);
 
         var epth = map.EPTH[_epthIndex];
         ImGui.Text("Path ID");
@@ -2505,13 +2500,12 @@ public partial class EditorWindow
         ImGui.SameLine();
         if (ImGui.Button(" - ##Point") && epth.p.Count > 0)
             epth.p.RemoveAt(_epthPoint);
-        if (_epthPoint >= epth.p.Count)
-            _epthPoint = epth.p.Count - 1;
         if (epth.p.Count == 0)
         {
             ImGui.End();
             return;
         }
+        _epthPoint = Math.Clamp(_epthPoint, 0, epth.p.Count - 1);
 
         var point = epth.p[_epthPoint];
         ImGui.Text("Position");
@@ -2539,13 +2533,12 @@ public partial class EditorWindow
             _triggerPoint = 0;
         }
 
-        if (_triggerIndex >= map.Triggers.Count)
-            _triggerIndex = map.Triggers.Count - 1;
         if (map.Triggers.Count == 0)
         {
             ImGui.End();
             return;
         }
+        _triggerIndex = Math.Clamp(_triggerIndex, 0, map.Triggers.Count - 1);
 
         var trigger = map.Triggers[_triggerIndex];
         ImGui.Text("Trigger Type");

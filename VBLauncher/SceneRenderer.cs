@@ -1015,16 +1015,42 @@ void main() {
         if ((object)ResourceSystem.FindResource(baseModelName, "skl") is GrannyFormats.file_info sklFile
             && sklFile.Models is { Count: > 0 } sklModels)
             gr2Skel = sklModels[0];
+        // For CRTs with a weapon equipped, the engine swaps the idle suffix from
+        // _Una_ to the WeaponClass-specific stance (1H/2HR/etc.). Pre-scan the
+        // inventory once so the anim load below picks the right file.
+        WEA equippedWeapon = null;
+        if (entity is CRT crtForWeapon && baseModelName.StartsWith("Hum"))
+        {
+            foreach (var item in crtForWeapon.GCRE.Inventory)
+            {
+                if (ResourceSystem.FindResource(item) is WEA wea) { equippedWeapon = wea; break; }
+            }
+        }
+        var stanceSuffix = equippedWeapon != null
+            ? WeaponClassToStanceSuffix(equippedWeapon.GIWP.WeaponClass)
+            : "Una";
+
         if (gr2Skel.HasValue)
         {
             //TODO: is there a flag for human models?
             var baseName = baseModelName.StartsWith("Hum") ? baseModelName[..4] : baseModelName;
-            var resource = ResourceSystem.FindResource(baseName + "_Def_Una_Idle_01", "gr2");
-            if (resource is null) resource = ResourceSystem.FindResource(baseName + "_Def_1H_Idle_01", "gr2");
-            if (resource is null) resource = ResourceSystem.FindResource(baseName + "_Com_Una_Idle_01", "gr2");
-            if (resource is GrannyFormats.file_info { Animations: { Count: > 0 } anims })
-                gr2Anim = anims[0];
-            else
+            // Stance-specific idle first; fall back to Una then 1H then Com_Una so
+            // creatures missing a stance variant still pose somehow.
+            foreach (var animName in new[]
+            {
+                $"{baseName}_Def_{stanceSuffix}_Idle_01",
+                $"{baseName}_Def_Una_Idle_01",
+                $"{baseName}_Def_1H_Idle_01",
+                $"{baseName}_Com_Una_Idle_01",
+            })
+            {
+                if (ResourceSystem.FindResource(animName, "gr2") is GrannyFormats.file_info { Animations: { Count: > 0 } anims })
+                {
+                    gr2Anim = anims[0];
+                    break;
+                }
+            }
+            if (!gr2Anim.HasValue)
                 Console.WriteLine($"CRT animation not found for {baseName}, falling back to static pose.");
         }
         if (!gr2Anim.HasValue) gr2Skel = null; // need both for the skinned path
@@ -1050,25 +1076,9 @@ void main() {
                     if (arm.GITM.hVan) hideVanity = true;
                     AddARM(arm, baseModelName, worldMatrix, gr2Skel, gr2Anim);
                 }
-                else if (itm is WEA wea && false) // flagged false for now, unsure how animations are meant to be applied to in hand items.
-                {
-                    GrannyFormats.model? weaSkel = null;
-                    if ((object)ResourceSystem.FindResource(wea.GITM.IHS.Model, "skl") is GrannyFormats.file_info { Models.Count: > 0 } weaSkl) {
-                        weaSkel = weaSkl.Models[0];
-                        Console.WriteLine($"Found skeleton {wea.GITM.IHS.Model}.skl for weapon {item}");
-                        Console.WriteLine(weaSkel.Value.Name);
-                        foreach (var bone in weaSkel.Value.Skeleton.Bones)
-                        {
-                            Console.WriteLine($"Bone: {bone.Name}, Parent: {bone.ParentIndex}");
-                        }
-
-                        foreach (var track in gr2Anim.Value.TrackGroups.SelectMany(tg => tg.TransformTracks))
-                        {
-                            Console.WriteLine($"Anim Track: {track.Name}");
-                        }
-                    }
-                    AddModelIfValid(wea.GITM.IHS.Model, wea.GITM.IHS.Tex, UVAtlasMapper.Default, worldMatrix, weaSkel, gr2Anim);
-                }
+                // WEA items are rendered after the base body (see below) so they
+                // can attach to the parent's R_Handle_1 bone with its pose already
+                // sampled in the same frame.
             }
 
             AddModelIfValid(baseModelName + '_' + crt.GCRE.Hea.Model, crt.GCRE.Hea.Tex, UVAtlasMapper.ToHeaUV, worldMatrix, gr2Skel, gr2Anim);
@@ -1091,11 +1101,26 @@ void main() {
             AddModelIfValid(baseModelName + '_' + crt.GCRE.Bac.Model, crt.GCRE.Bac.Tex, UVAtlasMapper.ToBacUV, worldMatrix, gr2Skel, gr2Anim);
 
             var baseUVs = baseModel.Model_Vertex_Texcoords.Select(UVAtlasMapper.ToBaseUV).ToList();
+            var baseSkinnedFirstIdx = _skinnedModels.Count;
             if (gr2Skel.HasValue && gr2Anim.HasValue)
                 AddSkinnedB3DModel(baseModel, gr2Skel.Value, gr2Anim.Value, worldMatrix, entity.EEN2.EEOV.s4, baseUVs);
             else
                 AddB3DModel(baseModel, entity.EEN2.EEOV.s4, worldMatrix, baseUVs);
-            
+
+            // Weapon attachment runs last so its parent's pose has been sampled
+            // earlier in the same frame (skinned models are advanced in insertion
+            // order). Attaches to canonical bone "R Handle_1" — BoneNames.ProcessName
+            // turns the engine's "R Handle_1" into "R_Handle_1" at parse time.
+            if (equippedWeapon != null && _skinnedModels.Count > baseSkinnedFirstIdx)
+            {
+                var weaponB3d = (B3DModel?)ResourceSystem.FindResource(equippedWeapon.GITM.IHS.Model, "b3d");
+                if (weaponB3d != null)
+                    AddAttachedB3DModel(weaponB3d, equippedWeapon.GITM.IHS.Tex, equippedWeapon.GITM.IHS.Model,
+                        _skinnedModels[baseSkinnedFirstIdx], "R_Handle_1");
+                else
+                    Console.WriteLine($"Weapon mesh {equippedWeapon.GITM.IHS.Model}.b3d not found, skipping attachment.");
+            }
+
             return;
         }
         
@@ -3209,6 +3234,53 @@ void main() {
             model.UploadMatrices[b3dIdx] = B3dToEngine * skin[gr2Idx] * EngineToB3d;
         }
 
+        // Attached weapons follow the parent's bone (e.g., R Handle_1) every frame.
+        // Use the parent's pose (already sampled — parent appears earlier in
+        // _skinnedModels) and bridge the engine-space bone transform into B3D space
+        // so it composes with the parent's WorldMatrix in the same frame.
+        // Attached weapons run on their own GR2 skeleton (loaded from the weapon
+        // .skl), with Weapon_1's pose overridden to the parent character's bone-30
+        // pose — same as the engine's `Gfx_ModelInstance::AttachTo`. Skinning on
+        // both halves uses the same Granny convention (RootFlip + InverseWorldBind
+        // cancellation), so the rotation handedness sorts itself out without any
+        // ad-hoc fix. Children of Weapon_1 (FX_Muzzle / FX_Brass / Weapon_2) walk
+        // from the overridden parent.
+        if (model.AttachParent is { Pose: { } parentPose } parent
+            && model.AttachBoneGr2Index >= 0
+            && model.AttachBoneGr2Index < parentPose.WorldMatrices.Length
+            && model.AttachWeaponGripGr2Index >= 0)
+        {
+            var weaponBones = model.GrSkeleton.Skeleton.Bones;
+            var worlds = model.Pose.WorldMatrices;
+            var weaponSkin = model.Pose.SkinMatrices;
+            var parentBone = parentPose.WorldMatrices[model.AttachBoneGr2Index];
+
+            for (var i = 0; i < weaponBones.Count; i++)
+            {
+                if (i == model.AttachWeaponGripGr2Index)
+                {
+                    worlds[i] = parentBone;
+                }
+                else if (weaponBones[i].ParentIndex >= 0)
+                {
+                    worlds[i] = model.Pose.LocalMatrices[i] * worlds[weaponBones[i].ParentIndex];
+                }
+                // bones with ParentIndex == -1 keep what Sample produced (root path
+                // already applied RootFlip; we'd overwrite that for Weapon_1 above
+                // if Weapon_1 is itself a root).
+                weaponSkin[i] = weaponBones[i].InverseWorldBindMatrix * worlds[i];
+            }
+
+            for (var b3dIdx = 0; b3dIdx < model.B3dToGr2.Length && b3dIdx < model.UploadMatrices.Length; b3dIdx++)
+            {
+                var gr2Idx = model.B3dToGr2[b3dIdx];
+                if (gr2Idx < 0 || gr2Idx >= weaponSkin.Length) continue;
+                model.UploadMatrices[b3dIdx] = B3dToEngine * weaponSkin[gr2Idx] * EngineToB3d;
+            }
+
+            model.WorldMatrix = parent.WorldMatrix;
+        }
+
         cl.UpdateBuffer(model.BoneBuffer, 0, model.UploadMatrices);
     }
 
@@ -3483,6 +3555,17 @@ void main() {
         public int[] B3dToGr2;
         public Matrix4x4[] UploadMatrices;
         public float Time;
+
+        // Weapon-attach hook (mirrors `Gfx_ModelInstance::AttachTo` in F3.exe).
+        // The weapon runs its own GR2 skeleton; AdvanceAndUpload then overrides
+        // the weapon-side grip bone's WorldMatrix with the parent's bone-30 (R
+        // Handle_1) WorldMatrix and walks Weapon_1's children from there.
+        // AttachBoneGr2Index is the bone index in the *parent's* skeleton;
+        // AttachWeaponGripGr2Index is the matching bone in the *weapon's* own
+        // skeleton (typically "Weapon_1"). -1 on either disables the override.
+        public SkinnedModelData AttachParent;
+        public int AttachBoneGr2Index = -1;
+        public int AttachWeaponGripGr2Index = -1;
     }
 
     // Adds one or more skinned draws for a B3D mesh, one per material sub-model. The
@@ -3520,6 +3603,84 @@ void main() {
         foreach (var zone in b3d.OcclusionZones)
             _ignoredZones.Add(zone);
     }
+
+    // Renders `weapon` attached to a bone of an already-added skinned parent
+    // (e.g., a CRT character). Loads the weapon's own GR2 skeleton (`weaponSklName`,
+    // typically the same base name as the b3d) and skins the weapon mesh against
+    // it. AdvanceAndUpload then overrides the weapon-side grip bone's pose with
+    // the parent's bone — same data flow as `Gfx_ModelInstance::AttachTo`. The
+    // weapon's children of `Weapon_1` (FX_Muzzle / FX_Brass) walk through that
+    // override automatically.
+    //
+    // Falls back to a no-op (logged) if the weapon has no .skl or no grip bone:
+    // we'd rather skip the weapon than draw it wrong at the world origin.
+    public void AddAttachedB3DModel(B3DModel weapon, string textureOverride, string weaponSklName,
+                                    SkinnedModelData parent, string parentBoneName,
+                                    string weaponGripBone = "Weapon_1")
+    {
+        if (parent is null) throw new ArgumentNullException(nameof(parent));
+
+        var parentBones = parent.GrSkeleton.Skeleton.Bones;
+        var parentBoneIdx = -1;
+        for (var i = 0; i < parentBones.Count; i++)
+            if (parentBones[i].Name == parentBoneName) { parentBoneIdx = i; break; }
+        if (parentBoneIdx < 0)
+        {
+            Console.WriteLine($"AddAttachedB3DModel: parent bone '{parentBoneName}' not found, skipping weapon.");
+            return;
+        }
+
+        if (ResourceSystem.FindResource(weaponSklName, "skl") is not GrannyFormats.file_info { Models.Count: > 0 } sklFile)
+        {
+            Console.WriteLine($"AddAttachedB3DModel: weapon skeleton {weaponSklName}.skl not found, skipping weapon.");
+            return;
+        }
+        var weaponSkel = sklFile.Models[0];
+
+        var weaponBones = weaponSkel.Skeleton.Bones;
+        var gripIdx = -1;
+        for (var i = 0; i < weaponBones.Count; i++)
+            if (weaponBones[i].Name == weaponGripBone) { gripIdx = i; break; }
+        if (gripIdx < 0)
+        {
+            Console.WriteLine($"AddAttachedB3DModel: weapon grip bone '{weaponGripBone}' not in {weaponSklName}.skl, skipping weapon.");
+            return;
+        }
+
+        // Reuse the parent's animation purely as a "no-op" — Sample falls back to
+        // each bone's LocalBindMatrix when the animation has no matching track,
+        // so the weapon naturally poses at its own bind. The override in
+        // AdvanceAndUpload then drives Weapon_1 from the parent's bone-30.
+        var b3dToGr2 = GrannyFormats.MapB3dBonesToGr2Skeleton(weapon.Bones, weaponSkel.Skeleton);
+        var worldMatrix = ApplyLegacyCorrection(weapon, null);
+
+        var startIdx = _skinnedModels.Count;
+        for (var matIdx = 0; matIdx < weapon.SubModels.Keys.Count; matIdx++)
+            AddSkinnedSubModel(weapon, matIdx, weaponSkel, parent.GrAnim, b3dToGr2, worldMatrix,
+                string.IsNullOrEmpty(textureOverride) ? null : textureOverride);
+        foreach (var zone in weapon.OcclusionZones) _ignoredZones.Add(zone);
+
+        for (var i = startIdx; i < _skinnedModels.Count; i++)
+        {
+            _skinnedModels[i].AttachParent = parent;
+            _skinnedModels[i].AttachBoneGr2Index = parentBoneIdx;
+            _skinnedModels[i].AttachWeaponGripGr2Index = gripIdx;
+        }
+    }
+
+    // WEA.WeaponClass → animation stance suffix (`_Def_<suffix>_Idle_01.gr2`).
+    // Source: GameEntity::SetWeaponStance @ 0x463b80 in F3.exe. Classes 9/10
+    // ("big guns") and unknown values fall back to Una in the engine too.
+    private static string WeaponClassToStanceSuffix(int wc) => wc switch
+    {
+        1 or 6 => "1H",
+        2 or 3 => "2HR",
+        4 => "2HH",
+        5 => "2HS",
+        7 => "2HO",
+        8 => "2HC",
+        _ => "Una",
+    };
 
     private void AddSkinnedSubModel(
         B3DModel b3d,
